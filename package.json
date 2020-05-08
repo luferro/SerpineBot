@@ -1,0 +1,19 @@
+{
+  "name": "serpinebot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "SerpineBot.js",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "discord.js": "^12.0.2",
+    "fs": "0.0.1-security",
+    "got": "^11.1.0",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node SerpineBot.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
