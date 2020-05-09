@@ -26,20 +26,31 @@ module.exports = {
 
                 var all_results_stores = [];
                 $('.offers-table .offers-table-row .offers-merchant .offers-merchant-name').each((i, element) => {
-                    const itens_stores = $(element).first().text().trim();
+                    const itens_stores = $(element).text().trim();
                     all_results_stores.push(itens_stores);
                 });	
 
                 var all_results_platform = [];
                 $('.offers-table .offers-table-row .offers-edition-region').each((i, element) => {
-                    const itens_platform = $(element).first().text().trim();
+                    const itens_platform = $(element).text().trim();
                     all_results_platform.push(itens_platform);
                 });	
 
                 var all_results_prices = [];
-                $('.offers-table .offers-table-row .price-value span').each((i, element) => {
-                    const itens_prices = $(element).first().text();
+                var all_results_coupons_exist = [];
+                $('.offers-table .offers-table-row').each((i, element) => {
+                    const itens_prices = $(element).attr('data-price');
+                    const itens_coupons = $(element).attr('data-voucher-discount-type')
+                    if(itens_coupons)
+                        all_results_coupons_exist.push('Existe');
+                    else all_results_coupons_exist.push('Não Existe');
                     all_results_prices.push(itens_prices);
+                });
+
+                var all_results_coupons = [];
+                $('.offers-table .offers-table-row .coupon .coupon-code').each((i, element) => {
+                    const itens_coupons = $(element).attr('data-clipboard-text');
+                    all_results_coupons.push(itens_coupons);
                 });	
 
                 var all_results_url = [];
@@ -53,8 +64,12 @@ module.exports = {
                     tam = all_results_stores.length;
 
                 var all_results = '';
-                for(var i = 0; i < tam; i++)
-                    all_results += '**Store: **' + all_results_stores[i] + '\n**Platform: **' + all_results_platform[i] + '\n**Price: **' + all_results_prices[i] + '\n**URL: **https:'+ all_results_url[i] + '\n\n';
+                for(var i = 0; i < tam; i++) {
+                    var coupon_code;
+                    if(all_results_coupons_exist[i] == 'Existe') coupon_code = all_results_coupons[i];
+                    else coupon_code = 'No coupon available.'
+                    all_results += '**Store: **' + all_results_stores[i] + '\n**Platform: **' + all_results_platform[i] + '\n**Coupon: **' + coupon_code + '\n**Price: **' + all_results_prices[i] + '€\n**URL: **https:'+ all_results_url[i] + '\n\n';
+                }
 
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
