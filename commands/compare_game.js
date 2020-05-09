@@ -37,7 +37,7 @@ module.exports = {
                 });	
 
                 var all_results_prices = [];
-                $('.offers-table .offers-table-row .price .price span span').each((i, element) => {
+                $('.offers-table .offers-table-row .price-value span').each((i, element) => {
                     const itens_prices = $(element).first().text();
                     all_results_prices.push(itens_prices);
                 });	
