@@ -25,31 +25,25 @@ module.exports = {
                 var $ = cheerio.load(response.body);
 
                 var all_results_stores = [];
-                $('.offers-table .offers-merchant .offers-merchant-name').each((i, element) => {
-                    const itens_stores = $(element).text().trim();
+                $('.offers-table .offers-table-row .offers-merchant .offers-merchant-name').each((i, element) => {
+                    const itens_stores = $(element).first().text().trim();
                     all_results_stores.push(itens_stores);
                 });	
 
                 var all_results_platform = [];
-                $('.offers-table .offers-edition-region').each((i, element) => {
-                    const itens_platform = $(element).text().trim();
+                $('.offers-table .offers-table-row .offers-edition-region').each((i, element) => {
+                    const itens_platform = $(element).first().text().trim();
                     all_results_platform.push(itens_platform);
                 });	
 
                 var all_results_prices = [];
-                $('.offers-table .price span').each((i, element) => {
-                    const itens_prices = $(element).text().trim();
+                $('.offers-table .offers-table-row .price .price span span').each((i, element) => {
+                    const itens_prices = $(element).first().text();
                     all_results_prices.push(itens_prices);
                 });	
 
-                var all_results_pp_fee = [];
-                $('.offers-table .fees .fees-value').each((i, element) => {
-                    const itens_prices_pp_fee = $(element).first().text().trim();
-                    all_results_pp_fee.push(itens_prices_pp_fee);
-                });	
-
                 var all_results_url = [];
-                $('.offers-table .buy-btn').each((i, element) => {
+                $('.offers-table .offers-table-row .d-xl-block').each((i, element) => {
                     const itens_url = $(element).attr('href');
                     all_results_url.push(itens_url);
                 });	
@@ -60,7 +54,7 @@ module.exports = {
 
                 var all_results = '';
                 for(var i = 0; i < tam; i++)
-                    all_results += '**Store: **' + all_results_stores[i] + '\n**Platform: **' + all_results_platform[i] + '\n**Price: **' + all_results_prices[i] + '\n**Paypal Fee: **' + all_results_pp_fee[i] + '\n**URL: **https:'+ all_results_url[i] + '\n\n';
+                    all_results += '**Store: **' + all_results_stores[i] + '\n**Platform: **' + all_results_platform[i] + '\n**Price: **' + all_results_prices[i] + '\n**URL: **https:'+ all_results_url[i] + '\n\n';
 
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
