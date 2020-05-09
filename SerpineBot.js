@@ -51,8 +51,17 @@ client.on('message', message => {
 		case 'releasing':
 			client.commands.get('releasing').execute(message, args);
 		break;
+		case 'cmpgame':
+			client.commands.get('cmpgame').execute(message, args);
+		break;
 		case 'specs':
 			client.commands.get('specs').execute(message, args);
+		break;
+		case 'serpine':
+			client.commands.get('serpine').execute(message, args);
+		break;
+		case 'github':
+			client.commands.get('github').execute(message, args);
 		break;
 		case 'anime':
 			client.commands.get('anime').execute(message, args);

@@ -31,12 +31,11 @@ module.exports = {
                             });	
 
                             var tam = 10;
-                            if(all_results_item.length < 10)
+                            if(all_results_item.length < tam)
                                 tam = all_results_item.length;
 
                             for(var i = 0; i < tam; i++)
-                                for(var i = 0; i < tam; i++)
-                                    all_results += all_results_item[i] + '\n**Price: **' + all_results_price[i] + '\n\n';
+                                all_results += all_results_item[i] + '\n**Price: **' + all_results_price[i] + '\n\n';
                             
                             message.channel.send({embed: {
                                 color: Math.floor(Math.random() * 16777214) + 1,
@@ -73,7 +72,7 @@ module.exports = {
                             });	
 
                             var tam = 10;
-                            if(all_results_item.length < 10)
+                            if(all_results_item.length < tam)
                                 tam = all_results_item.length;
 
                             for(var i = 0; i < tam; i++) {
@@ -113,7 +112,7 @@ module.exports = {
                             });	
 
                             var tam = 10;
-                            if(all_results_item.length < 10)
+                            if(all_results_item.length < tam)
                                 tam = all_results_item.length;
 
                             for(var i = 0; i < tam; i++) {

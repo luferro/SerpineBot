@@ -63,7 +63,7 @@ module.exports = {
                         }
                     ],
                     footer: {
-                        text: "Data acquired using evilinsultAPI and scrapping fungenerators.com"
+                        text: "Data acquired using evilinsultAPI and scraping fungenerators.com"
                     }
                 }});
             break;
@@ -106,7 +106,7 @@ module.exports = {
                         }
                     ],
                     footer: {
-                        text: "Data acquired scrapping explosm.net and gocomics.com"
+                        text: "Data acquired scraping explosm.net and gocomics.com"
                     }
                 }});
             break;
@@ -155,7 +155,7 @@ module.exports = {
                         }
                     ],
                     footer: {
-                        text: "Data acquired scrapping ZwameComparador"
+                        text: "Data acquired scraping ZwameComparador"
                     }
                 }});
             break;
@@ -178,7 +178,7 @@ module.exports = {
                         }
                     ],
                     footer: {
-                        text: "Data acquired scrapping Book Depository, Bertrand, Fnac."
+                        text: "Data acquired scraping Book Depository, Bertrand, Fnac."
                     }
                 }});
             break;
@@ -197,7 +197,7 @@ module.exports = {
                         }
                     ],
                     footer: {
-                        text: "Data acquired scrapping GooglePlay"
+                        text: "Data acquired scraping GooglePlay"
                     }
                 }});
             break;
@@ -239,6 +239,21 @@ module.exports = {
                     }
                 }});
             break;
+            case 'cmpgame':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./cmpgame commands",
+                    fields: [
+                        {
+                            name: "`./cmpgame game_title`",
+                            value: "Compares prices of a given game."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired scraping AllKeyShop"
+                    }
+                }});
+            break;
             case 'specs':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -250,7 +265,38 @@ module.exports = {
                         }
                     ],
                     footer: {
-                        text: "Data acquired scrapping GameDebate"
+                        text: "Data acquired scraping GameDebate"
+                    }
+                }});
+            break;
+            case 'serpine':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./serpine commands",
+                    fields: [
+                        {
+                            name: "`./serpine`",
+                            value: "Links you to my Github profile!"
+                        }
+                    ]
+                }});
+            break;
+            case 'github':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./github commands",
+                    fields: [
+                        {
+                            name: "`./github -s repository_name`",
+                            value: "Look up any repository you want! Will show you the first 10 results."
+                        },
+                        {
+                            name: "`./github -d repository_name`",
+                            value: "Will show you details of a certain repository.\nBe sure to specify whatever repository you are looking for."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired using GitHub API"
                     }
                 }});
             break;
@@ -402,6 +448,11 @@ module.exports = {
                             inline: true
                         },
                         {
+                            name: "**Compare Game**",
+                            value: "`./cmd cmpgame`",
+                            inline: true
+                        },
+                        {
                             name: "**Deals**",
                             value: "`./cmd deals`",
                             inline: true
@@ -419,6 +470,11 @@ module.exports = {
                         {
                             name: "**Flame**",
                             value: "`./cmd flame`",
+                            inline: true
+                        },
+                        {
+                            name: "**Github**",
+                            value: "`./cmd github`",
                             inline: true
                         },
                         {
@@ -454,6 +510,11 @@ module.exports = {
                         {
                             name: "**Reviews**",
                             value: "`./cmd reviews`",
+                            inline: true
+                        },
+                        {
+                            name: "**Serpine**",
+                            value: "`./cmd serpine`",
                             inline: true
                         },
                         {

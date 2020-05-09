@@ -27,7 +27,7 @@ module.exports = {
                     });	
 
                     var tam = 10;
-                    if(all_results_item.length < 10)
+                    if(all_results_item.length < tam)
                         tam = all_results_item.length;
 
                     for(var i = 0; i < tam; i++)
