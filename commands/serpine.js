@@ -13,9 +13,9 @@ module.exports = {
             .then(response => response.json())
             .then(function(data) {
 
-                var tam;
-                if(data.length > 10) tam = 10;
-                else tam = data.length;
+                var tam = 10;
+                if(data.length < tam)
+                    tam = data.length;
 
                 var repos = '';
                 for(var i = 0; i < tam; i++) {

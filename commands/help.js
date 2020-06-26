@@ -327,6 +327,49 @@ module.exports = {
                     }
                 }});
             break;
+            case 'music':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./music commands",
+                    fields: [
+                        {
+                            name: "`./join`",
+                            value: "Bot joins the voice channel you're in."
+                        },
+                        {
+                            name: "`./play <Youtube query>`",
+                            value: "Plays the first result matching your search query."
+                        },
+                        {
+                            name: "`./loop`",
+                            value: "Sets the current item on loop."
+                        },
+                        {
+                            name: "`./skip`",
+                            value: "Skips the current item."
+                        },
+                        {
+                            name: "`./queue`",
+                            value: "Shows you the current queue."
+                        },
+                        {
+                            name: "`./remove <index>`",
+                            value: "Removes a given item from the queue."
+                        },
+                        {
+                            name: "`./clear`",
+                            value: "Removes every item on the queue."
+                        },
+                        {
+                            name: "`./leave`",
+                            value: "Bot leaves the voice channel."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired using JikanAPI."
+                    }
+                }});
+            break;
             case 'yesorno':	
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -490,6 +533,11 @@ module.exports = {
                         {
                             name: "**Memes**",
                             value: "`./cmd memes`",
+                            inline: true
+                        },
+                        {
+                            name: "**Music**",
+                            value: "`./cmd music`",
                             inline: true
                         },
                         {

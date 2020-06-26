@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const fs = require('fs');
 
-var prefix = './';
+const prefix = './';
 
 client.commands = new Discord.Collection();
  
@@ -18,8 +18,10 @@ client.once('ready', () => {
 	client.user.setActivity('./cmd');	
 });
 
-client.on('message', message => {	
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
+client.on('message', async message => {	
+	if (message.author.bot) return;
+
+	if(!isNaN(Number(message.content))) client.commands.get('music').search_play(message, Number(message.content));
 	
 	const args = message.content.substring(prefix.length).split(' ');
 	
@@ -92,6 +94,33 @@ client.on('message', message => {
 		break;
 		case 'weather':
 			client.commands.get('weather').execute(message, args);
+		break;
+		case 'join':
+			client.commands.get('music').join(message, args);
+		break;
+		case 'play':
+			client.commands.get('music').execute(message, args);
+		break;
+		case 'search':
+			client.commands.get('music').search(message, args);
+		break;
+		case 'loop':
+			client.commands.get('music').loop(message, args);
+		break;
+		case 'skip':
+			client.commands.get('music').skip(message, args);
+		break;
+		case 'clear':
+			client.commands.get('music').clear(message, args);
+		break;
+		case 'remove':
+			client.commands.get('music').remove(message, args);
+		break;
+		case 'queue':
+			client.commands.get('music').queue(message, args);
+		break;
+		case 'leave':
+			client.commands.get('music').leave(message, args);
 		break;
 		case 'cmd':
 			client.commands.get('cmd').execute(message, args);

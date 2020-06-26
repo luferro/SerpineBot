@@ -12,12 +12,11 @@ module.exports = {
 				return message.reply('Usage: ./del <quantity>.').then(m => {m.delete({ timeout: 5000 })});
 			} 
 			else if (amount < 1 || amount > 99) {
-				message.reply('Invalid quantity.').then(m => {m.delete({ timeout: 5000 })});
-				return;
+				return message.reply('Invalid quantity.').then(m => {m.delete({ timeout: 5000 })});
 			}
 
 			message.channel.bulkDelete(amount + 1).catch(function(error) {
-				message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
+				message.channel.send("Messages that are two weeks old can't be deleted.").then(m => {m.delete({ timeout: 5000 })});
 			});
     }
 }
