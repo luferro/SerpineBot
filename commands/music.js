@@ -26,6 +26,8 @@ module.exports = {
 
         let results = await search(argsmusic, opts).catch(err => console.log(err));
 
+        console.log(results);
+
         if (message.member.voice.channel) {
             if(!args[1]) return message.channel.send("Usage: ./play <Youtube query>").then(m => {m.delete({ timeout: 5000 })});
 
