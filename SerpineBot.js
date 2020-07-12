@@ -95,6 +95,9 @@ client.on('message', async message => {
 		case 'weather':
 			client.commands.get('weather').execute(message, args);
 		break;
+		case 'geturl':
+			client.commands.get('searchyt').execute(message, args);
+		break;
 		case 'join':
 			client.commands.get('music').join(message, args);
 		break;

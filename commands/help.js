@@ -366,7 +366,22 @@ module.exports = {
                         }
                     ],
                     footer: {
-                        text: "Data acquired using JikanAPI."
+                        text: "Data acquired using Youtube API and scrape-YT."
+                    }
+                }});
+            break;
+            case 'geturl':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./geturl commands",
+                    fields: [
+                        {
+                            name: "`./geturl <YT URL>`",
+                            value: "Gives you the Youtube URL for a given Youtube search query."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired using scrape-YT."
                     }
                 }});
             break;
@@ -513,6 +528,11 @@ module.exports = {
                         {
                             name: "**Flame**",
                             value: "`./cmd flame`",
+                            inline: true
+                        },
+                        {
+                            name: "**Get Youtube URL**",
+                            value: "`./cmd geturl`",
                             inline: true
                         },
                         {

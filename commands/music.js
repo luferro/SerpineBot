@@ -1,41 +1,59 @@
+const scrapeYt = require("scrape-yt");
 const search = require('youtube-search');
-const opts = {
-    maxResults: 1,
-    key: process.env.YTKEY,
-    type: 'video'
-};
-const opts_search = {
+const ytdl = require('ytdl-core');
+
+const opts_YTAPI = {
     maxResults: 10,
     key: process.env.YTKEY,
     type: 'video'
 };
-const ytdl = require('ytdl-core');
+const opts_SCRAPE = {
+    limit: 20
+};
 const streamOptions = {
     seek: 0,
     volume: 1
 };
 
-var queue = [], queue_title = [], playing = true, looping = false, searching = false, searched_music = "";
+var queue = [], queue_title = [], queue_duration = [], playing = true, looping = false, searching = false, searched_music = "";
 
 module.exports = {
     name: 'music',
     async execute(message, args){
         message.delete({ timeout: 5000 }); 
 
-        let connection, argsmusic = args.slice(1).join(" ");
+        let connection, argsmusic = args.slice(1).join(" "), music_url, music_title, music_duration, array_titles = [], array_id = [], array_duration = [];
+        
+        let results_scrape = await scrapeYt.search(argsmusic, opts_SCRAPE).catch(err => console.log(err));
 
-        let results = await search(argsmusic, opts).catch(err => console.log(err));
+        for(var i = 0; i < results_scrape.length; i++) {
+            if(results_scrape[i].title != undefined) {
+                array_titles.push(results_scrape[i].title);
+                array_id.push(results_scrape[i].id)
+                array_duration.push(results_scrape[i].duration);
+            }
+        }
 
-        console.log(results);
+        if(array_titles.length > 0) {  //Youtube Scrape
+            music_url = "https://www.youtube.com/watch?v=" + array_id[0];
+            music_title = array_titles[0];
+            music_duration = Math.floor(array_duration[0] / 60) + ":" + (array_duration[0] - Math.floor(array_duration[0] / 60) * 60);
+        }
+        else {  //Youtube API
+            let results = await search(argsmusic, opts_YTAPI).catch(err => console.log(err));
+            music_url = results.results[0].link;
+            music_title = results.results[0].title;
+        }
 
         if (message.member.voice.channel) {
             if(!args[1]) return message.channel.send("Usage: ./play <Youtube query>").then(m => {m.delete({ timeout: 5000 })});
 
             if(queue.length === 0) playing = false;
 
-            if(ytdl.validateURL(results.results[0].link)) {
-                queue.push(results.results[0].link);
-                queue_title.push(results.results[0].title);
+            if(ytdl.validateURL(music_url)) {
+                queue.push(music_url);
+                queue_title.push(music_title);
+                music_duration ? queue_duration.push(music_duration) : queue_duration.push("N/A");
 
                 connection = await message.member.voice.channel.join();
             } else {
@@ -45,7 +63,7 @@ module.exports = {
             message.channel.send({embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
                 title: "Queue for " + message.guild.name,
-                description: "**" + queue_title[queue_title.length - 1] + "** has been added."
+                description: music_duration ? "**" + queue_title[queue_title.length - 1] + " | " + music_duration + "** has been added." :  "**" + queue_title[queue_title.length - 1] + "** has been added."
             }}).then(m => {m.delete({ timeout: 5000 })});
 
             if(playing === false) {
@@ -103,45 +121,87 @@ module.exports = {
     async search(message, args){
         message.delete({ timeout: 5000 }); 
 
-        let argsmusic = args.slice(1).join(" ");
+        let argsmusic = args.slice(1).join(" "), array_titles = [], array_duration = [];
 
         searched_music = argsmusic;
 
-        let results = await search(argsmusic, opts_search).catch(err => console.log(err));
-
         if (message.member.voice.channel) {
             if(!args[1]) return message.channel.send("Usage: ./search <Youtube query>").then(m => {m.delete({ timeout: 5000 })});
+            
+            let results_scrape = await scrapeYt.search(argsmusic, opts_SCRAPE).catch(err => console.log(err));
 
-            var all_results = '';
-            for(var i = 0; i < results.results.length; i++)
-            all_results += "**" + (i+1) + "** - " + results.results[i].title + '\n\n';
+            for(var i = 0; i < results_scrape.length; i++) {
+                if(results_scrape[i].title != undefined) {
+                    array_titles.push(results_scrape[i].title);
+                    array_duration.push(results_scrape[i].duration);
+                }
+            }
 
-            message.channel.send({embed: {
-                color: Math.floor(Math.random() * 16777214) + 1,
-                title: "Search results",
-                description: all_results
-            }}).then(m => {m.delete({ timeout: 1000*60 })});
+            if(array_titles.length > 0) {  //Youtube Scrape
+                var all_results = '';
+                for(var i = 0; i < 10; i++) {
+                    all_results += "**" + (i+1) + "** - " + array_titles[i] + " | " + (Math.floor(array_duration[i] / 60) + ":" + (array_duration[i] - Math.floor(array_duration[i] / 60) * 60)) + '\n\n';
+                }
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "Search results",
+                    description: all_results
+                }}).then(m => {m.delete({ timeout: 1000*60 })});
+
+            }
+            else {  //Youtube API
+                let results = await search(argsmusic, opts_YTAPI).catch(err => console.log(err));
+                var all_results = '';
+                for(var i = 0; i < results.results.length; i++)
+                    all_results += "**" + (i+1) + "** - " + results.results[i].title + '\n\n';
+
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "Search results",
+                    description: all_results
+                }}).then(m => {m.delete({ timeout: 1000*60 })}); 
+            }
 
             searching = true;
         }
         else return message.channel.send("You must be in a voice channel!").then(m => {m.delete({ timeout: 5000 })});
     },
     async search_play(message, option){
-        let results = await search(searched_music, opts_search).catch(err => console.log(err));
+        let results_scrape = await scrapeYt.search(searched_music, opts_SCRAPE).catch(err => console.log(err)), array_titles = [], array_id = [], array_duration = [];;
+
+        for(var i = 0; i < results_scrape.length; i++) {
+            if(results_scrape[i].title != undefined) {
+                array_titles.push(results_scrape[i].title);
+                array_id.push(results_scrape[i].id);
+                array_duration.push(results_scrape[i].duration);
+            }
+        }
+
+        if(results_scrape.length > 0) {  //Youtube Scrape
+            music_url = "https://www.youtube.com/watch?v=" + array_id[option-1];
+            music_title = array_titles[option-1];
+            music_duration = Math.floor(array_duration[option-1] / 60) + ":" + (array_duration[option-1] - Math.floor(array_duration[option-1] / 60) * 60);
+        }
+        else {  //Youtube API
+            let results = await search(searched_music, opts_YTAPI).catch(err => console.log(err));
+            music_url = results.results[option-1].link;
+            music_title = results.results[option-1].title;
+        }
 
         if (message.member.voice.channel) {
             if(queue.length === 0) playing = false;
 
             if(searching) {
-                queue.push(results.results[option-1].link);
-                queue_title.push(results.results[option-1].title);
+                queue.push(music_url);
+                queue_title.push(music_title);
+                music_duration ? queue_duration.push(music_duration) : queue_duration.push("N/A");
 
                 let connection = await message.member.voice.channel.join();
 
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
                     title: "Queue for " + message.guild.name,
-                    description: "**" + queue_title[queue_title.length - 1] + "** has been added."
+                    description: music_duration ? "**" + queue_title[queue_title.length - 1] + " | " + music_duration + "** has been added." :  "**" + queue_title[queue_title.length - 1] + "** has been added."
                 }}).then(m => {m.delete({ timeout: 5000 })});
 
                 searching = false;
@@ -197,7 +257,7 @@ module.exports = {
         else {
             var all_queue = '';
             for(var i = 0; i < queue_title.length; i++)
-                all_queue += "**" + (i+1) + "** - " + queue_title[i] + '\n\n';
+                queue_duration[i] !== "N/A" ? all_queue += "**" + (i+1) + "** - " + queue_title[i] + " | " + queue_duration[i] + '\n\n' : all_queue += "**" + (i+1) + "** - " + queue_title[i] + '\n\n';
                         
             message.channel.send({embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
