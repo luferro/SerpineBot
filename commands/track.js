@@ -2,11 +2,13 @@ const cheerio = require('cheerio');
 const got = require('got');
 
 module.exports = {
-    name: 'cmpgame',
+    name: 'track',
     async execute(message, args){
         switch(args[1]) {
             case 'pcdiga':
                 message.delete({ timeout: 5000 });
+
+                if(!args[1]) return message.channel.send("Usage: ./track <store> <url product> <wanted price>").then(m => {m.delete({ timeout: 5000 })});;
 
                 var url = args[2];
                 var wanted_price = args[3];

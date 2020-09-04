@@ -10,7 +10,7 @@ module.exports = {
         var month = d.getMonth() + 1;
         var year = d.getFullYear();
 
-        if(!args[1]) return message.channel.send("Usage: ./releasing <month: 1-12 or search>").then(m => {m.delete({ timeout: 5000 })});
+        if(!args[1]) return message.channel.send("Usage: ./releasing <month: 1-12 or -s>").then(m => {m.delete({ timeout: 5000 })});
 
         let argsreleasing = args.slice(2).join(" ");
 
@@ -25,7 +25,7 @@ module.exports = {
             new_month = '' + month;
         
         if(args[1] == '-s') {
-            if(!argsreleasing) return message.channel.send("Usage: ./releasing <search> <game title>").then(m => {m.delete({ timeout: 5000 })});
+            if(!argsreleasing) return message.channel.send("Usage: ./releasing <-s> <game title>").then(m => {m.delete({ timeout: 5000 })});
             
             fetch('https://api.rawg.io/api/games?dates='+year+'-'+new_month+'-'+new_day+','+(year+1)+'-'+new_month+'-'+new_day+'&search='+argsreleasing,
             {

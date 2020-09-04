@@ -56,6 +56,9 @@ client.on('message', async message => {
 		case 'cmpgame':
 			client.commands.get('cmpgame').execute(message, args);
 		break;
+		case 'track':
+			client.commands.get('track').execute(message, args);
+		break;
 		case 'specs':
 			client.commands.get('specs').execute(message, args);
 		break;

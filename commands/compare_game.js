@@ -6,9 +6,11 @@ module.exports = {
     async execute(message, args){
         message.delete({ timeout: 5000 });
 
-        if(!args[1]) return message.channel.send("Usage: ./cmpgame game_title").then(m => {m.delete({ timeout: 5000 })});;
+        if(!args[1]) return message.channel.send("Usage: ./cmpgame game_title").then(m => {m.delete({ timeout: 5000 })});
 
         var argscmp = args.slice(1).join(" ");
+
+        message.channel.send("Searching...").then(m => {m.delete({ timeout: 3000 })});;
 
         got('https://www.allkeyshop.com/blog/catalogue/search-'+argscmp).then(response => {
             var $ = cheerio.load(response.body);
@@ -54,7 +56,7 @@ module.exports = {
                 });	
 
                 var all_results_url = [];
-                $('.offers-table .offers-table-row .d-xl-block').each((i, element) => {
+                $('.offers-table .offers-table-row .buy-btn-cell .buy-btn').each((i, element) => {
                     const itens_url = $(element).attr('href');
                     all_results_url.push(itens_url);
                 });	
@@ -68,7 +70,7 @@ module.exports = {
                     var coupon_code;
                     if(all_results_coupons_exist[i] == 'Existe') coupon_code = all_results_coupons[i];
                     else coupon_code = 'No coupon available.'
-                    all_results += '**Store: **' + all_results_stores[i] + '\n**Platform: **' + all_results_platform[i] + '\n**Coupon: **' + coupon_code + '\n**Price: **' + all_results_prices[i] + '€\n**URL: **https:'+ all_results_url[i] + '\n\n';
+                    all_results += '**Store: **' + all_results_stores[i] + '\n**Platform: **' + all_results_platform[i] + '\n**Coupon: **' + coupon_code + '\n**Price: **' + all_results_prices[i] + '€\n**URL: ** [Go to store](https:'+ all_results_url[i] + ')\n\n';
                 }
 
                 message.channel.send({embed: {
