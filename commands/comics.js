@@ -23,7 +23,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });				
-            break;
+                break;
             case 'garfield':
                 message.delete({ timeout: 5000 });
 			
@@ -42,7 +42,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });	
-            break;
+                break;
             case 'fowl':
                 message.delete({ timeout: 5000 });
 			
@@ -61,7 +61,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });	
-            break;
+                break;
             case 'sarah':
                 message.delete({ timeout: 5000 });
 			
@@ -80,7 +80,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });	
-            break;
+                break;
             case 'peanuts':
                 message.delete({ timeout: 5000 });
 			
@@ -99,7 +99,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });	
-            break;
+                break;
             case 'calvin':
                 message.delete({ timeout: 5000 });
 			
@@ -118,7 +118,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });	
-            break;
+                break;
             case 'getfuzzy':
                 message.delete({ timeout: 5000 });
 			
@@ -137,7 +137,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });	
-            break;
+                break;
             case 'jake':
                 message.delete({ timeout: 5000 });
 			
@@ -156,9 +156,10 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });	
-            break;
+                break;
             default:
                 message.channel.send('Usage: ./comics <cyanide, garfield, fowl, sarah, peanuts, calvin, getfuzzy, jake>').then(m => {m.delete({ timeout: 5000 })});
+                break;
         }
     }
 }

@@ -42,7 +42,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });		
-            break;
+                break;
             case '-d':
                 message.delete({ timeout: 5000 });
 
@@ -80,9 +80,10 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });		
-            break;
+                break;
             default:
                 message.channel.send("Usage: ./ebooks <search or details> product_title").then(m => {m.delete({ timeout: 5000 })});
+                break;
         }
     }
 }

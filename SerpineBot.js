@@ -22,6 +22,8 @@ client.on('message', async message => {
 	if (message.author.bot) return;
 
 	if(!isNaN(Number(message.content))) client.commands.get('music').search_play(message, Number(message.content));
+
+	if(!message.content.includes(prefix)) return;
 	
 	const args = message.content.substring(prefix.length).split(' ');
 	

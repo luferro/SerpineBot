@@ -26,9 +26,14 @@ module.exports = {
                         all_results_price.push(itens_price);
                     });	
 
-                    for(var i = 0; i < all_results_item.length; i++)
-                        for(var i = 0; i < all_results_price.length; i++)
-                            all_results += all_results_item[i] + '\n**Price: **' + all_results_price[i] + '\n\n';
+                    var all_results_href = [];
+                    $('#category-products .product-outer a').each((i, element) => {
+                        const itens_href = $(element).attr('href');
+                        all_results_href.push(itens_href);
+                    });
+
+                    for(var i = 0; i < 10; i++)
+                        all_results += all_results_item[i] + '\n**Price: **' + all_results_price[i] + '\n**Check it out [here](https://comparador.zwame.pt' + all_results_href[i] + ')**\n\n';
                     
                     message.channel.send({embed: {
                         color: Math.floor(Math.random() * 16777214) + 1,
@@ -39,7 +44,7 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });		
-            break;
+                break;
             case '-d':
                 message.delete({ timeout: 5000 });
 
@@ -93,9 +98,10 @@ module.exports = {
                     message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });		
-            break;
+                break;
             default:
                 message.channel.send("Usage: ./deals <search or details> product_title").then(m => {m.delete({ timeout: 5000 })});
+                break;
         }
     }
 }

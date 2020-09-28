@@ -10,7 +10,7 @@ module.exports = {
 
         var argscmp = args.slice(1).join(" ");
 
-        message.channel.send("Searching...").then(m => {m.delete({ timeout: 3000 })});;
+        message.channel.send("Searching...").then(m => {m.delete({ timeout: 3000 })});
 
         got('https://www.allkeyshop.com/blog/catalogue/search-'+argscmp).then(response => {
             var $ = cheerio.load(response.body);

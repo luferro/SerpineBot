@@ -146,11 +146,11 @@ module.exports = {
                     title: "./deals commands",
                     fields: [
                         {
-                            name: "`./deals -s product_title`",
+                            name: "`./deals -s <product_title>`",
                             value: "Look up any product you want. Will return 12 products that match your product_title"
                         },
                         {
-                            name: "`./deals -d product_title`",
+                            name: "`./deals -d <product_title>`",
                             value: "Will show you details of a certain product.\nBe sure to specify whatever product you are looking for."
                         }
                     ],
@@ -165,15 +165,15 @@ module.exports = {
                     title: "./books commands",
                     fields: [
                         {
-                            name: "`./books -s store_name product_title`",
+                            name: "`./books -s <store_name> <product_title>`",
                             value: "Look up any book you want. Will return 10 books that match your product_title.\nStores include Book Depository - bd, Bertrand - bertrand, Fnac - fnac"
                         },
                         {
-                            name: "`./books -d store_name product_title`",
+                            name: "`./books -d <store_name> <product_title>`",
                             value: "Will show you details of a certain book.\nBe sure to specify whatever book you are looking for."
                         },
                         {
-                            name: "`./books -c product_title`",
+                            name: "`./books -c <product_title>`",
                             value: "Will compare prices of a given book.\nBe sure to specify whatever book you are looking for."
                         }
                     ],
@@ -188,11 +188,11 @@ module.exports = {
                     title: "./ebooks commands",
                     fields: [
                         {
-                            name: "`./ebooks -s product_title`",
+                            name: "`./ebooks -s <product_title>`",
                             value: "Look up any book you want. Will return 10 books that match your product_title"
                         },
                         {
-                            name: "`./ebooks -d product_title`",
+                            name: "`./ebooks -d <product_title>`",
                             value: "Will show you details of a certain book.\nBe sure to specify whatever book you are looking for."
                         }
                     ],
@@ -211,7 +211,7 @@ module.exports = {
                             value: "Gives you the last 10 reviewed games on r/Games"
                         },
                         {
-                            name: "`./reviews game_title`",
+                            name: "`./reviews <game_title>`",
                             value: "Looks up any given game. Will return its OpenCritic score."
                         }
                     ],
@@ -226,11 +226,11 @@ module.exports = {
                     title: "./releasing commands",
                     fields: [
                         {
-                            name: "`./releasing month`",
+                            name: "`./releasing <month>`",
                             value: "Gives the top 20 games releasing in a given month. Month argument must be given as a number: 1-12"
                         },
                         {
-                            name: "`./releasing -s game_title`",
+                            name: "`./releasing -s <game_title>`",
                             value: "Looks up any given upcoming game."
                         }
                     ],
@@ -245,7 +245,7 @@ module.exports = {
                     title: "./cmpgame commands",
                     fields: [
                         {
-                            name: "`./cmpgame game_title`",
+                            name: "`./cmpgame <game_title>`",
                             value: "Compares prices of a given game."
                         }
                     ],
@@ -260,7 +260,7 @@ module.exports = {
                     title: "./specs commands",
                     fields: [
                         {
-                            name: "`./specs game_title`",
+                            name: "`./specs <game_title>`",
                             value: "Gives you the Minimum and Recommended System Requirements of a given game."
                         }
                     ],
@@ -287,11 +287,11 @@ module.exports = {
                     title: "./github commands",
                     fields: [
                         {
-                            name: "`./github -s repository_name`",
+                            name: "`./github -s <repository_name>`",
                             value: "Look up any repository you want! Will show you the first 10 results."
                         },
                         {
-                            name: "`./github -d repository_name`",
+                            name: "`./github -d <repository_name>`",
                             value: "Will show you details of a certain repository.\nBe sure to specify whatever repository you are looking for."
                         }
                     ],
@@ -314,11 +314,11 @@ module.exports = {
                             value: "Sends a private message with all anime airing today."
                         },
                         {
-                            name: "`./anime season`",
+                            name: "`./anime <season>`",
                             value: "Gives you a random anime from any given season. Season argument: spring, summer, fall, winter"
                         },
                         {
-                            name: "`./anime today all`",
+                            name: "`./anime <season> all`",
                             value: "Sends a private message with all anime from any given season. Season argument: spring, summer, fall, winter"
                         }
                     ],
@@ -376,7 +376,7 @@ module.exports = {
                     title: "./geturl commands",
                     fields: [
                         {
-                            name: "`./geturl <YT URL>`",
+                            name: "`./geturl <Youtube query>`",
                             value: "Gives you the Youtube URL for a given Youtube search query."
                         }
                     ],
@@ -391,7 +391,7 @@ module.exports = {
                     title: "./yesorno commands",
                     fields: [
                         {
-                            name: "`./yesorno optional_question`",
+                            name: "`./yesorno <optional_question>`",
                             value: "Gives either a yes or a no. You can add any question you want to this command."
                         }
                     ],
@@ -436,7 +436,7 @@ module.exports = {
                     title: "./news commands",
                     fields: [
                         {
-                            name: "`./news country_code category`",
+                            name: "`./news <country_code> <category>`",
                             value: "Gives you news for a given country and category.\nCountry_code is a two digit code such as 'pt'.\bCategories available are s - sports, b - business, h - health, sci - science, t - technology, e - entertainment "
                         }
                     ],
@@ -451,7 +451,7 @@ module.exports = {
                     title: "./holidays commands",
                     fields: [
                         {
-                            name: "`./holidays month year`",
+                            name: "`./holidays <month> <year>`",
                             value: "Gives you all holidays in any given month and year. Month argument must be given as a number: 1-12."
                         }
                     ],
@@ -466,7 +466,7 @@ module.exports = {
                     title: "./weather commands",
                     fields: [
                         {
-                            name: "`./weather city`",
+                            name: "`./weather <city>`",
                             value: "Gives the current weather forecast for any given city."
                         }
                     ],
@@ -602,6 +602,7 @@ module.exports = {
                         }
                     ]
                 }});
+                break;
         }  
     }
 }
