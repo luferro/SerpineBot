@@ -26,7 +26,7 @@ module.exports = {
         
         let results_scrape = await scrapeYt.search(argsmusic, opts_SCRAPE).catch(err => console.log(err));
 
-        for(var i = 0; i < results_scrape.length; i++) {
+        for(let i = 0; i < results_scrape.length; i++) {
             if(results_scrape[i].title != undefined) {
                 array_titles.push(results_scrape[i].title);
                 array_id.push(results_scrape[i].id)
@@ -37,7 +37,7 @@ module.exports = {
         if(array_titles.length > 0) {  //Youtube Scrape
             music_url = "https://www.youtube.com/watch?v=" + array_id[0];
             music_title = array_titles[0];
-            music_duration = Math.floor(array_duration[0] / 60) + ":" + (array_duration[0] - Math.floor(array_duration[0] / 60) * 60);
+            music_duration = Math.floor(array_duration[0] / 60) + ":" + ((array_duration[0] - Math.floor(array_duration[0] / 60) * 60) < 10 ? "0" + (array_duration[0] - Math.floor(array_duration[0] / 60) * 60) : (array_duration[0] - Math.floor(array_duration[0] / 60) * 60));
         }
         else {  //Youtube API
             let results = await search(argsmusic, opts_YTAPI).catch(err => console.log(err));
@@ -105,6 +105,8 @@ module.exports = {
     async loop(message, args){
         message.delete({ timeout: 5000 });
 
+        if(queue.length === 0) return message.channel.send("Can't enable loop. There are no songs on queue.").then(m => {m.delete({ timeout: 5000 })});
+
         looping = !looping;
 
         if(looping) 
@@ -130,7 +132,7 @@ module.exports = {
             
             let results_scrape = await scrapeYt.search(argsmusic, opts_SCRAPE).catch(err => console.log(err));
 
-            for(var i = 0; i < results_scrape.length; i++) {
+            for(let i = 0; i < results_scrape.length; i++) {
                 if(results_scrape[i].title != undefined) {
                     array_titles.push(results_scrape[i].title);
                     array_duration.push(results_scrape[i].duration);
@@ -138,8 +140,8 @@ module.exports = {
             }
 
             if(array_titles.length > 0) {  //Youtube Scrape
-                var all_results = '';
-                for(var i = 0; i < 10; i++) {
+                let all_results = '';
+                for(let i = 0; i < 10; i++) {
                     all_results += "**" + (i+1) + "** - " + array_titles[i] + " | " + (Math.floor(array_duration[i] / 60) + ":" + (array_duration[i] - Math.floor(array_duration[i] / 60) * 60)) + '\n\n';
                 }
                 message.channel.send({embed: {
@@ -151,8 +153,8 @@ module.exports = {
             }
             else {  //Youtube API
                 let results = await search(argsmusic, opts_YTAPI).catch(err => console.log(err));
-                var all_results = '';
-                for(var i = 0; i < results.results.length; i++)
+                let all_results = '';
+                for(let i = 0; i < results.results.length; i++)
                     all_results += "**" + (i+1) + "** - " + results.results[i].title + '\n\n';
 
                 message.channel.send({embed: {
@@ -169,7 +171,7 @@ module.exports = {
     async search_play(message, option){
         let results_scrape = await scrapeYt.search(searched_music, opts_SCRAPE).catch(err => console.log(err)), array_titles = [], array_id = [], array_duration = [];;
 
-        for(var i = 0; i < results_scrape.length; i++) {
+        for(let i = 0; i < results_scrape.length; i++) {
             if(results_scrape[i].title != undefined) {
                 array_titles.push(results_scrape[i].title);
                 array_id.push(results_scrape[i].id);
@@ -220,6 +222,9 @@ module.exports = {
         queue.shift();
         queue_title.shift();
 
+        if(queue.length === 0)
+            return message.member.voice.channel.leave();
+
         let connection = await message.member.voice.channel.join();
 
         this.play(connection, message, queue);
@@ -232,7 +237,7 @@ module.exports = {
 
         message.channel.send({embed: {
             color: Math.floor(Math.random() * 16777214) + 1,
-            title: "Queue for " + message.guild.name,
+            title: "Updated Queue for " + message.guild.name,
             description: "There are **" + queue.length + "** songs on queue."
         }}).then(m => {m.delete({ timeout: 5000 })});
     },
@@ -241,8 +246,20 @@ module.exports = {
 
         if(!args[1]) return message.channel.send("Usage: ./remove <index>").then(m => {m.delete({ timeout: 5000 })});
 
+        if(args[1] == 1) return message.channel.send("Can't remove a song that is currently playing.").then(m => {m.delete({ timeout: 5000 })});
+
         queue.splice(args[1] - 1, 1);
         queue_title.splice(args[1] - 1, 1);
+
+        let all_queue = '';
+        for(let i = 0; i < queue_title.length; i++)
+            queue_duration[i] !== "N/A" ? all_queue += "**" + (i+1) + "** - " + queue_title[i] + " | " + queue_duration[i] + '\n\n' : all_queue += "**" + (i+1) + "** - " + queue_title[i] + '\n\n';
+                    
+        message.channel.send({embed: {
+            color: Math.floor(Math.random() * 16777214) + 1,
+            title: "Updated queue for " + message.guild.name,
+            description: all_queue
+        }}).then(m => {m.delete({ timeout: 1000*60 })});
     },
     async queue(message, args){
         message.delete({ timeout: 5000 });
@@ -255,8 +272,8 @@ module.exports = {
             }}).then(m => {m.delete({ timeout: 1000*60 })});
         }
         else {
-            var all_queue = '';
-            for(var i = 0; i < queue_title.length; i++)
+            let all_queue = '';
+            for(let i = 0; i < queue_title.length; i++)
                 queue_duration[i] !== "N/A" ? all_queue += "**" + (i+1) + "** - " + queue_title[i] + " | " + queue_duration[i] + '\n\n' : all_queue += "**" + (i+1) + "** - " + queue_title[i] + '\n\n';
                         
             message.channel.send({embed: {

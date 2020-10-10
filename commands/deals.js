@@ -13,26 +13,26 @@ module.exports = {
                 got('https://comparador.zwame.pt/pesquisa/'+argssearch).then(response => {
                     var $ = cheerio.load(response.body);
 
-                    var all_results = '';
+                    let all_results = '';
 
-                    var all_results_item = [];
+                    let all_results_item = [];
                     $('#category-products h3').each((i, element) => {
                         const itens = $(element).text();
                         all_results_item.push(itens);
                     });	
-                    var all_results_price = [];
+                    let all_results_price = [];
                     $('#category-products .amount').each((i, element_price) => {
                         const itens_price = $(element_price).text();
                         all_results_price.push(itens_price);
                     });	
 
-                    var all_results_href = [];
+                    let all_results_href = [];
                     $('#category-products .product-outer a').each((i, element) => {
                         const itens_href = $(element).attr('href');
                         all_results_href.push(itens_href);
                     });
 
-                    for(var i = 0; i < 10; i++)
+                    for(let i = 0; i < 10; i++)
                         all_results += all_results_item[i] + '\n**Price: **' + all_results_price[i] + '\n**Check it out [here](https://comparador.zwame.pt' + all_results_href[i] + ')**\n\n';
                     
                     message.channel.send({embed: {
@@ -53,7 +53,7 @@ module.exports = {
                 got('https://comparador.zwame.pt/pesquisa/'+argsdetails).then(response => {
                     var $ = cheerio.load(response.body);
 
-                    var all_results_href = [];
+                    let all_results_href = [];
                     $('#category-products .product-outer a').each((i, element) => {
                         const itens_href = $(element).attr('href');
                         all_results_href.push(itens_href);
@@ -62,19 +62,19 @@ module.exports = {
                     got('https://comparador.zwame.pt'+all_results_href[0]).then(response => {
                         var $ = cheerio.load(response.body);
 
-                        var stores = [];
+                        let stores = [];
                         $('.store-offers .store-image img').each((i, element) => {
                             const item_store = $(element).attr('alt');
                             stores.push(item_store);
                         });	
 
-                        var stores_prices = [];
+                        let stores_prices = [];
                         $('.store-offers .store-price').each((i, element) => {
                             const item_store_price = $(element).text();
                             stores_prices.push(item_store_price);
                         });	
 
-                        var stores_url = [];
+                        let stores_url = [];
                         $('.store-offers a').each((i, element) => {
                             const item_store_url = $(element).attr('href');
                             stores_url.push(item_store_url);

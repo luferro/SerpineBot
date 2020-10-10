@@ -13,24 +13,24 @@ module.exports = {
                 got('https://play.google.com/store/search?q='+argsebooks+'&c=books').then(response => {
                     var $ = cheerio.load(response.body);
 
-                    var all_results = '';
+                    let all_results = '';
 
-                    var all_results_item = [];
+                    let all_results_item = [];
                     $('.WsMG1c').each((i, element) => {
                         const itens = $(element).text();
                         all_results_item.push(itens);
                     });	
-                    var all_results_price = [];
+                    let all_results_price = [];
                     $('.VfPpfd span').each((i, element_price) => {
                         const itens_price = $(element_price).text();
                         all_results_price.push(itens_price);
                     });	
 
-                    var tam = 10;
+                    let tam = 10;
                     if(all_results_item.length < tam)
                         tam = all_results_item.length;
 
-                    for(var i = 0; i < tam; i++)
+                    for(let i = 0; i < tam; i++)
                         all_results += all_results_item[i] + '\n**Price: **' + all_results_price[i] + '\n\n';
                     
                     message.channel.send({embed: {
@@ -51,7 +51,7 @@ module.exports = {
                 got('https://play.google.com/store/search?q='+argsdetailsebooks+'&c=books').then(response => {
                     var $ = cheerio.load(response.body);
 
-                    var all_results_href = [];
+                    let all_results_href = [];
                     $('.poRVub').each((i, element) => {
                         const itens_href = $(element).attr('href');
                         all_results_href.push(itens_href);

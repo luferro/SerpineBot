@@ -13,13 +13,13 @@ module.exports = {
                     .then(response => response.json())
                     .then(function(data) {
 
-                        var tam = 10;
+                        let tam = 10;
                         if(data.length < tam)
                             tam = data.length;
 
-                        var repos = '';
-                        for(var i = 0; i < tam; i++) {
-                            var desc = data[i].description;
+                        let repos = '';
+                        for(let i = 0; i < tam; i++) {
+                            let desc = data[i].description;
                             if(!data[i].description) desc = 'No description available.'
                             repos += '**' + data[i].name + '**\n' + desc + '\n\n';
                         }

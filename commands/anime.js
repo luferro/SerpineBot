@@ -7,18 +7,19 @@ module.exports = {
 
         if(!args[1]) return message.channel.send('Usage: ./anime <today or season: spring, summer, fall, winter> <optional: all>').then(m => {m.delete({ timeout: 5000 })});
 
+        let d = new Date();
+
         switch (args[1]) {
             case 'today':
-                var days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-                var d = new Date();
-                var today = days[d.getDay()];
+                let days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+                let today = days[d.getDay()];
 
                 switch (args[2]) {
                     case 'all':
                         fetch('https://api.jikan.moe/v3/schedule/'+today)
                             .then(response => response.json())
                             .then(function(data) {
-                                for(var i= 0; i < Object.keys(data[today]).length; i++) {
+                                for(let i= 0; i < Object.keys(data[today]).length; i++) {
                                     message.author.send({embed: {
                                         color: Math.floor(Math.random() * 16777214) + 1,
                                         title: data[today][i].title,
@@ -40,7 +41,7 @@ module.exports = {
                         fetch('https://api.jikan.moe/v3/schedule/'+today)
                             .then(response => response.json())
                             .then(function(data) {
-                                var i = Math.floor(Math.random() * Object.keys(data[today]).length) + 1;
+                                let i = Math.floor(Math.random() * Object.keys(data[today]).length) + 1;
 
                                 message.channel.send({embed: {
                                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -60,14 +61,13 @@ module.exports = {
                 }
                 break;
             default:
-                var d = new Date();
-                var year = d.getFullYear();
+                let year = d.getFullYear();
                 switch (args[2]) {
                     case 'all':
                         fetch('https://api.jikan.moe/v3/season/'+year+'/'+args[1])
                             .then(response => response.json())
                             .then(function(data) {
-                                for(var i= 0; i < Object.keys(data.anime).length; i++) {
+                                for(let i= 0; i < Object.keys(data.anime).length; i++) {
                                     message.author.send({embed: {
                                         color: Math.floor(Math.random() * 16777214) + 1,
                                         title: data.anime[i].title,
@@ -89,7 +89,7 @@ module.exports = {
                         fetch('https://api.jikan.moe/v3/season/'+year+'/'+args[1])
                             .then(response => response.json())
                             .then(function(data) {
-                                var i = Math.floor(Math.random() * Object.keys(data.anime).length) + 1;
+                                let i = Math.floor(Math.random() * Object.keys(data.anime).length) + 1;
                                 message.channel.send({embed: {
                                     color: Math.floor(Math.random() * 16777214) + 1,
                                     title: data.anime[i].title,

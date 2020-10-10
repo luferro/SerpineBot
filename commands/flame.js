@@ -5,7 +5,7 @@ const got = require('got');
 module.exports = {
     name: 'flame',
     async execute(message, args){
-        var type = Math.floor((Math.random() * 2) + 1);
+        let type = Math.floor((Math.random() * 2) + 1);
 
         switch (type) {
             case 1:

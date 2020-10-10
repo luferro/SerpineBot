@@ -7,7 +7,7 @@ module.exports = {
 
         if(args[1]) return message.channel.send('Usage: ./char').then(m => {m.delete({ timeout: 5000 })});
 		
-        var character = Math.floor(Math.random() * 731) + 1;
+        let character = Math.floor(Math.random() * 731) + 1;
         
         fetch('https://superheroapi.com/api/'+process.env.SuperheroAPI+'/'+character)
             .then(response => response.json())

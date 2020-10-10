@@ -7,12 +7,12 @@ module.exports = {
 			
         message.delete({ timeout: 5000 });
         
-        var color_holidays = Math.floor(Math.random() * 16777214) + 1;
+        let color_holidays = Math.floor(Math.random() * 16777214) + 1;
                 
         fetch('https://calendarific.com/api/v2/holidays?&country=PT&month='+args[1]+'&year='+args[2]+'&api_key='+process.env.CalendarificAPI)
             .then(response => response.json())
             .then(function(data) {
-                for(var i = 0; i < Object.keys(data.response.holidays).length; i++) {
+                for(let i = 0; i < Object.keys(data.response.holidays).length; i++) {
                     message.author.send({embed: {
                         color: color_holidays,
                         title: data.response.holidays[i].name,

@@ -7,7 +7,7 @@ module.exports = {
 			
         message.delete({ timeout: 5000 });
         
-        var category_news;
+        let category_news;
 
         switch (args[2]) {
             case 's':
@@ -35,7 +35,7 @@ module.exports = {
         fetch('http://newsapi.org/v2/top-headlines?country='+args[1]+'&category='+category_news+'&apiKey='+process.env.NEWSAPI)
             .then(response => response.json())
             .then(function(data) {	
-                var i = Math.floor(Math.random() * Object.keys(data.articles).length) + 1;
+                let i = Math.floor(Math.random() * Object.keys(data.articles).length) + 1;
                 
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,

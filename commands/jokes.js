@@ -7,9 +7,9 @@ module.exports = {
 			case 'dark':
 				message.delete({ timeout: 5000 });
 
-				var type = Math.floor((Math.random() * 3) + 1);
+				let type1 = Math.floor((Math.random() * 3) + 1);
 
-				switch (type) {
+				switch (type1) {
 					case 1:
 						fetch('https://sv443.net/jokeapi/v2/joke/Dark?type=single')
 							.then(response => response.json())
@@ -45,7 +45,7 @@ module.exports = {
 						fetch('https://i.reddit.com/r/darkjokes/.json?limit=50&restrict_sr=1')
 							.then(response => response.json())
 							.then(function(data) {		
-								var i = Math.floor(Math.random() * Object.keys(data.data.children).length) + 1;
+								let i = Math.floor(Math.random() * Object.keys(data.data.children).length) + 1;
 								
 								if(data.data.children[i].data.stickied == true || !data.data.children[i].data) i++;
 								
@@ -70,9 +70,9 @@ module.exports = {
 			case 'prog':
 				message.delete({ timeout: 5000 });
 
-				var type = Math.floor((Math.random() * 2) + 1);
+				let type2 = Math.floor((Math.random() * 2) + 1);
 
-				switch (type) {
+				switch (type2) {
 					case 1:
 						fetch('https://sv443.net/jokeapi/v2/joke/Programming?type=single')
 							.then(response => response.json())
@@ -111,9 +111,9 @@ module.exports = {
 			case 'misc':
 				message.delete({ timeout: 5000 });
 
-				var type = Math.floor((Math.random() * 2) + 1);
+				let type3 = Math.floor((Math.random() * 2) + 1);
 
-				switch (type) {
+				switch (type3) {
 					case 1:
 						fetch('https://sv443.net/jokeapi/v2/joke/Miscellaneous?type=single')
 							.then(response => response.json())

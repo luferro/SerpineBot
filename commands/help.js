@@ -211,7 +211,7 @@ module.exports = {
                             value: "Gives you the last 10 reviewed games on r/Games"
                         },
                         {
-                            name: "`./reviews <game_title>`",
+                            name: "`./reviews -d <game_title>`",
                             value: "Looks up any given game. Will return its OpenCritic score."
                         }
                     ],
@@ -481,11 +481,6 @@ module.exports = {
                     title: "Available commands",
                     fields: [
                         {
-                            name: "**Animals**",
-                            value: "`./cmd animals`",
-                            inline: true
-                        },
-                        {
                             name: "**Anime**",
                             value: "`./cmd anime`",
                             inline: true
@@ -508,6 +503,11 @@ module.exports = {
                         {
                             name: "**Compare Game**",
                             value: "`./cmd cmpgame`",
+                            inline: true
+                        },
+                        {
+                            name: "**Cuteness overload**",
+                            value: "`./cmd aww`",
                             inline: true
                         },
                         {

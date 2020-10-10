@@ -5,11 +5,11 @@ module.exports = {
     async execute(message, args){
         message.delete({ timeout: 5000 });
 		
-        page = Math.floor(Math.random() * 122) + 1;
+        let page = Math.floor(Math.random() * 122) + 1;
         fetch('https://api.pokemontcg.io/v1/cards?page='+page)
             .then(response => response.json())
             .then(function(data) {			
-                var i = Math.floor(Math.random() * Object.keys(data.cards).length) + 1;
+                let i = Math.floor(Math.random() * Object.keys(data.cards).length) + 1;
             
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,

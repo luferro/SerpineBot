@@ -40,8 +40,8 @@ client.on('message', async message => {
 		case 'flame':
 			client.commands.get('flame').execute(message, args);
 		break;
-		case 'animals':
-			client.commands.get('animals').execute(message, args);
+		case 'aww':
+			client.commands.get('aww').execute(message, args);
 		break;
 		case 'memes':
 			client.commands.get('memes').execute(message, args);

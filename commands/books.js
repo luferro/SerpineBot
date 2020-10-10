@@ -8,33 +8,33 @@ module.exports = {
             case '-s':
                 message.delete({ timeout: 5000 });
 
+                let argsbooks = args.slice(3).join(" ");
+
                 switch(args[2]) {
                     case 'bd':
-                        var argsbooks = args.slice(3).join(" ");
-
                         got('https://www.bookdepository.com/search?searchTerm=' + argsbooks + '&search=Find+book/').then(response => {
                             var $ = cheerio.load(response.body);
 
-                            var all_results = '';
+                            let all_results = '';
 
-                            var all_results_item = [];
+                            let all_results_item = [];
                             $('.title a').each((i, element) => {
                                 const itens = $(element).text();
                                 const itens_nospaces = itens.trim();
                                 all_results_item.push(itens_nospaces);
                             });	
-                            var all_results_price = [];
+                            let all_results_price = [];
                             $('.price').each((i, element_price) => {
                                 const itens_price = $(element_price).clone().children().remove().end().text();
                                 const itens_price_nospaces = itens_price.trim();
                                 all_results_price.push(itens_price_nospaces);
                             });	
 
-                            var tam = 10;
+                            let tam = 10;
                             if(all_results_item.length < tam)
                                 tam = all_results_item.length;
 
-                            for(var i = 0; i < tam; i++)
+                            for(let i = 0; i < tam; i++)
                                 all_results += all_results_item[i] + '\n**Price: **' + all_results_price[i] + '\n\n';
                             
                             message.channel.send({embed: {
@@ -48,35 +48,33 @@ module.exports = {
                         });		
                     break;
                     case 'bertrand':
-                        var argsbooks = args.slice(3).join(" ");
-
                         got('https://www.bertrand.pt/pesquisa/' + argsbooks).then(response => {
                             var $ = cheerio.load(response.body);
 
-                            var all_results = '';
+                            let all_results = '';
 
-                            var all_results_item = [];
+                            let all_results_item = [];
                             $('#search-page .title p .title-lnk').each((i, element) => {
                                 const itens = $(element).text();
                                 all_results_item.push(itens);
                             });	
-                            var all_results_item_vol = [];
+                            let all_results_item_vol = [];
                             $('#search-page .subtitle-product p').each((i, element) => {
                                 const itens_vol = $(element).text();
                                 all_results_item_vol.push(itens_vol);
                             });	
-                            var all_results_price = [];
+                            let all_results_price = [];
                             $('#search-page .active-price').each((i, element_price) => {
                                 const itens_price = $(element_price).text();
                                 all_results_price.push(itens_price);
                             });	
 
-                            var tam = 10;
+                            let tam = 10;
                             if(all_results_item.length < tam)
                                 tam = all_results_item.length;
 
-                            for(var i = 0; i < tam; i++) {
-                                var vol = all_results_item_vol[i];
+                            for(let i = 0; i < tam; i++) {
+                                let vol = all_results_item_vol[i];
                                 if(!vol) vol = '';
                                 all_results += all_results_item[i] + ' ' + vol + '\n**Price: **' + all_results_price[i] + '\n\n';
                             }
@@ -92,31 +90,29 @@ module.exports = {
                         });		
                     break;
                     case 'fnac':
-                        var argsbooks = args.slice(3).join(" ");
-
                         got('https://www.fnac.pt/SearchResult/ResultList.aspx?SCat=2!1&Search='+argsbooks+'&sft=1&sa=0').then(response => {
                             var $ = cheerio.load(response.body);
 
-                            var all_results = '';
+                            let all_results = '';
 
-                            var all_results_item = [];
+                            let all_results_item = [];
                             $('.articleList .Article-title').each((i, element) => {
                                 const itens = $(element).text();
                                 all_results_item.push(itens);
                             });	
 
-                            var all_results_price_base = [];
+                            let all_results_price_base = [];
                             $('.blocPriceBorder--bgGrey .price').each((i, element) => {
                                 const itens = $(element).text();
                                 all_results_price_base.push(itens);
                             });	
 
-                            var tam = 10;
+                            let tam = 10;
                             if(all_results_item.length < tam)
                                 tam = all_results_item.length;
 
-                            for(var i = 0; i < tam; i++) {
-                                var baseprice = all_results_price_base[i];
+                            for(let i = 0; i < tam; i++) {
+                                let baseprice = all_results_price_base[i];
                                 if(!baseprice) baseprice = ' ';
                                 all_results += all_results_item[i] + '\n\n';
                             }
@@ -138,14 +134,14 @@ module.exports = {
             case '-d':
                 message.delete({ timeout: 5000 });
 
+                let argsdetailsbooks = args.slice(3).join(" ");
+
                 switch(args[2]) {
                     case 'bd':
-                        var argsdetailsbooks = args.slice(3).join(" ");
-
                         got('https://www.bookdepository.com/search?searchTerm=' + argsdetailsbooks + '&search=Find+book/').then(response => {
                             var $ = cheerio.load(response.body);
 
-                            var all_results_href = [];
+                            let all_results_href = [];
                             $('.title a').each((i, element) => {
                                 const itens_href = $(element).attr('href');
                                 all_results_href.push(itens_href);
@@ -176,12 +172,10 @@ module.exports = {
                         });		
                     break;
                     case 'bertrand':
-                        var argsdetailsbooks = args.slice(3).join(" ");
-
                         got('https://www.bertrand.pt/pesquisa/' + argsdetailsbooks).then(response => {
                             var $ = cheerio.load(response.body);
 
-                            var all_results_href = [];
+                            let all_results_href = [];
                             $('.title-lnk').each((i, element) => {
                                 const itens_href = $(element).attr('href');
                                 all_results_href.push(itens_href);
@@ -212,12 +206,10 @@ module.exports = {
                         });		
                     break;
                     case 'fnac':
-                        var argsdetailsbooks = args.slice(3).join(" ");
-
                         got('https://www.fnac.pt/SearchResult/ResultList.aspx?SCat=2!1&Search='+argsdetailsbooks+'&sft=1&sa=0').then(response => {
                             var $ = cheerio.load(response.body);
 
-                            var all_results_href = [];
+                            let all_results_href = [];
                             $('.articleList .Article-title').each((i, element) => {
                                 const itens_href = $(element).attr('href');
                                 all_results_href.push(itens_href);
@@ -257,23 +249,23 @@ module.exports = {
             case '-c':
                 message.delete({ timeout: 5000 });
 
-                var argscomparebooks = args.slice(2).join(" ");
+                let argscomparebooks = args.slice(2).join(" ");
                 
-                var bertrand = [], bookdepository = [], fnac = [];
+                let bertrand = [], bookdepository = [], fnac = [];
 
                 got('https://www.bertrand.pt/pesquisa/' + argscomparebooks).then(response => {
                     var $ = cheerio.load(response.body);
 
-                    var title_bertrand = $('#search-page .title p .title-lnk').first().text();
+                    let title_bertrand = $('#search-page .title p .title-lnk').first().text();
                     if(title_bertrand) bertrand.push(title_bertrand);
                     else bertrand.push("No stock.");
                     bertrand.push();
 
-                    var url_bertrand = $('#search-page .title p .title-lnk').first().attr('href');
+                    let url_bertrand = $('#search-page .title p .title-lnk').first().attr('href');
                     if(url_bertrand) bertrand.push('https://www.bertrand.pt' + url_bertrand);
                     else bertrand.push("No stock.");
 
-                    var price_bertrand = $('#search-page .active-price').first().text();
+                    let price_bertrand = $('#search-page .active-price').first().text();
                     if(price_bertrand) bertrand.push(price_bertrand);
                     else bertrand.push("No stock.");
                    
@@ -281,34 +273,34 @@ module.exports = {
                     got('https://www.bookdepository.com/search?searchTerm=' + argscomparebooks + '&search=Find+book/').then(response => {
                         var $ = cheerio.load(response.body);
 
-                        var titulo_bd = $('.title a').first().text();
+                        let titulo_bd = $('.title a').first().text();
                         if(titulo_bd) bookdepository.push(titulo_bd.trim());
                         else bookdepository.push("Doesn't exist.");
                         
-                        var url_bd = $('.title a').first().attr('href');
+                        let url_bd = $('.title a').first().attr('href');
                         if(url_bd) bookdepository.push('https://www.bookdepository.com' + url_bd.trim());
                         else bookdepository.push("Doesn't exist.");
 
-                        var price_bd = $('.price').first().clone().children().remove().end().text();
+                        let price_bd = $('.price').first().clone().children().remove().end().text();
                         if(price_bd) bookdepository.push(price_bd.trim());
                         else bookdepository.push("Doesn't exist.");
                        
                         got('https://www.fnac.pt/SearchResult/ResultList.aspx?SCat=2!1&Search='+argscomparebooks+'&sft=1&sa=0').then(response => {
                             var $ = cheerio.load(response.body);
 
-                            var title_fnac = $('.articleList .Article-title').first().text();
+                            let title_fnac = $('.articleList .Article-title').first().text();
                             if(title_fnac) fnac.push(title_fnac);
                             else fnac.push("No stock.")
 
-                            var url_fnac = $('.articleList .Article-title').first().attr('href');
+                            let url_fnac = $('.articleList .Article-title').first().attr('href');
                             if(url_fnac) fnac.push(url_fnac);
                             else fnac.push("No stock.")
 
-                            var price_fnac = $('.blocPriceBorder .price').first().text();
+                            let price_fnac = $('.blocPriceBorder .price').first().text();
                             if(price_fnac) fnac.push(price_fnac);
                             else fnac.push("No stock.")
 
-                            var priceaderente_fnac = $('.blocPriceBorder--bgGrey .price').first().text();
+                            let priceaderente_fnac = $('.blocPriceBorder--bgGrey .price').first().text();
                             if(priceaderente_fnac) fnac.push(priceaderente_fnac);
                             else fnac.push("No stock.")
 

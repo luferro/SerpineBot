@@ -8,12 +8,12 @@ module.exports = {
 
         if(!args[1]) return message.channel.send("Usage: ./specs game_title").then(m => {m.delete({ timeout: 5000 })});;
 
-        var argsspecs = args.slice(1).join(" ");
+        let argsspecs = args.slice(1).join(" ");
 
         got('https://www.game-debate.com/search/games?search='+argsspecs).then(response => {
             var $ = cheerio.load(response.body);
 
-            var all_results_href = [];
+            let all_results_href = [];
             $('.advancedSearchResult .gameResultHeader').each((i, element) => {
                 const itens_href = $(element).attr('href');
                 all_results_href.push(itens_href);
@@ -24,31 +24,31 @@ module.exports = {
             got('https://www.game-debate.com'+all_results_href[0]).then(response => {
                 var $ = cheerio.load(response.body);
 
-                var all_results_specs_m = [];
+                let all_results_specs_m = [];
                 $('.devDefSysReqMinWrapper .devDefSysReqList li').each((i, element) => {
                     const itens_specs_low = $(element).clone().children().remove().end().text().trim();
                     all_results_specs_m.push(itens_specs_low);
                 });	
 
-                var all_results_specs_r = [];
+                let all_results_specs_r = [];
                 $('.devDefSysReqRecWrapper .devDefSysReqList li').each((i, element) => {
                     const itens_specs_high = $(element).clone().children().remove().end().text().trim();
                     all_results_specs_r.push(itens_specs_high);
                 });
 
-                var release_date_game = [];
+                let release_date_game = [];
                 $('.game-release-date-container .game-release-date p').each((i, element) => {
                     const itens_release = $(element).text();
                     release_date_game.push(itens_release);
                 });
                 
-                var all_results_specs_min = '';
-                for(var i = 0; i < all_results_specs_m.length; i++) {
+                let all_results_specs_min = '';
+                for(let i = 0; i < all_results_specs_m.length; i++) {
                     all_results_specs_min += all_results_specs_m[i] + '\n';
                 }
 
-                var all_results_specs_max = '';
-                for(var i = 0; i < all_results_specs_r.length; i++) {
+                let all_results_specs_max = '';
+                for(let i = 0; i < all_results_specs_r.length; i++) {
                     all_results_specs_max += all_results_specs_r[i] + '\n';
                 }
 

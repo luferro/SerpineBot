@@ -5,16 +5,16 @@ module.exports = {
     async execute(message, args){
         message.delete({ timeout: 5000 });
 
-        var d = new Date();
-        var day = d.getDate();
-        var month = d.getMonth() + 1;
-        var year = d.getFullYear();
+        let d = new Date();
+        let day = d.getDate();
+        let month = d.getMonth() + 1;
+        let year = d.getFullYear();
 
         if(!args[1]) return message.channel.send("Usage: ./releasing <month: 1-12 or -s>").then(m => {m.delete({ timeout: 5000 })});
 
         let argsreleasing = args.slice(2).join(" ");
 
-        var new_day, new_month;
+        let new_day, new_month;
         if(day < 10) 
             new_day = '0' + day;
         else 
@@ -38,8 +38,8 @@ module.exports = {
             .then(response => response.json())
             .then(function(data) {
                 if((data.results).length > 1 && (data.results[0].name).toLowerCase() != argsreleasing.toLowerCase()) {
-                    var search_results = "";
-                    for(var i= 0; i < Object.keys(data.results).length; i++) {
+                    let search_results = "";
+                    for(let i= 0; i < Object.keys(data.results).length; i++) {
                         search_results += data.results[i].name+"\n\n";
                     }
 
@@ -50,19 +50,19 @@ module.exports = {
                     }});
                 }
 
-                var plataformas = "";
-                for(var i= 0; i < Object.keys(data.results[0].platforms).length; i++) {
+                let plataformas = "";
+                for(let i= 0; i < Object.keys(data.results[0].platforms).length; i++) {
                     plataformas += data.results[0].platforms[i].platform.name+"; ";
                 }
 
-                var tags = "";
-                for(var i= 0; i < Object.keys(data.results[0].tags).length; i++) {
+                let tags = "";
+                for(let i= 0; i < Object.keys(data.results[0].tags).length; i++) {
                     if(data.results[0].tags[i].language == 'eng')
                         tags += data.results[0].tags[i].name+"; ";
                 }
 
-                var genres = "";
-                for(var i= 0; i < Object.keys(data.results[0].genres).length; i++) {
+                let genres = "";
+                for(let i= 0; i < Object.keys(data.results[0].genres).length; i++) {
                     genres += data.results[0].genres[i].name+"; ";
                 }
 
@@ -87,16 +87,16 @@ module.exports = {
         }
 
         if(!isNaN(args[1])) {
-            var month_selected = args[1], month_selected_doubledigit;
+            let month_selected = args[1], month_selected_doubledigit;
             if(month_selected < 10) 
                 month_selected_doubledigit = '0' + month_selected;
             else 
                 month_selected_doubledigit = '' + month_selected;
 
-            var firstDay = new Date(year, month_selected, 1).getDate();
-            var lastDay = new Date(year, month_selected, 0).getDate();
+            let firstDay = new Date(year, month_selected, 1).getDate();
+            let lastDay = new Date(year, month_selected, 0).getDate();
 
-            var firstDay_doubledigit;
+            let firstDay_doubledigit;
             if(firstDay < 10) 
                 firstDay_doubledigit = '0' + firstDay;
             else 
@@ -114,8 +114,8 @@ module.exports = {
                 })
                 .then(response => response.json())
                 .then(function(data) {
-                    var month_results = "";
-                    for(var i= 0; i < Object.keys(data.results).length; i++) {
+                    let month_results = "";
+                    for(let i= 0; i < Object.keys(data.results).length; i++) {
                         month_results += data.results[i].name+"\n**Releasing:** "+data.results[i].released+"\n\n";
                     }
 

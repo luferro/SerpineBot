@@ -3,21 +3,21 @@ const fetch = require('node-fetch');
 module.exports = {
     name: 'github',
     async execute(message, args){
+        let argsrepo = args.slice(2).join(" ");
+
         switch(args[1]) {
             case '-s':
                 message.delete({ timeout: 5000 });
-                
-                var argsrepo = args.slice(2).join(" ");
 
                 fetch('https://api.github.com/search/repositories?q=' + argsrepo)
                     .then(response => response.json())
                     .then(function(data) {
-                        var tam = 10;
+                        let tam = 10;
                         if((data.items).length < 10)
                             tam = (data.items).length;
 
-                        var all_results = '';
-                        for(var i = 0; i < tam; i++) {
+                        let all_results = '';
+                        for(let i = 0; i < tam; i++) {
                             all_results += data.items[i].full_name + '\n\n';
                         }
 
@@ -34,8 +34,6 @@ module.exports = {
                 break;
             case '-d':
                 message.delete({ timeout: 5000 });
-                
-                var argsrepo = args.slice(2).join(" ");
 
                 fetch('https://api.github.com/search/repositories?q=' + argsrepo)
                     .then(response => response.json())
