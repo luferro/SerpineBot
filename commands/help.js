@@ -110,13 +110,13 @@ module.exports = {
                     }
                 }});
             break;
-            case 'animals':
+            case 'aww':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./animals commands",
+                    title: "./aww commands",
                     fields: [
                         {
-                            name: "`./animals`",
+                            name: "`./aww`",
                             value: "Gives you a random pic of a cute animal."
                         }
                     ],
@@ -182,25 +182,6 @@ module.exports = {
                     }
                 }});
             break;
-            case 'ebooks':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./ebooks commands",
-                    fields: [
-                        {
-                            name: "`./ebooks -s <product_title>`",
-                            value: "Look up any book you want. Will return 10 books that match your product_title"
-                        },
-                        {
-                            name: "`./ebooks -d <product_title>`",
-                            value: "Will show you details of a certain book.\nBe sure to specify whatever book you are looking for."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired scraping GooglePlay"
-                    }
-                }});
-            break;
             case 'reviews':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -226,11 +207,11 @@ module.exports = {
                     title: "./releasing commands",
                     fields: [
                         {
-                            name: "`./releasing <month>`",
+                            name: "`./releasing <month: 1-12>`",
                             value: "Gives the top 20 games releasing in a given month. Month argument must be given as a number: 1-12"
                         },
                         {
-                            name: "`./releasing -s <game_title>`",
+                            name: "`./releasing -d <game_title>`",
                             value: "Looks up any given upcoming game."
                         }
                     ],
@@ -518,11 +499,6 @@ module.exports = {
                         {
                             name: "**Delete**",
                             value: "`./cmd del`",
-                            inline: true
-                        },
-                        {
-                            name: "**E-Books**",
-                            value: "`./cmd ebooks`",
                             inline: true
                         },
                         {

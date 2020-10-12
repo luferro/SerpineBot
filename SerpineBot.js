@@ -79,9 +79,6 @@ client.on('message', async message => {
 		case 'books':
 			client.commands.get('books').execute(message, args);
 		break;
-		case 'ebooks':
-			client.commands.get('ebooks').execute(message, args);
-		break;
 		case 'yesorno':	
 			client.commands.get('yesorno').execute(message, args);
 		break;
