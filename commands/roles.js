@@ -26,7 +26,10 @@ module.exports = {
             four: 'Deals',
             five: 'Free Games',
             six: 'Patch Notes',
-            nsfw: 'NSFW'
+            nsfw: 'NSFW',
+            xbox: 'Xbox',
+            playstation: 'Playstation',
+            nintendo: 'Nintendo'
         }
 
         const reactions = [];

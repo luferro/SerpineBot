@@ -89,46 +89,8 @@ module.exports = {
                             console.log(error);
                         });		
                     break;
-                    case 'fnac':
-                        got('https://www.fnac.pt/SearchResult/ResultList.aspx?SCat=2!1&Search='+argsbooks+'&sft=1&sa=0').then(response => {
-                            var $ = cheerio.load(response.body);
-
-                            let all_results = '';
-
-                            let all_results_item = [];
-                            $('.articleList .Article-title').each((i, element) => {
-                                const itens = $(element).text();
-                                all_results_item.push(itens);
-                            });	
-
-                            let all_results_price_base = [];
-                            $('.blocPriceBorder--bgGrey .price').each((i, element) => {
-                                const itens = $(element).text();
-                                all_results_price_base.push(itens);
-                            });	
-
-                            let tam = 10;
-                            if(all_results_item.length < tam)
-                                tam = all_results_item.length;
-
-                            for(let i = 0; i < tam; i++) {
-                                let baseprice = all_results_price_base[i];
-                                if(!baseprice) baseprice = ' ';
-                                all_results += all_results_item[i] + '\n\n';
-                            }
-                            
-                            message.channel.send({embed: {
-                                color: Math.floor(Math.random() * 16777214) + 1,
-                                title: "Search results for " + argsbooks,
-                                description: all_results
-                            }})
-                        }).catch(function(error) {
-                            message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
-                            console.log(error);
-                        });		
-                    break;
                     default:
-                        message.channel.send("Usage: ./books <-s or -d> <bd, fnac or bertrand> product_title").then(m => {m.delete({ timeout: 5000 })});
+                        message.channel.send("Usage: ./books <-s or -d> <bd or bertrand> product_title").then(m => {m.delete({ timeout: 5000 })});
                 }
             break;
             case '-d':
@@ -205,43 +167,6 @@ module.exports = {
                             console.log(error);
                         });		
                     break;
-                    case 'fnac':
-                        got('https://www.fnac.pt/SearchResult/ResultList.aspx?SCat=2!1&Search='+argsdetailsbooks+'&sft=1&sa=0').then(response => {
-                            var $ = cheerio.load(response.body);
-
-                            let all_results_href = [];
-                            $('.articleList .Article-title').each((i, element) => {
-                                const itens_href = $(element).attr('href');
-                                all_results_href.push(itens_href);
-                            });	
-
-                            got(all_results_href[0]).then(response => {
-                                var $ = cheerio.load(response.body);
-
-                                message.channel.send({embed: {
-                                    color: Math.floor(Math.random() * 16777214) + 1,
-                                    author: {
-                                        name: "Details found for " + argsdetailsbooks
-                                    },
-                                    title: $('.f-productHeader-Title').text(),
-                                    url: all_results_href[0],
-                                    description: "**Price: **" + $('.f-priceBox-price').first().text() + '\n\n' 
-                                                + "**Digital Format Price: **" + $('.f-productOffer-format .f-productOffer-formatPrice').clone().children().remove().end().text().trim() + '\n\n'
-                                                + $('.f-buyBox-availability p').text() + '\n\n' 
-                                                + $('.js-productSummaryTrimHeight-target p').text(),
-                                    thumbnail: {
-                                        url: $('.f-productVisuals-mainMedia').attr('src')
-                                    }
-                                }})
-                            }).catch(function(error) {
-                                message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
-                                console.log(error);
-                            });	
-                        }).catch(function(error) {
-                            message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
-                            console.log(error);
-                        });		
-                    break;
                     default:
                         message.channel.send("Usage: ./books <-s or -d> <bd, fnac or bertrand> product_title").then(m => {m.delete({ timeout: 5000 })});
                 }
@@ -251,7 +176,7 @@ module.exports = {
 
                 let argscomparebooks = args.slice(2).join(" ");
                 
-                let bertrand = [], bookdepository = [], fnac = [];
+                let bertrand = [], bookdepository = [];
 
                 got('https://www.bertrand.pt/pesquisa/' + argscomparebooks).then(response => {
                     var $ = cheerio.load(response.body);
@@ -285,36 +210,12 @@ module.exports = {
                         if(price_bd) bookdepository.push(price_bd.trim());
                         else bookdepository.push("Doesn't exist.");
                        
-                        got('https://www.fnac.pt/SearchResult/ResultList.aspx?SCat=2!1&Search='+argscomparebooks+'&sft=1&sa=0').then(response => {
-                            var $ = cheerio.load(response.body);
-
-                            let title_fnac = $('.articleList .Article-title').first().text();
-                            if(title_fnac) fnac.push(title_fnac);
-                            else fnac.push("No stock.")
-
-                            let url_fnac = $('.articleList .Article-title').first().attr('href');
-                            if(url_fnac) fnac.push(url_fnac);
-                            else fnac.push("No stock.")
-
-                            let price_fnac = $('.blocPriceBorder .price').first().text();
-                            if(price_fnac) fnac.push(price_fnac);
-                            else fnac.push("No stock.")
-
-                            let priceaderente_fnac = $('.blocPriceBorder--bgGrey .price').first().text();
-                            if(priceaderente_fnac) fnac.push(priceaderente_fnac);
-                            else fnac.push("No stock.")
-
-                            message.channel.send({embed: {
-                                color: Math.floor(Math.random() * 16777214) + 1,
-                                title: "Compare results for " + argscomparebooks,
-                                description: '**Book Depository**\n' + bookdepository[0] + '\n**URL: **' + bookdepository[1] + '\n**Price: **' + bookdepository[2] +'\n\n'
-                                            + '**Bertrand**\n' + bertrand[0] + '\n**URL: **' + bertrand[1] + '\n**Price: **' + bertrand[2] + '\n\n'
-                                            + '**Fnac**\n' + fnac[0] + '\n**URL:** ' + fnac[1] + '\n**Cartão Aderente: **' + fnac[2] + '\n**Base Price: **' + fnac[3]
-                            }})
-                        }).catch(function(error) {
-                            message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
-                            console.log(error);
-                        });	
+                        message.channel.send({embed: {
+                            color: Math.floor(Math.random() * 16777214) + 1,
+                            title: "Compare results for " + argscomparebooks,
+                            description: '**Book Depository**\n' + bookdepository[0] + '\n**URL: **' + bookdepository[1] + '\n**Price: **' + bookdepository[2] +'\n\n'
+                                        + '**Bertrand**\n' + bertrand[0] + '\n**URL: **' + bertrand[1] + '\n**Price: **' + bertrand[2]
+                        }})
                     }).catch(function(error) {
                         message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
                         console.log(error);

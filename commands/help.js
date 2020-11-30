@@ -50,7 +50,16 @@ module.exports = {
                 }});
             break;
             case 'poll':
-                client.commands.get('poll').execute(message, args);
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./poll commands",
+                    fields: [
+                        {
+                            name: "`./poll`",
+                            value: "Basic poll"
+                        }
+                    ]
+                }});
             break;
             case 'flame':
                 message.channel.send({embed: {
@@ -147,7 +156,7 @@ module.exports = {
                     fields: [
                         {
                             name: "`./deals -s <product_title>`",
-                            value: "Look up any product you want. Will return 12 products that match your product_title"
+                            value: "Look up any product you want. Will return a list of products that match your product_title"
                         },
                         {
                             name: "`./deals -d <product_title>`",
@@ -166,7 +175,7 @@ module.exports = {
                     fields: [
                         {
                             name: "`./books -s <store_name> <product_title>`",
-                            value: "Look up any book you want. Will return 10 books that match your product_title.\nStores include Book Depository - bd, Bertrand - bertrand, Fnac - fnac"
+                            value: "Look up any book you want. Will return a list of books that match your product_title.\nStores include Book Depository - bd and Bertrand - bertrand"
                         },
                         {
                             name: "`./books -d <store_name> <product_title>`",
@@ -366,66 +375,6 @@ module.exports = {
                     }
                 }});
             break;
-            case 'yesorno':	
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./yesorno commands",
-                    fields: [
-                        {
-                            name: "`./yesorno <optional_question>`",
-                            value: "Gives either a yes or a no. You can add any question you want to this command."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired using YesOrNoAPI"
-                    }
-                }});
-            break;
-            case 'char':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./char commands",
-                    fields: [
-                        {
-                            name: "`./char`",
-                            value: "Gives you a random character from a random universe."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired using SuperheroAPI."
-                    }
-                }});
-            break;
-            case 'pokecard':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./pokecard commands",
-                    fields: [
-                        {
-                            name: "`./pokecard`",
-                            value: "Gives you a random pokémon trading card."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired using pokemontcgAPI."
-                    }
-                }});
-            break;
-            case 'news':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./news commands",
-                    fields: [
-                        {
-                            name: "`./news <country_code> <category>`",
-                            value: "Gives you news for a given country and category.\nCountry_code is a two digit code such as 'pt'.\bCategories available are s - sports, b - business, h - health, sci - science, t - technology, e - entertainment "
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired using NewsAPI"
-                    }
-                }});
-            break;
             case 'holidays':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -456,6 +405,18 @@ module.exports = {
                     }
                 }});
             break;
+            case 'secretsanta':	
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./secretsanta commands",
+                    fields: [
+                        {
+                            name: "`./secretsanta <user1> <user2> <user3>`",
+                            value: "Organizes a secret santa."
+                        }
+                    ]
+                }});
+                break;
             default:
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -469,11 +430,6 @@ module.exports = {
                         {
                             name: "**Books**",
                             value: "`./cmd books`",
-                            inline: true
-                        },
-                        {
-                            name: "**Characters**",
-                            value: "`./cmd char`",
                             inline: true
                         },
                         {
@@ -537,16 +493,6 @@ module.exports = {
                             inline: true
                         },
                         {
-                            name: "**News**",
-                            value: "`./cmd news`",
-                            inline: true
-                        },
-                        {
-                            name: "**Pokemon TC**",
-                            value: "`./cmd pokecard`",
-                            inline: true
-                        },
-                        {
                             name: "**Releasing**",
                             value: "`./cmd releasing`",
                             inline: true
@@ -554,6 +500,11 @@ module.exports = {
                         {
                             name: "**Reviews**",
                             value: "`./cmd reviews`",
+                            inline: true
+                        },
+                        {
+                            name: "**Secret Santa**",
+                            value: "`./cmd secretsanta`",
                             inline: true
                         },
                         {
@@ -569,11 +520,6 @@ module.exports = {
                         {
                             name: "**Weather**",
                             value: "`./cmd weather`",
-                            inline: true
-                        },
-                        {
-                            name: "**YesOrNo**",
-                            value: "`./cmd yesorno`",
                             inline: true
                         }
                     ]
