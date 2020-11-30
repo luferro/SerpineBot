@@ -11,9 +11,9 @@
     "ffmpeg": "0.0.4",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "0.0.1-security",
-    "got": "^11.8.0",
-    "node-fetch": "^2.6.0",
-    "scrape-yt": "^1.4.3",
+    "got": "^11.1.0",
+    "node-fetch": "^2.6.1",
+    "scrape-yt": "^1.4.0",
     "youtube-search": "^1.1.4",
     "ytdl-core": "^2.1.7"
   },
