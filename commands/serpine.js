@@ -2,16 +2,15 @@ const fetch = require('node-fetch');
 
 module.exports = {
     name: 'serpine',
-    async execute(message, args){
+    async execute(message){
         message.delete({ timeout: 5000 });
 
         fetch('https://api.github.com/users/xSerpine')
             .then(response => response.json())
-            .then(function(user) {
-
+            .then(user => {
                 fetch('https://api.github.com/users/xSerpine/repos')
                     .then(response => response.json())
-                    .then(function(data) {
+                    .then(data => {
 
                         let tam = 10;
                         if(data.length < tam)
@@ -21,7 +20,7 @@ module.exports = {
                         for(let i = 0; i < tam; i++) {
                             let desc = data[i].description;
                             if(!data[i].description) desc = 'No description available.'
-                            repos += '**' + data[i].name + '**\n' + desc + '\n\n';
+                            repos += `**${data[i].name}**\n${desc}\n\n`;
                         }
 
                         message.channel.send({embed: {
@@ -33,15 +32,15 @@ module.exports = {
                                 url: user.avatar_url
                             } 
                         }})
-                        .catch(function(error) {
-                            message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
-                            console.log(error);
-                        });
                     })
-                    .catch(function(error) {
+                    .catch(error => {
                         message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
                         console.log(error);
-                    }); 
-            })				
+                    });
+            })
+            .catch(error => {
+                message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
+                console.log(error);
+            }); 				
     }
 }

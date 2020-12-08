@@ -26,9 +26,9 @@ module.exports = {
                 break;
         }
         
-        fetch('https://i.reddit.com/r/'+subreddit+'/.json?limit=100&restrict_sr=1')
+        fetch(`https://i.reddit.com/r/'${subreddit}/.json?limit=100&restrict_sr=1`)
             .then(response => response.json())
-            .then(function(data) {
+            .then(data => {
                                 
                 let i = Math.floor(Math.random() * Object.keys(data.data.children).length) + 1;
 
@@ -37,15 +37,15 @@ module.exports = {
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
                     title: data.data.children[i].data.title,
-                    url: 'https://www.reddit.com' + data.data.children[i].data.permalink,
+                    url: `https://www.reddit.com${data.data.children[i].data.permalink}`,
                     image: {
                         url: data.data.children[i].data.url
                     } 
                 }})
-                .catch(function(error) {
-                    message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
-                    console.log(error);
-                });  
-            })			
+            })
+            .catch(error => {
+                message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
+                console.log(error);
+            });  		
     }
 }

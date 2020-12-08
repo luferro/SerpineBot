@@ -12,10 +12,9 @@
     "fluent-ffmpeg": "^2.1.2",
     "fs": "0.0.1-security",
     "got": "^11.8.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "scrape-yt": "^1.4.6",
-    "youtube-search": "^1.1.4",
-    "ytdl-core": "^2.1.7"
+    "ytdl-core": "^4.1.2"
   },
   "devDependencies": {},
   "scripts": {

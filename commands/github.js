@@ -3,68 +3,68 @@ const fetch = require('node-fetch');
 module.exports = {
     name: 'github',
     async execute(message, args){
-        let argsrepo = args.slice(2).join(" ");
+        let argsrepo = args.slice(2).join(' ');
 
         switch(args[1]) {
             case '-s':
                 message.delete({ timeout: 5000 });
 
-                fetch('https://api.github.com/search/repositories?q=' + argsrepo)
+                fetch(`https://api.github.com/search/repositories?q=${argsrepo}`)
                     .then(response => response.json())
-                    .then(function(data) {
+                    .then(data => {
                         let tam = 10;
                         if((data.items).length < 10)
                             tam = (data.items).length;
 
                         let all_results = '';
                         for(let i = 0; i < tam; i++) {
-                            all_results += data.items[i].full_name + '\n\n';
+                            all_results += `${data.items[i].full_name}\n\n`;
                         }
 
                         message.channel.send({embed: {
                             color: Math.floor(Math.random() * 16777214) + 1,
-                            title: "Search results for " + argsrepo,
+                            title: `Search results for ${argsrepo}`,
                             description: all_results
                         }})
-                        .catch(function(error) {
-                            message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
-                            console.log(error);
-                        });
                     })
+                    .catch(error => {
+                        message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
+                        console.log(error);
+                    });
                 break;
             case '-d':
                 message.delete({ timeout: 5000 });
 
-                fetch('https://api.github.com/search/repositories?q=' + argsrepo)
+                fetch(`https://api.github.com/search/repositories?q=${argsrepo}`)
                     .then(response => response.json())
-                    .then(function(data) {
+                    .then(data => {
                         message.channel.send({embed: {
                             color: Math.floor(Math.random() * 16777214) + 1,
                             author: {
-                                name: "Details found for " + argsrepo
+                                name: `Details found for ${argsrepo}`
                             },
                             title: data.items[0].full_name,
                             url: data.items[0].html_url,
                             description: data.items[0].description,
                             fields: [
                                 {
-                                    name: "**Language**",
+                                    name: '**Language**',
                                     value: data.items[0].language,
                                     inline: true
                                 },
                                 {
-                                    name: "**Created at**",
+                                    name: '**Created at**',
                                     value: data.items[0].created_at,
                                     inline: true
                                 },
                                 {
-                                    name: "**Updated at**",
+                                    name: '**Updated at**',
                                     value: data.items[0].updated_at,
                                     inline: true
                                 }
                             ]
                         }})
-                        .catch(function(error) {
+                        .catch(error => {
                             message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
                             console.log(error);
                         });

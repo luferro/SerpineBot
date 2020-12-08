@@ -12,8 +12,8 @@ module.exports = {
 
                 switch(args[2]) {
                     case 'bd':
-                        got('https://www.bookdepository.com/search?searchTerm=' + argsbooks + '&search=Find+book/').then(response => {
-                            var $ = cheerio.load(response.body);
+                        got(`https://www.bookdepository.com/search?searchTerm=${argsbooks}&search=Find+book/`).then(response => {
+                            const $ = cheerio.load(response.body);
 
                             let all_results = '';
 
@@ -35,21 +35,22 @@ module.exports = {
                                 tam = all_results_item.length;
 
                             for(let i = 0; i < tam; i++)
-                                all_results += all_results_item[i] + '\n**Price: **' + all_results_price[i] + '\n\n';
+                                all_results += `${all_results_item[i]}\n**Price: **${all_results_price[i]}\n\n`;
                             
                             message.channel.send({embed: {
                                 color: Math.floor(Math.random() * 16777214) + 1,
-                                title: "Search results for " + argsbooks,
+                                title: `Search results for ${argsbooks}`,
                                 description: all_results
                             }})
-                        }).catch(function(error) {
-                            message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
+                        })
+                        .catch(error => {
+                            message.channel.send('Something went wrong!').then(m => {m.delete({ timeout: 5000 })});
                             console.log(error);
                         });		
                     break;
                     case 'bertrand':
-                        got('https://www.bertrand.pt/pesquisa/' + argsbooks).then(response => {
-                            var $ = cheerio.load(response.body);
+                        got(`https://www.bertrand.pt/pesquisa/${argsbooks}`).then(response => {
+                            const $ = cheerio.load(response.body);
 
                             let all_results = '';
 
@@ -76,21 +77,22 @@ module.exports = {
                             for(let i = 0; i < tam; i++) {
                                 let vol = all_results_item_vol[i];
                                 if(!vol) vol = '';
-                                all_results += all_results_item[i] + ' ' + vol + '\n**Price: **' + all_results_price[i] + '\n\n';
+                                all_results += `${all_results_item[i]} ${vol}\n**Price: **${all_results_price[i]}\n\n`;
                             }
                             
                             message.channel.send({embed: {
                                 color: Math.floor(Math.random() * 16777214) + 1,
-                                title: "Search results for " + argsbooks,
+                                title: `Search results for ${argsbooks}`,
                                 description: all_results
                             }})
-                        }).catch(function(error) {
-                            message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
+                        })
+                        .catch(error => {
+                            message.channel.send('Something went wrong!').then(m => {m.delete({ timeout: 5000 })});
                             console.log(error);
                         });		
                     break;
                     default:
-                        message.channel.send("Usage: ./books <-s or -d> <bd or bertrand> product_title").then(m => {m.delete({ timeout: 5000 })});
+                        message.channel.send('Usage: ./books <-s or -d> <bd or bertrand> product_title').then(m => {m.delete({ timeout: 5000 })});
                 }
             break;
             case '-d':
@@ -100,7 +102,7 @@ module.exports = {
 
                 switch(args[2]) {
                     case 'bd':
-                        got('https://www.bookdepository.com/search?searchTerm=' + argsdetailsbooks + '&search=Find+book/').then(response => {
+                        got(`https://www.bookdepository.com/search?searchTerm=${argsdetailsbooks}&search=Find+book/`).then(response => {
                             var $ = cheerio.load(response.body);
 
                             let all_results_href = [];
@@ -109,32 +111,33 @@ module.exports = {
                                 all_results_href.push(itens_href);
                             });	
 
-                            got('https://www.bookdepository.com'+all_results_href[0]).then(response => {
+                            got(`https://www.bookdepository.com${all_results_href[0]}`).then(response => {
                                 var $ = cheerio.load(response.body);
 
                                 message.channel.send({embed: {
                                     color: Math.floor(Math.random() * 16777214) + 1,
                                     author: {
-                                        name: "Details found for " + argsdetailsbooks
+                                        name: `Details found for ${argsdetailsbooks}`
                                     },
                                     title: $('.item-info h1').text(),
-                                    url: 'https://www.bookdepository.com' + all_results_href[0],
-                                    description: "**Price: **" + $('.price .sale-price').text() + '\n\n' + $('.availability-text p').clone().children().remove().end().text().trim() + '\n\n' + $('.item-excerpt').clone().children().remove().end().text().trim(),
+                                    url: `https://www.bookdepository.com${all_results_href[0]}`,
+                                    description: `**Price: **${$('.price .sale-price').text()}\n\n${$('.availability-text p').clone().children().remove().end().text().trim()}\n\n${$('.item-excerpt').clone().children().remove().end().text().trim()}`,
                                     thumbnail: {
                                         url: $('.book-img').attr('src')
                                     }
                                 }})
-                            }).catch(function(error) {
-                                message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
+                            }).catch(error => {
+                                message.channel.send('Something went wrong!').then(m => {m.delete({ timeout: 5000 })});
                                 console.log(error);
                             });	
-                        }).catch(function(error) {
-                            message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
+                        })
+                        .catch(error => {
+                            message.channel.send('Something went wrong!').then(m => {m.delete({ timeout: 5000 })});
                             console.log(error);
                         });		
                     break;
                     case 'bertrand':
-                        got('https://www.bertrand.pt/pesquisa/' + argsdetailsbooks).then(response => {
+                        got(`https://www.bertrand.pt/pesquisa/${argsdetailsbooks}`).then(response => {
                             var $ = cheerio.load(response.body);
 
                             let all_results_href = [];
@@ -143,32 +146,34 @@ module.exports = {
                                 all_results_href.push(itens_href);
                             });	
 
-                            got('https://www.bertrand.pt'+all_results_href[0]).then(response => {
+                            got(`https://www.bertrand.pt${all_results_href[0]}`).then(response => {
                                 var $ = cheerio.load(response.body);
 
                                 message.channel.send({embed: {
                                     color: Math.floor(Math.random() * 16777214) + 1,
                                     author: {
-                                        name: "Details found for " + argsdetailsbooks
+                                        name: `Details found for ${argsdetailsbooks}`
                                     },
-                                    title: $('#productPageRightSectionTop-title-h1').text() + '   ' + $('#productPageRightSectionTop-subtitle-h2').text(),
-                                    url: 'https://www.bertrand.pt' + all_results_href[0],
-                                    description: "**Price: **" + $('#productPageRightSectionTop-saleAction-price-current').text() + '\n\n' + $('#productPageRightSectionTop-salesInfo-stock24hours .text-info').text() + '\n\n' + $('#productPageSectionAboutBook-sinopse p').text(),
+                                    title: `${$('#productPageRightSectionTop-title-h1').text()}   ${$('#productPageRightSectionTop-subtitle-h2').text()}`,
+                                    url: `https://www.bertrand.pt${all_results_href[0]}`,
+                                    description: `**Price: **${$('#productPageRightSectionTop-saleAction-price-current').text()}\n\n${$('#productPageRightSectionTop-salesInfo-stock24hours .text-info').text()}\n\n${$('#productPageSectionAboutBook-sinopse p').text()}`,
                                     thumbnail: {
                                         url: $('#productPageLeftSectionTop-images img').attr('src')
                                     }
                                 }})
-                            }).catch(function(error) {
-                                message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
+                            })
+                            .catch(error => {
+                                message.channel.send('Something went wrong!').then(m => {m.delete({ timeout: 5000 })});
                                 console.log(error);
                             });	
-                        }).catch(function(error) {
-                            message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
+                        })
+                        .catch(error => {
+                            message.channel.send('Something went wrong!').then(m => {m.delete({ timeout: 5000 })});
                             console.log(error);
                         });		
                     break;
                     default:
-                        message.channel.send("Usage: ./books <-s or -d> <bd, fnac or bertrand> product_title").then(m => {m.delete({ timeout: 5000 })});
+                        message.channel.send('Usage: ./books <-s or -d> <bd, fnac or bertrand> product_title').then(m => {m.delete({ timeout: 5000 })});
                 }
             break;
             case '-c':
@@ -178,24 +183,24 @@ module.exports = {
                 
                 let bertrand = [], bookdepository = [];
 
-                got('https://www.bertrand.pt/pesquisa/' + argscomparebooks).then(response => {
+                got(`https://www.bertrand.pt/pesquisa/${argscomparebooks}`).then(response => {
                     var $ = cheerio.load(response.body);
 
                     let title_bertrand = $('#search-page .title p .title-lnk').first().text();
                     if(title_bertrand) bertrand.push(title_bertrand);
-                    else bertrand.push("No stock.");
+                    else bertrand.push('No stock.');
                     bertrand.push();
 
                     let url_bertrand = $('#search-page .title p .title-lnk').first().attr('href');
-                    if(url_bertrand) bertrand.push('https://www.bertrand.pt' + url_bertrand);
-                    else bertrand.push("No stock.");
+                    if(url_bertrand) bertrand.push(`https://www.bertrand.pt${url_bertrand}`);
+                    else bertrand.push('No stock.');
 
                     let price_bertrand = $('#search-page .active-price').first().text();
                     if(price_bertrand) bertrand.push(price_bertrand);
-                    else bertrand.push("No stock.");
+                    else bertrand.push('No stock.');
                    
 
-                    got('https://www.bookdepository.com/search?searchTerm=' + argscomparebooks + '&search=Find+book/').then(response => {
+                    got(`https://www.bookdepository.com/search?searchTerm=${argscomparebooks}&search=Find+book/`).then(response => {
                         var $ = cheerio.load(response.body);
 
                         let titulo_bd = $('.title a').first().text();
@@ -203,7 +208,7 @@ module.exports = {
                         else bookdepository.push("Doesn't exist.");
                         
                         let url_bd = $('.title a').first().attr('href');
-                        if(url_bd) bookdepository.push('https://www.bookdepository.com' + url_bd.trim());
+                        if(url_bd) bookdepository.push(`https://www.bookdepository.com${url_bd.trim()}`);
                         else bookdepository.push("Doesn't exist.");
 
                         let price_bd = $('.price').first().clone().children().remove().end().text();
@@ -212,21 +217,22 @@ module.exports = {
                        
                         message.channel.send({embed: {
                             color: Math.floor(Math.random() * 16777214) + 1,
-                            title: "Compare results for " + argscomparebooks,
-                            description: '**Book Depository**\n' + bookdepository[0] + '\n**URL: **' + bookdepository[1] + '\n**Price: **' + bookdepository[2] +'\n\n'
-                                        + '**Bertrand**\n' + bertrand[0] + '\n**URL: **' + bertrand[1] + '\n**Price: **' + bertrand[2]
+                            title: `Compare results for ${argscomparebooks}`,
+                            description: `**Book Depository**\n${bookdepository[0]}\n**URL: **${bookdepository[1]}\n**Price: **${bookdepository[2]}\n\n**Bertrand**\n${bertrand[0]}\n**URL: **${bertrand[1]}\n**Price: **${bertrand[2]}`
                         }})
-                    }).catch(function(error) {
-                        message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
+                    })
+                    .catch(error => {
+                        message.channel.send('Something went wrong!').then(m => {m.delete({ timeout: 5000 })});
                         console.log(error);
                     });		
-                }).catch(function(error) {
-                    message.channel.send("Something went wrong!").then(m => {m.delete({ timeout: 5000 })});
+                })
+                .catch(error => {
+                    message.channel.send('Something went wrong!').then(m => {m.delete({ timeout: 5000 })});
                     console.log(error);
                 });		
             break;
             default:
-                message.channel.send("Usage: ./books <-s or -d> <bd, fnac or bertrand> product_title").then(m => {m.delete({ timeout: 5000 })});
+                message.channel.send('Usage: ./books <-s or -d> <bd, fnac or bertrand> product_title').then(m => {m.delete({ timeout: 5000 })});
         }
     }
 }

@@ -8,7 +8,7 @@ const addReactions = (message, reactions) => {
 module.exports = {
     name: 'roles',
     async execute(client){ 
-        const channelID = '757030733494616196';
+        const channelID = '757030733494616196';     //Sala claim-your-roles
         const channel = await client.channels.fetch(channelID);
 
         let text = `

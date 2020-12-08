@@ -43,7 +43,7 @@ client.on('message', async message => {
 			client.commands.get('poll').execute(message, args);
 			break;
 		case 'flame':
-			client.commands.get('flame').execute(message, args);
+			client.commands.get('flame').execute(message);
 			break;
 		case 'aww':
 			client.commands.get('aww').execute(message, args);
@@ -70,7 +70,7 @@ client.on('message', async message => {
 			client.commands.get('specs').execute(message, args);
 			break;
 		case 'serpine':
-			client.commands.get('serpine').execute(message, args);
+			client.commands.get('serpine').execute(message);
 			break;
 		case 'github':
 			client.commands.get('github').execute(message, args);
