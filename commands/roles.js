@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const addReactions = (message, reactions) => {
     message.react(reactions[0]);
     reactions.shift();
@@ -8,35 +10,32 @@ const addReactions = (message, reactions) => {
 module.exports = {
     name: 'roles',
     async execute(client){ 
-        const channelID = '757030733494616196';     //Sala claim-your-roles
-        const channel = await client.channels.fetch(channelID);
+        const channel = await client.channels.fetch(process.env.BOT_ROLES_CHANNEL);
 
         let text = `
-            Choose from the following reactions to claim a role!
-            \nYou can select multiple roles.
-            \nEach role will give you access to a text channel as represented below.\n
+            Choose from the following reactions to claim a role!\nYou can select **multiple** roles.\nEach role will give you access to a text channel as represented below.
         `;
 
         const getEmoji = emojiName => client.emojis.cache.find(emoji => emoji.name === emojiName);
 
         const emojis = {
-            one: 'Memes',
-            two: 'Gaming News',
-            three: 'Reviews',
-            four: 'Deals',
-            five: 'Free Games',
-            six: 'Patch Notes',
-            nsfw: 'NSFW',
-            xbox: 'Xbox',
-            playstation: 'Playstation',
-            nintendo: 'Nintendo'
+            one: 'NSFW',
+            two: 'Memes',
+            three: 'Gaming News',
+            four: 'Reviews',
+            five: 'Deals',
+            six: 'Free Games',
+            seven: 'Patch Notes',
+            eight: 'Xbox',
+            nine: 'Playstation',
+            ten: 'Nintendo'
         }
 
         const reactions = [];
         for(const key in emojis){
             const emoji = getEmoji(key);
             reactions.push(emoji);
-            text += `\n${emoji} -> "${emojis[key]}" text channel`
+            text += `\n${emoji} -> __**${emojis[key]}**__ text channel`
         }
 
         channel.messages.fetch().then((messages) => {
@@ -62,8 +61,6 @@ module.exports = {
         })
 
         const handleReaction = (reaction, user, add) => {
-            if(user.id === '693061748374110218') return;
-
             const emoji = reaction._emoji.name;
             const { guild } = reaction.message;
             const roleName = emojis[emoji];
@@ -78,13 +75,13 @@ module.exports = {
         }
 
         client.on('messageReactionAdd', (reaction, user) => {
-            if(reaction.message.channel.id === channelID) {
+            if(reaction.message.channel.id === process.env.BOT_ROLES_CHANNEL) {
                 handleReaction(reaction, user, true);
             }
         })
         
         client.on('messageReactionRemove', (reaction, user) => {
-            if(reaction.message.channel.id === channelID) {
+            if(reaction.message.channel.id === process.env.BOT_ROLES_CHANNEL) {
                 handleReaction(reaction, user, false);
             }
         })

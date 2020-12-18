@@ -6,76 +6,71 @@ module.exports = {
         message.delete({ timeout: 5000 });
 
         switch(args[1]) {
-            case 'del':
+            case 'anime':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./del commands",
+                    title: "./anime commands",
                     fields: [
                         {
-                            name: "`./del <quantity>`",
-                            value: "Allows you to delete messages in bulk. Maximum quantity of 99 messages in one go."
-                        }
-                    ]
-                }});
-            break;
-            case 'joke':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./joke commands",
-                    fields: [
-                        {
-                            name: "`./joke prog`",
-                            value: "Programming jokes."
+                            name: "`./anime today`",
+                            value: "Gives you a random anime airing today."
                         },
                         {
-                            name: "`./joke misc`",
-                            value: "Miscellaneous jokes."
+                            name: "`./anime today all`",
+                            value: "Sends a private message with all anime airing today."
                         },
                         {
-                            name: "`./joke dark`",
-                            value: "Dark jokes. Will include reddit dark jokes later on to increase variety."
+                            name: "`./anime <season>`",
+                            value: "Gives you a random anime from any given season. Season argument: spring, summer, fall, winter"
                         },
                         {
-                            name: "`./joke dad`",
-                            value: "Dad jokes."
-                        },
-                        {
-                            name: "`./joke yomomma`",
-                            value: "Yo momma jokes."
+                            name: "`./anime <season> all`",
+                            value: "Sends a private message with all anime from any given season. Season argument: spring, summer, fall, winter"
                         }
                     ],
                     footer: {
-                        text: "Data acquired using JokeAPI, icanhazdadjokeAPI"
+                        text: "Data acquired using JikanAPI."
                     }
                 }});
-            break;
-            case 'poll':
+                break;
+            case 'aww':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./poll commands",
+                    title: "./aww commands",
                     fields: [
                         {
-                            name: "`./poll`",
-                            value: "Basic poll"
-                        }
-                    ]
-                }});
-            break;
-            case 'flame':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./flame commands",
-                    fields: [
-                        {
-                            name: "`./flame`",
-                            value: "Random insult."
+                            name: "`./aww`",
+                            value: "Gives you a random pic of a cute animal."
                         }
                     ],
                     footer: {
-                        text: "Data acquired using evilinsultAPI and scraping fungenerators.com"
+                        text: "Data acquired using RedditAPI"
                     }
                 }});
-            break;
+                break;
+            case 'books':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./books commands",
+                    fields: [
+                        {
+                            name: "`./books -s <store_name> <product_title>`",
+                            value: "Look up any book you want. Will return a list of books that match your product_title.\nStores include Book Depository - bd and Bertrand - bertrand"
+                        },
+                        {
+                            name: "`./books -d <store_name> <product_title>`",
+                            value: "Will show you details of a certain book.\nBe sure to specify whatever book you are looking for."
+                        },
+                        {
+                            name: "`./books -c <product_title>`",
+                            value: "Will compare prices of a given book.\nBe sure to specify whatever book you are looking for."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired scraping Book Depository, Bertrand, Fnac."
+                    }
+                }});
+                break;
             case 'comics':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -118,37 +113,22 @@ module.exports = {
                         text: "Data acquired scraping explosm.net and gocomics.com"
                     }
                 }});
-            break;
-            case 'aww':
+                break;
+            case 'cmpgame':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./aww commands",
+                    title: "./cmpgame commands",
                     fields: [
                         {
-                            name: "`./aww`",
-                            value: "Gives you a random pic of a cute animal."
+                            name: "`./cmpgame <game_title>`",
+                            value: "Compares prices of a given game."
                         }
                     ],
                     footer: {
-                        text: "Data acquired using RedditAPI"
+                        text: "Data acquired scraping AllKeyShop"
                     }
                 }});
-            break;
-            case 'memes':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./memes commands",
-                    fields: [
-                        {
-                            name: "`./memes`",
-                            value: "Gives you a random meme."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired using RedditAPI"
-                    }
-                }});
-            break;
+                break;
             case 'deals':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -167,110 +147,49 @@ module.exports = {
                         text: "Data acquired scraping ZwameComparador"
                     }
                 }});
-            break;
-            case 'books':
+                break;
+            case 'del':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./books commands",
+                    title: "./del commands",
                     fields: [
                         {
-                            name: "`./books -s <store_name> <product_title>`",
-                            value: "Look up any book you want. Will return a list of books that match your product_title.\nStores include Book Depository - bd and Bertrand - bertrand"
-                        },
-                        {
-                            name: "`./books -d <store_name> <product_title>`",
-                            value: "Will show you details of a certain book.\nBe sure to specify whatever book you are looking for."
-                        },
-                        {
-                            name: "`./books -c <product_title>`",
-                            value: "Will compare prices of a given book.\nBe sure to specify whatever book you are looking for."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired scraping Book Depository, Bertrand, Fnac."
-                    }
-                }});
-            break;
-            case 'reviews':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./reviews commands",
-                    fields: [
-                        {
-                            name: "`./reviews`",
-                            value: "Gives you the last 10 reviewed games on r/Games"
-                        },
-                        {
-                            name: "`./reviews -d <game_title>`",
-                            value: "Looks up any given game. Will return its OpenCritic score."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired using RedditAPI"
-                    }
-                }});
-            break;
-            case 'releasing':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./releasing commands",
-                    fields: [
-                        {
-                            name: "`./releasing <month: 1-12>`",
-                            value: "Gives the top 20 games releasing in a given month. Month argument must be given as a number: 1-12"
-                        },
-                        {
-                            name: "`./releasing -d <game_title>`",
-                            value: "Looks up any given upcoming game."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired using RawgAPI"
-                    }
-                }});
-            break;
-            case 'cmpgame':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./cmpgame commands",
-                    fields: [
-                        {
-                            name: "`./cmpgame <game_title>`",
-                            value: "Compares prices of a given game."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired scraping AllKeyShop"
-                    }
-                }});
-            break;
-            case 'specs':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./specs commands",
-                    fields: [
-                        {
-                            name: "`./specs <game_title>`",
-                            value: "Gives you the Minimum and Recommended System Requirements of a given game."
-                        }
-                    ],
-                    footer: {
-                        text: "Data acquired scraping GameDebate"
-                    }
-                }});
-            break;
-            case 'serpine':
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./serpine commands",
-                    fields: [
-                        {
-                            name: "`./serpine`",
-                            value: "Links you to my Github profile!"
+                            name: "`./del <quantity>`",
+                            value: "Allows you to delete messages in bulk. Maximum quantity of 99 messages in one go."
                         }
                     ]
                 }});
-            break;
+                break;
+            case 'flame':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./flame commands",
+                    fields: [
+                        {
+                            name: "`./flame`",
+                            value: "Random insult."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired using evilinsultAPI and scraping fungenerators.com"
+                    }
+                }});
+                break;
+            case 'geturl':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./geturl commands",
+                    fields: [
+                        {
+                            name: "`./geturl <Youtube query>`",
+                            value: "Gives you the Youtube URL for a given Youtube search query."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired using scrape-YT."
+                    }
+                }});
+                break;
             case 'github':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -289,34 +208,68 @@ module.exports = {
                         text: "Data acquired using GitHub API"
                     }
                 }});
-            break;
-            case 'anime':
+                break;
+            case 'holidays':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./anime commands",
+                    title: "./holidays commands",
                     fields: [
                         {
-                            name: "`./anime today`",
-                            value: "Gives you a random anime airing today."
-                        },
-                        {
-                            name: "`./anime today all`",
-                            value: "Sends a private message with all anime airing today."
-                        },
-                        {
-                            name: "`./anime <season>`",
-                            value: "Gives you a random anime from any given season. Season argument: spring, summer, fall, winter"
-                        },
-                        {
-                            name: "`./anime <season> all`",
-                            value: "Sends a private message with all anime from any given season. Season argument: spring, summer, fall, winter"
+                            name: "`./holidays <month> <year>`",
+                            value: "Gives you all holidays in any given month and year. Month argument must be given as a number: 1-12."
                         }
                     ],
                     footer: {
-                        text: "Data acquired using JikanAPI."
+                        text: "Data acquired using CalendarificAPI"
                     }
                 }});
-            break;
+                break;
+            case 'joke':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./joke commands",
+                    fields: [
+                        {
+                            name: "`./joke prog`",
+                            value: "Programming jokes."
+                        },
+                        {
+                            name: "`./joke misc`",
+                            value: "Miscellaneous jokes."
+                        },
+                        {
+                            name: "`./joke dark`",
+                            value: "Dark jokes. Will include reddit dark jokes later on to increase variety."
+                        },
+                        {
+                            name: "`./joke dad`",
+                            value: "Dad jokes."
+                        },
+                        {
+                            name: "`./joke yomomma`",
+                            value: "Yo momma jokes."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired using JokeAPI, icanhazdadjokeAPI"
+                    }
+                }});
+                break;
+            case 'memes':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./memes commands",
+                    fields: [
+                        {
+                            name: "`./memes`",
+                            value: "Gives you a random meme."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired using RedditAPI"
+                    }
+                }});
+                break;
             case 'music':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -359,37 +312,108 @@ module.exports = {
                         text: "Data acquired using Youtube API and scrape-YT."
                     }
                 }});
-            break;
-            case 'geturl':
+                break;
+            case 'poll':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./geturl commands",
+                    title: "./poll commands",
                     fields: [
                         {
-                            name: "`./geturl <Youtube query>`",
-                            value: "Gives you the Youtube URL for a given Youtube search query."
+                            name: "`./poll`",
+                            value: "Basic poll"
+                        }
+                    ]
+                }});
+                break;
+            case 'releasing':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./releasing commands",
+                    fields: [
+                        {
+                            name: "`./releasing <month: 1-12>`",
+                            value: "Gives the top 20 games releasing in a given month. Month argument must be given as a number: 1-12"
+                        },
+                        {
+                            name: "`./releasing -d <game_title>`",
+                            value: "Looks up any given upcoming game."
                         }
                     ],
                     footer: {
-                        text: "Data acquired using scrape-YT."
+                        text: "Data acquired using RawgAPI"
                     }
                 }});
-            break;
-            case 'holidays':
+                break;
+            case 'remindme':	
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./holidays commands",
+                    title: "./remindme commands",
                     fields: [
                         {
-                            name: "`./holidays <month> <year>`",
-                            value: "Gives you all holidays in any given month and year. Month argument must be given as a number: 1-12."
+                            name: "`./remindme <time> <message> <optional: -save>`",
+                            value: "Reminds you of something after a given time."
+                        }
+                    ]
+                }});
+                break;
+            case 'reviews':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./reviews commands",
+                    fields: [
+                        {
+                            name: "`./reviews`",
+                            value: "Gives you the last 10 reviewed games on r/Games"
+                        },
+                        {
+                            name: "`./reviews -d <game_title>`",
+                            value: "Looks up any given game. Will return its OpenCritic score."
                         }
                     ],
                     footer: {
-                        text: "Data acquired using CalendarificAPI"
+                        text: "Data acquired using RedditAPI"
                     }
                 }});
-            break;
+                break;
+            case 'secretsanta':	
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./secretsanta commands",
+                    fields: [
+                        {
+                            name: "`./secretsanta <user1> <user2> <user3>`",
+                            value: "Organizes a secret santa."
+                        }
+                    ]
+                }});
+                break;
+            case 'serpine':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./serpine commands",
+                    fields: [
+                        {
+                            name: "`./serpine`",
+                            value: "Links you to my Github profile!"
+                        }
+                    ]
+                }});
+                break;
+            case 'specs':
+                message.channel.send({embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: "./specs commands",
+                    fields: [
+                        {
+                            name: "`./specs <game_title>`",
+                            value: "Gives you the Minimum and Recommended System Requirements of a given game."
+                        }
+                    ],
+                    footer: {
+                        text: "Data acquired scraping GameDebate"
+                    }
+                }});
+                break;
             case 'weather':
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -403,18 +427,6 @@ module.exports = {
                     footer: {
                         text: "Data acquired using the OpenWeatherAPI"
                     }
-                }});
-            break;
-            case 'secretsanta':	
-                message.channel.send({embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: "./secretsanta commands",
-                    fields: [
-                        {
-                            name: "`./secretsanta <user1> <user2> <user3>`",
-                            value: "Organizes a secret santa."
-                        }
-                    ]
                 }});
                 break;
             default:
@@ -493,6 +505,11 @@ module.exports = {
                             inline: true
                         },
                         {
+                            name: "**Poll**",
+                            value: "`./cmd poll`",
+                            inline: true
+                        },
+                        {
                             name: "**Releasing**",
                             value: "`./cmd releasing`",
                             inline: true
@@ -500,6 +517,11 @@ module.exports = {
                         {
                             name: "**Reviews**",
                             value: "`./cmd reviews`",
+                            inline: true
+                        },
+                        {
+                            name: "**RemindMe**",
+                            value: "`./cmd remindme`",
                             inline: true
                         },
                         {

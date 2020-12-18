@@ -1,37 +1,41 @@
 require('dotenv').config();
 const Discord = require('discord.js');
 const client = new Discord.Client();
+const mongoDB = require('./utils/mongoose');
 const fs = require('fs');
 
 const prefix = './';
 
 client.commands = new Discord.Collection();
-
-const commandFiles = fs
-	.readdirSync('./commands/')
-	.filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync('./commands/').filter((file) => file.endsWith('.js'));
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
-
 	client.commands.set(command.name, command);
 }
 
-client.once('ready', () => {
+mongoDB.MongoEventListeners();
+
+client.once('ready', async () => {
+	await mongoDB.start();
 	console.log('Ready!');
 	client.user.setActivity('./cmd');
 	client.commands.get('roles').execute(client);
+	setInterval(() => {
+		client.commands.get('remindme').sendReminder(client);
+	}, 10000);
 });
 
-client.on('message', async message => {
-	if (message.author.bot) return;
+client.on('guildMemberAdd', user => {
+	const role = guild.roles.cache.find(role => role.name === 'No Restrictions');
+	user.roles.add(role);
+})
 
-	if (!isNaN(Number(message.content)))
-		client.commands.get('music').search_play(message, Number(message.content));
+client.on('message', async (message) => {
+	if (!/([A-Za-z])+/g.test(message.content)) client.commands.get('music').search_play(message);
 
-	if (!message.content.includes(prefix)) return;
+	if (!message.content.includes(prefix) || message.author.bot) return;
 
 	const args = message.content.substring(prefix.length).split(' ');
-
 	switch (args[0]) {
 		case 'del':
 			client.commands.get('del').execute(message, args);
@@ -63,9 +67,6 @@ client.on('message', async message => {
 		case 'cmpgame':
 			client.commands.get('cmpgame').execute(message, args);
 			break;
-		case 'track':
-			client.commands.get('track').execute(message, args);
-			break;
 		case 'specs':
 			client.commands.get('specs').execute(message, args);
 			break;
@@ -84,15 +85,6 @@ client.on('message', async message => {
 		case 'books':
 			client.commands.get('books').execute(message, args);
 			break;
-		case 'yesorno':
-			client.commands.get('yesorno').execute(message, args);
-			break;
-		case 'char':
-			client.commands.get('char').execute(message, args);
-			break;
-		case 'pokecard':
-			client.commands.get('pokecard').execute(message, args);
-			break;
 		case 'holidays':
 			client.commands.get('holidays').execute(message, args);
 			break;
@@ -104,6 +96,9 @@ client.on('message', async message => {
 			break;
 		case 'secretsanta':
 			client.commands.get('secretsanta').execute(client, message, args);
+			break;
+		case 'remindme':
+			client.commands.get('remindme').execute(message);
 			break;
 		case 'join':
 			client.commands.get('music').join(message);

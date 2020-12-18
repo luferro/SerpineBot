@@ -10,7 +10,7 @@ const streamOptions = {
 	volume: 1,
 };
 
-let queue = [],
+const queue = [],
 	queue_title = [],
 	queue_duration = [],
 	playing = true,
@@ -149,7 +149,8 @@ module.exports = {
 			console.log(error);
 		}
 	},
-	async search_play(message, option) {
+	async search_play(message) {
+		const option = message.content;
 		try {
 			if (message.member.voice.channel) {		
                 let results = await scrapeYt.search(argsmusic, opts_SCRAPE);
