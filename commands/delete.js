@@ -15,7 +15,6 @@ module.exports = {
 
 			message.channel.bulkDelete(amount == 100 ? amount : amount + 1, true).catch(error => {
 				console.error(error);
-				message.channel.send('There was an error when deleting the messages.').then(m => {m.delete({ timeout: 5000 })});;
 			});
     }
 }

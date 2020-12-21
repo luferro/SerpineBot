@@ -15,12 +15,12 @@
     "mongoose": "^5.11.7",
     "node-fetch": "^2.6.1",
     "scrape-yt": "^1.4.7",
-    "ytdl-core": "^4.1.4"
+    "ytdl-core": "^4.2.1"
   },
   "devDependencies": {},
   "scripts": {
     "start": "node SerpineBot.js"
   },
-  "author": "",
+  "author": "Luís Ferro",
   "license": "ISC"
 }

@@ -9,22 +9,26 @@ module.exports = {
             case '-s':
                 message.delete({ timeout: 5000 });
 
-                fetch(`https://api.github.com/search/repositories?q=${argsrepo}`)
+                fetch(`https://api.github.com/search/repositories?q=${argsrepo}&per_page=10`)
                     .then(response => response.json())
                     .then(data => {
-                        let tam = 10;
-                        if((data.items).length < 10)
-                            tam = (data.items).length;
-
-                        let all_results = '';
-                        for(let i = 0; i < tam; i++) {
-                            all_results += `${data.items[i].full_name}\n\n`;
-                        }
+                        let repositories = [];
+                        data.items.forEach(repo => {
+                            repositories.push({
+                                name: repo.full_name,
+                                description: repo.description,
+                                url: repo.html_url
+                            })
+                        });
 
                         message.channel.send({embed: {
                             color: Math.floor(Math.random() * 16777214) + 1,
                             title: `Search results for ${argsrepo}`,
-                            description: all_results
+                            description: repositories.map(repo => `
+                                **${repo.name}**
+                                ${repo.url}
+                                ${repo.description}
+                            `).join('\n')
                         }})
                     })
                     .catch(error => {
@@ -35,7 +39,7 @@ module.exports = {
             case '-d':
                 message.delete({ timeout: 5000 });
 
-                fetch(`https://api.github.com/search/repositories?q=${argsrepo}`)
+                fetch(`https://api.github.com/search/repositories?q=${argsrepo}&per_page=1`)
                     .then(response => response.json())
                     .then(data => {
                         message.channel.send({embed: {
@@ -65,7 +69,6 @@ module.exports = {
                             ]
                         }})
                         .catch(error => {
-                            message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
                             console.log(error);
                         });
                     })

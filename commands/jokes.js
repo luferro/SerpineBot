@@ -3,13 +3,13 @@ const fetch = require('node-fetch');
 module.exports = {
     name: 'joke',
     async execute(message, args){
+		message.delete({ timeout: 5000 });
+
 		switch(args[1]) {
 			case 'dark':
-				message.delete({ timeout: 5000 });
+				let typeDark = Math.floor((Math.random() * 3) + 1);
 
-				let type1 = Math.floor((Math.random() * 3) + 1);
-
-				switch (type1) {
+				switch (typeDark) {
 					case 1:
 						fetch('https://sv443.net/jokeapi/v2/joke/Dark?type=single')
 							.then(response => response.json())
@@ -23,7 +23,6 @@ module.exports = {
 								}})
 							})
 							.catch(error => {
-								message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
 								console.log(error);
 							});  
 						break;
@@ -41,7 +40,6 @@ module.exports = {
 								}})
 							})
 							.catch(error => {
-								message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
 								console.log(error);
 							});  
 						break;
@@ -62,8 +60,7 @@ module.exports = {
 									description: data.data.children[i].data.selftext 
 								}})
 							})
-							.catch(function(error) {
-								message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
+							.catch(error => {
 								console.log(error);
 							});  		
 						break;
@@ -72,11 +69,9 @@ module.exports = {
 				}
 				break;
 			case 'prog':
-				message.delete({ timeout: 5000 });
+				let typeProg = Math.floor((Math.random() * 2) + 1);
 
-				let type2 = Math.floor((Math.random() * 2) + 1);
-
-				switch (type2) {
+				switch (typeProg) {
 					case 1:
 						fetch('https://sv443.net/jokeapi/v2/joke/Programming?type=single')
 							.then(response => response.json())
@@ -90,7 +85,6 @@ module.exports = {
 								}})
 							})
 							.catch(error => {
-								message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
 								console.log(error);
 							});  
 						break;
@@ -108,7 +102,6 @@ module.exports = {
 								}})
 							})
 							.catch(error => {
-								message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
 								console.log(error);
 							});  
 						break;
@@ -117,11 +110,9 @@ module.exports = {
 				}
 				break;
 			case 'misc':
-				message.delete({ timeout: 5000 });
+				let typeMisc = Math.floor((Math.random() * 2) + 1);
 
-				let type3 = Math.floor((Math.random() * 2) + 1);
-
-				switch (type3) {
+				switch (typeMisc) {
 					case 1:
 						fetch('https://sv443.net/jokeapi/v2/joke/Miscellaneous?type=single')
 							.then(response => response.json())
@@ -135,7 +126,6 @@ module.exports = {
 								}})
 							})
 							.catch(error => {
-								message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
 								console.log(error);
 							});  
 						break;
@@ -153,7 +143,6 @@ module.exports = {
 								}})
 							})
 							.catch(error => {
-								message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
 								console.log(error);
 							});
 						break;
@@ -162,8 +151,6 @@ module.exports = {
 				}
 				break;
 			case 'dad':
-				message.delete({ timeout: 5000 });
-
 				fetch('https://icanhazdadjoke.com/', 
 				{
 					headers: {
@@ -183,13 +170,10 @@ module.exports = {
 						}})
 					})
 					.catch(error => {
-						message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
 						console.log(error);
 					});   
 				break;
 			case 'yomomma':
-				message.delete({ timeout: 5000 });
-
 				fetch('https://api.yomomma.info/')
 					.then(response => response.json())
 					.then(data => {
@@ -201,13 +185,12 @@ module.exports = {
 							title: data.joke
 						}})
 					})
-					.catch(function(error) {
-						message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
+					.catch(error => {
 						console.log(error);
 					});  
 				break;
 			default:
-				message.channel.send("Usage: ./joke <category> category: 'dark', 'misc', 'prog', 'dad' or 'yomomma'").then(m => {m.delete({ timeout: 5000 })});
+				message.channel.send("Usage: ./joke <category: 'dark', 'misc', 'prog', 'dad' or 'yomomma'>").then(m => {m.delete({ timeout: 5000 })});
 				break;
 		}
     }

@@ -18,7 +18,7 @@ mongoDB.MongoEventListeners();
 client.once('ready', async () => {
 	await mongoDB.start();
 	console.log('Ready!');
-	client.user.setActivity('./cmd');
+	client.user.setActivity(`./cmd`);
 	client.commands.get('roles').execute(client);
 	setInterval(() => {
 		client.commands.get('remindme').sendReminder(client);
@@ -31,7 +31,7 @@ client.on('guildMemberAdd', user => {
 })
 
 client.on('message', async (message) => {
-	if (!/([A-Za-z])+/g.test(message.content)) client.commands.get('music').search_play(message);
+	if (!isNaN(message.content) && message.member) client.commands.get('music').search_play(message);
 
 	if (!message.content.includes(prefix) || message.author.bot) return;
 
@@ -123,6 +123,15 @@ client.on('message', async (message) => {
 			break;
 		case 'queue':
 			client.commands.get('music').queue(message);
+			break;
+		case 'resume':
+			client.commands.get('music').resume(message);
+			break;
+		case 'pause':
+			client.commands.get('music').pause(message);
+			break;
+		case 'volume':
+			client.commands.get('music').volume(message, args);
 			break;
 		case 'leave':
 			client.commands.get('music').leave(message);

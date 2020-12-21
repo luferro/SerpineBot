@@ -54,16 +54,12 @@ module.exports = {
                     title: "./books commands",
                     fields: [
                         {
-                            name: "`./books -s <store_name> <product_title>`",
-                            value: "Look up any book you want. Will return a list of books that match your product_title.\nStores include Book Depository - bd and Bertrand - bertrand"
+                            name: "`./books -s <book_title>`",
+                            value: "Look up any book you want. Will return a list of books that match your book_title."
                         },
                         {
-                            name: "`./books -d <store_name> <product_title>`",
+                            name: "`./books -d <book_title>`",
                             value: "Will show you details of a certain book.\nBe sure to specify whatever book you are looking for."
-                        },
-                        {
-                            name: "`./books -c <product_title>`",
-                            value: "Will compare prices of a given book.\nBe sure to specify whatever book you are looking for."
                         }
                     ],
                     footer: {
@@ -335,7 +331,7 @@ module.exports = {
                             value: "Gives the top 20 games releasing in a given month. Month argument must be given as a number: 1-12"
                         },
                         {
-                            name: "`./releasing -d <game_title>`",
+                            name: "`./releasing <game_title>`",
                             value: "Looks up any given upcoming game."
                         }
                     ],
@@ -366,7 +362,7 @@ module.exports = {
                             value: "Gives you the last 10 reviewed games on r/Games"
                         },
                         {
-                            name: "`./reviews -d <game_title>`",
+                            name: "`./reviews <game_title>`",
                             value: "Looks up any given game. Will return its OpenCritic score."
                         }
                     ],

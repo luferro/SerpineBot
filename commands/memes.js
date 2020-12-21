@@ -9,35 +9,26 @@ module.exports = {
 			
         let subreddit, type = Math.floor((Math.random() * 2) + 1);
 
-        switch (type) {
-            case 1:
-                subreddit = 'memes';
-                break;
-            case 2:
-                subreddit = 'dankmemes'
-                break;
-            default:
-                break;
-        }
+        if(type === 1) subreddit = 'memes';
+        else subreddit = 'dankmemes';
         
         fetch(`https://i.reddit.com/r/${subreddit}/.json?limit=100&restrict_sr=1`)
             .then(response => response.json())
             .then(data => {     
-                let i = Math.floor(Math.random() * Object.keys(data.data.children).length) + 1;
+                let random = Math.floor(Math.random() * Object.keys(data.data.children).length) + 1;
                 
-                if(data.data.children[i].data.stickied == true || !data.data.children[i].data) i++;
+                if(data.data.children[random].data.stickied == true || !data.data.children[random].data) random++;
                 
                 message.channel.send({embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: data.data.children[i].data.title,
-                    url: `https://www.reddit.com${data.data.children[i].data.permalink}`,
+                    title: data.data.children[random].data.title,
+                    url: `https://www.reddit.com${data.data.children[random].data.permalink}`,
                     image: {
-                        url: data.data.children[i].data.url
+                        url: data.data.children[random].data.url
                     } 
                 }})
             })	
             .catch(error => {
-                message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
                 console.log(error);
             });      					
     }

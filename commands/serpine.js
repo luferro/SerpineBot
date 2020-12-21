@@ -11,35 +11,29 @@ module.exports = {
                 fetch('https://api.github.com/users/xSerpine/repos')
                     .then(response => response.json())
                     .then(data => {
-
-                        let tam = 10;
-                        if(data.length < tam)
-                            tam = data.length;
-
-                        let repos = '';
-                        for(let i = 0; i < tam; i++) {
-                            let desc = data[i].description;
-                            if(!data[i].description) desc = 'No description available.'
-                            repos += `**${data[i].name}**\n${desc}\n\n`;
-                        }
+                        let repos = [];
+                        data.forEach(repo => {
+                            repos.push({
+                                name: repo.name,
+                                description: repo.description ? repo.description : 'No description available.'
+                            });
+                        });
 
                         message.channel.send({embed: {
                             color: Math.floor(Math.random() * 16777214) + 1,
                             title: user.name,
                             url: user.html_url,
-                            description: repos,
+                            description: repos.map(repo => `**${repo.name}** - ${repo.description}`).join('\n\n'),
                             thumbnail: {
                                 url: user.avatar_url
                             } 
                         }})
                     })
                     .catch(error => {
-                        message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
                         console.log(error);
                     });
             })
             .catch(error => {
-                message.channel.send('Something went wrong').then(m => {m.delete({ timeout: 5000 })});
                 console.log(error);
             }); 				
     }
