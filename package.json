@@ -11,13 +11,11 @@
     "ffmpeg": "0.0.4",
     "fluent-ffmpeg": "^2.1.2",
     "fs": "0.0.1-security",
-    "got": "^11.8.1",
     "mongoose": "^5.11.7",
     "node-fetch": "^2.6.1",
-    "scrape-yt": "^1.4.7",
-    "ytdl-core": "^4.2.1"
+    "youtubei": "^0.0.1-rc.14",
+    "ytdl-core": "^4.8.2"
   },
-  "devDependencies": {},
   "scripts": {
     "start": "node SerpineBot.js"
   },

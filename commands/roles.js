@@ -9,11 +9,11 @@ const addReactions = (message, reactions) => {
 
 module.exports = {
     name: 'roles',
-    async execute(client){ 
+    async setupRoles(client) { 
         const channel = await client.channels.fetch(process.env.BOT_ROLES_CHANNEL);
 
         let text = `
-            Choose from the following reactions to claim a role!\nYou can select **multiple** roles.\nEach role will give you access to a text channel as represented below.
+            Choose from the following reactions to claim a role!\nYou can select **multiple** roles.\nEach role will give you access to a text channel as represented below.\n\n**NOTE:** Users with role 'Restrictions' won't be assigned the 'NSFW' role.
         `;
 
         const getEmoji = emojiName => client.emojis.cache.find(emoji => emoji.name === emojiName);
@@ -28,7 +28,9 @@ module.exports = {
             seven: 'Patch Notes',
             eight: 'Xbox',
             nine: 'Playstation',
-            ten: 'Nintendo'
+            ten: 'Nintendo',
+            eleven: 'Anime',
+            twelve: 'Manga'
         }
 
         const reactions = [];
@@ -40,7 +42,7 @@ module.exports = {
 
         channel.messages.fetch().then((messages) => {
             if(messages.size === 0) {
-                channel.send({embed: {
+                channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
                     title: 'Get your roles here!',
                     description: text.trim()
@@ -50,7 +52,7 @@ module.exports = {
             }
             else {
                 for(const message of messages) {
-                    message[1].edit({embed: {
+                    message[1].edit({ embed: {
                         color: Math.floor(Math.random() * 16777214) + 1,
                         title: 'Get your roles here!',
                         description: text.trim()
@@ -69,6 +71,9 @@ module.exports = {
 
             const role = guild.roles.cache.find(role => role.name === roleName);
             const member = guild.members.cache.find(member => member.id === user.id);
+
+            const restrictionsRole = guild.roles.cache.find(role => role.name === 'Restrictions');
+            if((member.roles.cache.has(restrictionsRole.id) && role.name === 'NSFW') || member.user.bot) return;
 
             if(add) member.roles.add(role);
             else member.roles.remove(role);

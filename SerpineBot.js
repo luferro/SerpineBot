@@ -1,10 +1,10 @@
 require('dotenv').config();
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const mongoDB = require('./utils/mongoose');
+const Database = require('./utils/mongoose');
 const fs = require('fs');
 
-const prefix = './';
+const prefixes = ['./', '.', '/', '\\'];
 
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands/').filter((file) => file.endsWith('.js'));
@@ -13,98 +13,72 @@ for (const file of commandFiles) {
 	client.commands.set(command.name, command);
 }
 
-mongoDB.MongoEventListeners();
-
 client.once('ready', async () => {
-	await mongoDB.start();
-	console.log('Ready!');
+	await Database.start();
 	client.user.setActivity(`./cmd`);
-	client.commands.get('roles').execute(client);
-	setInterval(() => {
-		client.commands.get('remindme').sendReminder(client);
+	
+	await client.commands.get('roles').setupRoles(client);
+
+	setInterval(async() => {
+		await client.commands.get('remindme').checkReminder(client);
 	}, 10000);
 });
 
-client.on('guildMemberAdd', user => {
-	const role = guild.roles.cache.find(role => role.name === 'No Restrictions');
-	user.roles.add(role);
+client.on('guildMemberAdd', member => {
+	const role = member.guild.roles.cache.find(role => role.name === 'Restrictions');
+	member.roles.add(role);
 })
 
 client.on('message', async (message) => {
 	if (!isNaN(message.content) && message.member) client.commands.get('music').search_play(message);
 
-	if (!message.content.includes(prefix) || message.author.bot) return;
+	const filteredPrefixes = prefixes.filter(item => message.content.startsWith(item));
+	if (filteredPrefixes.length === 0 || message.author.bot) return;
 
-	const args = message.content.substring(prefix.length).split(' ');
+	const args = message.content.substring(filteredPrefixes[0].length).split(' ');
+	
 	switch (args[0]) {
 		case 'del':
-			client.commands.get('del').execute(message, args);
+			client.commands.get('del').prune(message, args);
 			break;
 		case 'joke':
-			client.commands.get('joke').execute(message, args);
+			await client.commands.get('jokes').getJokes(message, args);
 			break;
 		case 'poll':
-			client.commands.get('poll').execute(message, args);
-			break;
-		case 'flame':
-			client.commands.get('flame').execute(message);
+			client.commands.get('poll').createPoll(message, args);
 			break;
 		case 'aww':
-			client.commands.get('aww').execute(message, args);
+			await client.commands.get('aww').getCutePosts(message, args);
 			break;
 		case 'memes':
-			client.commands.get('memes').execute(message, args);
-			break;
-		case 'deals':
-			client.commands.get('deals').execute(message, args);
-			break;
-		case 'reviews':
-			client.commands.get('reviews').execute(message, args);
-			break;
-		case 'releasing':
-			client.commands.get('releasing').execute(message, args);
-			break;
-		case 'cmpgame':
-			client.commands.get('cmpgame').execute(message, args);
+			await client.commands.get('memes').getMemes(message, args);
 			break;
 		case 'specs':
-			client.commands.get('specs').execute(message, args);
+			await client.commands.get('specs').getGameSpecs(message, args);
 			break;
 		case 'serpine':
-			client.commands.get('serpine').execute(message);
+			await client.commands.get('serpine').getAuthorRepos(message);
 			break;
 		case 'github':
-			client.commands.get('github').execute(message, args);
-			break;
-		case 'anime':
-			client.commands.get('anime').execute(message, args);
+			await client.commands.get('github').getGithubRepo(message, args);
 			break;
 		case 'comics':
-			client.commands.get('comics').execute(message, args);
-			break;
-		case 'books':
-			client.commands.get('books').execute(message, args);
-			break;
-		case 'holidays':
-			client.commands.get('holidays').execute(message, args);
-			break;
-		case 'weather':
-			client.commands.get('weather').execute(message, args);
+			await client.commands.get('comics').getComics(message, args);
 			break;
 		case 'geturl':
-			client.commands.get('searchyt').execute(message, args);
+			await client.commands.get('geturl').getURL(message, args);
 			break;
 		case 'secretsanta':
-			client.commands.get('secretsanta').execute(client, message, args);
+			await client.commands.get('secretsanta').setupSecretSanta(client, message, args);
 			break;
 		case 'remindme':
-			client.commands.get('remindme').execute(message);
+			await client.commands.get('remindme').createReminder(message);
 			break;
 		case 'join':
 			client.commands.get('music').join(message);
 			break;
 		case 'play':
-			client.commands.get('music').execute(message, args);
+			client.commands.get('music').setupMusic(message, args);
 			break;
 		case 'search':
 			client.commands.get('music').search(message, args);
@@ -137,9 +111,14 @@ client.on('message', async (message) => {
 			client.commands.get('music').leave(message);
 			break;
 		case 'cmd':
-			client.commands.get('cmd').execute(message, args);
+			client.commands.get('cmd').getHelp(message, args);
 			break;
 	}
 });
+
+['SIGINT', 'SIGTERM'].forEach(signal => process.on(signal, () => {
+    Database.disconnect();
+    process.exit(1);
+}));
 
 client.login(process.env.BOT_TOKEN);
