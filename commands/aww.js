@@ -16,7 +16,7 @@ module.exports = {
 
             const random = Math.floor(Math.random() * (data.data.children.length - 1));
 
-            if(data.data.children[random].data.media || data.data.children[random].data.stickied) return await this.getCutePosts(message, args);
+            if(data.data.children[random].data.media || data.data.children[random].data.stickied) return this.getCutePosts(message, args);
             
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,

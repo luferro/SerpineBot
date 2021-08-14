@@ -9,8 +9,14 @@ module.exports = {
 
         const gifters = [];
 		for (const key in args) {
-            if (key != 0 && args[key] != '') gifters.push(args[key]);
+            if(key != 0 && args[key] != '') gifters.push(args[key]);
 		}
+
+		const uniqueGifters = new Set(gifters);
+		if(uniqueGifters.size !== gifters.length) return message.channel.send('Duplicated user entry detected.').then(m => {m.delete({ timeout: 5000 })});
+		
+		const hasBots = gifters.some(item => item.includes('<@&'));
+		if(hasBots) return message.channel.send('Bot entry detected.').then(m => {m.delete({ timeout: 5000 })});
 
         for (const key in gifters) {
 			if(!gifters[key].includes('@')) return message.channel.send('You must mention users to add them to Secret Santa.').then(m => {m.delete({ timeout: 5000 })});
@@ -23,7 +29,7 @@ module.exports = {
 			const randomGifters = Math.floor(Math.random() * gifters.length);
 			const randomReceivers = Math.floor(Math.random() * receivers.length);
 
-			if (receivers[randomReceivers] !== gifters[randomGifters]) {
+			if(receivers[randomReceivers] !== gifters[randomGifters]) {
 				const inverseAssociation = {
 					gifter: receivers[randomReceivers],
 					receiver: gifters[randomGifters]
@@ -37,22 +43,22 @@ module.exports = {
 				if(!associations.includes(inverseAssociation)) {
 					try {                    					
 						const receiver = await client.users.fetch(receivers[randomReceivers].slice(3, receivers[randomReceivers].length - 1));
+						const gifter = await client.users.fetch(gifters[randomGifters].slice(3, gifters[randomGifters].length - 1));
 
 						const msg = `
-							**Sê bem-vindo(a) ao Secret Santa ${new Date().getFullYear()} do servidor ${message.guild.name}!**
-							\nPrepara uma prenda para o(a) ***${receiver.username}***!\nValor máximo de **25€**.\nTroca de prendas no dia **25/12/${new Date().getFullYear()}**.\n**Podem combinar vários jogos caso queiram fazer uso do valor máximo.**
+							**Sê bem-vindo(a) ao Secret Santa ${date.getFullYear()} do servidor ${message.guild.name}!**
+							\nPrepara uma prenda para o(a) ***${receiver.username}***!\nValor máximo de **25€**.\nTroca de prendas no dia **25/12/${date.getFullYear()}**.\n**Podem combinar vários jogos caso queiram fazer uso do valor máximo.**
 							\nCaso existam usernames idênticos e estejas na dúvida de quem é quem, o ID do(a) ***${receiver.username}*** é ***${receiver.id}***.\n**NOTA:** atualizem a vossa wishlist!
 							\n*Mensagem enviada às ${date.getHours()}:${date.getMinutes()} do dia ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}*
 						`;
 
-						client.users.fetch(gifters[randomGifters].slice(3, gifters[randomGifters].length - 1)).then(gifter => {
-							gifter.send(msg);
-						});
+						gifter.send(msg);
 
-						gifters.splice(randomGifters, 1);
 						receivers.splice(randomReceivers, 1);
+						gifters.splice(randomGifters, 1);
 					} catch (error) {
 						console.log(error);
+						break;
 					}
 				}
 			}

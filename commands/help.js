@@ -25,7 +25,7 @@ module.exports = {
                     title: './comics commands',
                     fields: [
                         {
-                            name: '`./comics cyanide`',
+                            name: '`./comics cyanide and happiness`',
                             value: 'Cyanide comics.'
                         },
                         {
@@ -33,11 +33,11 @@ module.exports = {
                             value: 'Garfield comics.'
                         },
                         {
-                            name: '`./comics fowl`',
+                            name: '`./comics fowl language`',
                             value: 'Fowl Language comics.'
                         },
                         {
-                            name: '`./comics sarah`',
+                            name: '`./comics sarahs scribbles`',
                             value: 'Sarah\'s Scribbles comics.'
                         },
                         {
@@ -45,15 +45,15 @@ module.exports = {
                             value: 'Peanuts comics.'
                         },
                         {
-                            name: '`./comics calvin`',
+                            name: '`./comics calvin and hobbes`',
                             value: 'Calvin and Hobbes comics.'
                         },
                         {
-                            name: '`./comics getfuzzy`',
+                            name: '`./comics get fuzzy`',
                             value: 'Get Fuzzy comics.'
                         },
                         {
-                            name: '`./comics jake`',
+                            name: '`./comics jake likes onions`',
                             value: 'Jake Likes Onions comics.'
                         }
                     ],
@@ -68,8 +68,8 @@ module.exports = {
                     title: './del commands',
                     fields: [
                         {
-                            name: '`./del <quantity>`',
-                            value: 'Allows you to delete messages in bulk. Maximum quantity of 99 messages in one go.'
+                            name: '`./del <Quantity of messages to delete>`',
+                            value: 'Allows you to delete messages in bulk. Maximum quantity of 100 messages in one go.'
                         }
                     ]
                 }});
@@ -95,11 +95,11 @@ module.exports = {
                     title: './github commands',
                     fields: [
                         {
-                            name: '`./github -s <repository_name>`',
+                            name: '`./github -s <Repository name>`',
                             value: 'Look up any repository you want! Will show you the first 10 results.'
                         },
                         {
-                            name: '`./github -d <repository_name>`',
+                            name: '`./github -d <Repository name>`',
                             value: 'Will show you details of a certain repository.\nBe sure to specify whatever repository you are looking for.'
                         }
                     ],
@@ -180,7 +180,7 @@ module.exports = {
                             value: 'Shows you the current queue.'
                         },
                         {
-                            name: '`./remove <index>`',
+                            name: '`./remove <Index to remove>`',
                             value: 'Removes a given item from the queue.'
                         },
                         {
@@ -209,14 +209,26 @@ module.exports = {
                     ]
                 }});
                 break;
-            case 'remindme':	
+            case 'reminder':	
                 message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './remindme commands',
+                    title: './reminder commands',
                     fields: [
                         {
-                            name: '`./remindme <time> <message> <optional: -save>`',
+                            name: '`./reminder <time> <message>`',
                             value: 'Reminds you of something after a given time.'
+                        }
+                    ]
+                }});
+                break;
+            case 'reviews':	
+                message.channel.send({ embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: './reviews commands',
+                    fields: [
+                        {
+                            name: '`./reviews <Game title>`',
+                            value: 'Gives you reviews for a given game.'
                         }
                     ]
                 }});
@@ -227,8 +239,8 @@ module.exports = {
                     title: './secretsanta commands',
                     fields: [
                         {
-                            name: '`./secretsanta <user1> <user2> <user3>`',
-                            value: 'Organizes a secret santa.'
+                            name: '`./secretsanta @user1 @user2 @user3`',
+                            value: 'Organizes a secret santa. '
                         }
                     ]
                 }});
@@ -251,12 +263,12 @@ module.exports = {
                     title: './specs commands',
                     fields: [
                         {
-                            name: '`./specs <game_title>`',
+                            name: '`./specs <Game title>`',
                             value: 'Gives you the Minimum and Recommended System Requirements of a given game.'
                         }
                     ],
                     footer: {
-                        text: 'Data acquired scraping GameDebate'
+                        text: 'Data acquired scraping Game-Debate'
                     }
                 }});
                 break;
@@ -267,7 +279,7 @@ module.exports = {
                     fields: [
                         {
                             name: '**Prefixes**',
-                            value: '`.<command>`\n`/<command>`\n`./<command>`\n`\\<command>`'
+                            value: '`.<command>`\n`/<command>`\n`./<command>`\n`$<command>`'
                         },
                         {
                             name: '**Comics**',
@@ -315,8 +327,13 @@ module.exports = {
                             inline: true
                         },
                         {
-                            name: '**RemindMe**',
-                            value: '`./cmd remindme`',
+                            name: '**Reminder**',
+                            value: '`./cmd reminder`',
+                            inline: true
+                        },
+                        {
+                            name: '**Reviews**',
+                            value: '`./cmd reviews`',
                             inline: true
                         },
                         {

@@ -1,4 +1,3 @@
-require('dotenv').config();
 const mongoose = require('mongoose');
 
 const options = {
@@ -8,7 +7,7 @@ const options = {
 
 module.exports = {
 	name: 'mongoose',
-	async start() {
+	async connect() {
         await mongoose.connect(process.env.MONGO_URI, options).catch(() => process.emit('SIGINT'));
         console.log('Ligação ao MongoDB iniciada.');
     },

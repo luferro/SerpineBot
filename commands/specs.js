@@ -6,27 +6,19 @@ module.exports = {
     async getGameSpecs(message, args) {
         message.delete({ timeout: 5000 });
 
-        if(!args[1]) return message.channel.send('Usage: ./specs <game_title>').then(m => { m.delete({ timeout: 5000 }) });
-
-        const game = args.slice(1).join(' ');
-
+        const game_query = args.slice(1).join(' ');
+        if(!game_query) return message.channel.send('Usage: ./specs <Game title>').then(m => { m.delete({ timeout: 5000 }) });
         try {
-            const res_search = await fetch(`https://www.game-debate.com/search/games?search=${game}`);
-            const body_search = await res_search.text();
-            const $1 = cheerio.load(body_search);
-
-            const url = $1('.advancedSearchResult .gameResultHeader').first().attr('href');
+            const url = await this.searchGameSpecs(game_query);
             if(!url) return message.channel.send('Couldn\'t find that game.').then(m => { m.delete({ timeout: 5000 }) });
 
-            const res_game = await fetch(`https://www.game-debate.com${url}`);
-            const body_game = await res_game.text();
-            const $2 = cheerio.load(body_game);
+            const res = await fetch(`https://www.game-debate.com${url}`);
+            const html = await res.text();
+            const $ = cheerio.load(html);
 
-            const title = $2('.game-title-container span').text();
-            const releaseDate = $2('.game-release-date-container .game-release-date p').next().text();
-            const updatedDate = $2('.devDefSysReqMinWrapper .dateUpdated').first().text();
-            const minHeader = $2('.devDefSysReqMinWrapper .devDefSysReqHeader').first().text().trim();
-            const recHeader = $2('.devDefSysReqRecWrapper .devDefSysReqHeader').first().text().trim();
+            const title = $('.game-title-container span').text();
+            const releaseDate = $('.game-release-date-container .game-release-date p').next().text();
+            const updatedDate = $('.devDefSysReqMinWrapper .dateUpdated').first().text();
 
             const minSpecs = [];
             $('.devDefSysReqMinWrapper .devDefSysReqList li').each((i, element) => {
@@ -38,19 +30,32 @@ module.exports = {
                 recSpecs.push($(element).clone().children().remove().end().text().trim());
             });
             
-            if(!minSpecs) minSpecs.push('No Minimum Requirements available.');
-            if(!recSpecs) recSpecs.push('No Recommended Requirements available.');
+            if(minSpecs.length === 0) minSpecs.push('No Minimum Requirements available.');
+            if(recSpecs.length === 0) recSpecs.push('No Recommended Requirements available.');
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
                 author: {
-                    name: `Requirements found for ${game}`
+                    name: `Requirements found for ${game_query}`
                 },
                 title: `${title}\n\n**Release Date**: ${releaseDate}`,
-                description: `${updatedDate}\n\n**${minHeader}**\n\n${minSpecs.join('\n')}\n\n**${recHeader}**\n\n${recSpecs.join('\n')}`  
+                description: `
+                    ${updatedDate}
+                    \n
+                    **Minimum**\n\n${minSpecs.join('\n')}
+                    \n
+                    **Recommended**\n\n${recSpecs.join('\n')}
+                `  
             }});
         } catch (error) {
             console.log(error);
         }	
-    }			
+    },
+    async searchGameSpecs(game) {
+        const res = await fetch(`https://www.game-debate.com/search/games?search=${game}`);
+        const html = await res.text();
+        const $ = cheerio.load(html);
+
+        return $('.advancedSearchResult .gameResultHeader').first().attr('href');
+    }	
 }

@@ -5,13 +5,15 @@ module.exports = {
     name: 'comics',
     async getComics(message, args) {
         message.delete({ timeout: 5000 });
+
+        const comic_query = args.slice(1).join(' ');
         
-        switch(args[1]) {
-            case 'cyanide':
+        switch(comic_query.toLowerCase()) {
+            case 'cyanide and happiness':
                 try {
                     const res = await fetch('http://explosm.net/comics/random');
-                    const body = await res.text();
-                    const $ = cheerio.load(body);
+                    const html = await res.text();
+                    const $ = cheerio.load(html);
     
                     message.channel.send({ embed: {
                         color: Math.floor(Math.random() * 16777214) + 1,
@@ -28,8 +30,8 @@ module.exports = {
             case 'garfield':	
                 try {
                     const res = await fetch('https://www.gocomics.com/random/garfield');
-                    const body = await res.text();
-                    const $ = cheerio.load(body);
+                    const html = await res.text();
+                    const $ = cheerio.load(html);
         
                     message.channel.send({ embed: {
                         color: Math.floor(Math.random() * 16777214) + 1,
@@ -43,11 +45,11 @@ module.exports = {
                     console.log(error);
                 }
                 break;
-            case 'fowl':
+            case 'fowl language':
                 try {
                     const res = await fetch('https://www.gocomics.com/random/fowl-language');
-                    const body = await res.text();
-                    const $ = cheerio.load(body);
+                    const html = await res.text();
+                    const $ = cheerio.load(html);
         
                     message.channel.send({ embed: {
                         color: Math.floor(Math.random() * 16777214) + 1,
@@ -61,11 +63,11 @@ module.exports = {
                     console.log(error);
                 }
                 break;
-            case 'sarah':
+            case 'sarahs scribbles':
                 try {
                     const res = await fetch('https://www.gocomics.com/random/sarahs-scribbles');
-                    const body = await res.text();
-                    const $ = cheerio.load(body);
+                    const html = await res.text();
+                    const $ = cheerio.load(html);
         
                     message.channel.send({ embed: {
                         color: Math.floor(Math.random() * 16777214) + 1,
@@ -97,11 +99,11 @@ module.exports = {
                     console.log(error);
                 }
                 break;
-            case 'calvin':
+            case 'calvin and hobbes':
                 try {
                     const res = await fetch('https://www.gocomics.com/random/calvinandhobbes');
-                    const body = await res.text();
-                    const $ = cheerio.load(body);
+                    const html = await res.text();
+                    const $ = cheerio.load(html);
         
                     message.channel.send({ embed: {
                         color: Math.floor(Math.random() * 16777214) + 1,
@@ -115,7 +117,7 @@ module.exports = {
                     console.log(error);
                 }
                 break;
-            case 'getfuzzy':
+            case 'get fuzzy':
                 try {
                     const res = await fetch('https://www.gocomics.com/random/getfuzzy');
                     const body = await res.text();
@@ -133,7 +135,7 @@ module.exports = {
                     console.log(error);
                 }
                 break;
-            case 'jake':
+            case 'jake likes onions':
                 try {
                     const res = await fetch('https://www.gocomics.com/random/jake-likes-onions');
                     const body = await res.text();
@@ -152,7 +154,7 @@ module.exports = {
                 }	
                 break;
             default:
-                message.channel.send('Usage: ./comics <cyanide, garfield, fowl, sarah, peanuts, calvin, getfuzzy, jake>').then(m => { m.delete({ timeout: 5000 }) });
+                message.channel.send('Usage: ./comics <Comics category: cyanide and happiness, garfield, fowl language, sarahs scribbles, peanuts, calvin and hobbes, get fuzzy, jake likes onions>').then(m => { m.delete({ timeout: 5000 }) });
                 break;
         }
     }

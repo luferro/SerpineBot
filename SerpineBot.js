@@ -1,26 +1,26 @@
 require('dotenv').config();
-const Discord = require('discord.js');
-const client = new Discord.Client();
-const Database = require('./utils/mongoose');
 const fs = require('fs');
+const Discord = require('discord.js');
+const { connect, disconnect } = require('./utils/mongoose');
 
-const prefixes = ['./', '.', '/', '\\'];
+const prefixes = ['./', '.', '/', '$'];
+const client = new Discord.Client();
 
 client.commands = new Discord.Collection();
-const commandFiles = fs.readdirSync('./commands/').filter((file) => file.endsWith('.js'));
+const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	client.commands.set(command.name, command);
 }
 
 client.once('ready', async () => {
-	await Database.start();
+	await connect();
 	client.user.setActivity(`./cmd`);
 	
 	await client.commands.get('roles').setupRoles(client);
 
 	setInterval(async() => {
-		await client.commands.get('remindme').checkReminder(client);
+		await client.commands.get('reminder').checkReminder(client);
 	}, 10000);
 });
 
@@ -30,14 +30,14 @@ client.on('guildMemberAdd', member => {
 })
 
 client.on('message', async (message) => {
-	if (!isNaN(message.content) && message.member) client.commands.get('music').search_play(message);
+	if(!isNaN(message.content) && message.member) client.commands.get('music').search_play(message);
 
 	const filteredPrefixes = prefixes.filter(item => message.content.startsWith(item));
-	if (filteredPrefixes.length === 0 || message.author.bot) return;
+	if(filteredPrefixes.length === 0 || message.author.bot) return;
 
 	const args = message.content.substring(filteredPrefixes[0].length).split(' ');
 	
-	switch (args[0]) {
+	switch(args[0]) {
 		case 'del':
 			client.commands.get('del').prune(message, args);
 			break;
@@ -71,8 +71,11 @@ client.on('message', async (message) => {
 		case 'secretsanta':
 			await client.commands.get('secretsanta').setupSecretSanta(client, message, args);
 			break;
-		case 'remindme':
-			await client.commands.get('remindme').createReminder(message);
+		case 'reminder':
+			await client.commands.get('reminder').setupReminder(message, args);
+			break;
+		case 'reviews':
+			await client.commands.get('reviews').getReviews(message, args);
 			break;
 		case 'join':
 			client.commands.get('music').join(message);
@@ -117,7 +120,7 @@ client.on('message', async (message) => {
 });
 
 ['SIGINT', 'SIGTERM'].forEach(signal => process.on(signal, () => {
-    Database.disconnect();
+    disconnect();
     process.exit(1);
 }));
 

@@ -6,7 +6,7 @@
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
     "cheerio": "^1.0.0-rc.3",
-    "discord.js": "^12.5.1",
+    "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
     "ffmpeg": "0.0.4",
     "fluent-ffmpeg": "^2.1.2",

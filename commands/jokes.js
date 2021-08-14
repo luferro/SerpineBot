@@ -202,7 +202,7 @@ module.exports = {
 				break;
 			}
 			default:
-				message.channel.send('Usage: ./joke <category: \'dark\', \'misc\', \'prog\', \'dad\' or \'yomomma\'>').then(m => {m.delete({ timeout: 5000 })});
+				message.channel.send('Usage: ./joke <Jokes category: \'dark\', \'misc\', \'prog\', \'dad\' or \'yomomma\'>').then(m => {m.delete({ timeout: 5000 })});
 				break;
 		}
     }

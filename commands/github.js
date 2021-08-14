@@ -77,7 +77,7 @@ module.exports = {
                 break;
             }
             default:
-                message.channel.send('Usage: ./github <-s or -d> <repository_name>').then(m => { m.delete({ timeout: 5000 }) });
+                message.channel.send('Usage: ./github <-s or -d> <Repository name>').then(m => { m.delete({ timeout: 5000 }) });
                 break;
         }			
     }

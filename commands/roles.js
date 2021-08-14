@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const addReactions = (message, reactions) => {
     message.react(reactions[0]);
     reactions.shift();
