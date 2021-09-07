@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const { slug } = require('../utils/slug');
 
 module.exports = {
 	name: 'reviews',
@@ -6,22 +7,12 @@ module.exports = {
         message.delete({ timeout: 5000 });
 
         const game_query = args.slice(1).join(' ');
-        if(!game_query) return message.channel.send('Usage: ./reviews <Game title>').then(m => { m.delete({ timeout: 5000 }) });
+        if(!game_query) return message.channel.send('./cmd reviews');
         try {
             const { id, name } = await this.searchGameReviews(game_query);
+            if(!id) return message.channel.send(`Couldn't find a match for ${game_query}.`).then(m => { m.delete({ timeout: 5000 }) }); 
             
-            const res = await fetch(`https://api.opencritic.com/api/game/${id}`);
-            const data = await res.json();
-
-            const url = `https://opencritic.com/game/${id}/${name}`;
-            const title = data.name;
-            const image = data.bannerScreenshot ? `https:${data.bannerScreenshot.fullRes}` : null;
-            const releaseDate = data.firstReleaseDate.split('T')[0];
-            const count = data.numReviews;
-            const score = Math.round(data.topCriticScore);
-            const tier = data.tier;
-            const platforms = data.Platforms.map(platform => `> ${platform.name}`);
-    
+            const { url, title, image, releaseDate, count, score, tier, platforms } = await this.getGameReviewsDetails(id, name);
             if(!tier && score === -1) return message.channel.send(`Couldn't find reviews for ${game_query}.`);
 
             message.channel.send({ embed: {
@@ -31,7 +22,7 @@ module.exports = {
                 fields: [
                     {
                       name: '**Release date**',
-                      value: releaseDate
+                      value: releaseDate ? releaseDate : 'N/A'
                     },
                     {
                         name: '**Available on**',
@@ -65,9 +56,34 @@ module.exports = {
         }
     },
     async searchGameReviews(game) {
-        const res = await fetch(`https://api.opencritic.com/api/meta/search?criteria=${game}`);
-        const data = await res.json();
+        try {
+            const res = await fetch(`https://api.opencritic.com/api/meta/search?criteria=${game}`);
+            const data = await res.json();
+            
+            if(data.length === 0) return { id: null, name: null };
 
-        return { id: data[0].id, name: (data[0].name.toLowerCase().replace(/[\/.?=&:#]+/g, '')).replace(/\s+/g, '-') }
+            return { id: data[0].id, name: slug(data[0].name) }
+        } catch (error) {
+            console.log(error);
+        }
+    },
+    async getGameReviewsDetails(id, name) {
+        try {
+            const res = await fetch(`https://api.opencritic.com/api/game/${id}`);
+            const data = await res.json();
+
+            return {
+                url: `https://opencritic.com/game/${id}/${name}`,
+                title: data.name,
+                image: data.bannerScreenshot ? `https:${data.bannerScreenshot.fullRes}` : null,
+                releaseDate: data.firstReleaseDate.split('T')[0],
+                count: data.numReviews,
+                score: Math.round(data.topCriticScore),
+                tier: data.tier,
+                platforms: data.Platforms.map(platform => `> ${platform.name}`)
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 };

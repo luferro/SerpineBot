@@ -5,7 +5,7 @@ module.exports = {
     async getMemes(message, args){
         message.delete({ timeout: 5000 });
 
-        if(args[1]) return message.channel.send('Usage: ./memes').then(m => { m.delete({ timeout: 5000 }) });
+        if(args[1]) return message.channel.send('./cmd memes');
 			
         const subreddits = ['memes', 'dankmemes'];
         const type = Math.floor(Math.random() * (subreddits.length - 1));

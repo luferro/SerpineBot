@@ -5,159 +5,180 @@ module.exports = {
 
         switch(args[1]) {
             case 'aww':
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './aww commands',
+                    title: 'Aww',
                     fields: [
                         {
                             name: '`./aww`',
-                            value: 'Gives you a random pic of a cute animal.'
+                            value: 'Returns a random cute picture.'
                         }
                     ],
                     footer: {
-                        text: 'Data acquired using RedditAPI'
+                        text: 'Powered by Reddit.'
                     }
-                }});
-                break;
+                }}).then(m => { m.delete({ timeout: 10000 }) });
             case 'comics':
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './comics commands',
+                    title: 'Comics',
                     fields: [
                         {
                             name: '`./comics cyanide and happiness`',
-                            value: 'Cyanide comics.'
+                            value: 'Returns a Cyanide and Happiness comic.'
                         },
                         {
                             name: '`./comics garfield`',
-                            value: 'Garfield comics.'
+                            value: 'Returns a Garfield comic.'
                         },
                         {
                             name: '`./comics fowl language`',
-                            value: 'Fowl Language comics.'
+                            value: 'Returns a Fowl Language comic.'
                         },
                         {
                             name: '`./comics sarahs scribbles`',
-                            value: 'Sarah\'s Scribbles comics.'
+                            value: 'Returns a Sarah\'s Scribbles comic.'
                         },
                         {
                             name: '`./comics peanuts`',
-                            value: 'Peanuts comics.'
+                            value: 'Returns a Peanuts comic.'
                         },
                         {
                             name: '`./comics calvin and hobbes`',
-                            value: 'Calvin and Hobbes comics.'
+                            value: 'Returns a Calvin and Hobbes comic.'
                         },
                         {
                             name: '`./comics get fuzzy`',
-                            value: 'Get Fuzzy comics.'
+                            value: 'Returns a Get Fuzzy comic.'
                         },
                         {
                             name: '`./comics jake likes onions`',
-                            value: 'Jake Likes Onions comics.'
+                            value: 'Returns a Jake Likes Onions comic.'
                         }
                     ],
                     footer: {
-                        text: 'Data acquired scraping explosm.net and gocomics.com'
+                        text: 'Powered by explosm.net and gocomics.com.'
                     }
-                }});
-                break;
-            case 'del':
-                message.channel.send({ embed: {
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'deals':
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './del commands',
+                    title: 'Deals',
                     fields: [
                         {
-                            name: '`./del <Quantity of messages to delete>`',
+                            name: '`./deals <Game title>`',
+                            value: 'Returns the best deals (official stores and keyshops) for a given game.'
+                        }
+                    ],
+                    footer: {
+                        text: 'Powered by gg.deals.'
+                    }
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'del':
+                return message.channel.send({ embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: 'Delete',
+                    fields: [
+                        {
+                            name: '`./del <Quantity of messages>`',
                             value: 'Allows you to delete messages in bulk. Maximum quantity of 100 messages in one go.'
+                        },
+                        {
+                            name: '`./delBot <Bot message ID>`',
+                            value: 'Allows you to delete BOT messages by ID.'
                         }
                     ]
-                }});
-                break;
-            case 'geturl':
-                message.channel.send({ embed: {
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'games':
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './geturl commands',
+                    title: 'Games',
                     fields: [
                         {
-                            name: '`./geturl <Youtube query>`',
-                            value: 'Gives you the Youtube URL for a given Youtube search query.'
+                            name: '`./games <Game title>`',
+                            value: 'Returns a general overview of a given game.'
                         }
                     ],
                     footer: {
-                        text: 'Data acquired using scrape-YT.'
+                        text: 'Powered by Rawg and HowLongToBeat.'
                     }
-                }});
-                break;
-            case 'github':
-                message.channel.send({ embed: {
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'hltb':
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './github commands',
+                    title: 'How Long To Beat',
                     fields: [
                         {
-                            name: '`./github -s <Repository name>`',
-                            value: 'Look up any repository you want! Will show you the first 10 results.'
-                        },
-                        {
-                            name: '`./github -d <Repository name>`',
-                            value: 'Will show you details of a certain repository.\nBe sure to specify whatever repository you are looking for.'
+                            name: '`./hltb <Game title>`',
+                            value: 'Returns an average playtime needed to beat a given game.'
                         }
                     ],
                     footer: {
-                        text: 'Data acquired using GitHub API'
+                        text: 'Powered by HowLongToBeat.'
                     }
-                }});
-                break;
-            case 'joke':
-                message.channel.send({ embed: {
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'jokes':
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './joke commands',
+                    title: 'Jokes',
                     fields: [
                         {
-                            name: '`./joke prog`',
-                            value: 'Programming jokes.'
+                            name: '`./jokes prog`',
+                            value: 'Returns a programming joke.'
                         },
                         {
-                            name: '`./joke misc`',
-                            value: 'Miscellaneous jokes.'
+                            name: '`./jokes misc`',
+                            value: 'Returns a miscellaneous joke.'
                         },
                         {
-                            name: '`./joke dark`',
-                            value: 'Dark jokes. Will include reddit dark jokes later on to increase variety.'
+                            name: '`./jokes dark`',
+                            value: 'Returns a dark joke.'
                         },
                         {
-                            name: '`./joke dad`',
-                            value: 'Dad jokes.'
+                            name: '`./jokes dad`',
+                            value: 'Returns a dad joke.'
                         },
                         {
-                            name: '`./joke yomomma`',
-                            value: 'Yo momma jokes.'
+                            name: '`./jokes yo momma`',
+                            value: 'Returns a yo momma joke.'
                         }
                     ],
                     footer: {
-                        text: 'Data acquired using JokeAPI, icanhazdadjokeAPI'
+                        text: 'Powered by JokeAPI and icanhazdadjokeAPI.'
                     }
-                }});
-                break;
+                }}).then(m => { m.delete({ timeout: 10000 }) });
             case 'memes':
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './memes commands',
+                    title: 'Memes',
                     fields: [
                         {
                             name: '`./memes`',
-                            value: 'Gives you a random meme.'
+                            value: 'Returns a random meme.'
                         }
                     ],
                     footer: {
-                        text: 'Data acquired using RedditAPI'
+                        text: 'Powered by Reddit.'
                     }
-                }});
-                break;
-            case 'music':
-                message.channel.send({ embed: {
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'movies':
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './music commands',
+                    title: 'Movies',
+                    fields: [
+                        {
+                            name: '`./movies <Movie title>`',
+                            value: 'Returns an overview of a given movie.'
+                        }
+                    ],
+                    footer: {
+                        text: 'Powered by The Movie DB and JustWatch.'
+                    }
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'music':
+                return message.channel.send({ embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: 'Music',
                     fields: [
                         {
                             name: '`./join`',
@@ -185,7 +206,7 @@ module.exports = {
                         },
                         {
                             name: '`./clear`',
-                            value: 'Removes every item on the queue.'
+                            value: 'Removes every item in the queue.'
                         },
                         {
                             name: '`./leave`',
@@ -193,87 +214,150 @@ module.exports = {
                         }
                     ],
                     footer: {
-                        text: 'Data acquired using Youtube API and scrape-YT.'
+                        text: 'Powered by youtubei.'
                     }
-                }});
-                break;
+                }}).then(m => { m.delete({ timeout: 10000 }) });
             case 'poll':
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './poll commands',
+                    title: 'Poll',
                     fields: [
                         {
-                            name: '`./poll`',
-                            value: 'Basic poll'
+                            name: '`./poll <question> <optional: item 1, item 2, item 3, etc>`',
+                            value: 'Creates a poll with reactions.'
                         }
                     ]
-                }});
-                break;
+                }}).then(m => { m.delete({ timeout: 10000 }) });
             case 'reminder':	
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './reminder commands',
+                    title: 'Reminder',
                     fields: [
                         {
                             name: '`./reminder <time> <message>`',
-                            value: 'Reminds you of something after a given time.'
+                            value: 'Sets a reminder for a given message.'
                         }
                     ]
-                }});
-                break;
+                }}).then(m => { m.delete({ timeout: 10000 }) });
             case 'reviews':	
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './reviews commands',
+                    title: 'Reviews',
                     fields: [
                         {
                             name: '`./reviews <Game title>`',
-                            value: 'Gives you reviews for a given game.'
+                            value: 'Returns reviews for a given game.'
                         }
-                    ]
-                }});
-                break;
+                    ],
+                    footer: {
+                        text: 'Powered by OpenCritic.'
+                    }
+                }}).then(m => { m.delete({ timeout: 10000 }) });
             case 'secretsanta':	
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './secretsanta commands',
+                    title: 'Secret Santa',
                     fields: [
                         {
                             name: '`./secretsanta @user1 @user2 @user3`',
                             value: 'Organizes a secret santa. '
                         }
                     ]
-                }});
-                break;
-            case 'serpine':
-                message.channel.send({ embed: {
-                    color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './serpine commands',
-                    fields: [
-                        {
-                            name: '`./serpine`',
-                            value: 'Links you to my Github profile!'
-                        }
-                    ]
-                }});
-                break;
+                }}).then(m => { m.delete({ timeout: 10000 }) });
             case 'specs':
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: './specs commands',
+                    title: 'Specs',
                     fields: [
                         {
                             name: '`./specs <Game title>`',
-                            value: 'Gives you the Minimum and Recommended System Requirements of a given game.'
+                            value: 'Returns the minimum and recommended system requirements of a given game.'
                         }
                     ],
                     footer: {
-                        text: 'Data acquired scraping Game-Debate'
+                        text: 'Powered by Game-Debate.'
                     }
-                }});
-                break;
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'steam':
+                return message.channel.send({ embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: 'Steam',
+                    fields: [
+                        {
+                            name: '`./steam sale`',
+                            value: 'Returns the next steam sale.'
+                        },
+                        {
+                            name: '`./steam top played`',
+                            value: 'Returns Steam\'s top played games.'
+                        },
+                        {
+                            name: '`./steam top sellers`',
+                            value: 'Returns Steam\'s top sellers.'
+                        },
+                        {
+                            name: '`./steam upcoming`',
+                            value: 'Returns Steam\'s upcoming games.'
+                        },
+                        {
+                            name: '`./steam low <Game title>`',
+                            value: 'Returns Steam\'s historical lows for a given game.'
+                        },
+                        {
+                            name: '`./steam import <Wishlist URL>`',
+                            value: 'Import your Steam wishlist.'
+                        },
+                        {
+                            name: '`./steam sync`',
+                            value: 'Manually synchronize your Steam wishlist.'
+                        },
+                        {
+                            name: '`./steam wishlist`',
+                            value: 'Returns your Steam wishlist.'
+                        },
+                        {
+                            name: '`./steam wishlist <Mention>`',
+                            value: 'Returns the mentioned user\'s Steam wishlist.'
+                        },
+                        {
+                            name: '`./steam delete`',
+                            value: 'Delete Steam wishlist integration.'
+                        }
+                    ],
+                    footer: {
+                        text: 'Powered by Steam, prepareyourwallet and IsThereAnyDeal.'
+                    }
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'tv':
+                return message.channel.send({ embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: 'TV Shows',
+                    fields: [
+                        {
+                            name: '`./tv <TV Show title>`',
+                            value: 'Returns an overview of a given TV show.'
+                        }
+                    ],
+                    footer: {
+                        text: 'Powered by The Movie DB and JustWatch.'
+                    }
+                }}).then(m => { m.delete({ timeout: 10000 }) });
+            case 'youtube':
+                return message.channel.send({ embed: {
+                    color: Math.floor(Math.random() * 16777214) + 1,
+                    title: 'Youtube',
+                    fields: [
+                        {
+                            name: '`./youtube <Youtube query>`',
+                            value: 'Returns a the Youtube URL that matches your search query.'
+                        }
+                    ],
+                    footer: {
+                        text: 'Powered by youtubei.'
+                    }
+                }}).then(m => { m.delete({ timeout: 10000 }) });
             default:
-                message.channel.send({ embed: {
+                return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
                     title: 'Available commands',
                     fields: [
@@ -292,28 +376,38 @@ module.exports = {
                             inline: true
                         },
                         {
+                            name: '**Deals**',
+                            value: '`./cmd deals`',
+                            inline: true
+                        },
+                        {
                             name: '**Delete**',
                             value: '`./cmd del`',
                             inline: true
                         },
                         {
-                            name: '**Get Youtube URL**',
-                            value: '`./cmd geturl`',
+                            name: '**Games**',
+                            value: '`./cmd games`',
                             inline: true
                         },
                         {
-                            name: '**Github**',
-                            value: '`./cmd github`',
+                            name: '**HowLongToBeat**',
+                            value: '`./cmd hltb`',
                             inline: true
                         },
                         {
-                            name: '**Joke**',
-                            value: '`./cmd joke`',
+                            name: '**Jokes**',
+                            value: '`./cmd jokes`',
                             inline: true
                         },
                         {
                             name: '**Memes**',
                             value: '`./cmd memes`',
+                            inline: true
+                        },
+                        {
+                            name: '**Movies**',
+                            value: '`./cmd movies`',
                             inline: true
                         },
                         {
@@ -342,18 +436,27 @@ module.exports = {
                             inline: true
                         },
                         {
-                            name: '**Serpine**',
-                            value: '`./cmd serpine`',
+                            name: '**Specs**',
+                            value: '`./cmd specs`',
                             inline: true
                         },
                         {
-                            name: '**Specs**',
-                            value: '`./cmd specs`',
+                            name: '**Steam**',
+                            value: '`./cmd steam`',
+                            inline: true
+                        },
+                        {
+                            name: '**TV Shows**',
+                            value: '`./cmd tv`',
+                            inline: true
+                        },
+                        {
+                            name: '**Youtube search**',
+                            value: '`./cmd youtube`',
                             inline: true
                         }
                     ]
                 }});
-                break;
         }  
     }
 }

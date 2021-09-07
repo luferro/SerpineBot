@@ -5,7 +5,7 @@ module.exports = {
     async getCutePosts(message, args) {
         message.delete({ timeout: 5000 });
 
-        if(args[1]) return message.channel.send('Usage: ./aww').then(m => { m.delete({ timeout: 5000 }) });
+        if(args[1]) return message.channel.send('./cmd aww');
 
         const subreddits = ['aww', 'tuckedinkitties', 'dogpictures', 'catpictures', 'rarepuppers'];
         const type = Math.floor(Math.random() * (subreddits.length - 1));

@@ -1,1 +1,1 @@
-worker: node SerpineBot.js
+worker: node server.js
