@@ -2,19 +2,20 @@ const fetch = require('node-fetch');
 const hltb = require('howlongtobeat');
 const subscriptionsSchema = require('../models/subscriptionsSchema');
 const { slug } = require('../utils/slug');
+const { erase } = require('../utils/message');
 
 const hltbService = new hltb.HowLongToBeatService();
 
 module.exports = {
 	name: 'games',
     async getGames(message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
-        const game_query = args.slice(1).join(' ');
-        if(!game_query) return message.channel.send('./cmd games');
+        const query = args.slice(1).join(' ');
+        if(!query) return message.channel.send('./cmd games');
         try {
-            const id = await this.searchGame(game_query);
-            if(!id) return message.channel.send(`Couldn't find a match for ${game_query}.`).then(m => { m.delete({ timeout: 5000 }) });
+            const id = await this.searchGame(query);
+            if(!id) return message.channel.send(`Couldn't find a match for ${query}.`).then(m => { m.delete({ timeout: 5000 }) });
 
             const { name, url, releaseDate, image, developer, publisher, platformsList, storesList, subscriptionsList, playtimes } = await this.getGameDetails(id);
                         
@@ -27,7 +28,7 @@ module.exports = {
                 stores.push(`> **[${item.name}](${storeItem.url})**`);
             });
 
-            const hasPlaytimes =  playtimes[0]?.gameplayMain > 0 && playtimes[0]?.gameplayMainExtra > 0 && playtimes[0]?.gameplayCompletionist > 0;
+            const hasPlaytimes =  playtimes[0]?.gameplayMain > 0 || playtimes[0]?.gameplayMainExtra > 0 || playtimes[0]?.gameplayCompletionist > 0;
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
@@ -55,10 +56,10 @@ module.exports = {
                     {
                         name: '**How long to beat**',
                         value: `
-                            ${playtimes.length === 0 || !hasPlaytimes ? 'N/A' : ''}
-                            ${playtimes[0]?.gameplayMain > 0 ? `> __Main Story__ takes ~${playtimes[0].gameplayMain}h` : ''}
-                            ${playtimes[0]?.gameplayMainExtra > 0 ? `> __Main Story + Extras__ takes ~${playtimes[0].gameplayMainExtra}h` : ''}
-                            ${playtimes[0]?.gameplayCompletionist > 0 ? `> __Completionist__ takes ~${playtimes[0].gameplayCompletionist}h` : ''}
+                            ${!hasPlaytimes ? 'N/A' : ''}
+                            ${playtimes[0]?.gameplayMain > 0 ? `> Main Story takes \`~${playtimes[0].gameplayMain}h\`` : ''}
+                            ${playtimes[0]?.gameplayMainExtra > 0 ? `> Main Story + Extras takes \`~${playtimes[0].gameplayMainExtra}h\`` : ''}
+                            ${playtimes[0]?.gameplayCompletionist > 0 ? `> Completionist takes \`~${playtimes[0].gameplayCompletionist}h\`` : ''}
                         `
                     },
                     {
@@ -87,10 +88,13 @@ module.exports = {
         try {
             const res = await fetch(`https://api.rawg.io/api/games?key=${process.env.RAWG_API_KEY}&search=${game}`);
             const data = await res.json();
-    
+
             if(data.results.length === 0) return null;
-    
-            return data.results[0].id;   
+
+            const storesToAvoid = [8, 9];
+            const filteredData = data.results.filter(item => item.stores && !storesToAvoid.includes(item.stores[0].store.id));
+            
+            return filteredData[0].id;   
         } catch (error) {
             console.log(error);
         }
@@ -101,18 +105,18 @@ module.exports = {
             const data = await res.json();
 
             const name = data.name;
-
             const playtimes = await hltbService.search(data.name).catch(error => console.log(error));
-    
+
             const platforms = [];
-            data.platforms.forEach(item => platforms.push(`> ${item.platform.name}`));
+            const platformsToAvoid = [5, 6, 171];
+            data.platforms.forEach(item => !platformsToAvoid.includes(item.platform.id) && platforms.push(`> ${item.platform.name}`));
     
             const stores = [];
             data.stores.forEach(item => stores.push({ id: item.store.id, name: item.store.name }));
 
             const subscriptions = [];
-            const game_subscriptions = await subscriptionsSchema.find({ 'items.slug': { $regex: new RegExp(`^${slug(name)}`, 'g') } });
-            game_subscriptions.forEach(element => subscriptions.push(`> **${element.subscription}**`));
+            const gamingSubscriptions = await subscriptionsSchema.find({ 'items.slug': { $regex: new RegExp(`^${slug(name)}`, 'g') } });
+            gamingSubscriptions.forEach(element => subscriptions.push(`> **${element.subscription}**`));
     
             return {
                 name,

@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const { erase } = require('../utils/message');
 
 module.exports = {
 	name: 'tv',
@@ -9,13 +10,13 @@ module.exports = {
         return `${hours}h${minutes}m`;
     },
     async getTVShows(message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
-        const show_query = args.slice(1).join(' ');
-        if(!show_query) return message.channel.send('./cmd tv');
+        const query = args.slice(1).join(' ');
+        if(!query) return message.channel.send('./cmd tv');
         try {
-            const id = await this.searchTVShow(show_query);
-            if(!id) return message.channel.send(`Couldn't find a match for ${show_query}.`).then(m => { m.delete({ timeout: 5000 }) });
+            const id = await this.searchTVShow(query);
+            if(!id) return message.channel.send(`Couldn't find a match for ${query}.`).then(m => { m.delete({ timeout: 5000 }) });
 
             const { name, tagline, overview, url, status, firstEpisode, nextEpisode, seasons, image, score, runtime, genres, providers } = await this.getTVShowDetails(id);
 

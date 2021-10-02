@@ -1,16 +1,17 @@
 const remindersSchema = require('../models/remindersSchema');
 const crypto = require('crypto');
+const { erase } = require('../utils/message');
 
 module.exports = {
 	name: 'reminder',
     setup(message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
         if(args[1] === 'delete') this.deleteReminder(message, args[2]);
         else this.createReminder(message, args);
     },
 	async createReminder(message, args) {
-        const reminder_id = crypto.randomUUID();
+        const reminderID = crypto.randomUUID();
         const user = message.author.id;
         const time = message.content.match(/[0-9]+|(secs|mins|hours?|days?|weeks?|months?|years?)/g);
         const text = args.slice(3).join(' ');
@@ -53,23 +54,23 @@ module.exports = {
         
         try {
             await new remindersSchema({
-                reminder_id,
+                reminderID,
                 user,
                 timeStart: new Date().getTime(),
                 timeEnd: new Date().getTime() + ms,
                 message: text
             }).save();
 
-            message.channel.send(`**Reminder ID:** ${reminder_id}\n<@${user}> I'll remind you about ${text} in ${time[0]} ${time[1]}!`);
+            message.channel.send(`**Reminder ID:** ${reminderID}\n<@${user}> I'll remind you about ${text} in ${time[0]} ${time[1]}!`);
         } catch (error) {
             console.log(error);
         }   
     },
-    async deleteReminder(message, reminder_id) {
+    async deleteReminder(message, reminderID) {
         try {
-            if(!reminder_id) return message.channel.send('./cmd reminder');
+            if(!reminderID) return message.channel.send('./cmd reminder');
 
-            const status = await remindersSchema.deleteOne({ reminder_id });
+            const status = await remindersSchema.deleteOne({ reminderID });
 
             message.channel.send(`Deleted ${status.deletedCount} reminder!`);
         } catch (error) {

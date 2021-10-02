@@ -1,6 +1,7 @@
 const { Client } = require('youtubei');
 const youtube = new Client();
 const ytdl = require('ytdl-core');
+const { erase } = require('../utils/message');
 const musicSchema = require('../models/musicSchema');
 
 const serverMusic = new Map();
@@ -16,20 +17,21 @@ module.exports = {
 		return `${minutes}:${seconds}`;
 	},
 	async setup(message, args) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
-		const music_query = args.slice(1).join(' ');
-		if(!music_query) return message.channel.send('./cmd music');
+		const query = args.slice(1).join(' ');
+		if(!query) return message.channel.send('./cmd music');
 			
 		if(message.member.voice.channel) {
         	try {
-				const results = await youtube.search(music_query, youtubeOptions).catch(error => console.log(error));
+				const results = await youtube.search(query, youtubeOptions);
     
                 if(ytdl.validateURL(`https://www.youtube.com/watch?v=${results[0].id}`)) {
                     const music = {
 						title: results[0].title,
 						url: `https://www.youtube.com/watch?v=${results[0].id}`,
-						duration: this.secondsToTime(results[0].duration)
+						duration: this.secondsToTime(results[0].duration),
+						livestream: results[0].isLive
 					};
 
 					const serverQueue = serverMusic.get(message.guild.id); 
@@ -77,7 +79,7 @@ module.exports = {
 							playing: true,
 							looping: false,
 							searching: false,
-							searched_music: null,
+							query: null,
 							queue: []							
 						};
 
@@ -126,11 +128,12 @@ module.exports = {
 	async play(message) {
 		try {
 			const serverQueue = serverMusic.get(message.guild.id);
-			const customVolume = await musicSchema.findOne({ guildID: message.guild.id });
+			const customVolume = await musicSchema.findOne({ guild: message.guild.id });
 
-			const stream = ytdl(serverQueue.queue[0].url, { filter: 'audioonly' });
-			serverQueue.dispatcher = serverQueue.connection.play(stream, streamOptions)
+			const options = serverQueue.queue[0].livestream ? { quality: [128,127,120,96,95,94,93] } : { filter: 'audioonly' };
 
+			const stream = ytdl(serverQueue.queue[0].url, options);
+			serverQueue.dispatcher = serverQueue.connection.play(stream, streamOptions);
 			serverQueue.dispatcher.setVolume(customVolume ? customVolume.volume : 1);
 			serverQueue.playing = true;
 
@@ -157,7 +160,7 @@ module.exports = {
 		}
     },
 	loop(message) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		const serverQueue = serverMusic.get(message.guild.id); 
 
@@ -182,13 +185,13 @@ module.exports = {
 		else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) }); 
 	},
 	async search(message, args) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
-		const search_query = args.slice(1).join(' ');
+		const query = args.slice(1).join(' ');
 
 		if(message.member.voice.channel) {
 			try {
-				if(!search_query) return message.channel.send('./cmd music');
+				if(!query) return message.channel.send('./cmd music');
 
 				const serverQueue = serverMusic.get(message.guild.id);
 				if(!serverQueue) {
@@ -198,29 +201,29 @@ module.exports = {
 						playing: true,
 						looping: false,
 						searching: true,
-						searched_music: search_query,
+						query,
 						queue: []							
 					};
 					serverMusic.set(message.guild.id, serverDetails);
 				}
 				else {
 					serverQueue.searching = true;
-					serverQueue.searched_music = search_query;
+					serverQueue.query = query;
 				}
 
-                const results = await youtube.search(search_query, youtubeOptions);
+                const results = await youtube.search(query, youtubeOptions);
 				results.length = results.length >= 10 ? 10 : results.length;
 
 				let option = 0;
-				const all_results = [];
+				const list = [];
 				results.forEach(item => {
-					all_results.push(`\`${++option}.\` [${item.title}](${item.url}) | \`${this.secondsToTime(item.duration)}\`\n`);
+					list.push(`\`${++option}.\` [${item.title}](${item.url}) | \`${this.secondsToTime(item.duration)}\`\n`);
 				});
 
                 message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: `Search results for \`${search_query}\``,
-                    description: all_results.join('\n'),
+                    title: `Search results for \`${query}\``,
+                    description: list.join('\n'),
 					footer: {
 						text: 'Type `cancel` to stop searching' 
 					}
@@ -239,13 +242,14 @@ module.exports = {
 			try {
 				if(serverQueue.queue.length === 0) serverQueue.playing = false;
 
-				const results = await youtube.search(serverQueue.searched_music, youtubeOptions);
+				const results = await youtube.search(serverQueue.query, youtubeOptions);
 				const option = parseInt(message.content);
 
 				const music = {
 					title: results[option - 1].title,
 					url: `https://www.youtube.com/watch?v=${results[option - 1].id}`,
-					duration: this.secondsToTime(results[option - 1].duration)
+					duration: this.secondsToTime(results[option - 1].duration),
+					livestream: results[0].isLive
 				}
 
 				const musicExists = serverQueue.queue.some(item => JSON.stringify(item) === JSON.stringify(music));
@@ -325,7 +329,7 @@ module.exports = {
 		}
 	},
 	async skip(message) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			try {
@@ -344,7 +348,7 @@ module.exports = {
 		else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) });
 	},
 	clear(message) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			const serverQueue = serverMusic.get(message.guild.id);
@@ -365,7 +369,7 @@ module.exports = {
 		else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) });
 	},
 	remove(message, args) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			if(!args[1]) return message.channel.send('./cmd music');
@@ -375,15 +379,15 @@ module.exports = {
 			serverQueue.queue.splice(args[1], 1);
 
 			let option = 0;
-			const updated_queue = [];
+			const updatedQueue = [];
 			serverQueue.queue.forEach((item, index) => {
-				if(index !== 0) updated_queue.push(`\`${++option}.\` [${item.title}](${item.url}) | \`${item.duration} requested by ${message.author.tag}\`\n`);
+				if(index !== 0) updatedQueue.push(`\`${++option}.\` [${item.title}](${item.url}) | \`${item.duration} requested by ${message.author.tag}\`\n`);
 			});
 
 			const queue = `
 				__Now Playing:__\n[${serverQueue.queue[0].title}](${serverQueue.queue[0].url}) | \`${serverQueue.queue[0].duration} requested by ${message.author.tag}\`\n
-				__Up Next:__\n${updated_queue.length > 0 ? updated_queue.join('\n') : 'Queue is empty.'}\n
-				**${updated_queue.length}** songs in queue.
+				__Up Next:__\n${updatedQueue.length > 0 ? updatedQueue.join('\n') : 'Queue is empty.'}\n
+				**${updatedQueue.length}** songs in queue.
 			`;
 
 			message.channel.send({ embed: {
@@ -395,7 +399,7 @@ module.exports = {
 		else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) });
 	},
 	queue(message) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			const serverQueue = serverMusic.get(message.guild.id);
@@ -408,15 +412,15 @@ module.exports = {
 				}}).then(m => { m.delete({ timeout: 1000 * 60 }) });
 			} else {			
 				let option = 0;
-				const up_next = [];
+				const upNext = [];
 				serverQueue.queue.forEach((item, index) => {
-					if(index !== 0) up_next.push(`\`${++option}.\` [${item.title}](${item.url}) | \`${item.duration} requested by ${message.author.tag}\`\n`);
+					if(index !== 0) upNext.push(`\`${++option}.\` [${item.title}](${item.url}) | \`${item.duration} requested by ${message.author.tag}\`\n`);
 				});
 
 				const queue = `
 					__Now Playing:__\n[${serverQueue.queue[0].title}](${serverQueue.queue[0].url}) | \`${serverQueue.queue[0].duration} requested by ${message.author.tag}\`\n
-					__Up Next:__\n${up_next.length > 0 ? up_next.join('\n') : 'Queue is emppty.' }\n
-					**${up_next.length}** songs in queue.
+					__Up Next:__\n${upNext.length > 0 ? upNext.join('\n') : 'Queue is emppty.' }\n
+					**${upNext.length}** songs in queue.
 				`;
 
 				message.channel.send({ embed: {
@@ -429,7 +433,7 @@ module.exports = {
 		else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) });
 	},
 	pause(message) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			const serverQueue = serverMusic.get(message.guild.id);
@@ -442,7 +446,7 @@ module.exports = {
 		} else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) })
 	},
 	resume(message) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			const serverQueue = serverMusic.get(message.guild.id);
@@ -455,20 +459,14 @@ module.exports = {
 		} else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) });
 	},
 	async volume(message, args) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			try {
 				const chosenVolume = message.content.match(/[0-9]+/g);
 				if(!args[1] || chosenVolume[0] < 0 || chosenVolume[0] > 100) return message.channel.send('./cmd music');
 
-				const existsCustomVolume = await musicSchema.findOne({ guildID: message.guild.id });
-				if(existsCustomVolume) {
-					await musicSchema.updateOne({ guildID: message.guild.id }, { volume: chosenVolume[0] / 100 });
-				}
-				else {
-					await new musicSchema({ guildID: message.guild.id, volume: chosenVolume[0] / 100 }).save();
-				}
+				await musicSchema.updateOne({ guild: message.guild.id }, { volume: chosenVolume[0] / 100 }, { upsert: true });
 
 				const serverQueue = serverMusic.get(message.guild.id);
 				serverQueue.dispatcher.setVolume(chosenVolume[0] / 100);
@@ -483,7 +481,7 @@ module.exports = {
 		} else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) });
 	},
 	async join(message) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			try {
@@ -495,7 +493,7 @@ module.exports = {
 						playing: false,
 						looping: false,
 						searching: false,
-						searched_music: null,
+						query: null,
 						queue: []							
 					};
 		
@@ -509,7 +507,7 @@ module.exports = {
 		else return message.channel.send('You must be in a voice channel!').then(m => { m.delete({ timeout: 5000 }) });
 	},
 	async leave(message) {
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
 		if(message.member.voice.channel) {
 			try {

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const remindersSchema = mongoose.Schema({
-    reminder_id: String, 
+    reminderID: String, 
     user: String,
     timeStart: Number,
     timeEnd: Number,

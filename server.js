@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const { connect, disconnect } = require('./utils/mongoose');
 const { schedule } = require('./utils/schedule');
 
-const prefixes = ['./', '.', '/', '$'];
+const prefixes = ['./', '.', '/', '$', '!'];
 const client = new Discord.Client();
 
 client.worker = new Discord.Collection();
@@ -25,10 +25,11 @@ client.once('ready', async () => {
 	try {
 		await connect();
 		client.worker.get('roles').setup(client);
-
-		schedule('10 * * * * *', () => client.worker.get('reminders').checkReminder(client));
-		schedule('30 7-23 * * *', () => client.worker.get('wishlists').checkWishlist(client));
-		schedule('0 7-23/5 * * *', () => client.worker.get('subscriptions').getSubscriptions());
+		
+		schedule('*/10 * * * * *', () => client.worker.get('reminders').checkReminder(client));
+		schedule('*/15 7-23 * * *', () => client.worker.get('wishlists').checkWishlist(client));
+		schedule('0 */6 * * *', () => client.worker.get('subscriptions').getSubscriptions());
+		schedule('0 14 * * 0', () => client.worker.get('leaderboards').getSteamLeaderboard(client));
 	} catch (error) {
 		console.log(error);
 	}
@@ -46,10 +47,9 @@ client.on('message', (message) => {
 	if(filteredPrefixes.length === 0 || (message.author.bot && !message.content.startsWith('./cmd'))) return;
 
 	const args = message.content.substring(filteredPrefixes[0].length).split(' ');
-	switch(args[0]) {
+	switch(args[0].toLowerCase()) {
 		//Useful tools commands
-		case 'del': return client.commands.get('del').prune(message, args);
-		case 'delBot': return client.commands.get('del').pruneBot(message, args);
+		case 'del': return client.commands.get('del').delete(message, args);
 		case 'poll': return client.commands.get('poll').createPoll(message, args);
 		case 'youtube': return client.commands.get('youtube').getYoutubeURL(message, args);
 		case 'reminder': return client.commands.get('reminder').setup(message, args);
@@ -65,9 +65,9 @@ client.on('message', (message) => {
 		case 'tv': return client.commands.get('tv').getTVShows(message, args);	
 		case 'movies': return client.commands.get('movies').getMovies(message, args);
 		//Entertainment commands
-		case 'aww': return client.commands.get('aww').getCutePosts(message, args);
 		case 'jokes': return client.commands.get('jokes').getJokes(message, args);
-		case 'memes': return client.commands.get('memes').getMemes(message, args);
+		case 'aww': return client.commands.get('reddit').getReddit(message, args);
+		case 'memes': return client.commands.get('reddit').getReddit(message, args);
 		case 'comics': return client.commands.get('comics').getComics(message, args);
 		//Music commands
 		case 'join': return client.commands.get('music').join(message);

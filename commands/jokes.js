@@ -1,12 +1,13 @@
 const fetch = require('node-fetch');
+const { erase } = require('../utils/message');
 
 module.exports = {
     name: 'jokes',
     async getJokes(message, args){
-		message.delete({ timeout: 5000 });
+		erase(message, 5000);
 
-		const joke_query = args.slice(1).join(' ');
-		switch(joke_query.toLowerCase()) {
+		const query = args.slice(1).join(' ').toLowerCase();
+		switch(query) {
 			case 'dark': return this.getDarkJoke(message);
 			case 'prog':
 			case 'programming': return this.getProgrammingJoke(message);

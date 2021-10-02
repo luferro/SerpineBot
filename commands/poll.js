@@ -1,10 +1,11 @@
+const { erase } = require('../utils/message');
+
 const emojis = ['🔴', '🔵', '🟢', '🟡', '🟣', '🟤', '⚪', '🟠'];
 
 module.exports = {
     name: 'poll',
     createPoll(message, args) {
-		message.delete({ timeout: 5000 });
-
+		erase(message, 5000);
 		if(!args[1]) return message.channel.send('./cmd poll');
 
 		const questionMarkIndex = args.findIndex(item => item.includes('?'));

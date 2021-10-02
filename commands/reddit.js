@@ -1,22 +1,32 @@
 const fetch = require('node-fetch');
+const { erase } = require('../utils/message');
 
 module.exports = {
-    name: 'aww',
-    async getCutePosts(message, args) {
-        message.delete({ timeout: 5000 });
+    name: 'reddit',
+    getReddit(message, args) {
+        erase(message, 5000);
 
-        if(args[1]) return message.channel.send('./cmd aww');
+        const getSubreddits = type => {
+            const options = {
+                'aww': ['aww', 'tuckedinkitties', 'dogpictures', 'catpictures', 'rarepuppers'],
+                'memes': ['memes', 'dankmemes']
+            }
+            return options[type] || null;
+        }
+        const subreddits = getSubreddits(args[0]);
+        if(!subreddits) return message.channel.send('./cmd aww');
 
-        const subreddits = ['aww', 'tuckedinkitties', 'dogpictures', 'catpictures', 'rarepuppers'];
+        this.getPosts(message, subreddits);
+    },
+    async getPosts(message, subreddits) {
         const type = Math.floor(Math.random() * (subreddits.length - 1));
-        
         try {
             const res = await fetch(`https://www.reddit.com/r/${subreddits[type]}/.json?limit=100&restrict_sr=1`);
             const data = await res.json();
 
             const random = Math.floor(Math.random() * (data.data.children.length - 1));
 
-            if(data.data.children[random].data.media || data.data.children[random].data.stickied) return this.getCutePosts(message, args);
+            if(data.data.children[random].data.media || data.data.children[random].data.stickied) return this.getPosts(message, subreddits);
             
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,

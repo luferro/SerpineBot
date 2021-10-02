@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 const subscriptionsSchema = require('../models/subscriptionsSchema');
-const wishlistsSchema = require('../models/wishlistsSchema');
+const steamSchema = require('../models/steamSchema');
 const { slug } = require('../utils/slug');
 
 module.exports = {
@@ -8,15 +8,12 @@ module.exports = {
     formatNumber(cents) {
         return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(cents / 100);
     },
-    getWishlistUser(url) {
-        const no_sorting = url.split('#')[0];
-        const str = no_sorting.slice(0, no_sorting.length);
-        const no_slash = str.charAt(str.length - 1) === '/' ? str.slice(0, str.length - 1) : str;
-        return no_slash.split('/').pop();
-    },
-    async getWishlistItems(url) {
-        const type = url.includes('id') ? 'id' : 'profiles';
-        const user = this.getWishlistUser(url);
+    async getItems(url) {
+        const wishlist = url.match(/https?:\/\/store.steampowered\.com\/wishlist\/(profiles|id)\/([a-zA-Z0-9]+)/);
+        if(!wishlist) return { error: 'Invalid Steam wishlist URL.' };
+
+        const type = wishlist[1];
+        const user = wishlist[2];
         try {
             const subscriptions = await subscriptionsSchema.find();
 
@@ -28,7 +25,7 @@ module.exports = {
                 const data = await res.json();
 
                 hasMore = Object.keys(data).some(item => !isNaN(item));
-                if(page === 0 && !hasMore) return { error: 'Wishlist is set to private or is empty.' };
+                if(page === 0 && !hasMore) return { error: 'Steam wishlist is set to private or is empty.' };
 
                 Object.keys(data).map(item => {
                     const discount = data[item].subs.length > 0 ? data[item].subs[0].discount_pct : null;
@@ -69,16 +66,16 @@ module.exports = {
     },
     async checkWishlist(client) {
         try {
-            const wishlists = await wishlistsSchema.find();
-            for (const wishlist of wishlists) {
+            const profiles = await steamSchema.find();
+            for (const profile of profiles) {
                 await new Promise(resolve => setTimeout(resolve, 5000));
 
-                const items = await this.getWishlistItems(wishlist.list);
+                const items = await this.getItems(profile.wishlist.url);
                 if(items.error) continue;
 
                 const sale = [], released = [], subscriptions = { added: [], removed: [] };
                 for(const item of items) {
-                    const storedItem = wishlist.items.find(element => element.name === item.name);
+                    const storedItem = profile.wishlist.items.find(element => element.name === item.name);
                     item.notified = item.sale ? storedItem?.notified || false : false;
 
                     for(const key in item.subscriptions) {
@@ -110,20 +107,20 @@ module.exports = {
                     }
                 }
 
-                await wishlistsSchema.updateOne({ user: wishlist.user, tag: wishlist.tag }, { $set: { items } }, { upsert: true });
+                await steamSchema.updateOne({ user: profile.user, tag: profile.tag }, { $set: { 'wishlist.items': items } }, { upsert: true });
                 
-                if(sale.length > 0) this.sendNotification(client, wishlist.user, sale, 'sale');
-                if(released.length > 0) this.sendNotification(client, wishlist.user, released, 'released');
-                if(subscriptions.added.length > 0) this.sendNotification(client, wishlist.user, subscriptions.added, 'added');
-                if(subscriptions.removed.length > 0) this.sendNotification(client, wishlist.user, subscriptions.removed, 'removed');
+                if(sale.length > 0) this.sendNotification(client, profile.user, sale, 'sale');
+                if(released.length > 0) this.sendNotification(client, profile.user, released, 'released');
+                if(subscriptions.added.length > 0) this.sendNotification(client, profile.user, subscriptions.added, 'added');
+                if(subscriptions.removed.length > 0) this.sendNotification(client, profile.user, subscriptions.removed, 'removed');
             }
         } catch (error) {
             console.log(error);
         }
     },
-    async sendNotification(client, user_id, list, type) {
+    async sendNotification(client, userID, list, type) {
         try {
-            const user = await client.users.fetch(user_id);
+            const user = await client.users.fetch(userID);
             const totalItems = list.length;
             const displayItems = list.slice(0, 10);
 
@@ -134,7 +131,7 @@ module.exports = {
                         description: `
                             ${displayItems.map(item =>
                                 `> **[${item.name}](${item.url})** added to:
-                                ${Array.isArray(item.subscriptions) && item.subscriptions.join('\n')}\n`
+                                ${Array.isArray(item.subscriptions) && item.subscriptions.join('\n')}`
                             ).join('\n')}
                             ${totalItems - displayItems.length > 0 ? `And ${totalItems - displayItems.length} more!` : ''}
                         `

@@ -1,14 +1,15 @@
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const UserAgent = require('user-agents');
+const { erase } = require('../utils/message');
 
 module.exports = {
     name: 'comics',
     async getComics(message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
-        const comic_query = args.slice(1).join(' ');
-        switch(comic_query.toLowerCase()) {
+        const query = args.slice(1).join(' ').toLowerCase();
+        switch(query) {
             case 'cyanide and happiness': return this.getCyanideAndHappiness(message);
             case 'garfield': return this.getGarfield(message);
             case 'fowl language': return this.getFowlLanguage(message);

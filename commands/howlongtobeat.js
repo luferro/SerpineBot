@@ -1,20 +1,21 @@
 const hltb = require('howlongtobeat');
+const { erase } = require('../utils/message');
 
 const hltbService = new hltb.HowLongToBeatService();
 
 module.exports = {
 	name: 'howlongtobeat',
     async getHowLongToBeat(message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
-        const game_query = args.slice(1).join(' ');
-        if(!game_query) return message.channel.send('./cmd hltb');
+        const query = args.slice(1).join(' ');
+        if(!query) return message.channel.send('./cmd hltb');
         try {
-            const data = await hltbService.search(game_query);
-            if(data.length === 0) return message.channel.send(`Couldn't find a match for ${game_query}.`).then(m => { m.delete({ timeout: 5000 }) });
+            const data = await hltbService.search(query);
+            if(data.length === 0) return message.channel.send(`Couldn't find a match for ${query}.`).then(m => { m.delete({ timeout: 5000 }) });
 
-            const hasPlaytimes =  data[0].gameplayMain > 0 && data[0].gameplayMainExtra > 0 && data[0].gameplayCompletionist > 0;
-            if(!hasPlaytimes) return message.channel.send(`Closest match to \`${game_query}\` is \`${data[0].name}\`. No playtimes were found.`).then(m => { m.delete({ timeout: 5000 }) });
+            const hasPlaytimes =  data[0].gameplayMain > 0 || data[0].gameplayMainExtra > 0 || data[0].gameplayCompletionist > 0;
+            if(!hasPlaytimes) return message.channel.send(`Closest match to \`${query}\` is \`${data[0].name}\`. No playtimes were found.`).then(m => { m.delete({ timeout: 5000 }) });
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,

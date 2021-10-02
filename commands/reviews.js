@@ -1,19 +1,20 @@
 const fetch = require('node-fetch');
+const { erase } = require('../utils/message');
 const { slug } = require('../utils/slug');
 
 module.exports = {
 	name: 'reviews',
     async getReviews(message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
-        const game_query = args.slice(1).join(' ');
-        if(!game_query) return message.channel.send('./cmd reviews');
+        const query = args.slice(1).join(' ');
+        if(!query) return message.channel.send('./cmd reviews');
         try {
-            const { id, name } = await this.searchGameReviews(game_query);
-            if(!id) return message.channel.send(`Couldn't find a match for ${game_query}.`).then(m => { m.delete({ timeout: 5000 }) }); 
+            const { id, name } = await this.searchGameReviews(query);
+            if(!id) return message.channel.send(`Couldn't find a match for ${query}.`).then(m => { m.delete({ timeout: 5000 }) }); 
             
             const { url, title, image, releaseDate, count, score, tier, platforms } = await this.getGameReviewsDetails(id, name);
-            if(!tier && score === -1) return message.channel.send(`Couldn't find reviews for ${game_query}.`);
+            if(!tier && score === -1) return message.channel.send(`Couldn't find reviews for ${query}.`);
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
@@ -44,7 +45,7 @@ module.exports = {
                         inline: true
                     }
                 ],
-                image: {
+                thumbnail: {
                     url: image ? image : ''
                 },
                 footer: {

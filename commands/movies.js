@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const { erase } = require('../utils/message');
 
 module.exports = {
 	name: 'movies',
@@ -9,13 +10,13 @@ module.exports = {
         return `${hours}h${minutes}m`;
     },
     async getMovies(message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
-        const movie_query = args.slice(1).join(' ');
-        if(!movie_query) return message.channel.send('./cmd movies');
+        const query = args.slice(1).join(' ');
+        if(!query) return message.channel.send('./cmd movies');
         try {
-            const id = await this.searchMovie(movie_query);
-            if(!id) return message.channel.send(`Couldn't find a match for ${movie_query}.`).then(m => { m.delete({ timeout: 5000 }) });
+            const id = await this.searchMovie(query);
+            if(!id) return message.channel.send(`Couldn't find a match for ${query}.`).then(m => { m.delete({ timeout: 5000 }) });
 
             const { name, tagline, overview, url, releaseDate, image, score, runtime, genres, providers } = await this.getMovieDetails(id);
 

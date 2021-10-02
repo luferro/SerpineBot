@@ -1,26 +1,30 @@
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const UserAgent = require('user-agents');
-const wishlistsSchema = require('../models/wishlistsSchema');
+const steamSchema = require('../models/steamSchema');
 const Wishlists = require('../worker/wishlists');
+const Leaderboards = require('../worker/leaderboards');
+const { erase } = require('../utils/message');
 
 module.exports = {
 	name: 'steam',
     async getSteam(client, message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
-        const steam_query =  args.slice(1).join(' ');
-        const hasParams = ['low', 'import', 'wishlist'].some(item => steam_query.includes(item));
-        switch (hasParams ? args[1] : steam_query.toLowerCase()) {
+        const query = args.slice(1).join(' ').toLowerCase();
+        const hasParams = ['historical', 'import', 'profile', 'wishlist'].some(item => query.includes(item));
+        switch (hasParams ? args[1] : query) {
             case 'sale': return this.getNextSale(message);
             case 'top played': return this.getTopPlayed(message);
             case 'top sellers': return this.getTopSellers(message);
             case 'upcoming': return this.getUpcoming(message);
-            case 'low': return this.getHistoricalLowest(message);
-            case 'import': return this.importWishlist(message);
-            case 'sync': return this.syncWishlist(message);
+            case 'historical': return this.getHistoricalLowest(message);
+            case 'leaderboard': return this.getLeaderboard(message);
+            case 'import': return this.addIntegration(message);
+            case 'sync': return this.syncIntegration(message);
+            case 'profile': return this.getProfile(client, message);
             case 'wishlist': return this.getWishlist(client, message);
-            case 'delete': return this.deleteWishlist(message);
+            case 'delete': return this.deleteIntegration(message);
             default: return message.channel.send('./cmd steam');
         }
     },
@@ -99,16 +103,18 @@ module.exports = {
             const sellers = [];
             $('.search_result_row').each((i, element) => {
                 const url = $(element).first().attr('href');
-                const name = $(element).children('.responsive_search_name_combined').find('.title').first().text();
+                const name = $(element).find('.responsive_search_name_combined .title').first().text();
             
-                sellers.push(`\`${i + 1}.\` **[${name}](${url})**`);
+                const hasEntry = sellers.some(item => item.name === name && item.url === url);
+                !hasEntry && sellers.push({ name, url });
             });
-            sellers.length = 10;
+            const array = sellers.map((item, index) => `\`${index + 1}.\` **[${item.name}](${item.url})**`);
+            array.length = 10;
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
                 title: 'Steam Top Sellers',
-                description: sellers.length > 0 ? sellers.join('\n') : 'N/A',
+                description: array.length > 0 ? array.join('\n') : 'N/A',
                 footer: {
                     text: 'Powered by Steam.'
                 }
@@ -126,16 +132,18 @@ module.exports = {
             const upcoming = [];
             $('.search_result_row').each((i, element) => {
                 const url = $(element).first().attr('href');
-                const name = $(element).children('.responsive_search_name_combined').find('.title').first().text();
+                const name = $(element).find('.responsive_search_name_combined .title').first().text();
             
-                upcoming.push(`\`${i + 1}.\` **[${name}](${url})**`);
+                const hasEntry = upcoming.some(item => item.name === name && item.url === url);
+                !hasEntry && upcoming.push({ name, url });
             });
-            upcoming.length = 10;
+            const array = upcoming.map((item, index) => `\`${index + 1}.\` **[${item.name}](${item.url})**`);
+            array.length = 10;
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
                 title: 'Steam Upcoming',
-                description: upcoming.length > 0 ? upcoming.join('\n') : 'N/A',
+                description: array.length > 0 ? array.join('\n') : 'N/A',
                 footer: {
                     text: 'Powered by Steam.'
                 }
@@ -145,14 +153,14 @@ module.exports = {
         }
     },
     async getHistoricalLowest(message) {
-        const game_query = message.content.split(' ').slice(2).join(' ');
+        const query = message.content.split(' ').slice(2).join(' ');
         try {
-            const res = await fetch(`https://isthereanydeal.com/search/?q=${game_query}`, { headers: { 'User-Agent': new UserAgent().toString() } });
+            const res = await fetch(`https://isthereanydeal.com/search/?q=${query}`, { headers: { 'User-Agent': new UserAgent().toString() } });
             const html = await res.text();
             const $ = cheerio.load(html);
 
             const href = $('a.card__title').first().attr('href');
-            if(!href) return message.channel.send(`Couldn't find a match for ${game_query}.`).then(m => { m.delete({ timeout: 5000 }) });
+            if(!href) return message.channel.send(`Couldn't find a match for ${query}.`).then(m => { m.delete({ timeout: 5000 }) });
 
             const getDetails = async(href) => {
                 const res = await fetch(`https://isthereanydeal.com${href}`, { headers: { 'User-Agent': new UserAgent().toString() } });
@@ -196,7 +204,7 @@ module.exports = {
 
             const { name, image, details } = await getDetails(href);
             const historicalLows = await getRecords(href);
-            if(details.length === 0 || historicalLows.length === 0) return message.channel.send(`Couldn't find any data for ${game_query}'s historical lows on Steam.`).then(m => { m.delete({ timeout: 5000 }) });
+            if(details.length === 0 || historicalLows.length === 0) return message.channel.send(`Couldn't find any data for ${query}'s historical lows on Steam.`).then(m => { m.delete({ timeout: 5000 }) });
 
             historicalLows.length = historicalLows.length > 10 ? 10 : historicalLows.length;
 
@@ -247,47 +255,149 @@ module.exports = {
             console.log(error);
         }
     },
-    async importWishlist(message) {
-        const url = message.content.split(' ').slice(2).join(' ');
-        if(!url.includes('://store.steampowered.com/wishlist')) return message.channel.send('Invalid Steam wishlist URL.').then(m => {m.delete({ timeout: 5000 })});
+    async getLeaderboard(message) {
         try {
-            const items = await Wishlists.getWishlistItems(url);
-            if(items.error) return message.channel.send(items.error).then(m => {m.delete({ timeout: 5000 })});
+            const data = await Leaderboards.getSteamRecentlyPlayed();
 
-            const wishlistInfo = {
-                list: url,
-                items: items.map(item => ({ ...item, notified: false }))
-            }
+            const stats = data.map((item, index) => {
+                const medal = Leaderboards.getMedal(index);
 
-            await wishlistsSchema.updateOne({ user: message.author.id, tag: message.author.tag }, { $set: wishlistInfo }, { upsert: true });
+                return( 
+                    `> ${medal ? medal : `\`${index + 1}.\``} **${item.tag}** with \`${item.weeklyHours}h\`
+                    > Top played game was **[${item.topPlayed}](${item.topPlayedURL})**`
+                );
+            });
+            if(stats.length === 0) return message.channel.send('No leaderboard is available.').then(m => { m.delete({ timeout: 5000 }) });
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
-                title: 'Steam wishlist imported successfully!'
+                title: 'Weekly Steam Leaderboard',
+                description: stats.join('\n'),
+                footer: {
+                    text: 'Leaderboard resets every sunday at 14:00'
+                }
+            }});
+        } catch (error) {
+            console.log(error);
+        }
+    },
+    async addIntegration(message) {
+        const url = message.content.split(' ').slice(2).join(' ');
+        const profile = url.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
+        if(!profile) return message.channel.send('Invalid Steam profile URL.').then(m => {m.delete({ timeout: 5000 })});
+
+        const profileURL = profile[0];
+        const profileType = profile[1];
+        const profileUser = profile[2];
+        const wishlistURL = `https://store.steampowered.com/wishlist/${profileType}/${profileUser}#sort=order`;
+        try {
+            const items = await Wishlists.getItems(wishlistURL);
+            if(items.error) return message.channel.send(items.error).then(m => {m.delete({ timeout: 5000 })});
+
+            const integrationInfo = {
+                tag: message.author.tag,
+                type: profileType,
+                profile: profileUser,
+                url: profileURL,
+                wishlist: {
+                    url: wishlistURL,
+                    items: items.map(item => ({ ...item, notified: false }))
+                }
+            }
+
+            await steamSchema.updateOne({ user: message.author.id }, { $set: integrationInfo }, { upsert: true });
+
+            message.channel.send({ embed: {
+                color: Math.floor(Math.random() * 16777214) + 1,
+                title: 'Steam profile imported successfully!'
             }}).then(m => {m.delete({ timeout: 5000 })});
         } catch (error) {
             console.log(error);
         }
     },
-    async syncWishlist(message) {
+    async syncIntegration(message) {
         try {
-            const wishlist = await wishlistsSchema.find({ user: message.author.id });
-            if(wishlist.length === 0) return message.channel.send('You didn\'t import your Steam wishlist.').then(m => {m.delete({ timeout: 5000 })});
+            const steam = await steamSchema.find({ user: message.author.id });
+            if(steam.length === 0) return message.channel.send('No integration with Steam found. Import your Steam profile.').then(m => {m.delete({ timeout: 5000 })});
 
-            const items = await Wishlists.getWishlistItems(wishlist[0].list);
+            const items = await Wishlists.getItems(steam[0].wishlist.url);
             if(items.error) return message.channel.send(items.error).then(m => {m.delete({ timeout: 5000 })});
 
-            for (const item of items) {
-                const game = wishlist[0]?.items.find(element => element.name === item.name);
+            for(const item of items) {
+                const game = steam[0]?.wishlist.items.find(element => element.name === item.name);
                 item.notified = game?.notified || false;
             }
 
-            await wishlistsSchema.updateOne({ user: message.author.id, tag: message.author.tag }, { $set: { items } }, { upsert: true });
+            await steamSchema.updateOne({ user: message.author.id }, { $set: { 'wishlist.items': items } }, { upsert: true });
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
                 title: 'Steam wishlist synced successfully!'
             }}).then(m => {m.delete({ timeout: 5000 })});
+        } catch (error) {
+            console.log(error);
+        }
+    },
+    async getProfile(client, message) {
+        const mention = message.content.split(' ').slice(2).join(' ');
+        const username = mention.length === 0 ? message.author.id : mention.slice(3, mention.length - 1);
+        try {
+            const user = await client.users.fetch(username);
+            if(!user) return message.channel.send(`Couldn\'t find a match for ${username}.`).then(m => {m.delete({ timeout: 5000 })});
+
+            const steam = await steamSchema.find({ user: user.id });
+            if(steam.length === 0) return message.channel.send('No integration with Steam found. Import your Steam profile.').then(m => {m.delete({ timeout: 5000 })});
+            
+            const res = await fetch(steam[0].url, { headers: { 'User-Agent': new UserAgent().toString() } });
+            const html = await res.text();
+            const $ = cheerio.load(html);
+
+            const name = $('.profile_header_content .persona_name span').first().text().trim();
+            const image = $('.profile_header_content .playerAvatar > div > img').first().attr('src');
+            const friends = $('.profile_friend_links .profile_count_link_total').first().text().trim();
+            const games = $('.profile_item_links .profile_count_link_total').first().text().trim();
+            const activity = $('.recentgame_recentplaytime h2').first().text().trim();
+            const favoriteGame = {
+                name: $('.favoritegame_showcase_game .showcase_item_detail_title a').first().text().trim(),
+                url: $('.favoritegame_showcase_game .showcase_item_detail_title a').first().attr('href')
+            };
+            const lastSeenPlaying = {
+                name: $('.recent_game .game_name a').first().text().trim(),
+                url: $('.recent_game .game_name a').first().attr('href')
+            }
+            
+            message.channel.send({ embed: {
+                color: Math.floor(Math.random() * 16777214) + 1,
+                title: name,
+                url: steam[0].url,
+                fields: [
+                    {
+                        name: 'Friends',
+                        value: friends ? friends : 'N/A',
+                        inline: true
+                    },
+                    {
+                        name: 'Games',
+                        value: games ? games : 'N/A',
+                        inline: true
+                    },
+                    {
+                        name: 'Favorite Game',
+                        value: favoriteGame.name && favoriteGame.url ? `**[${favoriteGame.name}](${favoriteGame.url})**` : 'N/A'
+                    },
+                    {
+                        name: 'Recent activity',
+                        value: activity ? activity : 'N/A'
+                    },
+                    {
+                        name: 'Last seen playing',
+                        value: lastSeenPlaying.name && lastSeenPlaying.url ? `**[${lastSeenPlaying.name}](${lastSeenPlaying.url})**` : 'N/A'
+                    }
+                ],
+                thumbnail: {
+                    url: image ? image : ''
+                },
+            }});
         } catch (error) {
             console.log(error);
         }
@@ -299,10 +409,10 @@ module.exports = {
             const user = await client.users.fetch(username);
             if(!user) return message.channel.send(`Couldn\'t find a match for ${username}.`).then(m => {m.delete({ timeout: 5000 })});
             
-            const wishlist = await wishlistsSchema.find({ user: user.id });
-            if(wishlist.length === 0) return message.channel.send('You didn\'t import your Steam wishlist.').then(m => {m.delete({ timeout: 5000 })});
+            const steam = await steamSchema.find({ user: user.id });
+            if(steam.length === 0) return message.channel.send('No integration with Steam found. Import your Steam profile.').then(m => {m.delete({ timeout: 5000 })});
 
-            const items = await Wishlists.getWishlistItems(wishlist[0].list);
+            const items = await Wishlists.getItems(steam[0].wishlist.url);
             if(items.error) return message.channel.send(items.error).then(m => {m.delete({ timeout: 5000 })}); 
 
             const list = items.slice(0, 10).map(item => `> **[${item.name}](${item.url})** | ${item.discounted ? item.discounted : item.free ? 'Free' : 'N/A'}`);
@@ -310,21 +420,21 @@ module.exports = {
             
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
-                title: `\`${wishlist[0].tag}\`'s wishlist`,
-                url: wishlist[0].list,
+                title: `\`${user.tag}\`'s wishlist`,
+                url: steam[0].wishlist.url,
                 description: list.length > 0 ? list.join('\n') : ''
             }});
         } catch (error) {
             console.log(error);
         }
     },
-    async deleteWishlist(message) {
+    async deleteIntegration(message) {
         try {
-            await wishlistsSchema.deleteOne({ user: message.author.id });
+            await steamSchema.deleteOne({ user: message.author.id });
 
             message.channel.send({ embed: {
                 color: Math.floor(Math.random() * 16777214) + 1,
-                title: 'Steam wishlist deleted successfully!'
+                title: 'Steam integration deleted successfully!'
             }}).then(m => {m.delete({ timeout: 5000 })});
         } catch (error) {
             console.log(error);

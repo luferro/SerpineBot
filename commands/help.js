@@ -1,7 +1,9 @@
+const { erase } = require('../utils/message');
+
 module.exports = {
     name: 'cmd',
     getHelp(message, args){
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
         switch(args[1]) {
             case 'aww':
@@ -17,7 +19,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by Reddit.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'comics':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -59,7 +61,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by explosm.net and gocomics.com.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'deals':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -73,7 +75,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by gg.deals.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'del':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -84,11 +86,11 @@ module.exports = {
                             value: 'Allows you to delete messages in bulk. Maximum quantity of 100 messages in one go.'
                         },
                         {
-                            name: '`./delBot <Bot message ID>`',
-                            value: 'Allows you to delete BOT messages by ID.'
+                            name: '`./del <option: after or before> <Bot message ID>`',
+                            value: 'Allows you to delete BOT messages after or before a given ID.'
                         }
                     ]
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'games':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -102,7 +104,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by Rawg and HowLongToBeat.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'hltb':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -116,7 +118,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by HowLongToBeat.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'jokes':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -146,7 +148,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by JokeAPI and icanhazdadjokeAPI.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'memes':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -160,7 +162,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by Reddit.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'movies':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -174,7 +176,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by The Movie DB and JustWatch.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'music':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -216,7 +218,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by youtubei.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'poll':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -227,7 +229,7 @@ module.exports = {
                             value: 'Creates a poll with reactions.'
                         }
                     ]
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'reminder':	
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -238,7 +240,7 @@ module.exports = {
                             value: 'Sets a reminder for a given message.'
                         }
                     ]
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'reviews':	
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -252,7 +254,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by OpenCritic.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'secretsanta':	
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -263,7 +265,7 @@ module.exports = {
                             value: 'Organizes a secret santa. '
                         }
                     ]
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'specs':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -277,7 +279,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by Game-Debate.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'steam':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -300,16 +302,24 @@ module.exports = {
                             value: 'Returns Steam\'s upcoming games.'
                         },
                         {
-                            name: '`./steam low <Game title>`',
+                            name: '`./steam historical <Game title>`',
                             value: 'Returns Steam\'s historical lows for a given game.'
                         },
                         {
-                            name: '`./steam import <Wishlist URL>`',
-                            value: 'Import your Steam wishlist.'
+                            name: '`./steam import <Steam profile URL>`',
+                            value: 'Integrate Steam with the bot.'
                         },
                         {
                             name: '`./steam sync`',
-                            value: 'Manually synchronize your Steam wishlist.'
+                            value: 'Manually synchronize your Steam integration.'
+                        },
+                        {
+                            name: '`./steam profile`',
+                            value: 'Returns your Steam profile.'
+                        },
+                        {
+                            name: '`./steam profile <Mention>`',
+                            value: 'Returns the mentioned user\'s Steam profile.'
                         },
                         {
                             name: '`./steam wishlist`',
@@ -320,14 +330,18 @@ module.exports = {
                             value: 'Returns the mentioned user\'s Steam wishlist.'
                         },
                         {
+                            name: '`./steam leaderboard`',
+                            value: 'Returns the Steam leaderboard for the week.'
+                        },
+                        {
                             name: '`./steam delete`',
-                            value: 'Delete Steam wishlist integration.'
+                            value: 'Delete Steam integration.'
                         }
                     ],
                     footer: {
                         text: 'Powered by Steam, prepareyourwallet and IsThereAnyDeal.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'tv':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -341,7 +355,7 @@ module.exports = {
                     footer: {
                         text: 'Powered by The Movie DB and JustWatch.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             case 'youtube':
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
@@ -355,15 +369,25 @@ module.exports = {
                     footer: {
                         text: 'Powered by youtubei.'
                     }
-                }}).then(m => { m.delete({ timeout: 10000 }) });
+                }}).then(m => { m.delete({ timeout: 20000 }) });
             default:
                 return message.channel.send({ embed: {
                     color: Math.floor(Math.random() * 16777214) + 1,
-                    title: 'Available commands',
+                    title: 'Commands help',
                     fields: [
                         {
+                            name: '**Me**',
+                            value: '**[Luís Ferro](https://github.com/xSerpine)**',
+                            inline: true
+                        },
+                        {
+                            name: '**Repository**',
+                            value: '**[Serpine Bot](https://github.com/xSerpine/SerpineBot)**',
+                            inline: true
+                        },
+                        {
                             name: '**Prefixes**',
-                            value: '`.<command>`\n`/<command>`\n`./<command>`\n`$<command>`'
+                            value: '`.<command>` `/<command>` `./<command>` `$<command>` `!<command>`'
                         },
                         {
                             name: '**Comics**',

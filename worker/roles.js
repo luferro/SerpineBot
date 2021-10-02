@@ -19,14 +19,16 @@ module.exports = {
         const channel = await client.channels.fetch(process.env.BOT_ROLES_CHANNEL);
 
         let text = `
-            Choose from the following reactions to claim a role!\nYou can select **multiple** roles.\nEach role will give you access to a text channel as represented below.\n\n**NOTE:** Users with role 'Restrictions' won't be assigned the 'NSFW' role.
+            > React to this message to claim your roles!
+            > Each role will give you access to a text channel.
+            \n**NOTE:** Users with role \`Restrictions\` won't be assigned the __**NSFW**__ role.
         `;
 
         const reactions = [];
         for(const key in emojis){
             const emoji = client.emojis.cache.find(emoji => emoji.name === key);
             reactions.push(emoji);
-            text += `\n${emoji} -> __**${emojis[key]}**__`
+            text += `\n${emoji} - __**${emojis[key]}**__`
         }
 
         channel.messages.fetch().then((messages) => {

@@ -1,17 +1,18 @@
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const UserAgent = require('user-agents');
+const { erase } = require('../utils/message');
 
 module.exports = {
     name: 'specs',
     async getGameSpecs(message, args) {
-        message.delete({ timeout: 5000 });
+        erase(message, 5000);
 
-        const game_query = args.slice(1).join(' ');
-        if(!game_query) return message.channel.send('./cmd specs');
+        const query = args.slice(1).join(' ');
+        if(!query) return message.channel.send('./cmd specs');
         try {
-            const { name, url, image } = await this.searchGameSpecs(game_query);
-            if(!url) return message.channel.send(`Couldn\'t find a match for ${game_query}.`).then(m => { m.delete({ timeout: 5000 }) });
+            const { name, url, image } = await this.searchGameSpecs(query);
+            if(!url) return message.channel.send(`Couldn\'t find a match for ${query}.`).then(m => { m.delete({ timeout: 5000 }) });
 
             const res = await fetch(`https://www.game-debate.com${url}`, { headers: { 'User-Agent': new UserAgent().toString() } });
             const html = await res.text();
@@ -47,12 +48,12 @@ module.exports = {
                 color: Math.floor(Math.random() * 16777214) + 1,
                 title: `Requirements found for \`${name}\``,
                 description: `
-                    \n**Release Date:** ${releaseDate}
-                    \n**Specs updated:** ${updatedDate}
+                    \n**Release Date:** ${releaseDate.length > 0 ? releaseDate : 'N/A'}
+                    \n**Specs updated:** ${updatedDate.length > 0 ? updatedDate : 'N/A'}
                     \n**Minimum requirements**\n${minSpecs.join('\n')}
                     \n**Recommended requirements**\n${recSpecs.join('\n')}`,
                 thumbnail: {
-                    url: image
+                    url: image ? image : ''
                 }
             }});
         } catch (error) {

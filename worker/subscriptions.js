@@ -5,21 +5,26 @@ const { slug } = require('../utils/slug');
 module.exports = {
     name: 'subscriptions',
     async getSubscriptions() {
+        let browser, page;
         try {
-            const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+            browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+            page = await browser.newPage();
 
-            await this.getXboxGamePass(browser, 'xbox');
-            await this.getXboxGamePass(browser, 'pc');
-            await this.getUbisoftPlus(browser);
-            await this.getEAPlay(browser, 'base');
-            await this.getEAPlay(browser, 'premium');
-
-            await browser.close();
+            console.log('Fetching subscriptions...');
+            await this.getXboxGamePass(page, 'xbox');
+            await this.getXboxGamePass(page, 'pc');
+            await this.getUbisoftPlus(page);
+            await this.getEAPlay(page, 'base');
+            await this.getEAPlay(page, 'premium');
         } catch (error) {
             console.log(error);
+        } finally {
+            console.log('Finished...');
+            await page.close();
+            await browser.close();
         }
     },
-    async getXboxGamePass(browser, type) { 
+    async getXboxGamePass(page, type) { 
         const getType = (type) => {
             const options = {
                 'pc': 'PC',
@@ -30,17 +35,20 @@ module.exports = {
         const platform = getType(type);
         if(!platform) return;
         try {
-            const page = await browser.newPage();
-            await page.goto('https://www.xbox.com/pt-PT/xbox-game-pass/games', { waitUntil: 'networkidle0' });
+            await page.goto('https://www.xbox.com/pt-PT/xbox-game-pass/games', { waitUntil: 'networkidle0', timeout: 0 });
+            await page.waitForTimeout(1000);
             await page.waitForSelector(`[data-theplat="${type}"]`);
             await page.click(`[data-theplat="${type}"]`);
+
+            const selectedPlatform = await page.evaluate(() => document.querySelector('[data-platselected]').getAttribute('data-platselected'));
+            if(platform === 'PC' && selectedPlatform === 'xbox') return;
             
             const items = [];
             let hasMore = true;
             while(hasMore) {
                 await page.waitForSelector('.gameList [itemtype="http://schema.org/Product"]');
 
-                const data = await page.$$eval('.gameList [itemtype="http://schema.org/Product"]', (elements) =>
+                const data = await page.$$eval('.gameList [itemtype="http://schema.org/Product"]', elements =>
                     elements.map(item => ({ name: item.querySelector('h3').textContent, url: item.querySelector('a').href }))
                 );
 
@@ -50,18 +58,21 @@ module.exports = {
                 hasMore = (await page.$$('.paginatenext:not(.pag-disabled) a')).length > 0;
                 if(hasMore) await page.click('.paginatenext:not(.pag-disabled) a');
             }
-            await page.close();
 
-            items.length > 0 && await subscriptionsSchema.updateOne({ subscription: `Xbox Game Pass for ${platform}` }, { $set: { items } }, { upsert: true });
+            console.log(`Xbox Gamepass ${platform} - Found ${items.length} entries...`);
+
+            const storedSubscription = await subscriptionsSchema.find({ subscription: `Xbox Game Pass for ${platform}` });
+            if(items.length < Math.round(storedSubscription[0].items.length * 0.6)) return;
+
+            await subscriptionsSchema.updateOne({ subscription: `Xbox Game Pass for ${platform}` }, { $set: { items } }, { upsert: true });
         } catch (error) {
             console.log(error);
         }
     },
-    async getUbisoftPlus(browser) { 
+    async getUbisoftPlus(page) { 
         try {
-            const page = await browser.newPage();
-            await page.goto('https://store.ubi.com/eu/ubisoftplus/games', { waitUntil: 'networkidle0' });
-
+            await page.goto('https://store.ubi.com/eu/ubisoftplus/games', { waitUntil: 'networkidle0', timeout: 0 });
+            await page.waitForTimeout(1000);
             const cookies = (await page.$$('button#privacy__modal__accept')).length > 0;
             cookies && await page.click('button#privacy__modal__accept');
             const region = (await page.$$('button.stay-on-country-store')).length > 0;
@@ -77,17 +88,21 @@ module.exports = {
             const data = await page.$$eval('.game-list_inner > div', (elements) =>
                 elements.map(item => ({ name: item.querySelector('h3.game-short-title').textContent || item.querySelector('h3.game-long-title').textContent }))
             );
-            await page.close();
 
             const items = [];
             items.push(...data.map(item => ({ name: item.name, slug: slug(item.name) })));
 
-            items.length > 0 && await subscriptionsSchema.updateOne({ subscription: `Ubisoft+ for PC` }, { $set: { items } }, { upsert: true });
+            console.log(`Ubisoft+ - Found ${items.length} entries...`);
+
+            const storedSubscription = await subscriptionsSchema.find({ subscription: 'Ubisoft+ for PC' });
+            if(items.length < Math.round(storedSubscription[0].items.length * 0.6)) return;
+
+            await subscriptionsSchema.updateOne({ subscription: 'Ubisoft+ for PC' }, { $set: { items } }, { upsert: true });
         } catch (error) {
             console.log(error);
         }
     },
-    async getEAPlay(browser, type) {
+    async getEAPlay(page, type) {
         const getType = (type) => {
             const options = {
                 'base': 'vault-games',
@@ -95,12 +110,11 @@ module.exports = {
             }
             return options[type] || null;
         }
-        const subscription_type = getType(type);
-        if(!subscription_type) return;
+        const subscriptionType = getType(type);
+        if(!subscriptionType) return;
         try {
-            const page = await browser.newPage();
-            await page.goto(`https://www.origin.com/irl/en-us/store/browse?fq=subscriptionGroup:${subscription_type}`, { waitUntil: 'networkidle0' });
-
+            await page.goto(`https://www.origin.com/irl/en-us/store/browse?fq=subscriptionGroup:${subscriptionType}`, { waitUntil: 'networkidle0', timeout: 0 });
+            await page.waitForTimeout(1000);
             await page.evaluate(async() => {
                 await new Promise(resolve => {
                     let totalHeight = 0;
@@ -122,12 +136,17 @@ module.exports = {
             const data = await page.$$eval('section.origin-gdp-tilelist > ul li[origin-postrepeat]', (elements) =>
                 elements.map(item => ({ name: item.querySelector('h1.home-tile-header').textContent, url: item.querySelector('a').href }))
             );
-            await page.close();
 
             const items = [];
             items.push(...data.map(item => ({ name: item.name, slug: slug(item.name), url: item.url })));
 
-            items.length > 0 && await subscriptionsSchema.updateOne({ subscription: `${type === 'premium' ? 'EA Play Pro' : 'EA Play'}` }, { $set: { items } }, { upsert: true });
+            const subscription = type === 'premium' ? 'EA Play Pro' : 'EA Play';
+            console.log(`${subscription} - Found ${items.length} entries...`);
+
+            const storedSubscription = await subscriptionsSchema.find({ subscription });
+            if(items.length < Math.round(storedSubscription[0].items.length * 0.6)) return;
+
+            await subscriptionsSchema.updateOne({ subscription }, { $set: { items } }, { upsert: true });
         } catch (error) {
             console.log(error);
         }
