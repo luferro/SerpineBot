@@ -40,51 +40,56 @@ client.on('guildMemberAdd', (member) => {
 	member.roles.add(role);
 });
 
-client.on('message', (message) => {
-	client.commands.get('music').searchPlay(message);
+client.on('message', async(message) => {
+	try {
+		await client.commands.get('music').searchPlay(message);
 
-	const filteredPrefixes = prefixes.filter(item => message.content.startsWith(item));
-	if(filteredPrefixes.length === 0 || (message.author.bot && !message.content.startsWith('./cmd'))) return;
+		const filteredPrefixes = prefixes.filter(item => message.content.startsWith(item));
+		if(filteredPrefixes.length === 0 || (message.author.bot && !message.content.startsWith('./cmd'))) return;
 
-	const args = message.content.substring(filteredPrefixes[0].length).split(' ');
-	switch(args[0].toLowerCase()) {
-		//Useful tools commands
-		case 'del': return client.commands.get('del').delete(message, args);
-		case 'poll': return client.commands.get('poll').createPoll(message, args);
-		case 'youtube': return client.commands.get('youtube').getYoutubeURL(message, args);
-		case 'reminder': return client.commands.get('reminder').setup(message, args);
-		case 'secretsanta': return client.commands.get('secretsanta').setup(client, message, args);
-		//Games commands
-		case 'steam': return client.commands.get('steam').getSteam(client, message, args);
-		case 'games': return client.commands.get('games').getGames(message, args);
-		case 'deals': return client.commands.get('deals').getDeals(message, args);
-		case 'specs': return client.commands.get('specs').getGameSpecs(message, args);
-		case 'reviews': return client.commands.get('reviews').getReviews(message, args);
-		case 'hltb': return client.commands.get('howlongtobeat').getHowLongToBeat(message, args);
-		//TV commands
-		case 'tv': return client.commands.get('tv').getTVShows(message, args);	
-		case 'movies': return client.commands.get('movies').getMovies(message, args);
-		//Entertainment commands
-		case 'jokes': return client.commands.get('jokes').getJokes(message, args);
-		case 'aww': return client.commands.get('reddit').getReddit(message, args);
-		case 'memes': return client.commands.get('reddit').getReddit(message, args);
-		case 'comics': return client.commands.get('comics').getComics(message, args);
-		//Music commands
-		case 'join': return client.commands.get('music').join(message);
-		case 'leave': return client.commands.get('music').leave(message);
-		case 'loop': return client.commands.get('music').loop(message);
-		case 'skip': return client.commands.get('music').skip(message);
-		case 'queue': return client.commands.get('music').queue(message);
-		case 'pause': return client.commands.get('music').pause(message);
-		case 'resume': return client.commands.get('music').resume(message);
-		case 'volume': return client.commands.get('music').volume(message, args);
-		case 'remove': return client.commands.get('music').remove(message, args);
-		case 'clear': return client.commands.get('music').clear(message);
-		case 'search': return client.commands.get('music').search(message, args);
-		case 'play': return client.commands.get('music').setup(message, args);
-		//Help command
-		case 'cmd': return client.commands.get('cmd').getHelp(message, args);
-		default: return;
+		const args = message.content.substring(filteredPrefixes[0].length).split(' ');
+		switch(args[0].toLowerCase()) {
+			//Useful tools commands
+			case 'del': return await client.commands.get('del').delete(message, args);
+			case 'poll': return client.commands.get('poll').createPoll(message, args);
+			case 'youtube': return await client.commands.get('youtube').getYoutubeURL(message, args);
+			case 'reminder': return await client.commands.get('reminder').setup(message, args);
+			case 'secretsanta': return await client.commands.get('secretsanta').setup(client, message, args);
+			//Games commands
+			case 'steam': return await client.commands.get('steam').getSteam(client, message, args);
+			case 'games': return await client.commands.get('games').getGames(message, args);
+			case 'deals': return await client.commands.get('deals').getDeals(message, args);
+			case 'specs': return await client.commands.get('specs').getGameSpecs(message, args);
+			case 'reviews': return await client.commands.get('reviews').getReviews(message, args);
+			case 'hltb': return await client.commands.get('howlongtobeat').getHowLongToBeat(message, args);
+			//TV commands
+			case 'tv': return await client.commands.get('tv').getTVShows(message, args);
+			case 'movies': return await client.commands.get('movies').getMovies(message, args);
+			//Entertainment commands
+			case 'jokes': return await client.commands.get('jokes').getJokes(message, args);
+			case 'aww': return await client.commands.get('reddit').getReddit(message, args);
+			case 'memes': return await client.commands.get('reddit').getReddit(message, args);
+			case 'comics': return await client.commands.get('comics').getComics(message, args);
+			//Music commands
+			case 'join': return await client.commands.get('music').join(message);
+			case 'leave': return await client.commands.get('music').leave(message);
+			case 'loop': return client.commands.get('music').loop(message);
+			case 'queue': return client.commands.get('music').queue(message);
+			case 'pause': return client.commands.get('music').pause(message);
+			case 'resume': return client.commands.get('music').resume(message);
+			case 'skip': return await client.commands.get('music').skip(message);
+			case 'remove': return client.commands.get('music').remove(message, args);
+			case 'clear': return client.commands.get('music').clear(message);
+			case 'volume': return await client.commands.get('music').volume(message, args);
+			case 'search': return await client.commands.get('music').search(message, args);
+			case 'play': return await client.commands.get('music').setup(message, args);
+			//Help command
+			case 'cmd': return client.commands.get('cmd').getHelp(message, args);
+			default: return;
+		}
+	} catch (error) {
+		console.log(`Command that triggered the error: ${message.content}`);
+		console.log(error);	
 	}
 });
 

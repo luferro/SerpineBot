@@ -29,32 +29,27 @@ module.exports = {
 				const inverseAssociation = { gifter: receivers[randomReceivers], receiver: gifters[randomGifters] };
 				associations.push({ gifter: gifters[randomGifters], receiver: receivers[randomReceivers] });
 
-				if(!associations.includes(inverseAssociation)) {
-					try {                    					
-						const receiver = await client.users.fetch(receivers[randomReceivers].slice(3, receivers[randomReceivers].length - 1));
-						const gifter = await client.users.fetch(gifters[randomGifters].slice(3, gifters[randomGifters].length - 1));
+				if(!associations.includes(inverseAssociation)) {                					
+					const receiver = await client.users.fetch(receivers[randomReceivers].slice(3, receivers[randomReceivers].length - 1));
+					const gifter = await client.users.fetch(gifters[randomGifters].slice(3, gifters[randomGifters].length - 1));
 
-						gifter.send({ embed: {
-							color: Math.floor(Math.random() * 16777214) + 1,
-							title: `Secret Santa ${date.getFullYear()}`,
-							description: `
-								Prepara uma prenda para o(a) \`${receiver.tag}\`!
-								Valor máximo de \`30 €\`.
-								Troca de prendas no dia \`25/12/${date.getFullYear()}\`.\n
-								**Podem combinar vários jogos caso queiram fazer uso do valor máximo.**
-								**NOTA:** atualizem a vossa wishlist!
-							`,
-							footer: {
-								text: `Mensagem enviada: ${new Date(reminder.timeStart).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}`
-							}
-						}});
+					gifter.send({ embed: {
+						color: Math.floor(Math.random() * 16777214) + 1,
+						title: `Secret Santa ${date.getFullYear()}`,
+						description: `
+							Prepara uma prenda para o(a) \`${receiver.tag}\`!
+							Valor máximo de \`30 €\`.
+							Troca de prendas no dia \`25/12/${date.getFullYear()}\`.\n
+							**Podem combinar vários jogos caso queiram fazer uso do valor máximo.**
+							**NOTA:** atualizem a vossa wishlist!
+						`,
+						footer: {
+							text: `Mensagem enviada: ${new Date(reminder.timeStart).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}`
+						}
+					}});
 
-						receivers.splice(randomReceivers, 1);
-						gifters.splice(randomGifters, 1);
-					} catch (error) {
-						console.log(error);
-						break;
-					}
+					receivers.splice(randomReceivers, 1);
+					gifters.splice(randomGifters, 1);
 				}
 			}
 		}

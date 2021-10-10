@@ -4,11 +4,11 @@ const { erase } = require('../utils/message');
 
 module.exports = {
 	name: 'reminder',
-    setup(message, args) {
+    async setup(message, args) {
         erase(message, 5000);
 
-        if(args[1] === 'delete') this.deleteReminder(message, args[2]);
-        else this.createReminder(message, args);
+        if(args[1] === 'delete') return await this.deleteReminder(message, args[2]);
+        await this.createReminder(message, args);
     },
 	async createReminder(message, args) {
         const reminderID = crypto.randomUUID();
@@ -52,29 +52,21 @@ module.exports = {
                 return message.channel.send('You need to define time as X secs | mins | hour(s) | day(s) | week(s) | month(s) | year(s) - e.g. ./reminder 5 mins <message>').then(m => { m.delete({ timeout: 5000 }) });
         }
         
-        try {
-            await new remindersSchema({
-                reminderID,
-                user,
-                timeStart: new Date().getTime(),
-                timeEnd: new Date().getTime() + ms,
-                message: text
-            }).save();
+        await new remindersSchema({
+            reminderID,
+            user,
+            timeStart: new Date().getTime(),
+            timeEnd: new Date().getTime() + ms,
+            message: text
+        }).save();
 
-            message.channel.send(`**Reminder ID:** ${reminderID}\n<@${user}> I'll remind you about ${text} in ${time[0]} ${time[1]}!`);
-        } catch (error) {
-            console.log(error);
-        }   
+        message.channel.send(`**Reminder ID:** ${reminderID}\n<@${user}> I'll remind you about ${text} in ${time[0]} ${time[1]}!`); 
     },
     async deleteReminder(message, reminderID) {
-        try {
-            if(!reminderID) return message.channel.send('./cmd reminder');
+        if(!reminderID) return message.channel.send('./cmd reminder');
 
-            const status = await remindersSchema.deleteOne({ reminderID });
+        const status = await remindersSchema.deleteOne({ reminderID });
 
-            message.channel.send(`Deleted ${status.deletedCount} reminder!`);
-        } catch (error) {
-            console.log(error);
-        }
+        message.channel.send(`Deleted ${status.deletedCount} reminder!`);
     }
 };

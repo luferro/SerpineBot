@@ -1,11 +1,13 @@
+const { formatStringCapitalize } = require('../utils/format');
 const { erase } = require('../utils/message');
 
-const emojis = ['🔴', '🔵', '🟢', '🟡', '🟣', '🟤', '⚪', '🟠'];
+const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
 
 module.exports = {
     name: 'poll',
     createPoll(message, args) {
 		erase(message, 5000);
+
 		if(!args[1]) return message.channel.send('./cmd poll');
 
 		const questionMarkIndex = args.findIndex(item => item.includes('?'));
@@ -17,7 +19,7 @@ module.exports = {
 		if(optionsKeywords.length === 0) {
 			return message.channel.send({ embed: {
 				color: Math.floor(Math.random() * 16777214) + 1,
-				title: this.capitalize(title.join(' ')),
+				title: formatStringCapitalize(title.join(' ')),
 				description: '👍🏻 or 👎🏻'
 			}}).then(message => {
 				message.react('👍🏻');
@@ -26,19 +28,19 @@ module.exports = {
 		}
 		
 		const options = optionsKeywords.join(' ').split(/ou|or|,/);
-		if(options.length > 8) return message.channel.send('Poll can\'t have more than 8 options.').then(m => { m.delete({ timeout: 5000 }) });
+		if(options.length > 10) return message.channel.send('Poll can\'t have more than 10 options.').then(m => { m.delete({ timeout: 5000 }) });
 		if(options.length === 1) return message.channel.send('Poll needs more than 1 option.').then(m => { m.delete({ timeout: 5000 }) });
 
 		let text = '';
 		const reactions = [];
 		options.forEach((item, index) => {
             reactions.push(emojis[index]);
-			text += `\n${emojis[index]} - **${item.split(' ').map(this.capitalize).join(' ')}**`
+			text += `\n${emojis[index]} - **${item.split(' ').map(formatStringCapitalize).join(' ')}**`
 		});
 
 		message.channel.send({ embed: {
 			color: Math.floor(Math.random() * 16777214) + 1,
-			title: this.capitalize(title.join(' ')),
+			title: formatStringCapitalize(title.join(' ')),
 			description: text
 		}}).then(message => {
 			this.addReactions(message, reactions);
@@ -48,8 +50,5 @@ module.exports = {
         message.react(reactions[0]);
         reactions.shift();
         if(reactions.length > 0) setTimeout(() => this.addReactions(message, reactions), 750);
-    },
-	capitalize(string) {
-		return string.charAt(0).toUpperCase() + string.slice(1);
-	}
+    }
 }

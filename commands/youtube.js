@@ -6,15 +6,12 @@ module.exports = {
     name: 'youtube',
     async getYoutubeURL(message, args) {
         erase(message, 5000);
-        try {
-            const query = args.slice(1).join(' ');
-            if(!query) return message.channel.send('./cmd youtube');
 
-            const results = await youtube.search(query);
+        const query = args.slice(1).join(' ');
+        if(!query) return message.channel.send('./cmd youtube');
 
-            message.channel.send(`https://www.youtube.com/watch?v=${results[0].id}`);
-        } catch (error) {
-            console.log(error);
-        }
+        const results = await youtube.search(query);
+
+        message.channel.send(`https://www.youtube.com/watch?v=${results[0].id}`);
     }
 }

@@ -13,45 +13,6 @@ module.exports = {
         }
         return options[type] || null;
     },
-    async getSteamRecentlyPlayed() {
-        const data = [];
-        try {
-            const profiles = await steamSchema.find();
-            for(const profile of profiles) {
-                if(!profile.recentlyPlayed || profile.recentlyPlayed.length === 0) continue;
-
-                const res = await fetch(`${profile.url}/games/?tab=recent`, { headers: { 'User-Agent': new UserAgent().toString() } });
-                const html = await res.text();
-                const $ = cheerio.load(html);
-                
-                const script = $('.responsive_page_template_content > script').first().get(0).children[0].data.trim();
-                const string = script.substring(script.indexOf('['), script.indexOf(';'));
-                const array = JSON.parse(string);
-                
-                const games = array.map(item => ({
-                    id: item.appid,
-                    name: item.name,
-                    twoWeeksHours: parseFloat(item.hours),
-                    totalHours: parseFloat((item.hours_forever || item.hours).replace(',', ''))
-                })).filter(item => item.twoWeeksHours);
-
-                const recentlyPlayed = [];
-                for(const game of games) {
-                    const storedItem = profile.recentlyPlayed.find(item => item.id === game.id);
-                    const weeklyHours = storedItem ? game.totalHours - storedItem.totalHours : game.twoWeeksHours;
-
-                    recentlyPlayed.push({ name: game.name, url: `https://store.steampowered.com/app/${game.id}`, weeklyHours });
-                }
-                const topPlayed = recentlyPlayed.reduce((acc, el) => el.weeklyHours > acc.weeklyHours ? el : acc);
-                const weeklyHours = recentlyPlayed.reduce((acc, el) => acc + el.weeklyHours, 0);
-
-                data.push({ user: profile.user, tag: profile.tag, games, topPlayed: topPlayed.name, topPlayedURL: topPlayed.url, weeklyHours: parseFloat(weeklyHours.toFixed(1)) });
-            }
-            return data.sort((a, b) => b.weeklyHours - a.weeklyHours).slice(0, 10);
-        } catch (error) {
-            console.log(error);
-        }
-    },
     async getSteamLeaderboard(client) {
         try {
             const data = await this.getSteamRecentlyPlayed();
@@ -82,7 +43,44 @@ module.exports = {
                 }
             }});
         } catch (error) {
+            console.log(`Job that triggered the error: getSteamLeaderboard`);
             console.log(error);
         }
+    },
+    async getSteamRecentlyPlayed() {
+        const data = [];
+
+        const profiles = await steamSchema.find();
+        for(const profile of profiles) {
+            if(!profile.recentlyPlayed || profile.recentlyPlayed.length === 0) continue;
+
+            const res = await fetch(`${profile.url}/games/?tab=recent`, { headers: { 'User-Agent': new UserAgent().toString() } });
+            const html = await res.text();
+            const $ = cheerio.load(html);
+            
+            const script = $('.responsive_page_template_content > script').first().get(0).children[0].data.trim();
+            const string = script.substring(script.indexOf('['), script.indexOf('];') + 1);
+            const array = JSON.parse(string);
+            
+            const games = array.map(item => ({
+                id: item.appid,
+                name: item.name,
+                twoWeeksHours: parseFloat(item.hours),
+                totalHours: parseFloat((item.hours_forever || item.hours).replace(',', ''))
+            })).filter(item => item.twoWeeksHours);
+
+            const recentlyPlayed = [];
+            for(const game of games) {
+                const storedItem = profile.recentlyPlayed.find(item => item.id === game.id);
+                const weeklyHours = storedItem ? game.totalHours - storedItem.totalHours : game.twoWeeksHours;
+
+                recentlyPlayed.push({ name: game.name, url: `https://store.steampowered.com/app/${game.id}`, weeklyHours });
+            }
+            const topPlayed = recentlyPlayed.reduce((acc, el) => el.weeklyHours > acc.weeklyHours ? el : acc);
+            const weeklyHours = recentlyPlayed.reduce((acc, el) => acc + el.weeklyHours, 0);
+
+            data.push({ user: profile.user, tag: profile.tag, games, topPlayed: topPlayed.name, topPlayedURL: topPlayed.url, weeklyHours: parseFloat(weeklyHours.toFixed(1)) });
+        }
+        return data.sort((a, b) => b.weeklyHours - a.weeklyHours).slice(0, 10);
     }
 };
