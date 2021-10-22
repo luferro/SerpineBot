@@ -14,7 +14,7 @@ module.exports = {
 		if(questionMarkIndex === -1) return message.channel.send('Poll title must include a question mark.').then(m => { m.delete({ timeout: 5000 }) });
 
 		const title = args.slice(1, questionMarkIndex + 1);
-		const optionsKeywords = args.slice(questionMarkIndex + 1)
+		const optionsKeywords = args.slice(questionMarkIndex + 1);
 
 		if(optionsKeywords.length === 0) {
 			return message.channel.send({ embed: {

@@ -66,7 +66,7 @@ module.exports = {
                 id: item.appid,
                 name: item.name,
                 twoWeeksHours: parseFloat(item.hours),
-                totalHours: parseFloat((item.hours_forever || item.hours).replace(',', ''))
+                totalHours: parseFloat((item.hours_forever || item.hours)?.replace(',', '') || 0)
             })).filter(item => item.twoWeeksHours);
 
             const recentlyPlayed = [];

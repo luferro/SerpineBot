@@ -65,6 +65,7 @@ module.exports = {
         const user = await client.users.fetch(userID);
         const totalItems = list.length;
         const displayItems = list.slice(0, 10);
+        totalItems - displayItems.length > 0 && `And ${totalItems - displayItems.length} more!`;
 
         const getMessage = (type) => {
             const options = {
@@ -75,7 +76,6 @@ module.exports = {
                             `> **[${item.name}](${item.url})** added to:
                             ${Array.isArray(item.subscriptions) && item.subscriptions.join('\n')}`
                         ).join('\n')}
-                        ${totalItems - displayItems.length > 0 ? `And ${totalItems - displayItems.length} more!` : ''}
                     `
                 },
                 'removed': { 
@@ -85,7 +85,6 @@ module.exports = {
                             `> **[${item.name}](${item.url})** removed from:
                             ${Array.isArray(item.subscriptions) && item.subscriptions.join('\n')}`
                         ).join('\n')}
-                        ${totalItems - displayItems.length > 0 ? `And ${totalItems - displayItems.length} more!` : ''}
                     `
                 },
                 'released': { 
@@ -94,7 +93,6 @@ module.exports = {
                         ${displayItems.map(item =>
                             `> **[${item.name}](${item.url})** available for **${item.discounted}**`
                         ).join('\n')}
-                        ${totalItems - displayItems.length > 0 ? `And ${totalItems - displayItems.length} more!` : ''}
                     `
                 },
                 'sale': { 
@@ -103,7 +101,6 @@ module.exports = {
                         ${displayItems.map(item =>
                             `> **[${item.name}](${item.url})** is ***${item.discount}%*** off! ~~${item.regular}~~ | **${item.discounted}**`
                         ).join('\n')}
-                        ${totalItems - displayItems.length > 0 ? `And ${totalItems - displayItems.length} more!` : ''}
                     `
                 }
             }
@@ -155,7 +152,7 @@ module.exports = {
                     regular,
                     discounted,
                     free: data[item].is_free_game,
-                    released: !data[item].prerelease ? true : false,
+                    released: typeof data[item].release_date === 'string',
                     sale: discount && discounted ? true : false,
                     subscriptions: {
                         'Xbox Game Pass for Console': subscription.some(item => item === 'Xbox Game Pass for Console'),
