@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const musicSchema = mongoose.Schema({
     guild: String,
     volume: String
 });
 
-module.exports = mongoose.model('music', musicSchema, 'music');
+export default mongoose.model('music', musicSchema, 'music');

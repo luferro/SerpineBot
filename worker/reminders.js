@@ -1,27 +1,29 @@
-const remindersSchema = require('../models/remindersSchema');
+import { MessageEmbed } from 'discord.js';
+import remindersSchema from '../models/remindersSchema.js';
 
-module.exports = {
-	name: 'reminders',
-    async checkReminder(client) {
-        try {
-            const reminders = await remindersSchema.find().sort({ timeEnd: 'asc' });
-            if(reminders.length === 0) return;
+const checkReminder = async client => {
+    try {
+        const reminders = await remindersSchema.find().sort({ timeEnd: 'asc' });
+        if(reminders.length === 0) return;
 
-            if(new Date().getTime() >= reminders[0].timeEnd) await this.sendReminder(client, reminders[0].user, reminders[0].reminderID, reminders[0].timeStart, reminders[0].message);
-        } catch (error) {
-            console.log(`Job that triggered the error: checkReminder`);
-            console.log(error);
-        }
-    },
-    async sendReminder(client, userID, reminderID, timeStart, message) {
-        const user = await client.users.fetch(userID);
-            
-        user.send({ embed: {
-            color: Math.floor(Math.random() * 16777214) + 1,
-            title: `Reminder set on ${new Date(timeStart).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}`,
-            description: `**Message**:\n${message.trim()}`
-        }});
-
-        await remindersSchema.deleteOne({ reminderID });   
+        if(new Date().getTime() >= reminders[0].timeEnd) await sendReminder(client, reminders[0].user, reminders[0].reminderID, reminders[0].timeStart, reminders[0].message);
+    } catch (error) {
+        console.log(`Job that triggered the error: checkReminder`);
+        console.log(error);
     }
-};
+}
+
+const sendReminder = async(client, userID, reminderID, timeStart, message) => {
+    const user = await client.users.fetch(userID);
+
+    user.send({ embeds: [
+        new MessageEmbed()
+            .setTitle(`Reminder set on ${new Date(timeStart).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}`)
+            .setDescription(`**Message**:\n${message.trim()}`)
+            .setColor(Math.floor(Math.random() * 16777214) + 1)
+    ]});
+
+    await remindersSchema.deleteOne({ reminderID });
+}
+
+export default { checkReminder };

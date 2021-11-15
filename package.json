@@ -3,26 +3,31 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "type": "module",
   "dependencies": {
-    "@discordjs/opus": "^0.3.3",
-    "cheerio": "^1.0.0-rc.3",
-    "discord.js": "^12.5.3",
-    "dotenv": "^8.2.0",
-    "ffmpeg": "0.0.4",
-    "fluent-ffmpeg": "^2.1.2",
+    "@discordjs/opus": "^0.7.0",
+    "@discordjs/voice": "^0.7.5",
+    "cheerio": "^1.0.0-rc.10",
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0",
+    "ffmpeg-static": "^4.4.0",
     "fs": "0.0.1-security",
-    "howlongtobeat": "^1.3.1",
-    "mongoose": "^5.11.7",
+    "howlongtobeat": "^1.5.0",
+    "libsodium-wrappers": "^0.7.9",
+    "mongoose": "^6.0.12",
     "node-cron": "^3.0.0",
-    "node-fetch": "^2.6.5",
-    "puppeteer": "^10.4.0",
-    "user-agents": "^1.0.792",
-    "youtubei": "0.0.1-rc.25",
-    "ytdl-core": "^4.8.2"
+    "node-fetch": "^3.1.0",
+    "puppeteer": "^11.0.0",
+    "user-agents": "^1.0.835",
+    "youtubei": "0.0.1-rc.27",
+    "ytdl-core": "^4.9.1"
   },
   "scripts": {
     "start": "node server.js",
     "deploy": "git add . && git commit -am Heroku && git push heroku master"
+  },
+  "engines":{
+    "node":"16.13.0"
   },
   "author": "Luís Ferro",
   "license": "ISC"

@@ -1,17 +1,16 @@
-const { Client } = require('youtubei');
-const { erase } = require('../utils/message');
-const youtube = new Client();
+import youtubei from 'youtubei';
+import { erase } from '../utils/message.js';
+const youtube = new youtubei.Client();
 
-module.exports = {
-    name: 'youtube',
-    async getYoutubeURL(message, args) {
-        erase(message, 5000);
+const getYoutubeURL = async(message, args) => {
+    erase(message, 5000);
 
-        const query = args.slice(1).join(' ');
-        if(!query) return message.channel.send('./cmd youtube');
+    const query = args.slice(1).join(' ');
+    if(!query) return message.channel.send({ content: './cmd youtube' });
 
-        const results = await youtube.search(query);
+    const results = await youtube.search(query);
 
-        message.channel.send(`https://www.youtube.com/watch?v=${results[0].id}`);
-    }
+    message.channel.send({ content: `https://www.youtube.com/watch?v=${results[0].id}` });
 }
+
+export default { getYoutubeURL };

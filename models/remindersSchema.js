@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const remindersSchema = mongoose.Schema({
     reminderID: String, 
@@ -8,4 +8,4 @@ const remindersSchema = mongoose.Schema({
     message: String
 });
 
-module.exports = mongoose.model('reminders', remindersSchema);
+export default mongoose.model('reminders', remindersSchema);

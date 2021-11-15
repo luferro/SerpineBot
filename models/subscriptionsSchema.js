@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const subscriptionsSchema = mongoose.Schema({
     subscription: String,
     items: Array
 });
 
-module.exports = mongoose.model('subscriptions', subscriptionsSchema);
+export default mongoose.model('subscriptions', subscriptionsSchema);

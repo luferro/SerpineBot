@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const steamSchema = mongoose.Schema({
     user: String,
@@ -13,4 +13,4 @@ const steamSchema = mongoose.Schema({
     recentlyPlayed: Array
 });
 
-module.exports = mongoose.model('steam', steamSchema, 'steam');
+export default mongoose.model('steam', steamSchema, 'steam');
