@@ -1,6 +1,7 @@
-import remindersSchema from '../models/remindersSchema.js';
+import { MessageEmbed } from 'discord.js';
 import { randomUUID } from 'crypto';
 import { erase } from '../utils/message.js';
+import remindersSchema from '../models/remindersSchema.js';
 
 const setup = async(message, args) => {
     erase(message, 5000);
@@ -10,7 +11,7 @@ const setup = async(message, args) => {
 }
 
 const createReminder = async(message, args) => {
-    const reminderID = randomUUID();
+    const reminder = randomUUID();
     const user = message.author.id;
     const time = message.content.match(/[0-9]+|(secs|mins|hours?|days?|weeks?|months?|years?)/g);
     const text = args.slice(3).join(' ');
@@ -41,22 +42,30 @@ const createReminder = async(message, args) => {
     if(!ms) return message.channel.send({ content: 'You need to define time as X secs | mins | hour(s) | day(s) | week(s) | month(s) | year(s).' }).then(m => erase(m, 5000));
 
     await new remindersSchema({
-        reminderID,
+        reminder,
         user,
         timeStart: new Date().getTime(),
         timeEnd: new Date().getTime() + ms,
         message: text
     }).save();
 
-    message.channel.send({ content: `**Reminder ID:** ${reminderID}\n<@${user}> I'll remind you about ${text} in ${time[0]} ${time[1]}!` });
+    message.channel.send({ embeds: [
+        new MessageEmbed()
+            .setTitle(`**Reminder ID:** ${reminder}`)
+            .setDescription(`<@${user}>, I'll remind you about **${text}** in *${time[0]} ${time[1]}*!`)
+            .setColor(Math.floor(Math.random() * 16777214) + 1)
+    ]});
 }
 
-const deleteReminder = async(message, reminderID) => {
-    if(!reminderID) return message.channel.send({ content: './cmd reminder' });
+const deleteReminder = async(message, reminder) => {
+    if(!reminder) return message.channel.send({ content: './cmd reminder' });
 
-    const status = await remindersSchema.deleteOne({ reminderID });
-
-    message.channel.send({ content: `Deleted ${status.deletedCount} reminder!` });
+    const status = await remindersSchema.deleteOne({ reminder });
+    message.channel.send({ embeds: [
+        new MessageEmbed()
+            .setTitle(`Deleted ${status.deletedCount} reminder!`)
+            .setColor(Math.floor(Math.random() * 16777214) + 1)
+    ]});
 }
 
 export default { setup };

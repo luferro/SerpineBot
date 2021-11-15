@@ -1,6 +1,6 @@
 import { MessageEmbed } from 'discord.js';
-import { erase } from '../utils/message.js';
 import { randomUUID } from 'crypto';
+import { erase } from '../utils/message.js';
 
 const setup = async(client, message, args) => {
 	if(!args[1]) return message.channel.send({ content: './cmd secretsanta' });

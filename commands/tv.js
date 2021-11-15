@@ -1,7 +1,7 @@
 import { MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
-import { formatMinutesToHours } from '../utils/format.js';
 import { erase } from '../utils/message.js';
+import { formatMinutesToHours } from '../utils/format.js';
 
 const getTVShows = async(message, args) => {
     erase(message, 5000);

@@ -6,14 +6,14 @@ const checkReminder = async client => {
         const reminders = await remindersSchema.find().sort({ timeEnd: 'asc' });
         if(reminders.length === 0) return;
 
-        if(new Date().getTime() >= reminders[0].timeEnd) await sendReminder(client, reminders[0].user, reminders[0].reminderID, reminders[0].timeStart, reminders[0].message);
+        if(new Date().getTime() >= reminders[0].timeEnd) await sendReminder(client, reminders[0].user, reminders[0].reminder, reminders[0].timeStart, reminders[0].message);
     } catch (error) {
         console.log(`Job that triggered the error: checkReminder`);
         console.log(error);
     }
 }
 
-const sendReminder = async(client, userID, reminderID, timeStart, message) => {
+const sendReminder = async(client, userID, reminder, timeStart, message) => {
     const user = await client.users.fetch(userID);
 
     user.send({ embeds: [
@@ -23,7 +23,7 @@ const sendReminder = async(client, userID, reminderID, timeStart, message) => {
             .setColor(Math.floor(Math.random() * 16777214) + 1)
     ]});
 
-    await remindersSchema.deleteOne({ reminderID });
+    await remindersSchema.deleteOne({ reminder });
 }
 
 export default { checkReminder };

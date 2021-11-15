@@ -1,8 +1,8 @@
+import { MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
 import { load } from 'cheerio';
 import UserAgent from 'user-agents';
 import { erase } from '../utils/message.js';
-import { MessageEmbed } from 'discord.js';
 
 const getGameSpecs = async(message, args) => {
     erase(message, 5000);

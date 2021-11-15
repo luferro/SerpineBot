@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
-import subscriptionsSchema from '../models/subscriptionsSchema.js';
 import { slug } from '../utils/slug.js';
+import subscriptionsSchema from '../models/subscriptionsSchema.js';
 
 const getSubscriptions = async() => {
     let browser, page;
@@ -50,7 +50,7 @@ const getXboxGamePass = async(page, type) => {
         await page.waitForSelector('.gameList [itemtype="http://schema.org/Product"]');
 
         const data = await page.$$eval('.gameList [itemtype="http://schema.org/Product"]', elements => elements.map(item => ({ name: item.querySelector('h3').textContent, url: item.querySelector('a').href })));
-
+        
         items.push(...data.map(item => ({ name: item.name, slug: slug(item.name), url: item.url })));
 
         await page.waitForTimeout(1000);

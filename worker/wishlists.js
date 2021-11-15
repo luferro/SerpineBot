@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import { slug } from '../utils/slug.js';
 import { formatCentsToEuros } from '../utils/format.js';
-import subscriptionsSchema from '../models/subscriptionsSchema.js';
 import steamSchema from '../models/steamSchema.js';
+import subscriptionsSchema from '../models/subscriptionsSchema.js';
 
 const checkWishlist = async client => {
     try {

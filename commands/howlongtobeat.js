@@ -2,7 +2,7 @@ import { MessageEmbed } from 'discord.js';
 import { HowLongToBeatService } from 'howlongtobeat';
 import { erase } from '../utils/message.js';
 
-const hltbService = new HowLongToBeatService();
+const HowLongToBeat = new HowLongToBeatService();
 
 const getHowLongToBeat = async(message, args) => {
     erase(message, 5000);
@@ -10,7 +10,7 @@ const getHowLongToBeat = async(message, args) => {
     const query = args.slice(1).join(' ');
     if(!query) return message.channel.send({ content: './cmd hltb' });
 
-    const data = await hltbService.search(query);
+    const data = await HowLongToBeat.search(query);
     if(data.length === 0) return message.channel.send({ content: `Couldn't find a match for ${query}.` }).then(m => erase(m, 5000));
 
     const hasPlaytimes = data[0].gameplayMain > 0 || data[0].gameplayMainExtra > 0 || data[0].gameplayCompletionist > 0;

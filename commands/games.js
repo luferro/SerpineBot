@@ -1,11 +1,11 @@
 import { MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
 import { HowLongToBeatService } from 'howlongtobeat';
-import subscriptionsSchema from '../models/subscriptionsSchema.js';
 import { slug } from '../utils/slug.js';
 import { erase } from '../utils/message.js';
+import subscriptionsSchema from '../models/subscriptionsSchema.js';
 
-const hltbService = new HowLongToBeatService();
+const HowLongToBeat = new HowLongToBeatService();
 
 const getGames = async(message, args) => {
     erase(message, 5000);
@@ -70,7 +70,7 @@ const getGameDetails = async(id) => {
     const data = await res.json();
 
     const name = data.name;
-    const playtimes = await hltbService.search(data.name).catch(error => console.log(error));
+    const playtimes = await HowLongToBeat.search(data.name).catch(error => console.log(error));
 
     const platforms = [];
     const platformsToAvoid = [5, 6, 171];

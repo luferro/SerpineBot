@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const remindersSchema = mongoose.Schema({
-    reminderID: String, 
+    reminder: String, 
     user: String,
     timeStart: Number,
     timeEnd: Number,

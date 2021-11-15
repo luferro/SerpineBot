@@ -2,9 +2,9 @@ import { MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
 import { load } from 'cheerio';
 import UserAgent from 'user-agents';
-import subscriptionsSchema from '../models/subscriptionsSchema.js';
 import { slug } from '../utils/slug.js';
 import { erase } from '../utils/message.js';
+import subscriptionsSchema from '../models/subscriptionsSchema.js';
 
 const getDeals = async(message, args) => {
     erase(message, 5000);

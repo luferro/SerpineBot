@@ -2,10 +2,10 @@ import { MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
 import { load } from 'cheerio';
 import UserAgent from 'user-agents';
-import steamSchema from '../models/steamSchema.js';
+import { erase } from '../utils/message.js';
 import wishlists from '../worker/wishlists.js';
 import leaderboards from '../worker/leaderboards.js';
-import { erase } from '../utils/message.js';
+import steamSchema from '../models/steamSchema.js';
 
 const getSteam = async(client, message, args) => {
     erase(message, 5000);

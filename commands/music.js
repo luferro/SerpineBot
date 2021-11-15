@@ -1,12 +1,12 @@
 import { MessageEmbed } from 'discord.js';
 import { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } from '@discordjs/voice';
-import youtubei from 'youtubei';
-const youtube = new youtubei.Client();
 import ytdl from 'ytdl-core';
+import youtubeService from 'youtubei';
 import { erase } from '../utils/message.js';
 import { formatSecondsToMinutes } from '../utils/format.js';
 import musicSchema from '../models/musicSchema.js';
 
+const youtube = new youtubeService.Client();
 const subscriptions = new Map();
 
 const playerOnIdle = guild => {

@@ -1,6 +1,7 @@
-import youtubei from 'youtubei';
+import youtubeService from 'youtubei';
 import { erase } from '../utils/message.js';
-const youtube = new youtubei.Client();
+
+const youtube = new youtubeService.Client();
 
 const getYoutubeURL = async(message, args) => {
     erase(message, 5000);
