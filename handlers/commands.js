@@ -140,7 +140,7 @@ const createSlashCommands = client => {
             .addStringOption(option => option.setName('query').setDescription('Youtube search query.').setRequired(true))
     ].map(command => command.toJSON());
 
-    client.guilds.cache.get('223461927311900674').commands.set(commands);
+    client.application.commands.set(commands);
 }
 
 export const commands = { createSlashCommands, comics, deals, prune, games, howlongtobeat, jokes, movies, music, poll, reddit, reminder, reviews, secretsanta, specs, steam, tv, youtube };
