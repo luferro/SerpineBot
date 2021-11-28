@@ -2,21 +2,16 @@ import { MessageEmbed } from 'discord.js';
 import remindersSchema from '../models/remindersSchema.js';
 
 const checkReminder = async client => {
-    try {
-        const reminders = await remindersSchema.find().sort({ timeEnd: 'asc' });
-        if(reminders.length === 0) return;
+    const reminders = await remindersSchema.find().sort({ timeEnd: 'asc' });
+    if(reminders.length === 0) return;
 
-        if(new Date().getTime() >= reminders[0].timeEnd) await sendReminder(client, reminders[0].user, reminders[0].reminder, reminders[0].timeStart, reminders[0].message);
-    } catch (error) {
-        console.log(`Job that triggered the error: checkReminder`);
-        console.log(error);
-    }
+    if(new Date().getTime() >= reminders[0].timeEnd) await sendReminder(client, reminders[0].user, reminders[0].reminder, reminders[0].timeStart, reminders[0].message);
 }
 
-const sendReminder = async(client, userID, reminder, timeStart, message) => {
-    const user = await client.users.fetch(userID);
+const sendReminder = async(client, user, reminder, timeStart, message) => {
+    const target = await client.users.fetch(user);
 
-    user.send({ embeds: [
+    target.send({ embeds: [
         new MessageEmbed()
             .setTitle(`Reminder set on ${new Date(timeStart).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}`)
             .setDescription(`**Message**:\n${message.trim()}`)

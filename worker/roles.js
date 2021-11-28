@@ -15,19 +15,21 @@ const emojis = {
     twelve: 'Manga'
 }
 
-const setup = async client => {
-    const channel = await client.channels.fetch(process.env.BOT_ROLES_CHANNEL);
+const createRolesMessage = async client => {
+    try {
+        const channel = await client.channels.fetch(process.env.ROLES_CHANNEL);
 
-    const reactions = [], list = [];
-    for(const key in emojis) {
-        const emoji = client.emojis.cache.find(emoji => emoji.name === key);
-        reactions.push(emoji);
-        list.push(`> ${emoji} __**${emojis[key]}**__`);
-    }
+        const reactions = [];
+        const list = Object.keys(emojis).map(item => {
+            const emoji = client.emojis.cache.find(emoji => emoji.name === item);
+            reactions.push(emoji);
 
-    channel.messages.fetch().then(messages => {
+            return `> ${emoji} __**${emojis[item]}**__`;
+        });
+
+        const messages = await channel.messages.fetch();
         if(messages.size === 0) {
-            return channel.send({ embeds: [
+            const message = await channel.send({ embeds: [
                     new MessageEmbed()
                         .setTitle('Get your roles here!')
                         .setDescription(`
@@ -37,32 +39,27 @@ const setup = async client => {
                             ${list.join('\n')}
                         `)
                         .setColor(Math.floor(Math.random() * 16777214) + 1)
-            ]}).then(message => addReactions(message, reactions));
+                ]});
+            return addReactions(message, reactions);
         }
 
         for(const message of messages) {
             message[1].edit({ embeds: [
-                    new MessageEmbed()
-                        .setTitle('Get your roles here!')
-                        .setDescription(`
-                            > React to this message to claim your roles!
-                            > Each role will give you access to a text channel.
-                            \n**NOTE:** Users with role \`Restrictions\` won't be assigned the __**NSFW**__ role.\n
-                            ${list.join('\n')}
-                        `)
-                        .setColor(Math.floor(Math.random() * 16777214) + 1)
+                new MessageEmbed()
+                    .setTitle('Get your roles here!')
+                    .setDescription(`
+                        > React to this message to claim your roles!
+                        > Each role will give you access to a text channel.
+                        \n**NOTE:** Users with role \`Restrictions\` won't be assigned the __**NSFW**__ role.\n
+                        ${list.join('\n')}
+                    `)
+                    .setColor(Math.floor(Math.random() * 16777214) + 1)
             ]});
             addReactions(message[1], reactions);
         }
-    });
-
-    client.on('messageReactionAdd', (reaction, user) => {
-        if(reaction.message.channel.id === process.env.BOT_ROLES_CHANNEL) handleReaction(reaction, user, true);
-    });
-
-    client.on('messageReactionRemove', (reaction, user) => {
-        if(reaction.message.channel.id === process.env.BOT_ROLES_CHANNEL) handleReaction(reaction, user, false);
-    });
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 const addReactions = (message, reactions) => {
@@ -88,4 +85,4 @@ const handleReaction = (reaction, user, add) => {
     else member.roles.remove(role);
 }
 
-export default { setup };
+export default { createRolesMessage, handleReaction };

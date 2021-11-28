@@ -1,41 +1,41 @@
 import { MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
-import { erase } from '../utils/message.js';
 
-const getReddit = async(message, args) => {
-    erase(message, 5000);
+const getReddit = async interaction => {
+    const category = interaction.options.getInteger('category');
 
-    const getSubreddits = type => {
+    const getCategorySubreddits = category => {
         const options = {
-            'aww': ['aww', 'tuckedinkitties', 'dogpictures', 'catpictures', 'rarepuppers'],
-            'memes': ['memes', 'dankmemes']
+            1: ['aww', 'tuckedinkitties', 'dogpictures', 'catpictures', 'rarepuppers'],
+            2: ['memes', 'dankmemes']
         };
-        return options[type] || null;
+        return options[category] || null;
     };
-    const subreddits = getSubreddits(args[0]);
-    if(!subreddits) return message.channel.send({ content: `./cmd ${args[0]}` });
+    const subreddits = getCategorySubreddits(category);
+    if(!subreddits) return interaction.reply({ content: 'Invalid Reddit category.', ephemeral: true });
 
-    await getPosts(message, subreddits);
-}
+    const subreddit = subreddits[Math.floor(Math.random() * (subreddits.length - 1))]
 
-const getPosts = async(message, subreddits) => {
-    const type = Math.floor(Math.random() * (subreddits.length - 1));
+    const res = await fetch(`https://www.reddit.com/r/${subreddit}/.json?limit=100&restrict_sr=1`);
+    if(!res.ok) return interaction.reply({ content: 'Something went wrong connecting to Reddit. Please try again later.' });
+    const posts = await res.json();
 
-    const res = await fetch(`https://www.reddit.com/r/${subreddits[type]}/.json?limit=100&restrict_sr=1`);
-    const data = await res.json();
+    const filteredPosts = posts.data.children.filter(post => !post.data.stickied && !post.data.is_video && !post.data.removed_by_category);
+    const random = Math.floor(Math.random() * (filteredPosts.length - 1));
 
-    const random = Math.floor(Math.random() * (data.data.children.length - 1));
-    if(data.data.children[random].data.media || data.data.children[random].data.stickied) return await getPosts(message, subreddits);
+    const title = filteredPosts[random].data.title;
+    const permalink = filteredPosts[random].data.permalink;
+    const url = filteredPosts[random].data.url;
 
-    message.channel.send({
-        embeds: [
-            new MessageEmbed()
-                .setTitle(data.data.children[random].data.title)
-                .setURL(`https://www.reddit.com${data.data.children[random].data.permalink}`)
-                .setImage(data.data.children[random].data.url)
-                .setColor(Math.floor(Math.random() * 16777214) + 1)
-        ]
-    });
+    if(url.includes('gif') || url.includes('gifv') || url.includes('mp4')) return interaction.reply({ content: `**[${title}](<https://www.reddit.com${permalink}>)**\n${url}` });
+
+    interaction.reply({ embeds: [
+        new MessageEmbed()
+            .setTitle(title)
+            .setURL(`https://www.reddit.com${permalink}`)
+            .setImage(url)
+            .setColor('RANDOM')
+    ]});
 }
 
 export default { getReddit };

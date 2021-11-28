@@ -14,37 +14,28 @@ const getMedal = type => {
 }
 
 const getSteamLeaderboard = async client => {
-    try {
-        const data = await getSteamRecentlyPlayed();
+    const data = await getSteamRecentlyPlayed();
 
-        for(const item of data) {
-            const user = await client.users.fetch(item.user);
-            const updatedData = { tag: user.tag, recentlyPlayed: item.games };
-            await steamSchema.updateOne({ user: item.user }, { $set: updatedData });
-        }
-
-        const stats = data.map((item, index) => {
-            const medal = getMedal(index);
-
-            return (
-                `> ${medal ? medal : `\`${index + 1}.\``} **${item.tag}** with \`${item.weeklyHours}h\`
-                > Top played game was **[${item.topPlayed}](${item.topPlayedURL})**`
-            );
-        });
-        if(stats.length === 0) return;
-
-        const channel = await client.channels.fetch(process.env.GENERAL_CHANNEL);
-        channel.send({ embeds: [
-            new MessageEmbed()
-                .setTitle('Weekly Steam Leaderboard')
-                .setDescription(stats.join('\n'))
-                .setFooter('Leaderboard resets every sunday at 14:00')
-                .setColor(Math.floor(Math.random() * 16777214) + 1)
-        ]});
-    } catch (error) {
-        console.log(`Job that triggered the error: getSteamLeaderboard`);
-        console.log(error);
+    for(const item of data) {
+        const user = await client.users.fetch(item.user);
+        const updatedData = { tag: user.tag, recentlyPlayed: item.games };
+        await steamSchema.updateOne({ user: item.user }, { $set: updatedData });
     }
+
+    const stats = data.map((item, index) => {
+        const medal = getMedal(index);
+        return `${medal || `\`${index + 1}.\``} **${item.tag}** with \`${item.weeklyHours}h\`\nTop played game was **[${item.topPlayed}](${item.topPlayedURL})**`;
+    });
+    if(stats.length === 0) return;
+
+    const channel = await client.channels.fetch(process.env.GENERAL_CHANNEL);
+    channel.send({ embeds: [
+        new MessageEmbed()
+            .setTitle('Weekly Steam Leaderboard')
+            .setDescription(stats.join('\n'))
+            .setFooter('Leaderboard resets every sunday at 14:00')
+            .setColor(Math.floor(Math.random() * 16777214) + 1)
+    ]});
 }
 
 const getSteamRecentlyPlayed = async() => {

@@ -3,62 +3,58 @@ import { slug } from '../utils/slug.js';
 import { formatCentsToEuros } from '../utils/format.js';
 import steamSchema from '../models/steamSchema.js';
 import subscriptionsSchema from '../models/subscriptionsSchema.js';
+import { MessageEmbed } from 'discord.js';
 
 const checkWishlist = async client => {
-    try {
-        const profiles = await steamSchema.find();
-        for(const profile of profiles) {
-            await new Promise(resolve => setTimeout(resolve, 5000));
+    const profiles = await steamSchema.find();
+    for(const profile of profiles) {
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
-            const items = await getItems(profile.wishlist.url);
-            if(items.error) continue;
+        const items = await getItems(profile.wishlist.url);
+        if(items.error) continue;
 
-            const sale = [], released = [], subscriptions = { added: [], removed: [] };
-            for(const item of items) {
-                const storedItem = profile.wishlist.items.find(element => element.name === item.name);
-                item.notified = item.sale ? storedItem?.notified || false : false;
+        const sale = [], released = [], subscriptions = { added: [], removed: [] };
+        for(const item of items) {
+            const storedItem = profile.wishlist.items.find(element => element.name === item.name);
+            item.notified = item.sale ? storedItem?.notified || false : false;
 
-                for(const key in item.subscriptions) {
-                    if(!storedItem || !storedItem.hasOwnProperty('subscriptions')) break;
+            for(const key in item.subscriptions) {
+                if(!storedItem || !storedItem.hasOwnProperty('subscriptions')) break;
 
-                    if(!storedItem.subscriptions[key] && item.subscriptions[key]) {
-                        const entry = subscriptions.added.find(element => element.name === item.name);
-                        
-                        if(entry) entry.subscriptions.push(`> • **${key}**`);
-                        else subscriptions.added.push({ ...item, subscriptions: [`> • **${key}**`] });
-                    }
-
-                    if(storedItem.subscriptions[key] && !item.subscriptions[key]) {
-                        const entry = subscriptions.removed.find(element => element.name === item.name);
-                        
-                        if(entry) entry.subscriptions.push(`> • **${key}**`);
-                        else subscriptions.removed.push({ ...item, subscriptions: [`> • **${key}**`] });
-                    }
+                if(!storedItem.subscriptions[key] && item.subscriptions[key]) {
+                    const entry = subscriptions.added.find(element => element.name === item.name);
+                    
+                    if(entry) entry.subscriptions.push(`> • **${key}**`);
+                    else subscriptions.added.push({ ...item, subscriptions: [`> • **${key}**`] });
                 }
 
-                if(storedItem && !storedItem.released && item.released) {
-                    released.push(item);
-                    item.sale && (item.notified = true);
-                    continue;
-                }
-
-                if(item.sale && item.released && !item.notified) {
-                    sale.push(item);
-                    item.notified = true;
-                    continue;
+                if(storedItem.subscriptions[key] && !item.subscriptions[key]) {
+                    const entry = subscriptions.removed.find(element => element.name === item.name);
+                    
+                    if(entry) entry.subscriptions.push(`> • **${key}**`);
+                    else subscriptions.removed.push({ ...item, subscriptions: [`> • **${key}**`] });
                 }
             }
 
-            await steamSchema.updateOne({ user: profile.user, tag: profile.tag }, { $set: { 'wishlist.items': items } }, { upsert: true });
+            if(storedItem && !storedItem.released && item.released) {
+                released.push(item);
+                item.sale && (item.notified = true);
+                continue;
+            }
 
-            if(sale.length > 0) await sendNotification(client, profile.user, sale, 'sale');
-            if(released.length > 0) await sendNotification(client, profile.user, released, 'released');
-            if(subscriptions.added.length > 0) await sendNotification(client, profile.user, subscriptions.added, 'added');
-            if(subscriptions.removed.length > 0) await sendNotification(client, profile.user, subscriptions.removed, 'removed');
+            if(item.sale && item.released && !item.notified) {
+                sale.push(item);
+                item.notified = true;
+                continue;
+            }
         }
-    } catch (error) {
-        console.log(`Job that triggered the error: checkWishlist`);
-        console.log(error);
+
+        await steamSchema.updateOne({ user: profile.user, tag: profile.tag }, { $set: { 'wishlist.items': items } }, { upsert: true });
+
+        if(sale.length > 0) await sendNotification(client, profile.user, sale, 'sale');
+        if(released.length > 0) await sendNotification(client, profile.user, released, 'released');
+        if(subscriptions.added.length > 0) await sendNotification(client, profile.user, subscriptions.added, 'added');
+        if(subscriptions.removed.length > 0) await sendNotification(client, profile.user, subscriptions.removed, 'removed');
     }
 }
 
@@ -113,15 +109,16 @@ const getItems = async url => {
     let page = 0;
     while(hasMore) {
         const res = await fetch(`https://store.steampowered.com/wishlist/${type}/${user}/wishlistdata?p=${page}`);
+        if(!res.ok) return { error: 'Something went wrong fetching wishlist data.'}
         const data = await res.json();
 
         hasMore = Object.keys(data).some(item => !isNaN(item));
         if(page === 0 && !hasMore) return { error: 'Steam wishlist is set to private or is empty.' };
 
         Object.keys(data).map(item => {
-            const discount = data[item].subs.length > 0 ? data[item].subs[0].discount_pct : null;
-            const regular = data[item].subs.length > 0 ? formatCentsToEuros(Math.round(data[item].subs[0].price / ((100 - data[item].subs[0].discount_pct) / 100))) : null;
-            const discounted = data[item].subs.length > 0 ? formatCentsToEuros(data[item].subs[0].price) : null;
+            const discount = data[item].subs?.length > 0 ? data[item].subs[0].discount_pct : null;
+            const regular = data[item].subs?.length > 0 ? formatCentsToEuros(Math.round(data[item].subs[0].price / ((100 - data[item].subs[0].discount_pct) / 100))) : null;
+            const discounted = data[item].subs?.length > 0 ? formatCentsToEuros(data[item].subs[0].price) : null;
 
             const subscription = subscriptions.map(element => {
                 const hasSubscription = element.items.some(nestedElement => new RegExp(`^${slug(data[item].name)}`).test(nestedElement.slug));

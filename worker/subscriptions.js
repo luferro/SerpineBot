@@ -14,9 +14,6 @@ const getSubscriptions = async() => {
         await getUbisoftPlus(page);
         await getEAPlay(page, 'base');
         await getEAPlay(page, 'premium');
-    } catch (error) {
-        console.log(`Job that triggered the error: getSubscriptions`);
-        console.log(error);
     } finally {
         console.log('Finished...');
         await page.close();
@@ -107,11 +104,13 @@ const getEAPlay = async(page, type) => {
 
     await page.goto(`https://www.origin.com/irl/en-us/store/browse?fq=subscriptionGroup:${subscriptionType}`, { waitUntil: 'networkidle0', timeout: 0 });
     
-    await page.waitForSelector('.otkmodal-content .otkmodal-content > :last-child > button');
-    await page.click('.otkmodal-content .otkmodal-content > :last-child > button');
-    await page.waitForTimeout(1000);
-    await page.waitForSelector('.otkmodal-content .otkmodal-footer > button');
-    await page.click('.otkmodal-content .otkmodal-footer > button');
+    if(subscriptionType === 'vault-games') {
+        await page.waitForSelector('.otkmodal-content .otkmodal-content > :last-child > button');
+        await page.click('.otkmodal-content .otkmodal-content > :last-child > button');
+        await page.waitForTimeout(1000);
+        await page.waitForSelector('.otkmodal-content .otkmodal-footer > button');
+        await page.click('.otkmodal-content .otkmodal-footer > button');
+    }
 
     await page.evaluate(async () => {
         await new Promise(resolve => {

@@ -2,43 +2,29 @@ import { MessageEmbed } from 'discord.js';
 import fetch from 'node-fetch';
 import { HowLongToBeatService } from 'howlongtobeat';
 import { slug } from '../utils/slug.js';
-import { erase } from '../utils/message.js';
 import subscriptionsSchema from '../models/subscriptionsSchema.js';
 
 const HowLongToBeat = new HowLongToBeatService();
 
-const getGames = async(message, args) => {
-    erase(message, 5000);
+const getGames = async interaction => {
+    const game = interaction.options.getString('game');
 
-    const query = args.slice(1).join(' ');
-    if(!query) return message.channel.send({ content: './cmd games' });
+    const id = await searchGame(game);
+    if(!id) return interaction.reply({ content: `Couldn't find a match for ${game}.`, ephemeral: true });
 
-    const id = await searchGame(query);
-    if(!id) return message.channel.send({ content: `Couldn't find a match for ${query}.` }).then(m => erase(m, 5000));
-
-    const { name, url, releaseDate, image, developer, publisher, platformsList, storesList, subscriptionsList, playtimes } = await getGameDetails(id);
-
-    const res = await fetch(`https://api.rawg.io/api/games/${id}/stores?key=${process.env.RAWG_API_KEY}`);
-    const data = await res.json();
-
-    const stores = [];
-    storesList.forEach(item => {
-        const storeItem = data.results.find(nestedItem => nestedItem.store_id === item.id);
-        stores.push(`> **[${item.name}](${storeItem.url})**`);
-    });
-
+    const { name, url, releaseDate, image, developer, publisher, platforms, stores, subscriptions, playtimes } = await getGameDetails(id);
     const hasPlaytimes = playtimes[0]?.gameplayMain > 0 || playtimes[0]?.gameplayMainExtra > 0 || playtimes[0]?.gameplayCompletionist > 0;
 
-    message.channel.send({
+    interaction.reply({
         embeds: [
             new MessageEmbed()
                 .setTitle(name)
                 .setURL(url)
                 .setThumbnail(image || '')
                 .addField('**Release date**', releaseDate?.toString() || 'N/A')
-                .addField('**Available on**', platformsList.length > 0 ? platformsList.join('\n') : 'N/A')
+                .addField('**Available on**', platforms.length > 0 ? platforms.join('\n') : 'N/A')
                 .addField('**Where to buy**', stores.length > 0 ? stores.join('\n') : 'N/A', true)
-                .addField('**Subscriptions**', subscriptionsList.length > 0 ? subscriptionsList.join('\n') : 'N/A', true)
+                .addField('**Subscriptions**', subscriptions.length > 0 ? subscriptions.join('\n') : 'N/A', true)
                 .addField('**How long to beat**', `
                     ${!hasPlaytimes ? 'N/A' : ''}
                     ${playtimes[0]?.gameplayMain > 0 ? `> Main Story takes \`~${playtimes[0].gameplayMain}h\`` : ''}
@@ -48,12 +34,12 @@ const getGames = async(message, args) => {
                 .addField('**Developer**', developer?.toString() || 'N/A', true)
                 .addField('**Publisher**', publisher?.toString() || 'N/A', true)
                 .setFooter('Powered by Rawg.io and HowLongToBeat.')
-                .setColor(Math.floor(Math.random() * 16777214) + 1)
+                .setColor('RANDOM')
         ]
     });
 }
 
-const searchGame = async(game) => {
+const searchGame = async game => {
     const res = await fetch(`https://api.rawg.io/api/games?key=${process.env.RAWG_API_KEY}&search=${game}`);
     const data = await res.json();
 
@@ -65,23 +51,21 @@ const searchGame = async(game) => {
     return filteredData[0].id;
 }
 
-const getGameDetails = async(id) => {
+const getGameDetails = async id => {
     const res = await fetch(`https://api.rawg.io/api/games/${id}?key=${process.env.RAWG_API_KEY}`);
     const data = await res.json();
 
     const name = data.name;
     const playtimes = await HowLongToBeat.search(data.name).catch(error => console.log(error));
 
-    const platforms = [];
     const platformsToAvoid = [5, 6, 171];
-    data.platforms.forEach(item => !platformsToAvoid.includes(item.platform.id) && platforms.push(`> ${item.platform.name}`));
+    const platforms = data.platforms.map(item => !platformsToAvoid.includes(item.platform.id) && `> ${item.platform.name}`).filter(Boolean);
 
-    const stores = [];
-    data.stores.forEach(item => stores.push({ id: item.store.id, name: item.store.name }));
+    const storesList = data.stores.map(item => ({ id: item.store.id, name: item.store.name }));
+    const stores = await getGameStores(id, storesList);
 
-    const subscriptions = [];
     const gamingSubscriptions = await subscriptionsSchema.find({ 'items.slug': { $regex: new RegExp(`^${slug(name)}`, 'g') } });
-    gamingSubscriptions.forEach(element => subscriptions.push(`> **${element.subscription}**`));
+    const subscriptions = gamingSubscriptions.map(item => `> **${item.subscription}**`);
 
     return {
         name,
@@ -90,11 +74,21 @@ const getGameDetails = async(id) => {
         image: data.background_image,
         developer: data.developers[0]?.name,
         publisher: data.publishers[0]?.name,
-        platformsList: platforms,
-        storesList: stores,
-        subscriptionsList: subscriptions,
+        platforms,
+        stores,
+        subscriptions,
         playtimes
     };
+}
+
+const getGameStores = async (id, storesList) => {
+    const res = await fetch(`https://api.rawg.io/api/games/${id}/stores?key=${process.env.RAWG_API_KEY}`);
+    const data = await res.json();
+
+    return storesList.map(item => {
+        const storeItem = data.results.find(nestedItem => nestedItem.store_id === item.id);
+        return `> **[${item.name}](${storeItem.url})**`;
+    }).filter(Boolean);
 }
 
 export default { getGames };
