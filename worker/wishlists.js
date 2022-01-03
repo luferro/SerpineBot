@@ -1,21 +1,19 @@
-import fetch from 'node-fetch';
+import { MessageEmbed } from 'discord.js';
 import { slug } from '../utils/slug.js';
+import { fetchData } from '../utils/fetch.js';
 import { formatCentsToEuros } from '../utils/format.js';
 import steamSchema from '../models/steamSchema.js';
 import subscriptionsSchema from '../models/subscriptionsSchema.js';
-import { MessageEmbed } from 'discord.js';
 
 const checkWishlist = async client => {
-    const profiles = await steamSchema.find();
-    for(const profile of profiles) {
-        await new Promise(resolve => setTimeout(resolve, 5000));
-
-        const items = await getItems(profile.wishlist.url);
+    const steamIntegrations = await steamSchema.find({ notifications: true });
+    for(const steamIntegration of steamIntegrations) {
+        const items = await getItems(steamIntegration.wishlist.url);
         if(items.error) continue;
 
         const sale = [], released = [], subscriptions = { added: [], removed: [] };
         for(const item of items) {
-            const storedItem = profile.wishlist.items.find(element => element.name === item.name);
+            const storedItem = steamIntegration.wishlist.items.find(element => element.name === item.name);
             item.notified = item.sale ? storedItem?.notified || false : false;
 
             for(const key in item.subscriptions) {
@@ -36,7 +34,7 @@ const checkWishlist = async client => {
                 }
             }
 
-            if(storedItem && !storedItem.released && item.released) {
+            if(storedItem && !storedItem.released && item.released && item.discounted) {
                 released.push(item);
                 item.sale && (item.notified = true);
                 continue;
@@ -49,16 +47,16 @@ const checkWishlist = async client => {
             }
         }
 
-        await steamSchema.updateOne({ user: profile.user, tag: profile.tag }, { $set: { 'wishlist.items': items } }, { upsert: true });
+        await steamSchema.updateOne({ user: steamIntegration.user }, { $set: { 'wishlist.items': items } }, { upsert: true });
 
-        if(sale.length > 0) await sendNotification(client, profile.user, sale, 'sale');
-        if(released.length > 0) await sendNotification(client, profile.user, released, 'released');
-        if(subscriptions.added.length > 0) await sendNotification(client, profile.user, subscriptions.added, 'added');
-        if(subscriptions.removed.length > 0) await sendNotification(client, profile.user, subscriptions.removed, 'removed');
+        if(sale.length > 0) await sendNotification(client, steamIntegration.user, sale, 'sale');
+        if(released.length > 0) await sendNotification(client, steamIntegration.user, released, 'released');
+        if(subscriptions.added.length > 0) await sendNotification(client, steamIntegration.user, subscriptions.added, 'added');
+        if(subscriptions.removed.length > 0) await sendNotification(client, steamIntegration.user, subscriptions.removed, 'removed');
     }
 }
 
-const sendNotification = async(client, userID, list, type) => {
+const sendNotification = async (client, userID, list, type) => {
     const user = await client.users.fetch(userID);
     const totalItems = list.length;
     const displayItems = list.slice(0, 10);
@@ -91,26 +89,22 @@ const sendNotification = async(client, userID, list, type) => {
         new MessageEmbed()
             .setTitle(title)
             .setDescription(description)
-            .setColor(Math.floor(Math.random() * 16777214) + 1)
+            .setColor('RANDOM')
     ]});
 }
 
 const getItems = async url => {
     const wishlist = url.match(/https?:\/\/store.steampowered\.com\/wishlist\/(profiles|id)\/([a-zA-Z0-9]+)/);
     if(!wishlist) return { error: 'Invalid Steam wishlist URL.' };
-
-    const type = wishlist[1];
-    const user = wishlist[2];
+    
+    const { 1: type, 2: user } = wishlist;
 
     const subscriptions = await subscriptionsSchema.find();
 
     const items = [];
-    let hasMore = true;
-    let page = 0;
+    let hasMore = true, page = 0;
     while(hasMore) {
-        const res = await fetch(`https://store.steampowered.com/wishlist/${type}/${user}/wishlistdata?p=${page}`);
-        if(!res.ok) return { error: 'Something went wrong fetching wishlist data.'}
-        const data = await res.json();
+        const data = await fetchData(`https://store.steampowered.com/wishlist/${type}/${user}/wishlistdata?p=${page}`);
 
         hasMore = Object.keys(data).some(item => !isNaN(item));
         if(page === 0 && !hasMore) return { error: 'Steam wishlist is set to private or is empty.' };
@@ -135,13 +129,13 @@ const getItems = async url => {
                 discounted,
                 free: data[item].is_free_game,
                 released: typeof data[item].release_date === 'string',
-                sale: discount && discounted ? true : false,
+                sale: Boolean(discount && discounted),
                 subscriptions: {
                     'Xbox Game Pass for Console': subscription.some(item => item === 'Xbox Game Pass for Console'),
                     'Xbox Game Pass for PC': subscription.some(item => item === 'Xbox Game Pass for PC'),
                     'Ubisoft+ for PC': subscription.some(item => item === 'Ubisoft+ for PC'),
-                    'EA Play': subscription.some(item => item === 'EA Play'),
-                    'EA Play Pro': subscription.some(item => item === 'EA Play Pro')
+                    'EA Play Pro': subscription.some(item => item === 'EA Play Pro'),
+                    'EA Play': subscription.some(item => item === 'EA Play')
                 }
             });
         });

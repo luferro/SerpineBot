@@ -1,97 +1,141 @@
-import { MessageEmbed, WebhookClient } from 'discord.js';
-import fetch from 'node-fetch';
+import { MessageEmbed } from 'discord.js';
 import { load } from 'cheerio';
-import UserAgent from 'user-agents';
-import { manageState } from '../handlers/webhooks.js';
+import { fetchData } from '../utils/fetch.js';
+import { formatTitle } from '../utils/format.js';
+import { getWebhook, manageState } from '../handlers/webhooks.js';
 
-const lastCategoryDeals = new Map();
+const storedDeals = new Map();
 
-const getDeals = async type => {
-    const getCategory = type => {
-        const options = {
-            'sale': { url: 'https://gg.deals/eu/deals/?maxDiscount=99&minRating=7&sort=date', webhook: process.env.WEBHOOK_DEALS },
-            'free games': { url: 'https://gg.deals/eu/deals/?minDiscount=100&sort=date', webhook: process.env.WEBHOOK_FREEGAMES }
+const categories = [
+    { name: 'Sale', url: 'https://gg.deals/news/deals/', execute: (...args) => getBlogNews(...args) },
+    { name: 'Bundles', url: 'https://gg.deals/news/bundles', execute: (...args) => getBlogNews(...args) },
+    { name: 'Prime Gaming', url: 'https://gg.deals/news/prime-gaming-free-games', execute: (...args) => getBlogNews(...args) },
+    { name: 'Paid Games', url: 'https://gg.deals/eu/deals/?maxDiscount=99&minRating=8&sort=date', execute: (...args) => getDiscountedDeals(...args) },
+    { name: 'Free Games', url: 'https://gg.deals/eu/deals/?minDiscount=100&minRating=0&sort=date', execute: (...args) => getDiscountedDeals(...args) }
+];
+
+const getDeals = async client => {
+    for(const [guildID, guild] of client.guilds.cache) {
+        for(const category of categories) {
+            await category.execute(client, guild, category.name, category.url);
         }
-        return options[type];
     }
-    const category = getCategory(type.toLowerCase());
-    const webhook = new WebhookClient({ url: category.webhook });
+}
 
-    const deals = await searchDeals(type.toLowerCase(), category.url);
-    if(!deals) return;
+const getDiscountedDeals = async (client, guild, category, link) => {
+    const getCategoryWebhook = type => {
+        const options = {
+            'Paid Games': () => getWebhook(client, guild, 'Game Deals'),
+            'Free Games': () => getWebhook(client, guild, 'Free Games')
+        }
+        return options[type]();
+    }
+    const webhook = await getCategoryWebhook(category);
+    if(!webhook) return;
 
-    const state = manageState(type.toLowerCase(), Array.isArray(deals) ? deals[0].url : deals.url);
-    if(!state.hasCategory || state.hasEntry) return;
+    const data = await fetchData(link);
+    const $ = load(data);
 
-    if(!Array.isArray(deals)) {
+    const games = { store: undefined, deals: [] }
+    for(const element of $('#deals-list .list-items > div').get()) {
+        const title = $(element).find(':nth-child(4) .game-info-title-wrapper a').text();
+        const dealRating = $(element).find(':nth-child(4) .game-tags .tag-rating span.value svg').attr('title');
+        const href = $(element).find(':last-child a:last-child').attr('href');
+        const image = $(element).find(':nth-child(3) img').attr('src').replace('154x72', '308x144');
+        const store = $(element).find(':last-child .shop-icon img').attr('alt');
+        const storeImage = $(element).find(':last-child .shop-icon img').attr('src').replace('60xt52', '120xt52');
+        const coupon = $(element).find(':nth-child(4) ul li.badge-sticky span.voucher-badge').text();
+        const discount = $(element).find(':nth-child(4) ul li.badge-discount span').text();
+        const regular = $(element).find(':nth-child(4) div.price-wrapper span.price-old').text();
+        const discounted = $(element).find(':nth-child(4) div.price-wrapper span.game-price-new').text();
+        const timestamp = $(element).find(':nth-child(4) .game-tags .time-tag span.value time').attr('datetime');
+
+        const url = `https://gg.deals${href}`;
+        const rating = parseFloat(dealRating?.match(/\d+(\.\d+)?/g)[0]) || 0;
+
+        if(games.store && games.store !== store) break;
+
+        games.store = store;
+        games.deals.push({ title, rating, url, image, store, storeImage, coupon, discount, regular, discounted, timestamp });
+    }
+
+    const storedCategoryDeals = storedDeals.get(category) || [];
+    storedDeals.set(category, games.deals);
+
+    const filteredDeals = games.deals
+        .filter(item => !storedCategoryDeals.some(nestedItem => nestedItem.store === item.store && nestedItem.url === item.url))
+        .filter((item, index, self) => index === self.findIndex(nestedItem => nestedItem.url === item.url))
+        .sort((a, b) => b.rating - a.rating || a.title.localeCompare(b.title));
+    if(filteredDeals.length === 0) return;
+
+    const state = manageState(category, { title: filteredDeals[0].title, url: filteredDeals[0].url });
+    if(state.hasEntry) return;
+
+    const todayDeals = filteredDeals.filter(item => new Date().setHours(0, 0, 0, 0) === new Date(item.timestamp).setHours(0, 0, 0, 0));
+    if(todayDeals.length === 0) return;
+    const { 0: { title, url, image, discount, regular, discounted, store, storeImage, coupon } } = todayDeals;
+
+    if(todayDeals.length === 1) {
         const message = new MessageEmbed()
-            .setTitle(deals.title)
-            .setURL(deals.url)
-            .setThumbnail(deals.image || '')
-            .setDescription(`${deals.discount && deals.regular ? `**${deals.discount}** off! ~~${deals.regular}~~ |` : ''} **${deals.discounted}** @ **${deals.store}**`)
+            .setTitle(title)
+            .setURL(url)
+            .setThumbnail(image || '')
+            .setDescription(`${discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''} **${discounted}** @ **${store}**`)
+            .setFooter('Powered by gg.deals.')
             .setColor('RANDOM');
-        deals.coupon.length > 0 && message.addField('Store coupon', `*${deals.coupon}*`);
+        coupon.length > 0 && message.addField('Store coupon', `*${coupon}*`);
 
         return webhook.send({ embeds: [message]});
     }
 
-    const items = deals.slice(0, 10).map(item => `**[${item.title}](${item.url})**\n${item.discount && item.regular ? `**${item.discount}** off! ~~${item.regular}~~ |` : ''} **${item.discounted}**`);
-    deals.length - items.length > 0 && items.push(`And ${deals.length - items.length} more!`);
+    const deals = todayDeals.slice(0, 10).map(item => `**[${item.title}](${item.url})**\n${item.discount && item.regular ? `**${item.discount}** off! ~~${item.regular}~~ |` : ''} **${item.discounted}**`);
+    todayDeals.length - deals.length > 0 && deals.push(`And ${todayDeals.length - deals.length} more!`);
 
     const message = new MessageEmbed()
-        .setTitle(`${deals[0].store} ${type}!`)
-        .setThumbnail(deals[0].storeImage || '')
-        .setDescription(items.join('\n'))
+        .setTitle(store)
+        .setThumbnail(storeImage || '')
+        .setDescription(deals.join('\n'))
+        .setFooter('Powered by gg.deals.')
         .setColor('RANDOM')
-    deals[0].coupon.length > 0 && message.addField('Store coupon', `*${deals[0].coupon}*`);
+    coupon.length > 0 && message.addField('Store coupon', `*${coupon}*`);
 
     webhook.send({ embeds: [message]});
 }
 
-const searchDeals = async(category, url, page = 1, limit = 5) => {
-    const res = await fetch(`${url}&page=${page}`, { headers: { 'User-Agent': new UserAgent().toString() } });
-    if(!res.ok) return null;
-    const html = await res.text();
-    const $ = load(html);
-
-    const array = [];
-    while(page < limit) {
-        let foundEverything = false;
-
-        for(const element of $('#deals-list .list-items > div').get()) {
-            const title = $(element).find(':nth-child(4) .game-info-title-wrapper a').text();
-            const dealRating = $(element).find(':nth-child(4) .game-tags .tag-rating span.value svg').attr('title');
-            const rating = parseFloat(dealRating.match(/\d+(\.\d+)?/g)[0]);
-            const href = $(element).find(':last-child a:last-child').attr('href');
-            const url = `https://gg.deals${href}`;
-            const image = $(element).find(':nth-child(3) img').attr('src').replace('154x72', '308x144');
-            const store = $(element).find(':last-child .shop-icon img').attr('alt');
-            const storeImage = $(element).find(':last-child .shop-icon img').attr('src').replace('60xt52', '120xt52');
-            const coupon = $(element).find(':nth-child(4) ul li.badge-sticky span.voucher-badge').text();
-            const discount = $(element).find(':nth-child(4) ul li.badge-discount span').text();
-            const regular = $(element).find(':nth-child(4) div.price-wrapper span.price-old').text();
-            const discounted = $(element).find(':nth-child(4) div.price-wrapper span.game-price-new').text();
-
-            if(array.length > 0 && store !== array[0].store) {
-                foundEverything = true;
-                break;
-            }
-    
-            array.push({ title, rating, url, image, store, storeImage, coupon, discount, regular, discounted });
+const getBlogNews = async (client, guild, category, link) => {
+    const getCategoryWebhook = type => {
+        const options = {
+            'Sale': () => getWebhook(client, guild, 'Game Deals'),
+            'Bundles': () => getWebhook(client, guild, 'Game Deals'),
+            'Prime Gaming': () => getWebhook(client, guild, 'Free Games')
         }
-        if(foundEverything) break;
-        page++;
+        return options[type]();
     }
-    const lastDeals = lastCategoryDeals.get(category) || [];
-    const deals = array
-        .filter(item => !lastDeals.some(nestedItem => nestedItem.store === item.store && nestedItem.url === item.url))
-        .filter((item, index, self) => index === self.findIndex(nestedItem => nestedItem.url === item.url));
+    const webhook = await getCategoryWebhook(category);
+    if(!webhook) return;
 
-    if(deals.length === 0) return null;
-    lastCategoryDeals.set(category, array);
+    const data = await fetchData(link);
+    const $ = load(data);
 
-    if(deals.length === 1) return deals[0];
-    return deals.sort((a, b) => b.rating - a.rating || a.title.localeCompare(b.title));
+    const title = $('.news-section .news-list .news-info-wrapper .news-title a').first().text();
+    const href = $('.news-section .news-list .news-info-wrapper .news-title a').first().attr('href');
+    const lead = $('.news-section .news-list .news-info-wrapper .news-lead').first().text().trim();
+    const image = $('.news-section .news-list .news-image-wrapper img').first().attr('src').replace('334cr175', '668cr350');
+
+    const url = `https://gg.deals${href}`;
+
+    const state = manageState(category, { title, url });
+    if(state.hasEntry) return;
+
+    webhook.send({ embeds: [
+        new MessageEmbed()
+            .setTitle(formatTitle(title))
+            .setURL(url)
+            .setThumbnail(image || '')
+            .setDescription(lead || 'N/A')
+            .setFooter('Powered by gg.deals.')
+            .setColor('RANDOM')
+    ]});
 }
 
 export default { getDeals };

@@ -8,14 +8,14 @@ const checkReminder = async client => {
     if(new Date().getTime() >= reminders[0].timeEnd) await sendReminder(client, reminders[0].user, reminders[0].reminder, reminders[0].timeStart, reminders[0].message);
 }
 
-const sendReminder = async(client, user, reminder, timeStart, message) => {
+const sendReminder = async (client, user, reminder, timeStart, message) => {
     const target = await client.users.fetch(user);
 
     target.send({ embeds: [
         new MessageEmbed()
             .setTitle(`Reminder set on ${new Date(timeStart).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}`)
             .setDescription(`**Message**:\n${message.trim()}`)
-            .setColor(Math.floor(Math.random() * 16777214) + 1)
+            .setColor('RANDOM')
     ]});
 
     await remindersSchema.deleteOne({ reminder });

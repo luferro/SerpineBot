@@ -1,17 +1,15 @@
 import { MessageEmbed } from 'discord.js';
-import fetch from 'node-fetch';
 import { load } from 'cheerio';
-import UserAgent from 'user-agents';
+import { fetchData } from '../utils/fetch.js';
 
 const getSpecs = async interaction => {
     const game = interaction.options.getString('game');
 
-    const { name, url, image } = await searchSpecs(game);
-    if(!url) return interaction.reply({ content: `Couldn\'t find a match for ${game}.`, ephemeral: true })
+    const specs = await searchSpecs(game);
+    if(!specs) return interaction.reply({ content: `Couldn\'t find a match for ${game}.`, ephemeral: true })
 
-    const res = await fetch(`https://www.game-debate.com${url}`, { headers: { 'User-Agent': new UserAgent().toString() } });
-    const html = await res.text();
-    const $ = load(html);
+    const data = await fetchData(specs.url);
+    const $ = load(data);
 
     const releaseDate = $('.game-release-date-container .game-release-date p').next().text().trim();
     const updatedDate = $('.devDefSysReqMinWrapper .dateUpdated').first().text().split('-')[0].trim();
@@ -36,29 +34,30 @@ const getSpecs = async interaction => {
 
     interaction.reply({ embeds: [
         new MessageEmbed()
-            .setTitle(`Requirements found for \`${name}\``)
+            .setTitle(`Requirements found for \`${specs.name}\``)
             .setDescription(`
                 \n**Release Date:** ${(releaseDate.length > 0 && releaseDate) || 'N/A'}
                 \n**Specs updated:** ${(updatedDate.length > 0 && updatedDate) || 'N/A'}
                 \n**Minimum requirements**\n${minSpecs.join('\n')}
                 \n**Recommended requirements**\n${recSpecs.join('\n')}
             `)
-            .setThumbnail(image || '')
+            .setThumbnail(specs.image || '')
             .setFooter('Powered by Game-Debate.')
             .setColor('RANDOM')
     ]});
 }
 
 const searchSpecs = async game => {
-    const res = await fetch(`https://www.game-debate.com/search/games?t=games&query=${game}`, { headers: { 'User-Agent': new UserAgent().toString() } });
-    const html = await res.text();
-    const $ = load(html);
+    const data = await fetchData(`https://www.game-debate.com/search/games?t=games&query=${game}`);
+    const $ = load(data);
 
-    return {
-        name: $('.search-results-body .search-result-detail h2').first().text(),
-        url: $('.search-results-body a').first().attr('href'),
-        image: $('.search-results-body .search-result-image img').first().attr('src')
-    };
+    const name = $('.search-results-body .search-result-detail h2').first().text();
+    const href = $('.search-results-body a').first().attr('href');
+    const image = $('.search-results-body .search-result-image img').first().attr('src');
+
+    if(!href) return null;
+
+    return { name, url: `https://www.game-debate.com${specs.url}`, image };
 }
 
 export default { getSpecs };

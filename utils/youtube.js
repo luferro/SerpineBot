@@ -20,7 +20,7 @@ const getChannelID = async url => {
     return data.items[0].snippet.channelId;
 }
 
-const getSubscribers = async(channel, type, url) => {        
+const getSubscribers = async (channel, type, url) => {        
     const option = type === 'channel' || type === 'custom' ? 'id' : 'forUsername';
     const channelID = type === 'custom' ? await getChannelID(url) : channel;
 

@@ -3,18 +3,41 @@ import { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerSt
 import ytdl from 'ytdl-core';
 import youtubeService from 'youtubei';
 import { formatSecondsToMinutes } from '../utils/format.js';
-import musicSchema from '../models/musicSchema.js';
+import settingsSchema from '../models/settingsSchema.js';
 
 const youtube = new youtubeService.Client();
 const subscriptions = new Map();
 
+const manageMusic = async interaction => {
+	const subcommand = interaction.options.getSubcommand();
+
+    const executeCommand = async type => {
+        const options = {
+            'join': () => join(interaction),
+            'leave': () => leave(interaction),
+            'play': () => addToQueue(interaction),
+            'search': () => search(interaction),
+            'skip': () => skip(interaction),
+            'pause': () => pause(interaction),
+            'resume': () => resume(interaction),
+            'loop': () => loop(interaction),
+            'volume': () => volume(interaction),
+            'queue': () => queue(interaction),
+            'remove': () => removeFromQueue(interaction),
+            'clear': () => clearQueue(interaction)
+        }
+        return options[type]();
+    }
+    await executeCommand(subcommand);
+}
+
 const play = async guild => {
 	const serverSubscription = subscriptions.get(guild);
-	const volume = await musicSchema.findOne({ guild });
+	const settings = await settingsSchema.find({ guild });
 
 	const stream = ytdl(serverSubscription.queue[0].url, serverSubscription.queue[0]?.livestream ? { quality: [128, 127, 120, 96, 95, 94, 93] } : { filter: 'audioonly', highWaterMark: 1 << 32 });
 	serverSubscription.resource = createAudioResource(stream, { inlineVolume: true });
-	serverSubscription.resource.volume.setVolume(volume?.volume || 1);
+	serverSubscription.resource.volume.setVolume(settings[0]?.music?.volume || 1);
 
 	serverSubscription.playing = true;
 	serverSubscription.player.play(serverSubscription.resource);
@@ -29,9 +52,11 @@ const playerOnIdle = guild => {
 
 	serverSubscription.queue.shift();
 	if(serverSubscription.queue.length === 0) return setTimeout(() => {
+		if(!subscriptions.has(guild)) return;
+
 		serverSubscription.player.stop();
 		serverSubscription.connection.destroy();
-		subscriptions.delete(interaction.guild.id);
+		subscriptions.delete(guild);
 	}, 1000 * 60 * 10);
 
 	setTimeout(() => play(guild), 500);
@@ -43,14 +68,15 @@ const addToQueue = async interaction => {
 
 	const query = interaction.options.getString('query');
 	const results = await youtube.search(query, { type: 'video' });
+	const { id, title, channel, thumbnails, duration, isLive } = results[0];
 
 	const music = {
-		channel: results[0].channel.name,
-		title: results[0].title,
-		thumbnail: results[0].thumbnails[0]?.url,
-		url: `https://www.youtube.com/watch?v=${results[0].id}`,
-		duration: !results[0].isLive ? formatSecondsToMinutes(results[0].duration) : 'LIVE',
-		livestream: results[0].isLive,
+		title,
+		channel: channel.name,
+		thumbnail: thumbnails[0]?.url,
+		url: `https://www.youtube.com/watch?v=${id}`,
+		duration: !isLive ? formatSecondsToMinutes(duration) : 'LIVE',
+		livestream: isLive,
 		requested: interaction.user.tag
 	};
 
@@ -121,10 +147,11 @@ const clearQueue = interaction => {
 	if(!interaction.member.voice.channel) return interaction.reply({ content: 'You must be in a voice channel!', ephemeral: true });
 	if(!subscriptions.has(interaction.guild.id)) return interaction.reply({ content: 'Bot isn\'t connected!', ephemeral: true });
 
+	const serverSubscription = subscriptions.get(interaction.guild.id);
+
 	const nowPlaying = serverSubscription.queue.length > 0 ? `**[${serverSubscription.queue[0].title}](${serverSubscription.queue[0].url})**\n\`${serverSubscription.queue[0].duration}\` \`requested by ${serverSubscription.queue[0].requested}\`` : 'Nothing is playing.'
 
-	const serverSubscription = subscriptions.get(interaction.guild.id);
-	serverSubscription.queue.length = 1;
+	serverSubscription.queue.length = 0;
 
 	const queue = `
 		\n__Now Playing:__\n${nowPlaying}
@@ -175,12 +202,13 @@ const search = async interaction => {
 	serverSubscription.query = query;
 
 	const searchList = results.slice(0, 10).map((item, index) => `\`${index + 1}.\` **[${item.title}](${item.url})** | \`${!item.isLive ? formatSecondsToMinutes(item.duration) : 'LIVE'}\``).filter(Boolean);
+
 	const options = results.slice(0, 10).map((item, index) => ({ label: `${index + 1}. ${item.title}`, description: !item.isLive ? formatSecondsToMinutes(item.duration) : 'LIVE', value: item.id })).filter(Boolean);
 	options.push({ label: 'Cancel', description: `Stop searching for ${query}`, value: 'cancel'});
 
 	const selectMenu = new MessageActionRow().addComponents(
 		new MessageSelectMenu()
-			.setCustomId('selectOption')
+			.setCustomId('musicSearchSelectMenu')
 			.setPlaceholder('Nothing selected.')
 			.addOptions(options)
 	);
@@ -192,13 +220,25 @@ const search = async interaction => {
 			.setFooter('Select \'Cancel\' from the selection menu to stop searching.')
 			.setColor('RANDOM')
 	], components: [selectMenu], ephemeral: true });
+
+	const filter = filterInteraction => filterInteraction.customId === 'musicSearchSelectMenu' && filterInteraction.user.id === interaction.user.id;
+	const collector = interaction.channel.createMessageComponentCollector({ filter, componentType: 'SELECT_MENU', max: 1, time: 60 * 1000 });
+	collector.on('end', async collected => {
+		const collectedInteraction = collected.first();
+		if(!collectedInteraction) return interaction.editReply({ content: 'Search timeout.', embeds: [], components: [], ephemeral: true });
+
+		await selectOption(collectedInteraction);
+	});
 }
 
 const selectOption = async interaction => {
+	if(!interaction.member.voice.channel) return interaction.update({ content: 'You must be in a voice channel!', embeds: [], components: [], ephemeral: true });
+	if(!subscriptions.has(interaction.guild.id)) return interaction.update({ content: 'Bot isn\'t connected!', embeds: [], components: [], ephemeral: true });
+
 	const values = interaction.values;
 	const serverSubscription = subscriptions.get(interaction.guild.id);
 
-	if(!interaction.member.voice.channel || values.length === 0 || values[0] === 'cancel') {
+	if(values.length === 0 || values[0] === 'cancel') {
 		serverSubscription.searching = false;
 		return interaction.update({ embeds: [
 			new MessageEmbed()
@@ -210,19 +250,20 @@ const selectOption = async interaction => {
 	const option = values[0];
 	const results = await youtube.search(serverSubscription.query, { type: 'video' });
 	const selectedResult = results.find(item => item.id === option);
+	const { id, title, channel, thumbnails, duration, isLive } = selectedResult;
 
 	const music = {
-		channel: selectedResult.channel.name,
-		title: selectedResult.title,
-		thumbnail: selectedResult.thumbnails[0]?.url,
-		url: `https://www.youtube.com/watch?v=${selectedResult.id}`,
-		duration: !selectedResult.isLive ? formatSecondsToMinutes(selectedResult.duration) : 'LIVE',
-		livestream: selectedResult.isLive,
+		title,
+		channel: channel.name,
+		thumbnail: thumbnails[0]?.url,
+		url: `https://www.youtube.com/watch?v=${id}`,
+		duration: !isLive ? formatSecondsToMinutes(duration) : 'LIVE',
+		livestream: isLive,
 		requested: interaction.user.tag
 	};
 
 	const musicExists = serverSubscription.queue.some(item => JSON.stringify(item) === JSON.stringify(music));
-	if(musicExists) return interaction.reply({ content: 'Selected song is already in the queue.', ephemeral: true });
+	if(musicExists) return interaction.update({ content: 'Selected song is already in the queue.', embeds: [], components: [], ephemeral: true });
 
 	serverSubscription.queue.push(music);
 	serverSubscription.searching = false;
@@ -337,7 +378,7 @@ const volume = async interaction => {
 	if(!interaction.member.voice.channel) return interaction.reply({ content: 'You must be in a voice channel!', ephemeral: true });
 	if(!subscriptions.has(interaction.guild.id)) return interaction.reply({ content: 'Bot isn\'t connected!', ephemeral: true });
 
-	await musicSchema.updateOne({ guild: interaction.guild.id }, { volume: volume / 100 }, { upsert: true });
+	await settingsSchema.updateOne({ guild: interaction.guild.id }, { 'music.volume': volume / 100 }, { upsert: true });
 
 	const serverSubscription = subscriptions.get(interaction.guild.id);
 	serverSubscription.resource.volume.setVolume(volume / 100);
@@ -383,4 +424,4 @@ const leave = (interaction) => {
 	interaction.reply({ content: 'Bot has left your voice channel! ', ephemeral: true });
 }
 
-export default { addToQueue, removeFromQueue, clearQueue, queue, search, selectOption, loop, skip, pause, resume, volume, join, leave };
+export default { manageMusic };

@@ -20,4 +20,14 @@ const formatStringCapitalize = string => {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export { formatCentsToEuros, formatSecondsToMinutes, formatMinutesToHours, formatStringCapitalize };
+const formatTitle = (string, limit = 256) => {
+    if(string.length > limit) {
+        const ending = '...';
+        const title = string.slice(0, limit - ending.length) + ending;
+        return title.trim();
+    }
+
+    return string.trim();
+}
+
+export { formatCentsToEuros, formatSecondsToMinutes, formatMinutesToHours, formatStringCapitalize, formatTitle };

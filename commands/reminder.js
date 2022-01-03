@@ -2,13 +2,13 @@ import { MessageEmbed } from 'discord.js';
 import { randomUUID } from 'crypto';
 import remindersSchema from '../models/remindersSchema.js';
 
-const setup = async interaction => {
+const manageReminders = async interaction => {
     const subcommand = interaction.options.getSubcommand();
 
     const getCommand = type => {
         const options = {
-            'create': async() => await createReminder(),
-            'delete': async() => await deleteReminder()
+            'create': () => createReminder(),
+            'delete': () => deleteReminder()
         }
         return options[type]();
     }
@@ -22,7 +22,7 @@ const createReminder = async interaction => {
     const message = interaction.options.getString('message');
 
     if(unit === 'secs' && time < 300) return interaction.reply({ content: 'Time has to be greater or equal than 300 seconds.', ephemeral: true });
-    if(unit === 'mins' && time < 5) return message.channel.send({ content: 'Time has to be greater or equal than 5 minutes.', ephemeral: true });
+    if(unit === 'mins' && time < 5) return interaction.reply({ content: 'Time has to be greater or equal than 5 minutes.', ephemeral: true });
 
     const getMilliseconds = (type, time) => {
         const options = {
@@ -36,8 +36,8 @@ const createReminder = async interaction => {
         };
         return options[type];
     };
-
     const ms = getMilliseconds(unit, time);
+
     const reminder = randomUUID();
     const timeStart = new Date().getTime();
     const timeEnd = new Date().getTime() + ms;
@@ -63,4 +63,4 @@ const deleteReminder = async interaction => {
     ], ephemeral: true });
 }
 
-export default { setup };
+export default { manageReminders };

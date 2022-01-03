@@ -1,88 +1,82 @@
-import { MessageEmbed } from 'discord.js';
+import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import settingsSchema from '../models/settingsSchema.js';
 
-const emojis = {
-    one: 'NSFW',
-    two: 'Memes',
-    three: 'Gaming News',
-    four: 'Reviews',
-    five: 'Deals',
-    six: 'Free Games',
-    seven: 'Patch Notes',
-    eight: 'Xbox',
-    nine: 'Playstation',
-    ten: 'Nintendo',
-    eleven: 'Anime',
-    twelve: 'Manga'
-}
+const COMPONENTS_LIMIT = 5;
 
-const createRolesMessage = async client => {
-    try {
-        const channel = await client.channels.fetch(process.env.ROLES_CHANNEL);
+const createRolesMessage = async (client, itemsPerRow = 5) => {
+    for(const [guildID, guild] of client.guilds.cache) {
+        const settings = await settingsSchema.find({ guild: guildID });
+        const channelID = settings[0]?.roles?.channel;
+        if(!channelID) continue;
 
-        const reactions = [];
-        const list = Object.keys(emojis).map(item => {
-            const emoji = client.emojis.cache.find(emoji => emoji.name === item);
-            reactions.push(emoji);
+        const roles = settings[0]?.roles?.options.map(item => {
+            const messageRole = guild.roles.cache.find(nestedItem => nestedItem.id === item);
+            if(!messageRole) return;
 
-            return `> ${emoji} __**${emojis[item]}**__`;
-        });
+            return messageRole.name;
+        }).filter(Boolean);
 
+        const components = [];
+        const rows = Math.ceil(roles.length / itemsPerRow);
+        for(let index = 0; index < rows; index++) {
+            const row = new MessageActionRow();
+    
+            for(const role of roles.slice(0, itemsPerRow)) {
+                const button = new MessageButton()
+                    .setCustomId(role)
+                    .setLabel(role)
+                    .setStyle(role === 'NSFW' ? 'DANGER' : 'PRIMARY');
+                
+                row.addComponents(button);
+            }
+            roles.splice(0, itemsPerRow);
+            components.push(row);
+        }
+        if(components.length > COMPONENTS_LIMIT) continue;
+    
+        const message = new MessageEmbed()
+            .setTitle('Text channel roles')
+            .setDescription('Use the buttons below to claim or revoke a role.\nEach role grants access to a different text channel.')
+            .setColor('RANDOM');
+    
+        const channel = await client.channels.fetch(channelID);
         const messages = await channel.messages.fetch();
-        if(messages.size === 0) {
-            const message = await channel.send({ embeds: [
-                    new MessageEmbed()
-                        .setTitle('Get your roles here!')
-                        .setDescription(`
-                            > React to this message to claim your roles!
-                            > Each role will give you access to a text channel.
-                            \n**NOTE:** Users with role \`Restrictions\` won't be assigned the __**NSFW**__ role.\n
-                            ${list.join('\n')}
-                        `)
-                        .setColor(Math.floor(Math.random() * 16777214) + 1)
-                ]});
-            return addReactions(message, reactions);
-        }
 
-        for(const message of messages) {
-            message[1].edit({ embeds: [
-                new MessageEmbed()
-                    .setTitle('Get your roles here!')
-                    .setDescription(`
-                        > React to this message to claim your roles!
-                        > Each role will give you access to a text channel.
-                        \n**NOTE:** Users with role \`Restrictions\` won't be assigned the __**NSFW**__ role.\n
-                        ${list.join('\n')}
-                    `)
-                    .setColor(Math.floor(Math.random() * 16777214) + 1)
-            ]});
-            addReactions(message[1], reactions);
-        }
-    } catch (error) {
-        console.log(error);
+        const rolesMessage = messages.find(item => item?.embeds[0]?.title === 'Text channel roles');
+        if(!rolesMessage) channel.send({ embeds: [message], components });
+        else rolesMessage.edit({ embeds: [message], components });
+
+        handleCollector(channel);
     }
 }
 
-const addReactions = (message, reactions) => {
-    message.react(reactions[0]);
-    reactions.shift();
-    if(reactions.length > 0) setTimeout(() => addReactions(message, reactions), 750);
+const handleCollector = channel => {
+    const collector = channel.createMessageComponentCollector({ componentType: 'BUTTON', max: 1 });
+    collector.on('end', async collected => {
+        const collectedInteraction = collected.first();
+		if(!collectedInteraction) return;
+
+        await assignRole(collectedInteraction);
+        handleCollector(channel);
+    });
 }
 
-const handleReaction = (reaction, user, add) => {
-    const emoji = reaction._emoji.name;
-    const { guild } = reaction.message;
-    const roleName = emojis[emoji];
+const assignRole = interaction => {
+    const role = interaction.member.guild.roles.cache.find(role => role.name === interaction.customId);
+    const restrictionsRole = interaction.member.guild.roles.cache.find(role => role.name === 'Restrictions');
 
-    if(!roleName) return;
+    const hasRestrictionsRole = interaction.member.roles.cache.has(restrictionsRole.id);
+    if((hasRestrictionsRole && role.name === 'NSFW') || interaction.member.user.bot) return interaction.reply({ content: 'Users with role `Restrictions` can\'t be granted the NSFW role.', ephemeral: true });
 
-    const role = guild.roles.cache.find(role => role.name === roleName);
-    const member = guild.members.cache.find(member => member.id === user.id);
+    const hasRole = interaction.member.roles.cache.has(role.id);
+    if(!hasRole) interaction.member.roles.add(role);
+    else interaction.member.roles.remove(role);
 
-    const restrictionsRole = guild.roles.cache.find(role => role.name === 'Restrictions');
-    if((member.roles.cache.has(restrictionsRole.id) && role.name === 'NSFW') || member.user.bot) return;
-
-    if(add) member.roles.add(role);
-    else member.roles.remove(role);
+    interaction.reply({ embeds: [
+        new MessageEmbed()
+            .setTitle(`Role ${role.name} has been ${hasRole ? 'revoked' : 'granted'}!`)
+            .setColor('RANDOM')
+    ], ephemeral: true });
 }
 
-export default { createRolesMessage, handleReaction };
+export default { createRolesMessage };

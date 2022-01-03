@@ -5,11 +5,11 @@ const bulkDelete = async interaction => {
 
 	if(!interaction.channel) return interaction.reply({ content: 'Invalid text channel.', ephemeral: true });
 	if(!interaction.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)) return interaction.reply({ content: 'MANAGE_MESSAGES permission required.', ephemeral: true });
-	if(quantity < 1 || quantity > 100) return interaction.reply({ content: 'Invalid quantity. Choose between 1 and 100 messages.', ephemeral: true });
+	if(quantity < 2 || quantity > 100) return interaction.reply({ content: 'Invalid quantity. Choose between 2 and 100 messages.', ephemeral: true });
 
-	interaction.channel.bulkDelete(quantity);
+	const messages = await interaction.channel.bulkDelete(quantity, true);
 
-	return interaction.reply({ content: `${quantity} messages have been deleted.`, ephemeral: true });
+	return interaction.reply({ content: `${messages.size} messages have been deleted.`, ephemeral: true });
 }
 
 export default { bulkDelete };

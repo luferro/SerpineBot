@@ -1,5 +1,5 @@
 import { MessageEmbed } from 'discord.js';
-import fetch from 'node-fetch';
+import { fetchData } from '../utils/fetch.js';
 
 const getJokes = async interaction => {
 	const category = interaction.options.getInteger('category');
@@ -10,14 +10,11 @@ const getJokes = async interaction => {
             2: { name: 'Programming Joke', url: 'https://sv443.net/jokeapi/v2/joke/Programming' },
             3: { name: 'Miscellaneous Joke', url: 'https://sv443.net/jokeapi/v2/joke/Miscellaneous' }
         };
-        return options[category] || null;
+        return options[category];
     };
     const joke = getCategoryJokes(category);
-    if(!joke) return interaction.reply({ content: 'Invalid joke category.', ephemeral: true });
-
-	const res = await fetch(joke.url);
-	const data = await res.json();
-
+	const data = await fetchData(comic.url);
+	
 	if(data.joke) {
 		return interaction.reply({ embeds: [
 			new MessageEmbed()

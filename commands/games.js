@@ -1,10 +1,7 @@
 import { MessageEmbed } from 'discord.js';
-import fetch from 'node-fetch';
-import { HowLongToBeatService } from 'howlongtobeat';
 import { slug } from '../utils/slug.js';
+import { fetchData } from '../utils/fetch.js';
 import subscriptionsSchema from '../models/subscriptionsSchema.js';
-
-const HowLongToBeat = new HowLongToBeatService();
 
 const getGames = async interaction => {
     const game = interaction.options.getString('game');
@@ -12,8 +9,7 @@ const getGames = async interaction => {
     const id = await searchGame(game);
     if(!id) return interaction.reply({ content: `Couldn't find a match for ${game}.`, ephemeral: true });
 
-    const { name, url, releaseDate, image, developer, publisher, platforms, stores, subscriptions, playtimes } = await getGameDetails(id);
-    const hasPlaytimes = playtimes[0]?.gameplayMain > 0 || playtimes[0]?.gameplayMainExtra > 0 || playtimes[0]?.gameplayCompletionist > 0;
+    const { name, url, releaseDate, image, subreddit, metacritic, platforms, stores, subscriptions, developers, publishers } = await getGameDetails(id);
 
     interaction.reply({
         embeds: [
@@ -21,71 +17,60 @@ const getGames = async interaction => {
                 .setTitle(name)
                 .setURL(url)
                 .setThumbnail(image || '')
-                .addField('**Release date**', releaseDate?.toString() || 'N/A')
-                .addField('**Available on**', platforms.length > 0 ? platforms.join('\n') : 'N/A')
+                .addField('**Release date**', releaseDate?.toString() || 'N/A', true)
+                .addField('**Metacritic**', metacritic?.toString() || 'N/A', true)
+                .addField('**Subreddit**', subreddit ? `[${name}](${subreddit})` : 'N/A')
+                .addField('**Available on**', platforms.length > 0 ? platforms.join('\n') : 'N/A', true)
                 .addField('**Where to buy**', stores.length > 0 ? stores.join('\n') : 'N/A', true)
-                .addField('**Subscriptions**', subscriptions.length > 0 ? subscriptions.join('\n') : 'N/A', true)
-                .addField('**How long to beat**', `
-                    ${!hasPlaytimes ? 'N/A' : ''}
-                    ${playtimes[0]?.gameplayMain > 0 ? `> Main Story takes \`~${playtimes[0].gameplayMain}h\`` : ''}
-                    ${playtimes[0]?.gameplayMainExtra > 0 ? `> Main Story + Extras takes \`~${playtimes[0].gameplayMainExtra}h\`` : ''}
-                    ${playtimes[0]?.gameplayCompletionist > 0 ? `> Completionist takes \`~${playtimes[0].gameplayCompletionist}h\`` : ''}
-                `)
-                .addField('**Developer**', developer?.toString() || 'N/A', true)
-                .addField('**Publisher**', publisher?.toString() || 'N/A', true)
-                .setFooter('Powered by Rawg.io and HowLongToBeat.')
+                .addField('**Subscriptions**', subscriptions.length > 0 ? subscriptions.join('\n') : 'N/A')
+                .addField('**Developers**', developers.length > 0 ? developers.join('\n') : 'N/A')
+                .addField('**Publishers**', publishers.length > 0 ? publishers.join('\n') : 'N/A')
+                .setFooter('Powered by Rawg.io.')
                 .setColor('RANDOM')
         ]
     });
 }
 
 const searchGame = async game => {
-    const res = await fetch(`https://api.rawg.io/api/games?key=${process.env.RAWG_API_KEY}&search=${game}`);
-    const data = await res.json();
-
-    if(data.results.length === 0) return null;
-
-    const storesToAvoid = [8, 9];
-    const filteredData = data.results.filter(item => item.stores && !storesToAvoid.includes(item.stores[0].store.id));
-
-    return filteredData[0].id;
+    const data = await fetchData(`https://api.rawg.io/api/games?key=${process.env.RAWG_API_KEY}&search=${game}&exclude_stores=8,9`);
+    return data.results[0]?.id;
 }
 
 const getGameDetails = async id => {
-    const res = await fetch(`https://api.rawg.io/api/games/${id}?key=${process.env.RAWG_API_KEY}`);
-    const data = await res.json();
-
-    const name = data.name;
-    const playtimes = await HowLongToBeat.search(data.name).catch(error => console.log(error));
+    const data = await fetchData(`https://api.rawg.io/api/games/${id}?key=${process.env.RAWG_API_KEY}`);
+    const { name, website, released, metacritic, background_image, reddit_url, platforms: platformsArray, stores: storesArray, developers: developersArray, publishers: publishersArray } = data;
 
     const platformsToAvoid = [5, 6, 171];
-    const platforms = data.platforms.map(item => !platformsToAvoid.includes(item.platform.id) && `> ${item.platform.name}`).filter(Boolean);
+    const platforms = platformsArray.map(item => !platformsToAvoid.includes(item.platform.id) && `> ${item.platform.name}`).filter(Boolean);
 
-    const storesList = data.stores.map(item => ({ id: item.store.id, name: item.store.name }));
+    const storesList = storesArray.map(item => ({ id: item.store.id, name: item.store.name }));
     const stores = await getGameStores(id, storesList);
 
-    const gamingSubscriptions = await subscriptionsSchema.find({ 'items.slug': { $regex: new RegExp(`^${slug(name)}`, 'g') } });
-    const subscriptions = gamingSubscriptions.map(item => `> **${item.subscription}**`);
+    const subscriptionsList = await subscriptionsSchema.find({ 'items.slug': { $regex: new RegExp(`^${slug(name)}`, 'g') } });
+    const subscriptions = subscriptionsList.map(item => `> **${item.subscription}**`);
+
+    const developers = developersArray.map(item => `> **${item.name}**`);
+    const publishers = publishersArray.map(item => `> **${item.name}**`);
 
     return {
         name,
-        url: data.website,
-        releaseDate: data.released,
-        image: data.background_image,
-        developer: data.developers[0]?.name,
-        publisher: data.publishers[0]?.name,
+        url: website,
+        releaseDate: released || 'TBA',
+        image: background_image,
+        subreddit: reddit_url,
+        metacritic,
         platforms,
         stores,
         subscriptions,
-        playtimes
+        developers,
+        publishers
     };
 }
 
-const getGameStores = async (id, storesList) => {
-    const res = await fetch(`https://api.rawg.io/api/games/${id}/stores?key=${process.env.RAWG_API_KEY}`);
-    const data = await res.json();
+const getGameStores = async (id, stores) => {
+    const data = await fetchData(`https://api.rawg.io/api/games/${id}/stores?key=${process.env.RAWG_API_KEY}`);
 
-    return storesList.map(item => {
+    return stores.map(item => {
         const storeItem = data.results.find(nestedItem => nestedItem.store_id === item.id);
         return `> **[${item.name}](${storeItem.url})**`;
     }).filter(Boolean);

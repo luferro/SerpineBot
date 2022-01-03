@@ -1,4 +1,5 @@
 const slug = str => {
+    if(!str) return;
     return str
         .toString()
         .trim()

@@ -5,7 +5,7 @@ const options = {
     useNewUrlParser: true
 }
 
-const connect = async() => {
+const connect = async () => {
     await mongoose.connect(process.env.MONGO_URI, options).catch(() => process.emit('SIGINT'));
     console.log('Connected to database.');
 }

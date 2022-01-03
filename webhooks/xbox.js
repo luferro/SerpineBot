@@ -1,61 +1,52 @@
-import { MessageEmbed, WebhookClient } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
 import { load } from 'cheerio';
-import fetch from 'node-fetch';
+import { fetchData } from '../utils/fetch.js';
+import { formatTitle } from '../utils/format.js';
 import { getVideoID } from '../utils/youtube.js';
-import { manageState } from '../handlers/webhooks.js';
+import { getWebhook, manageState } from '../handlers/webhooks.js';
 
-const getXbox = async type => {
-    const webhook = new WebhookClient({ url: process.env.WEBHOOK_XBOX });
+const categories = [
+    { name: 'Consoles', url: 'https://news.xbox.com/en-us/consoles' },
+    { name: 'Gamepass', url: 'https://news.xbox.com/en-us/xbox-game-pass' },
+    { name: 'Deals With Gold', url: 'https://majornelson.com/category/xbox-store' }
+];
 
-    const getURL = type => {
-        const options = {
-            'gamepass': 'https://news.xbox.com/en-us/xbox-game-pass',
-            'consoles': 'https://news.xbox.com/en-us/consoles',
-            'deals': 'https://majornelson.com/category/xbox-store'
-        }
-        return options[type];
-    }
-    const categoryURL = getURL(type.toLowerCase());
+const getXbox = async client => {
+    for(const [guildID, guild] of client.guilds.cache) {
+        const webhook = await getWebhook(client, guild, 'Xbox');
+        if(!webhook) continue;
 
-    const res = await fetch(categoryURL);
-    if(!res.ok) return;
-    const body = await res.text();
-    const $ = load(body);
+        for(const category of categories) {
+            const data = await fetchData(category.url);
+            const $ = load(data);
 
-    const title = $('.archive-main .media .media-body .feed__title a').first().text();
-    const link = $('.archive-main .media .media-body .feed__title a').first().attr('href');
-    const image = $('.archive-main .media .media-image .video-wrapper img').first().attr('src') || $('.archive-main .media .media-image a img').first().attr('src');
+            const title = $('.archive-main .media .media-body .feed__title a').first().text();
+            const href = $('.archive-main .media .media-body .feed__title a').first().attr('href');
+            const image = $('.archive-main .media .media-image a img').first().attr('src');
+            const hasVideo = $('.archive-main .media .media-image').first().children().hasClass('video-wrapper');
+            const video = hasVideo && $('.archive-main .media .media-image .video-wrapper').first().attr('data-src');
+            const videoID = hasVideo && getVideoID(video.split('?')[0]);
+            const url = hasVideo ? `https://www.youtube.com/watch?v=${videoID}` : href;
 
-    const hasVideo = $('.archive-main .media .media-image').first().children().hasClass('video-wrapper');
-    const video = hasVideo && $('.archive-main .media .media-image .video-wrapper').first().attr('data-src');
-    const videoID = hasVideo && getVideoID(video.split('?')[0]);
-    const url = hasVideo ? `https://www.youtube.com/watch?v=${videoID}` : link;
+            const isInvalid = [{ category: 'Gamepass', title: 'xbox game pass'}, { category: 'Deals With Gold', title: 'deals with gold' }].some(item => item.category === category.name && !title.toLowerCase().includes(item.title));
 
-    const state = manageState(type.toLowerCase(), url);
-    if(!state.hasCategory || state.hasEntry) return;
+            const state = manageState(category.name, { title, url });
+            if(state.hasEntry || isInvalid) continue;
 
-    const isInvalid = [{ type: 'gamepass', title: 'xbox game pass'}, { type: 'deals', title: 'deals with gold' }].some(item => type.toLowerCase() === item.type && !title.toLowerCase().includes(item.title))
-    if(isInvalid) return;
+            if(hasVideo) {
+                webhook.send({ content: `**${formatTitle(title)}**\n${url}` });
+                continue;
+            }
 
-    if(hasVideo) return webhook.send({ content: `**${title}**\n${url}` });
-
-    if(type.toLowerCase() === 'gamepass' && title.toLowerCase().includes('coming soon')) {
-        return webhook.send({ embeds: [
-            new MessageEmbed()
-                .setTitle(title)
+            const message = new MessageEmbed()
+                .setTitle(formatTitle(title))
                 .setURL(url)
-                .setImage(image)
-                .setColor('RANDOM')
-        ]});
-    }
+                .setColor('RANDOM');
+            category.name === 'Gamepass' && title.toLowerCase().includes('coming soon') ? message.setThumbnail(image) : message.setImage(image);
 
-    webhook.send({ embeds: [
-        new MessageEmbed()
-            .setTitle(title)
-            .setURL(url)
-            .setThumbnail(image)
-            .setColor('RANDOM')
-    ]});
+            webhook.send({ embeds: [message] });
+        }
+    }
 }
 
 export default { getXbox };

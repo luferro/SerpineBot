@@ -12,7 +12,6 @@
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
     "ffmpeg-static": "^4.4.0",
-    "howlongtobeat": "^1.5.0",
     "libsodium-wrappers": "^0.7.9",
     "mongoose": "^6.0.12",
     "node-cron": "^3.0.0",
@@ -20,7 +19,7 @@
     "puppeteer": "^11.0.0",
     "user-agents": "^1.0.835",
     "youtubei": "0.0.1-rc.27",
-    "ytdl-core": "^4.9.1"
+    "ytdl-core": "^4.9.2"
   },
   "scripts": {
     "start": "node server.js",
