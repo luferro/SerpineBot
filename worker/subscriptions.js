@@ -64,9 +64,10 @@ const getUbisoftPlus = async page => {
     await page.waitForTimeout(1000);
 
     const hasCookiesMenu = (await page.$$('button#privacy__modal__accept')).length > 0;
-    hasCookiesMenu && await page.click('button#privacy__modal__accept');
+    if(hasCookiesMenu) await page.click('button#privacy__modal__accept')
+
     const hasRegionMenu = (await page.$$('button.stay-on-country-store')).length > 0;
-    hasRegionMenu && await page.click('button.stay-on-country-store');
+    if(hasRegionMenu)await page.click('button.stay-on-country-store');
 
     let hasMore = true;
     while (hasMore) {
@@ -76,7 +77,7 @@ const getUbisoftPlus = async page => {
     }
 
     const array = [];
-    const data = await page.$$eval('.game-list_inner > div', (elements) => elements.map(item => ({ name: item.querySelector('h3.game-short-title').textContent || item.querySelector('h3.game-long-title').textContent })));
+    const data = await page.$$eval('.game-list_inner > div', elements => elements.map(item => ({ name: item.querySelector('h3.game-short-title').textContent || item.querySelector('h3.game-long-title').textContent })));
     array.push(...data.map(item => ({ name: item.name, slug: slug(item.name) })));
 
     const storedSubscription = await subscriptionsSchema.find({ subscription: 'Ubisoft+ for PC' });
@@ -92,12 +93,13 @@ const getEAPlay = async page => {
         await page.goto(`https://www.origin.com/irl/en-us/store/browse?fq=subscriptionGroup:${category}`, { waitUntil: 'networkidle0' });
         await page.waitForTimeout(1000);
 
-        if(category === 'vault-games') {
-            await page.waitForSelector('.otkmodal-content .otkmodal-footer > button');
+        const hasRegionMenu = (await page.$$('.otkmodal-content .otkmodal-footer > button')).length > 0;
+        if(hasRegionMenu) {
             await page.click('.otkmodal-content .otkmodal-footer > button');
-            await page.waitForTimeout(1000);
-            await page.waitForSelector('.otkmodal-content .otkmodal-footer > button');
-            await page.click('.otkmodal-content .otkmodal-footer > button');
+            await page.waitForTimeout(2000);
+
+            const hasConfirmationRegionMenu = (await page.$$('.otkmodal-content .otkmodal-footer > button')).length > 0;
+            if(hasConfirmationRegionMenu) await page.click('.otkmodal-content .otkmodal-footer > button');
         }
 
         await page.waitForSelector('section.origin-gdp-tilelist > ul li[origin-postrepeat]');

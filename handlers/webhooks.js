@@ -18,7 +18,7 @@ export const manageState = (category, entry) => {
     if(!hasCategory) state.set(category, [entry]);
 
     const entries = state.get(category);
-    const hasEntry = entries.some(item => JSON.stringify(item) === JSON.stringify(entry));  
+    const hasEntry = entries.some(item => item.url === entry.url);  
     if(!hasEntry) state.set(category, [...entries, entry]);
 
     return { hasEntry };

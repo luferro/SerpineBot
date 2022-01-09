@@ -6,7 +6,7 @@ import { getVideoID } from '../utils/youtube.js';
 import { getWebhook, manageState } from '../handlers/webhooks.js';
 
 const categories = [
-    { name: 'Consoles', url: 'https://news.xbox.com/en-us/consoles' },
+    { name: 'Games With Gold', url: 'https://news.xbox.com/en-us/games' },
     { name: 'Gamepass', url: 'https://news.xbox.com/en-us/xbox-game-pass' },
     { name: 'Deals With Gold', url: 'https://majornelson.com/category/xbox-store' }
 ];
@@ -20,18 +20,28 @@ const getXbox = async client => {
             const data = await fetchData(category.url);
             const $ = load(data);
 
-            const title = $('.archive-main .media .media-body .feed__title a').first().text();
-            const href = $('.archive-main .media .media-body .feed__title a').first().attr('href');
-            const image = $('.archive-main .media .media-image a img').first().attr('src');
-            const hasVideo = $('.archive-main .media .media-image').first().children().hasClass('video-wrapper');
-            const video = hasVideo && $('.archive-main .media .media-image .video-wrapper').first().attr('data-src');
-            const videoID = hasVideo && getVideoID(video.split('?')[0]);
-            const url = hasVideo ? `https://www.youtube.com/watch?v=${videoID}` : href;
+            const results = $('.archive-main .media').get().map(element => {
+                const title = $(element).find('.media-body .feed__title a').text();
+                const href = $(element).find('.media-body .feed__title a').attr('href');
+                const image = $(element).find('.media-image a img').attr('src');
+                const hasVideo = $(element).find('.media .media-image').children().hasClass('video-wrapper');
+                const video = $(element).find('.media-image .video-wrapper').first().attr('data-src');
+                const videoID = hasVideo && getVideoID(video.split('?')[0]);
+                const url = hasVideo ? `https://www.youtube.com/watch?v=${videoID}` : href;
 
-            const isInvalid = [{ category: 'Gamepass', title: 'xbox game pass'}, { category: 'Deals With Gold', title: 'deals with gold' }].some(item => item.category === category.name && !title.toLowerCase().includes(item.title));
+                const isGamepassPost = category.name === 'Gamepass' && (title.toUpperCase().includes('COMING SOON') || title.toUpperCase().includes('GAME PASS'));
+                const isDealsWithGoldPost = category.name === 'Deals With Gold' && title.toUpperCase().includes('DEALS WITH GOLD');
+                const isGamesWithGoldPost = category.name === 'Games With Gold' && title.toUpperCase().includes('GAMES WITH GOLD');
+                if(!isGamepassPost && !isDealsWithGoldPost && !isGamesWithGoldPost) return;
+
+                return { title, url, image, hasVideo };
+            }).filter(Boolean);
+            if(results.length === 0) continue
+
+            const { 0: { title, url, image, hasVideo } } = results;
 
             const state = manageState(category.name, { title, url });
-            if(state.hasEntry || isInvalid) continue;
+            if(state.hasEntry) continue;
 
             if(hasVideo) {
                 webhook.send({ content: `**${formatTitle(title)}**\n${url}` });
@@ -42,7 +52,7 @@ const getXbox = async client => {
                 .setTitle(formatTitle(title))
                 .setURL(url)
                 .setColor('RANDOM');
-            category.name === 'Gamepass' && title.toLowerCase().includes('coming soon') ? message.setThumbnail(image) : message.setImage(image);
+            category.name === 'Gamepass' && title.toUpperCase().includes('COMING SOON') ? message.setImage(image) : message.setThumbnail(image);
 
             webhook.send({ embeds: [message] });
         }

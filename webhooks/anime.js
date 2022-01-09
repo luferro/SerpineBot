@@ -45,7 +45,9 @@ const getAnime = async client => {
         
         const aggregatorMAL = animeAggregators.find(item => item.includes('myanimelist.net'));
         const id = aggregatorMAL?.match(/\((.*?)\)/g)[0].match(/\d+/g)[0];
-        const { episodesCount, score, image } = await getAnimeDetails(id);
+        if(!id) continue;
+
+        const { episodes, score, image } = await getAnimeDetails(id);
 
         webhook.send({ embeds: [
             new MessageEmbed()
@@ -54,23 +56,19 @@ const getAnime = async client => {
                 .setThumbnail(image || '')
                 .addField('**Streams**', animeStreams.length > 0 ? animeStreams.join('\n') : 'N/A')
                 .addField('**Trackers**', animeAggregators.length > 0 ? animeAggregators.join('\n') : 'N/A')
-                .addField('**Total episodes**', episodesCount ? episodesCount.toString() : 'N/A', true)
-                .addField('**Score**', score ? score.toString() : 'N/A', true)
+                .addField('**Total episodes**', episodes?.toString() || 'N/A', true)
+                .addField('**Score**', score?.toString() || 'N/A', true)
                 .setFooter('Powered by Jikan API.')
                 .setColor('RANDOM')
         ]});
     }
 }
 
-const getAnimeDetails = async id => {
-    if(!id) return { episodesCount: null, score: null, image: null };
-        
-    const data = await fetchData(`https://api.jikan.moe/v3/anime/${id}`);
+const getAnimeDetails = async id => {        
+    const data = await fetchData(`https://api.jikan.moe/v4/anime/${id}`);
+    const { episodes, score, images: { jpg : { large_image_url } } } = data;
 
-    const lastDotImage = data.image_url?.lastIndexOf('.');
-    const image = lastDotImage && `${data.image_url.substring(0, lastDotImage)}l.${data.image_url.substring(lastDotImage + 1)}`
-
-    return { episodesCount: data.episodes, score: data.score, image };
+    return { episodes, score, image: large_image_url };
 }
 
 export default { getAnime };

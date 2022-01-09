@@ -71,7 +71,7 @@ client.on('interactionCreate', async interaction => {
 
 client.on('guildMemberAdd', member => {
 	const role = member.guild.roles.cache.find(role => role.name === 'Restrictions');
-	member.roles.add(role);
+	if(role) member.roles.add(role);
 });
 
 ['SIGINT', 'SIGTERM'].forEach(signal => process.on(signal, () => {

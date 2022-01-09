@@ -1,6 +1,6 @@
-const slug = str => {
-    if(!str) return;
-    return str
+const slug = string => {
+    if(!string) return;
+    return string
         .toString()
         .trim()
         .toLowerCase()
