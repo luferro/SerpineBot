@@ -56,12 +56,15 @@ const getDealDetails = async (url) => {
     });
 
     const couponsArray = [];
-    const getCouponIndex = couponText => {
+    const getCouponPosition = couponText => {
         const code = couponText.split(' ').pop();
-        const isStored = couponsArray.some(item => item.code === code);
-        if(!isStored) couponsArray.push({ code, message: `> *(${couponsArray.length + 1}) ${couponText}*` });
+        const hasCouponCode = couponsArray.some(item => item.code === code);
+        if(!hasCouponCode) couponsArray.push({ code, message: `> *(${couponsArray.length + 1}) ${couponText}*` });
 
-        return couponsArray.findIndex(item => item.code === code);
+        const couponIndex = couponsArray.findIndex(item => item.code === code);
+        if(couponIndex === -1) return null;
+
+        return couponIndex + 1;
     };
 
     const officialStores = $('#official-stores .game-deals-container .game-deals-item').get().map(element => {
@@ -71,9 +74,9 @@ const getDealDetails = async (url) => {
 
         const hasCoupon = $(element).children('.game-info-wrapper').find('.voucher-badge').length > 0;
         const couponText = hasCoupon && $(element).children('.game-info-wrapper').find('.voucher-badge').first().text();
-        const couponIndex = hasCoupon && getCouponIndex(couponText);
+        const couponPosition = hasCoupon && getCouponPosition(couponText);
 
-        return `> **[${store}](${url})** ${couponIndex ? `*(${couponIndex + 1})*` : ''} - \`${price}\``;
+        return `> **[${store}](${url})** ${couponPosition ? `*(${couponPosition})*` : ''} - \`${price}\``;
     });
 
     const keyshops = $('#keyshops .game-deals-container .game-deals-item').get().map(element => {
@@ -83,9 +86,9 @@ const getDealDetails = async (url) => {
 
         const hasCoupon = $(element).children('.game-info-wrapper').find('.voucher-badge').length > 0;
         const couponText = hasCoupon && $(element).children('.game-info-wrapper').find('.voucher-badge').first().text();
-        const couponIndex = hasCoupon && getCouponIndex(couponText);
+        const couponPosition = hasCoupon && getCouponPosition(couponText);
 
-        return `> **[${store}](${url})** ${couponIndex ? `*(${couponIndex + 1})*` : ''} - \`${price}\``;
+        return `> **[${store}](${url})** ${couponPosition ? `*(${couponPosition})*` : ''} - \`${price}\``;
     });
 
     const coupons = couponsArray.map(item => item.message);
