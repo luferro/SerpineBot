@@ -44,9 +44,9 @@ const getAnime = async client => {
         }).filter(Boolean);
         
         const aggregatorMAL = animeAggregators.find(item => item.includes('myanimelist.net'));
-        const id = aggregatorMAL?.match(/\((.*?)\)/g)[0].match(/\d+/g)[0];
-        if(!id) continue;
+        if(!aggregatorMAL) continue;
 
+        const id = aggregatorMAL.match(/\((.*?)\)/g)[0].match(/\d+/g)[0];
         const { episodes, score, image } = await getAnimeDetails(id);
 
         webhook.send({ embeds: [
@@ -66,9 +66,9 @@ const getAnime = async client => {
 
 const getAnimeDetails = async id => {        
     const data = await fetchData(`https://api.jikan.moe/v4/anime/${id}`);
-    const { episodes, score, images: { jpg : { large_image_url } } } = data;
+    const { episodes, score, images } = data.data;
 
-    return { episodes, score, image: large_image_url };
+    return { episodes, score, image: images?.jpg?.large_image_url };
 }
 
 export default { getAnime };
