@@ -1,10 +1,11 @@
 import { fetch } from '../services/fetch';
+import * as Google from './google';
 import * as StringUtil from '../utils/string';
-import { Result, Review } from '../types/responses';
+import { Review } from '../types/responses';
 
 export const search = async (title: string) => {
-    const data = await fetch<Result[]>(`https://api.opencritic.com/api/meta/search?criteria=${title}`);
-    return data[0]?.id.toString();
+    const results = await Google.search(`${title} opencritic review`);
+    return results[0]?.url.match(/\d+/g)?.[0];
 }
 
 export const getReviewById = async (id: string) => {
