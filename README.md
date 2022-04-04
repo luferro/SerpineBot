@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/serpin3/serpinebot/badge)](https://www.codefactor.io/repository/github/serpin3/serpinebot)
+
 ## Table of contents
 * [SerpineBot](#serpinebot)
 * [Technologies](#technologies)
