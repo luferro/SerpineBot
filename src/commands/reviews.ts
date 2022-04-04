@@ -31,7 +31,7 @@ export const execute = async (interaction: CommandInteraction) => {
             .addField('**Tier**', tier?.toString() ?? 'N/A')
             .addField('**Score**', score?.toString() ?? 'N/A', true)
             .addField('**Reviews count**', count?.toString() ?? 'N/A', true)
-            .addField('**Critics Recommended**', recommended?.toString() ?? 'N/A', true)
+            .addField('**Critics Recommended**', recommended ? `${recommended}%` : 'N/A', true)
             .setColor('RANDOM')
     ]});
 }
