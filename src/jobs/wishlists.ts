@@ -84,7 +84,7 @@ export const execute = async (client: Bot) => {
                     .setColor('RANDOM')
             ]});
 
-            logger.info(`Wishlists: ${user.tag} was notified about ${alerts.length} items in \`${category}\` category.`);
+            logger.info(`Wishlists - ${user.tag} was notified about ${alerts.length} items in \`${category}\` category.`);
         }
     }
 }

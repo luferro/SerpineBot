@@ -11,5 +11,5 @@ export const register = async (client: Bot) => {
         client.events.set(event.data.name, event);
     }
 
-    logger.info(`Events Handler: ${files.length} events have been registered.`);
+    logger.info(`Events Handler - ${files.length} events have been registered.`);
 }

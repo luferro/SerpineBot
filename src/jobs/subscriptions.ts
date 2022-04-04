@@ -77,7 +77,7 @@ const getGamePass = async (page: Page, category: GamePassCategories) => {
 
     await subscriptionsModel.updateOne({ name: `${category} Game Pass` }, { $set: { items, count: items.length } }, { upsert: true });
 
-    logger.info(`Subscriptions: ${items.length} were found for ${category} Game Pass.`);
+    logger.info(`Subscriptions - ${items.length} were found for ${category} Game Pass.`);
 }
 
 const getUbisoftPlus = async (page: Page) => {
@@ -118,7 +118,7 @@ const getUbisoftPlus = async (page: Page) => {
 
     await subscriptionsModel.updateOne({ name: 'Ubisoft+' }, { $set: { items, count: items.length } }, { upsert: true });
 
-    logger.info(`Subscriptions: ${items.length} were found for Ubisoft+.`);
+    logger.info(`Subscriptions - ${items.length} were found for Ubisoft+.`);
 }
 
 const getEAPlay = async (page: Page, category: EAPlayCategories) => {
@@ -163,5 +163,5 @@ const getEAPlay = async (page: Page, category: EAPlayCategories) => {
 
     await subscriptionsModel.updateOne({ name: category === 'Pro' ? 'EA Play Pro' : 'EA Play' }, { $set: { items, count: items.length } }, { upsert: true });
 
-    logger.info(`Subscriptions: ${items.length} were found for ${category === 'Pro' ? 'EA Play Pro' : 'EA Play'}.`);
+    logger.info(`Subscriptions - ${items.length} were found for ${category === 'Pro' ? 'EA Play Pro' : 'EA Play'}.`);
 }
