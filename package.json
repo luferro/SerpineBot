@@ -4,8 +4,7 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "tsc && node dist/server.js",
-    "build": "tsc",
-    "deploy": "git add . && git commit -am Heroku && git push heroku master"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "Luís Ferro",
