@@ -11,7 +11,13 @@ export const fetch = async <T> (url: string | URL, method: HttpMethods = 'GET', 
         },
         body: body?.toString()
     });
-    if(res.statusCode >= 400) throw new Error(`Fetch: Request to ${url} failed with status code ${res.statusCode}.`);
 
-    return res.headers['content-type']?.includes('application/json') ? await res.body.json() : await res.body.text();
+    if(res.statusCode >= 400) {
+        res.body.dump();
+        throw new Error(`Fetch: Request to ${url} failed with status code ${res.statusCode}.`)
+    } 
+
+    return res.headers['content-type']?.includes('application/json')
+        ? await res.body.json()
+        : await res.body.text();
 }
