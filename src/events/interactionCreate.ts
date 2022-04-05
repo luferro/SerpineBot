@@ -25,6 +25,6 @@ export const execute = async (client: Bot, interaction: CommandInteraction) => {
             return;
         }
         
-        await interaction.reply({ content: error.message, ephemeral: true }); 
+        await interaction.reply({ content: error.message, ephemeral: true });
     }
 }
