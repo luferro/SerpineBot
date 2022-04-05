@@ -13,7 +13,7 @@ export const fetch = async <T> (url: string | URL, method: HttpMethods = 'GET', 
     });
 
     if(res.statusCode >= 400) {
-        res.body.dump();
+        await res.body.dump();
         throw new Error(`Fetch: Request to ${url} failed with status code ${res.statusCode}.`)
     } 
 
