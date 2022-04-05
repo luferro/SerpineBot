@@ -33,7 +33,7 @@ export class Bot extends Client {
             await this.register();
     
             this.startListeners();
-            this.startJobs();   
+            this.startJobs();
         } catch (error) {
             this.errorHandler(error);
         }

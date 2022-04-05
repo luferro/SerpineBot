@@ -15,7 +15,7 @@ export const execute = async (client: Bot, interaction: CommandInteraction) => {
 
     try {
         if(command.data.client) return await command.execute(client, interaction);
-        await command.execute(interaction);   
+        await command.execute(interaction);
     } catch (error) {
         const isInteractionError = error instanceof InteractionError;
         if(!isInteractionError) throw error;
@@ -25,6 +25,6 @@ export const execute = async (client: Bot, interaction: CommandInteraction) => {
             return;
         }
         
-        await interaction.reply({ content: error.message, ephemeral: true });        
+        await interaction.reply({ content: error.message, ephemeral: true }); 
     }
 }
