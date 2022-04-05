@@ -1,12 +1,7 @@
-## Table of contents
-* [SerpineBot](#serpinebot)
-* [Technologies](#technologies)
-* [Installation](#installation)
-* [Usage](#usage)
-* [Author](#author)
-* [License](#license)
-
 ## SerpineBot
+
+[![CodeFactor](https://www.codefactor.io/repository/github/serpin3/serpinebot/badge)](https://www.codefactor.io/repository/github/serpin3/serpinebot)
+
 A multipurpose Discord bot.
 
 ## Technologies
