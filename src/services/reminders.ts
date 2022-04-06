@@ -23,7 +23,9 @@ export const create = async (userId: string, time: number, unit: TimeUnits, mess
         message
     }).save();
 
-    return reminderId;
+    return {
+        reminderId
+    }
 }
 
 export const remove = async (reminderId: string) => {
