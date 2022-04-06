@@ -2,7 +2,6 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import * as GoComics from '../apis/goComics';
 import { ComicCategories } from '../types/categories';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'comics',
@@ -26,7 +25,7 @@ export const execute = async (interaction: CommandInteraction) => {
     const choice = interaction.options.getString('category')! as ComicCategories;
 
     const { title, url, image } = await GoComics.getComics(choice);
-    if(!title || !url || !image) throw new InteractionError('Couldn\'t find the requested comic.');
+    if(!title || !url || !image) return await interaction.reply({ content: 'Couldn\'t find the requested comic.', ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()

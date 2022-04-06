@@ -2,7 +2,6 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import * as Reminders from '../services/reminders';
 import { TimeUnits } from '../types/categories';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'reminders',
@@ -44,13 +43,12 @@ const createReminder = async (interaction: CommandInteraction) => {
     const unit = interaction.options.getString('unit')! as TimeUnits;
     const message = interaction.options.getString('message')!;
 
-    const reminderId = await Reminders.create(interaction.user.id, time, unit, message).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Reminders.create(interaction.user.id, time, unit, message).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()
-            .setTitle(`**Reminder ID:** ${reminderId}`)
+            .setTitle(`**Reminder ID:** ${result.reminderId}`)
             .setDescription(`<@${interaction.user.id}>, I'll remind you about **${message}** in *${time} ${unit}*!`)
             .setColor('RANDOM')
     ], ephemeral: true });

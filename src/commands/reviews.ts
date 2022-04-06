@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import * as OpenCritic from '../apis/opencritic';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'reviews',
@@ -16,10 +15,10 @@ export const execute = async (interaction: CommandInteraction) => {
     const game = interaction.options.getString('game')!;
 
     const id = await OpenCritic.search(game);
-    if(!id) throw new InteractionError(`Couldn't find a match for ${game}.`);
+    if(!id) return await interaction.reply({ content: `Couldn't find a match for ${game}.`, ephemeral: true });
 
     const { name, url, releaseDate, platforms, tier, score, count, recommended, image } = await OpenCritic.getReviewById(id);
-    if(!tier && !score) throw new InteractionError(`${name} currently doesn\'t have enough reviews to be displayed.`);
+    if(!tier && !score) return await interaction.reply({ content: `${name} currently doesn\'t have enough reviews to be displayed.`, ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()

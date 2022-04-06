@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import * as Birthdays from '../services/birthdays';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'birthdays',
@@ -34,9 +33,9 @@ const createBirthday = async (interaction: CommandInteraction) => {
     const year = interaction.options.getInteger('year')!;
 
     const date = `${year}-${month}-${day}`;
-    await Birthdays.create(interaction.user.id, date).catch(error => {
-        throw new InteractionError(error.message);
-    });
+
+    const result = await Birthdays.create(interaction.user.id, date).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
 		new MessageEmbed()

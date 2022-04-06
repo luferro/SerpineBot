@@ -3,7 +3,6 @@ import { CommandInteraction, GuildMember, MessageEmbed } from 'discord.js';
 import * as Steam from '../apis/steam';
 import * as Leaderboards from '../services/leaderboards';
 import { steamModel } from '../database/models/steam';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'steam',
@@ -87,7 +86,7 @@ const getUpcoming = async (interaction: CommandInteraction) => {
 
 const getLeaderboard = async (interaction: CommandInteraction) => {
     const leaderboard = await Leaderboards.getSteamLeaderboard(interaction.client);
-    if(!leaderboard) throw new InteractionError('No Steam leaderboard is available.');
+    if(!leaderboard) return await interaction.reply({ content: 'No Steam leaderboard is available.', ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()
@@ -103,7 +102,7 @@ const getProfile = async (interaction: CommandInteraction) => {
     const userId = mention?.user.id ?? interaction.user.id;
 
     const integration = await steamModel.findOne({ userId });
-    if(!integration) throw new InteractionError('No Steam integration is in place.');
+    if(!integration) return await interaction.reply({ content: 'No Steam integration is in place.', ephemeral: true });
 
     const { name, image, status, logoutAt, createdAt } = await Steam.getProfile(integration.profile.id);
 
@@ -125,7 +124,7 @@ const getWishlist = async (interaction: CommandInteraction) => {
     const user = mention?.user ?? interaction.user;
 
     const integration = await steamModel.findOne({ userId: user.id });
-    if(!integration) throw new InteractionError('No Steam integration is in place.');
+    if(!integration) return await interaction.reply({ content: 'No Steam integration is in place.', ephemeral: true });
 
     const formattedWishlist = integration.wishlist.slice(0, 10).map((item, index) => `\`${index + 1}.\` **[${item.name}](${item.url})** | ${item.discounted || item.free && 'Free' || 'N/A'}`);
     integration.wishlist.length - formattedWishlist.length > 0 && formattedWishlist.push(`And ${integration.wishlist.length - formattedWishlist.length} more!`);

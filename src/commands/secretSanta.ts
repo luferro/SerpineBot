@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed, User } from 'discord.js';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'secretsanta',
@@ -13,21 +12,25 @@ export const data = {
 
 export const execute = async (interaction: CommandInteraction) => {
     const mentions = interaction.options.getString('mentions')!.match(/\d+/g);
-    if(!mentions) throw new InteractionError('Invalid input detected.');
+    if(!mentions) return await interaction.reply({ content: 'Invalid input detected.', ephemeral: true });
 
 	const uniqueMentions = new Set(mentions);
-	if(uniqueMentions.size !== mentions.length) throw new InteractionError('Duplicated user entry detected.');
+	if(uniqueMentions.size !== mentions.length) return await interaction.reply({ content: 'Duplicated user entry detected.', ephemeral: true });
 
-	const users = [];
-	for(const id of mentions) {
-		if(!interaction.client.users.cache.has(id)) throw new InteractionError('Invalid user entry detected.');
+	const users = await Promise.all(
+		mentions.map(async (id) => {
+			if(!interaction.client.users.cache.has(id)) return;
 
-		const user = await interaction.client.users.fetch(id);
-		if(!user.bot) users.push(user);
-	}
-	if(users.length < 3) throw new InteractionError('Secret Santa must have at least 3 members.');
+			const user = await interaction.client.users.fetch(id);
+			if(user.bot) return;
+			
+			return user;
+		})
+	);
+	const filteredUsers = users.filter((item): item is NonNullable<typeof item> => !!item);
+	if(filteredUsers.length < 3) return await interaction.reply({ content: 'Secret Santa must have at least 3 valid members.', ephemeral: true });
 
-	const shuffledUsers = shuffle(users);
+	const shuffledUsers = shuffle(filteredUsers);
 	for(const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 

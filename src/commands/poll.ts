@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
 import * as StringUtil from '../utils/string';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'poll',
@@ -21,7 +20,7 @@ export const execute = async (interaction: CommandInteraction) => {
 
 	if(options) {
 		const choices = options.split(/or|,|;/);
-		if(choices.length <= 1 || choices.length > 10) throw new InteractionError('Poll allows a minimum of 2 options and a maximum of 10 options.');
+		if(choices.length <= 1 || choices.length > 10) return await interaction.reply({ content: 'Poll allows a minimum of 2 options and a maximum of 10 options.', ephemeral: true });
 
 		const reactions: string[] = [];
 		const list = choices.map((item, index) => {

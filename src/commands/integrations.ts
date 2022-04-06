@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import * as Integrations from '../services/integrations';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'integrations',
@@ -35,9 +34,8 @@ export const execute = async (interaction: CommandInteraction) => {
 const addIntegration = async (interaction: CommandInteraction) => {
     const url = interaction.options.getString('url')!;
 
-    await Integrations.addIntegration(interaction.user.id, url).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Integrations.addIntegration(interaction.user.id, url).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()
@@ -47,9 +45,8 @@ const addIntegration = async (interaction: CommandInteraction) => {
 }
 
 const syncIntegration = async (interaction: CommandInteraction) => {
-    await Integrations.syncIntegration(interaction.user.id).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Integrations.syncIntegration(interaction.user.id).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()
@@ -61,9 +58,8 @@ const syncIntegration = async (interaction: CommandInteraction) => {
 const integrationNotifications = async (interaction: CommandInteraction) => {
     const option = interaction.options.getBoolean('option')!;
     
-    await Integrations.updateNotifications(interaction.user.id, option).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Integrations.updateNotifications(interaction.user.id, option).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()
@@ -73,9 +69,8 @@ const integrationNotifications = async (interaction: CommandInteraction) => {
 }
 
 const deleteIntegration = async (interaction: CommandInteraction) => {
-    await Integrations.deleteIntegration(interaction.user.id).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Integrations.deleteIntegration(interaction.user.id).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()

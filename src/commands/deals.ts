@@ -2,7 +2,6 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import * as Deals from '../apis/deals';
 import * as Subscriptions from '../services/subscriptions';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'deals',
@@ -17,7 +16,7 @@ export const execute = async (interaction: CommandInteraction) => {
     const game = interaction.options.getString('game')!;
 
     const id = await Deals.search(game);
-    if(!id) throw new InteractionError(`Couldn't find a match for ${game}.`);
+    if(!id) return await interaction.reply({ content: `Couldn't find a match for ${game}.`, ephemeral: true });
 
     const { name, image, historicalLows, officialStores, keyshops, coupons } = await Deals.getDealById(id);
     

@@ -3,7 +3,6 @@ import { CommandInteraction, Guild, GuildBasedChannel, MessageEmbed, TextChannel
 import { Bot } from '../bot';
 import * as Webhooks from '../services/webhooks';
 import { WebhookCategories } from '../types/categories';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'webhooks',
@@ -63,12 +62,14 @@ export const execute = async (client: Bot, interaction: CommandInteraction) => {
 const createWebhook = async (client: Bot, interaction: CommandInteraction) => {
     const category = interaction.options.getString('category')! as WebhookCategories;
     const channel = interaction.options.getChannel('channel')! as GuildBasedChannel;
-    if(channel.type !== 'GUILD_TEXT') throw new InteractionError('Webhooks can only be assigned to text channels.');
+    
+    if(channel.type !== 'GUILD_TEXT') return await interaction.reply({ content: 'Webhooks can only be assigned to text channels.', ephemeral: true });
 
     const guild = interaction.guild as Guild;
     const textChannel = channel as TextChannel;
 
-    await Webhooks.create(guild.id, textChannel, category).catch(error => { throw new InteractionError(error.message) });
+    const result = await Webhooks.create(guild.id, textChannel, category).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()
@@ -81,7 +82,8 @@ const deleteWebhook = async (client: Bot, interaction: CommandInteraction) => {
     const category = interaction.options.getString('category')! as WebhookCategories;
     const guild = interaction.guild as Guild;
 
-    await Webhooks.remove(client, guild.id, category).catch(error => { throw new InteractionError(error.message) });
+    const result = await Webhooks.remove(client, guild.id, category).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
         new MessageEmbed()

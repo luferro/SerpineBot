@@ -2,7 +2,6 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import * as Subscriptions from '../services/subscriptions';
 import * as StringUtil from '../utils/string';
-import { InteractionError } from '../errors/interactionError';
 import { TheMovieDBCategories } from '../types/categories';
 
 
@@ -25,7 +24,7 @@ export const execute = async (interaction: CommandInteraction) => {
     const media = interaction.options.getString('media')!;
 
     const subscriptions = choice === 'gaming' ? await Subscriptions.getGamingSubscriptions(media) : await Subscriptions.getStreamingSubscriptions(media, choice);
-    if(!subscriptions || subscriptions.length === 0) throw new InteractionError(`No subscription services include ${media}.`);
+    if(!subscriptions || subscriptions.length === 0) return await interaction.reply({ content: `No subscription services include ${media}.`, ephemeral: true });
     
     const { 0: { entry: { name } } } = subscriptions;
     const formattedSubscriptions = subscriptions.map(item => item.entry.url ? `**[${item.name}](${item.entry.url})**` : `**${item.name}**`);

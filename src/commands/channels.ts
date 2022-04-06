@@ -3,7 +3,6 @@ import { CommandInteraction, Guild, MessageActionRow, MessageEmbed, MessageSelec
 import * as RolesJob from '../jobs/roles';
 import * as Channels from '../services/channels';
 import { ChannelCategories, MessageCategories } from '../types/categories';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'channels',
@@ -104,7 +103,7 @@ const updateChannel = async (interaction: CommandInteraction) => {
     const nsfw = interaction.options.getBoolean('nsfw');
     
     const isValid = channel instanceof TextChannel || channel instanceof VoiceChannel;
-    if(!isValid) throw new InteractionError('Channel must be a text or voice channel.');
+    if(!isValid) return await interaction.reply({ content: 'Channel must be a text or voice channel.', ephemeral: true });
 
     await Channels.update(channel, name, topic, nsfw);
 
@@ -119,7 +118,7 @@ const deleteChannel = async (interaction: CommandInteraction) => {
     const channel = interaction.options.getChannel('channel');
 
     const isValid = channel instanceof TextChannel || channel instanceof VoiceChannel;
-    if(!isValid) throw new InteractionError('Channel must be a text or voice channel.');
+    if(!isValid) return await interaction.reply({ content: 'Channel must be a text or voice channel.', ephemeral: true });
 
     const { name } = channel;
     await Channels.remove(channel);
@@ -136,7 +135,7 @@ const assignChannel = async (interaction: CommandInteraction) => {
     const category = interaction.options.getString('category')! as MessageCategories;
 
     const isValid = channel instanceof TextChannel;
-    if(!isValid) throw new InteractionError('Channel must be a text channel.');
+    if(!isValid) return await interaction.reply({ content: 'Channel must be a text channel.', ephemeral: true });
 
     const guild = interaction.guild as Guild;
     if(category === 'BIRTHDAYS_MESSAGE') {
@@ -155,7 +154,7 @@ const assignChannel = async (interaction: CommandInteraction) => {
     }
 
     const options = select[category]();
-    if(options.length === 0) throw new InteractionError(`Invalid length of options for ${category}`);
+    if(options.length === 0) return await interaction.reply({ content: `Invalid length of options for ${category}`, ephemeral: true });
 
     const selectMenu = new MessageActionRow().addComponents(
 		new MessageSelectMenu()
@@ -179,7 +178,10 @@ const assignChannel = async (interaction: CommandInteraction) => {
         collector.on('end', async collected => {
             try {
                 const collectedInteraction = collected.first();
-                if(!collectedInteraction) throw new InteractionError('Channel assign timeout.');
+                if(!collectedInteraction) {
+                    await interaction.editReply({ content: 'Channel assign timeout.', embeds: [], components: [] });
+                    return;
+                }
         
                 await Channels.assign(guild.id, channel, category, collectedInteraction.values);
         
@@ -202,13 +204,12 @@ const dissociateChannel = async (interaction: CommandInteraction) => {
     const category = interaction.options.getString('category')! as MessageCategories;
 
     const isValid = channel instanceof TextChannel;
-    if(!isValid) throw new InteractionError('Channel must be a text channel.');
+    if(!isValid) return await interaction.reply({ content: 'Channel must be a text channel.', ephemeral: true });
 
     const guild = interaction.guild as Guild;
     if(category === 'ROLES_MESSAGE' || category === 'BIRTHDAYS_MESSAGE') {
-        await Channels.dissociate(guild.id, channel, category, []).catch(error => {
-            throw new InteractionError(error.message);
-        });
+        const result = await Channels.dissociate(guild.id, channel, category, []).catch((error: Error) => error);
+        if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
         return await interaction.reply({ embeds: [
             new MessageEmbed()
@@ -218,7 +219,7 @@ const dissociateChannel = async (interaction: CommandInteraction) => {
     }
 
     const options = getLeaderboardOptions();
-    if(options.length === 0) throw new InteractionError(`Invalid length of options for ${category}`);
+    if(options.length === 0) return await interaction.reply({ content: `Invalid length of options for ${category}`, ephemeral: true });
 
     const selectMenu = new MessageActionRow().addComponents(
 		new MessageSelectMenu()
@@ -242,11 +243,16 @@ const dissociateChannel = async (interaction: CommandInteraction) => {
         try {
             collector.on('end', async collected => {
                 const collectedInteraction = collected.first();
-                if(!collectedInteraction) throw new InteractionError('Channel dissociate timeout.');
+                if(!collectedInteraction) {
+                    await interaction.editReply({ content: 'Channel dissociate timeout.', embeds: [], components: [] });
+                    return;
+                }
     
-                await Channels.dissociate(guild.id, channel, category, collectedInteraction.values).catch(error => {
-                    throw new InteractionError(error.message);
-                });
+                const result = await Channels.dissociate(guild.id, channel, category, collectedInteraction.values).catch((error: Error) => error);
+                if(result instanceof Error) {
+                    await interaction.editReply({ content: result.message, embeds: [], components: [] });
+                    return;
+                }
         
                 await collectedInteraction.update({ embeds: [
                     new MessageEmbed()

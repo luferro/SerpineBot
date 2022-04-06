@@ -3,7 +3,6 @@ import { CommandInteraction, Guild, GuildMember, MessageActionRow, MessageEmbed,
 import { Bot } from '../bot';
 import * as Youtube from '../apis/youtube';
 import * as Music from '../services/music';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'music',
@@ -35,7 +34,7 @@ export const data = {
 
 export const execute = async (client: Bot, interaction: CommandInteraction) => {
     const member = interaction.member as GuildMember;
-    if(!member.voice.channel) throw new InteractionError('You must be in a voice channel to use music related commands.');
+    if(!member.voice.channel) return await interaction.reply({ content: 'You must be in a voice channel to use music related commands.', ephemeral: true });
     
     const subcommand = interaction.options.getSubcommand();
 
@@ -68,7 +67,7 @@ const join = async (client: Bot, interaction: CommandInteraction) => {
 
 const leave = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
     Music.leave(client, guild.id);
 
@@ -88,9 +87,8 @@ const add = async (client: Bot, interaction: CommandInteraction) => {
 		...results[0]
 	};
 
-    const { position } = await Music.addToQueue(client, guild.id, music).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Music.addToQueue(client, guild.id, music).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
 		new MessageEmbed()
@@ -98,7 +96,7 @@ const add = async (client: Bot, interaction: CommandInteraction) => {
 			.setTitle(music.title)
 			.setURL(music.url)
 			.setThumbnail(music.thumbnail ?? '')
-			.addField('**Position in queue**', position === 0 ? 'Currently playing' : position.toString(), true)
+			.addField('**Position in queue**', result.position === 0 ? 'Currently playing' : result.position.toString(), true)
 			.addField('**Channel**', music.channel, true)
 			.addField('**Duration**', music.duration, true)
 			.setColor('RANDOM')
@@ -107,23 +105,22 @@ const add = async (client: Bot, interaction: CommandInteraction) => {
 
 const remove = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
     const position = interaction.options.getInteger('position')!;
-    await Music.removeFromQueue(client, guild.id, position).catch(error => {
-        throw new InteractionError(error.message);
-    });
+
+    const result = await Music.removeFromQueue(client, guild.id, position).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await queue(client, interaction);
 }
 
 const clear = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
-    await Music.clearQueue(client, guild.id).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Music.clearQueue(client, guild.id).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await queue(client, interaction);
 }
@@ -163,13 +160,22 @@ const search = async (client: Bot, interaction: CommandInteraction) => {
         collector.on('end', async (collected) => {
             try {
                 const collectedInteraction = collected.first();
-                if(!collectedInteraction) throw new InteractionError('Search timeout.');
+                if(!collectedInteraction) {
+                    await interaction.editReply({ content: 'Search timeout.', embeds: [], components: [] });
+                    return;
+                }
         
                 const collectedMember = collectedInteraction.member as GuildMember;
-                if(!collectedMember.voice.channel) throw new InteractionError('You must be in a voice channel to select an item for the search menu.');
+                if(!collectedMember.voice.channel) {
+                    await interaction.editReply({ content: 'You must be in a voice channel to select an item for the search menu.', embeds: [], components: [] });
+                    return;
+                }
 
                 const collectedGuild = collectedInteraction.guild as Guild;
-                if(!client.music.has(collectedGuild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+                if(!client.music.has(collectedGuild.id)) {
+                    await interaction.editReply({ content: 'SerpineBot isn\'t connected to a voice channel.', embeds: [], components: [] });
+                    return;
+                }
         
                 const { values } = collectedInteraction;
                 if(values.length === 0 || values[0] === 'CANCEL')  {
@@ -188,9 +194,11 @@ const search = async (client: Bot, interaction: CommandInteraction) => {
                     ...selectedMusic
                 };
         
-                const { position } = await Music.addToQueue(client, guild.id, music).catch(error => {
-                    throw new InteractionError(error.message);
-                });
+                const result = await Music.addToQueue(client, guild.id, music).catch((error: Error) => error);
+                if(result instanceof Error) {
+                    await interaction.reply({ content: result.message, embeds: [], components: [] });
+                    return;
+                }
         
                 await collectedInteraction.update({ embeds: [
                     new MessageEmbed()
@@ -198,7 +206,7 @@ const search = async (client: Bot, interaction: CommandInteraction) => {
                         .setTitle(music.title)
                         .setURL(music.url)
                         .setThumbnail(music.thumbnail ?? '')
-                        .addField('**Position in queue**', position === 0 ? 'Currently playing' : position.toString(), true)
+                        .addField('**Position in queue**', result.position === 0 ? 'Currently playing' : result.position.toString(), true)
                         .addField('**Channel**', music.channel, true)
                         .addField('**Duration**', music.duration, true)
                         .setColor('RANDOM')
@@ -214,42 +222,40 @@ const search = async (client: Bot, interaction: CommandInteraction) => {
 
 const pause = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
-    const { pausedItem } = await Music.pause(client, guild.id).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Music.pause(client, guild.id).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
 		new MessageEmbed()
-			.setTitle(`Pausing \`${pausedItem}\`.`)
+			.setTitle(`Pausing \`${result.pausedItem}\`.`)
 			.setColor('RANDOM')
 	]});
 }
 
 const resume = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
-    const { resumedItem } = await Music.resume(client, guild.id).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Music.resume(client, guild.id).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
 		new MessageEmbed()
-			.setTitle(`Pausing \`${resumedItem}\`.`)
+			.setTitle(`Pausing \`${result.resumedItem}\`.`)
 			.setColor('RANDOM')
 	]});
 }
 
 const seek = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
     const time = interaction.options.getString('time')!;
-    await Music.seek(client, guild.id, time).catch(error => {
-        throw new InteractionError(error.message);
-    });
+
+    const result = await Music.seek(client, guild.id, time).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
     
     await interaction.reply({ embeds: [
 		new MessageEmbed()
@@ -260,38 +266,36 @@ const seek = async (client: Bot, interaction: CommandInteraction) => {
 
 const skip = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
-    const { skippedItem, playing } = await Music.skip(client, guild.id).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Music.skip(client, guild.id).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
 		new MessageEmbed()
-			.setTitle(`Skipped \`${skippedItem}\`.`)
-            .setDescription(`Now playing \`${playing}\`.`)
+			.setTitle(`Skipped \`${result.skippedItem}\`.`)
+            .setDescription(`Now playing \`${result.playing}\`.`)
 			.setColor('RANDOM')
 	]});
 }
 
 const loop = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
-    const { looping } = await Music.loop(client, guild.id).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Music.loop(client, guild.id).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
 		new MessageEmbed()
-			.setTitle(looping ? 'Loop has been enabled.' : 'Loop has been disabled.')
+			.setTitle(result.looping ? 'Loop has been enabled.' : 'Loop has been disabled.')
 			.setColor('RANDOM')
 	]});
 }
 
 const queue = async (client: Bot, interaction: CommandInteraction) => {
     const guild = interaction.guild as Guild;
-    if(!client.music.has(guild.id)) throw new InteractionError('SerpineBot isn\'t connected to a voice channel.');
+    if(!client.music.has(guild.id)) return await interaction.reply({ content: 'SerpineBot isn\'t connected to a voice channel.', ephemeral: true });
 
     const { playing, queue } = Music.queue(client, guild.id);
     const formattedQueue = queue.slice(1, 10).map((item, index) => `\`${index + 1}.\` **[${item.title}](${item.url})** | \`${item.duration}\`\nRequest by \`${item.requested}\``);

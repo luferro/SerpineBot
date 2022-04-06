@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import * as TheMovieDB from '../apis/theMovieDB';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'tv',
@@ -16,7 +15,7 @@ export const execute = async (interaction: CommandInteraction) => {
     const show = interaction.options.getString('show')!;
 
     const id = await TheMovieDB.search(show, 'tv');
-    if(!id) throw new InteractionError(`Couldn't find a match for ${show}.`);
+    if(!id) return await interaction.reply({ content: `Couldn't find a match for ${show}.`, ephemeral: true });
 
     const { name, tagline, overview, url, status, firstEpisode, nextEpisode, seasons, image, score, runtime, genres } = await TheMovieDB.getTvShowById(id);
     const { stream } = await TheMovieDB.getProviders(id, 'tv');

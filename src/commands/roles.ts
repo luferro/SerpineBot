@@ -1,7 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, Guild, MessageEmbed, Role } from 'discord.js';
 import * as Roles from '../services/roles';
-import { InteractionError } from '../errors/interactionError';
 
 export const data = {
     name: 'roles',
@@ -57,7 +56,7 @@ const createRole = async (interaction: CommandInteraction) => {
     const hoist = interaction.options.getBoolean('hoist');
     const mentionable = interaction.options.getBoolean('mentionable');
 
-    if(color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color)) throw new InteractionError('Invalid hexadecimal color.');
+    if(color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color)) return await interaction.reply({ content: 'Invalid hexadecimal color.', ephemeral: true });
 
     const guild = interaction.guild as Guild;
     await Roles.create(guild, name, color ?? 'DEFAULT', Boolean(hoist), Boolean(mentionable));
@@ -77,7 +76,7 @@ const updateRole = async (interaction: CommandInteraction) => {
     const mentionable = interaction.options.getBoolean('mentionable');
     const position = interaction.options.getInteger('position');
 
-    if(color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color)) throw new InteractionError('Invalid hexadecimal color.');
+    if(color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color)) return await interaction.reply({ content: 'Invalid hexadecimal color.', ephemeral: true });
 
     const guild = interaction.guild as Guild;
     await Roles.update(guild, role, name, color, hoist, mentionable, position);
@@ -101,9 +100,8 @@ const assignRole = async (interaction: CommandInteraction) => {
     const role = interaction.options.getRole('role')! as Role;
 
     const guild = interaction.guild as Guild;
-    await Roles.assign(guild, user.id, role).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Roles.assign(guild, user.id, role).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
 		new MessageEmbed()
@@ -117,9 +115,8 @@ const dissociateRole = async (interaction: CommandInteraction) => {
     const role = interaction.options.getRole('role')! as Role;
 
     const guild = interaction.guild as Guild;
-    await Roles.dissociate(guild, user.id, role).catch(error => {
-        throw new InteractionError(error.message);
-    });
+    const result = await Roles.dissociate(guild, user.id, role).catch((error: Error) => error);
+    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
     await interaction.reply({ embeds: [
 		new MessageEmbed()
