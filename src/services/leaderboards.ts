@@ -10,7 +10,7 @@ enum Medals {
 }
 
 export const getSteamLeaderboard = async (client: Bot | Client) => {
-    const leaderboards = [];
+    const leaderboard = [];
 
     const integrations = await steamModel.find();
     for(const integration of integrations) {
@@ -33,7 +33,7 @@ export const getSteamLeaderboard = async (client: Bot | Client) => {
         const { name, url } = recentlyPlayed.reduce((acc, el) => el.weeklyHours > acc.weeklyHours ? el : acc);
         const hours = recentlyPlayed.reduce((acc, el) => acc + el.weeklyHours, 0);
 
-        leaderboards.push({
+        leaderboard.push({
             tag: user.tag,
             topPlayed: {
                 name,
@@ -43,7 +43,7 @@ export const getSteamLeaderboard = async (client: Bot | Client) => {
         });
     }
 
-    return leaderboards
+    return leaderboard
         .sort((a, b) => b.topPlayed.hours - a.topPlayed.hours)
         .slice(0, 10)
         .map((item, index) => {
