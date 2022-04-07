@@ -14,7 +14,7 @@ export const fetch = async <T> (url: string | URL, method: HttpMethods = 'GET', 
 
     if(res.statusCode >= 400) {
         await res.body.dump();
-        throw new Error(`Fetch: Request to ${url} failed with status code ${res.statusCode}.`)
+        throw new Error(`\`${method}\` request to \`${url}\` failed. Status code: \`${res.statusCode}\`.`);
     } 
 
     return res.headers['content-type']?.includes('application/json')
