@@ -17,7 +17,6 @@ export const execute = async (client: Bot) => {
     for(const article of latestArticles) {
         const { title, url } = article;
 
-        await SleepUtil.timeout(5000);
         const hasEntry = await client.manageState('World News', 'News', title, url);
         if(!hasEntry) continue;
 
@@ -43,6 +42,8 @@ export const execute = async (client: Bot) => {
                     .setTimestamp(new Date(publishedAt))
                     .setColor('RANDOM')
             ]});
+
+            await SleepUtil.timeout(5000);
         }
     }
 }

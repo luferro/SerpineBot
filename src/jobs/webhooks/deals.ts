@@ -21,7 +21,6 @@ export const execute = async (client: Bot) => {
             for(const deal of latestDeals.reverse()) {
                 const { title, url, image, store, discount, regular, discounted, coupon } = deal;
 
-                await SleepUtil.timeout(5000);
                 const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
                 if(hasEntry) continue;
 
@@ -40,6 +39,8 @@ export const execute = async (client: Bot) => {
         
                     await webhook.send({ embeds: [message]});
                 }
+
+                await SleepUtil.timeout(5000);
             }
         }
         else {
