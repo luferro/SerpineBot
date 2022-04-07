@@ -5,7 +5,8 @@ import * as Database from './database/database';
 import * as JobsHandler from './handlers/jobs';
 import * as EventsHandler from './handlers/events';
 import * as CommandsHandler from './handlers/commands';
-import * as Environment from './utils/environment';
+import * as EnvironmentUtil from './utils/environment';
+import * as SleepUtil from './utils/sleep';
 import { logger } from './utils/logger';
 import { Command, Event, Job, Music } from './types/bot';
 import { JobError } from './errors/jobError';
@@ -21,7 +22,7 @@ export class Bot extends Client {
 
     constructor(options: ClientOptions) {
         super(options);
-        Environment.scanVariables();
+        EnvironmentUtil.scanVariables();
     }
 
     public start = async () => {
@@ -67,6 +68,8 @@ export class Bot extends Client {
     }
 
     public manageState = async (category: string, subcategory: string, title: string, url: string) => {
+        await SleepUtil.timeout(5000);
+
         const categoryState = await stateModel.findOne({ category });
         const stateEntries = categoryState?.entries.get(subcategory) ?? [];
         const hasEntry = stateEntries.some(item => item.title === title || item.url === url);
@@ -77,10 +80,13 @@ export class Bot extends Client {
     }
 
     private errorHandler = (error: unknown) => {
-        if(error instanceof JobError) return logger.warn(error.message);
+        if(error instanceof JobError) {
+            logger.warn(error.message);
+            return;
+        }
 
         if(error instanceof EnvironmentError || error instanceof DatabaseError) {
-            logger.fatal(error.message);
+            logger.error(error.message);
             return this.stop();
         }
 
