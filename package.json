@@ -28,12 +28,11 @@
     "dotenv": "^16.0.0",
     "ffmpeg-static": "^5.0.0",
     "mongoose": "^6.2.10",
-    "pino": "^7.9.2",
-    "pino-pretty": "^7.6.0",
     "play-dl": "^1.9.3",
     "playwright-chromium": "^1.20.2",
     "tweetnacl": "^1.0.3",
     "undici": "^5.0.0",
-    "user-agents": "^1.0.978"
+    "user-agents": "^1.0.978",
+    "winston": "^3.7.2"
   }
 }
