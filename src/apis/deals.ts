@@ -110,7 +110,7 @@ export const getLatestDeals = async (category: DealCategories) => {
     const data = await fetch<string>(options[category]);
     const $ = load(data);
 
-    return await Promise.all(
+    return Promise.all(
         $('.list-items > div').get().map(async (element) => {
             const title = $(element).find(':nth-child(4) .game-info-title-wrapper a').text();
             const href = $(element).find(':last-child a:last-child').attr('href');
