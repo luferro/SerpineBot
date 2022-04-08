@@ -1,4 +1,4 @@
-import { Guild, TextChannel } from 'discord.js';
+import { Client, Guild, TextChannel } from 'discord.js';
 import * as Tenor from '../apis/tenor';
 import { birthdaysModel } from '../database/models/birthdays';
 
@@ -7,6 +7,22 @@ export const create = async (userId: string, date: string) => {
     if(!isValid) throw new Error('Invalid date.');
 
     await birthdaysModel.updateOne({ userId }, { $set: { date } }, { upsert: true });
+}
+
+export const getBirthdays = async (client: Client) => {
+    const birthdays = await birthdaysModel.find();
+
+    return Promise.all(
+        birthdays.map(async (item) => {
+            const { 1: month, 2: day } = item.date.split('-');
+            const user = await client.users.fetch(item.userId);
+
+            return {
+                user,
+                birthday: `${day.padStart(2, '0')}/${month.padStart(2, '0')}`
+            }
+        })
+    );
 }
 
 export const remove = async (userId: string) => {

@@ -13,6 +13,7 @@ export const data = {
             .addIntegerOption(option => option.setName('month').setDescription('Month of your birthday.').setRequired(true))
             .addIntegerOption(option => option.setName('year').setDescription('Year of your birthday.').setRequired(true))
         )
+        .addSubcommand(subcommand => subcommand.setName('list').setDescription('Returns a list of birthdays.'))
         .addSubcommand(subcommand => subcommand.setName('delete').setDescription('Delete your birthday.'))
 }
 
@@ -21,6 +22,7 @@ export const execute = async (interaction: CommandInteraction) => {
 
     const select: Record<string, Function> = {
         'create': createBirthday,
+        'list': getBirthdays,
         'delete': deleteBirthday
     }
 
@@ -42,6 +44,20 @@ const createBirthday = async (interaction: CommandInteraction) => {
 			.setTitle(`Your birthday has been registered.`)
 			.setColor('RANDOM')
 	], ephemeral: true });
+}
+
+const getBirthdays = async (interaction: CommandInteraction) => {
+    const birthdays = await Birthdays.getBirthdays(interaction.client);
+    if(birthdays.length === 0) return await interaction.reply({ content: 'No birthdays have been registered.', ephemeral: true });
+
+    const formattedBirthday = birthdays.map(item => `${item.user.tag} **${item.birthday}**`);
+
+    await interaction.reply({ embeds: [
+		new MessageEmbed()
+			.setTitle('Birthdays')
+            .setDescription(formattedBirthday.join('\n'))
+			.setColor('RANDOM')
+	]});
 }
 
 const deleteBirthday = async (interaction: CommandInteraction) => {
