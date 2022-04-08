@@ -9,7 +9,6 @@ import * as EnvironmentUtil from './utils/environment';
 import * as SleepUtil from './utils/sleep';
 import { logger } from './utils/logger';
 import { Command, Event, Job, Music } from './types/bot';
-import { JobError } from './errors/jobError';
 import { DatabaseError } from './errors/databaseError';
 import { EnvironmentError } from './errors/environmentError';
 import { stateModel } from './database/models/state';
@@ -80,17 +79,11 @@ export class Bot extends Client {
     }
 
     private errorHandler = (error: unknown) => {
-        if(error instanceof JobError) {
-            logger.warn(error.message);
-            return;
-        }
-
-        if(error instanceof EnvironmentError || error instanceof DatabaseError) {
-            logger.error(error.message);
-            return this.stop();
-        }
-
         logger.error(error);
+
+        const isDatabaseError = error instanceof DatabaseError;
+        const isEnvironmentError = error instanceof EnvironmentError;
+        if(isDatabaseError || isEnvironmentError) this.stop();
     }
 
     public stop = () => {
