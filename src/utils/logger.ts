@@ -5,7 +5,8 @@ const { colorize, combine, errors, timestamp, printf } = format;
 const stringFormatter = combine(
     timestamp(),
     printf(({ timestamp, level, message, stack }) => {
-        const log = `${colorize().colorize(level, `[${timestamp}] ${level.toUpperCase()}:`)} \x1b[36m${message}\x1b[0m`;
+        const colorizedMessage = message.replace(/\`\b/g, '\x1b[36m').replace(/\b\`/g, '\x1b[0m');
+        const log = `${colorize().colorize(level, `[${timestamp}] ${level.toUpperCase()}:`)} ${colorizedMessage}`;
     
         if(stack) return log.concat('\n').concat(stack);
         return log;

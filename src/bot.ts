@@ -63,7 +63,7 @@ export class Bot extends Client {
             );
             cronjob.start();
 
-            logger.info(`Job \`${name}\` is set to run using the following schedule expression: ${job.data.schedule}.`);
+            logger.info(`Job \`${name}\` is running. Schedule expression: \`${job.data.schedule}\`.`);
         }
     }
 
