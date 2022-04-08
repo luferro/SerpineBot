@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from 'winston';
 
-const { colorize, combine, timestamp, printf } = format;
+const { colorize, combine, errors, timestamp, printf } = format;
 
 const stringFormatter = combine(
     timestamp(),
@@ -13,6 +13,7 @@ const stringFormatter = combine(
 );
 
 export const logger = createLogger({
+    format: errors({ stack: true }),
     transports: [
         new transports.Console({ format: stringFormatter })
     ]
