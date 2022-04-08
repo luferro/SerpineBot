@@ -3,6 +3,7 @@ import { Bot } from '../bot';
 import * as Leaderboards from '../services/leaderboards';
 import { settingsModel } from '../database/models/settings';
 import { steamModel } from '../database/models/steam';
+import { logger } from '../utils/logger';
 
 export const data = {
     name: 'leaderboards',
@@ -30,5 +31,7 @@ export const execute = async (client: Bot) => {
                 .setFooter({ text: 'Leaderboard resets every sunday.' })
                 .setColor('RANDOM')
         ]});
+
+        logger.info(`Leaderboards job sent a message to \`${channelId}\` in guild \`${guild.name}\`.`);
     }
 }

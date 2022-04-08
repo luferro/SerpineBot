@@ -1,7 +1,7 @@
 import { ButtonInteraction, Client, GuildMember, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from 'discord.js';
 import { Bot } from '../bot';
 import { settingsModel } from '../database/models/settings';
-import { JobError } from '../errors/jobError';
+import { logger } from '../utils/logger';
 
 const COMPONENTS_LIMIT = 5;
 const ITEMS_PER_ROW = 5;
@@ -12,8 +12,6 @@ export const data = {
 }
 
 export const execute = async (client: Bot | Client) => {
-    const errors: string[] = [];
-
     for(const [guildId, guild] of client.guilds.cache) {
         const settings = await settingsModel.findOne({ guildId });
 
@@ -54,15 +52,15 @@ export const execute = async (client: Bot | Client) => {
         if(!channel) continue;
 
         const messages = await channel.messages.fetch();
-
         const rolesMessage = messages.find(item => item?.embeds[0]?.title === 'Text channel roles');
+        
         if(!rolesMessage) await channel.send({ embeds: [message], components });
         else await rolesMessage.edit({ embeds: [message], components });
         
-        await handleCollector(channel).catch(error => { errors.push(error.message); });
-    }
+        await handleCollector(channel);
 
-    if(errors.length > 0) throw new JobError(`Roles:\n${errors.join('\n')}`);
+        logger.info(`Roles job sent a message to \`${channelId}\` in guild \`${guild.name}\`.`);
+    }
 }
 
 const handleCollector = async (channel: TextChannel) => {
@@ -89,18 +87,19 @@ const assignRole = async (interaction: ButtonInteraction) => {
     const role = member.guild.roles.cache.find(role => role.name === interaction.customId)!;
     const restrictionsRole = member.guild.roles.cache.find(role => role.name === 'Restrictions');
 
-    if(restrictionsRole) {
-        const hasRestrictionsRole = member.roles.cache.has(restrictionsRole.id);
-        if(hasRestrictionsRole && role.name === 'NSFW') throw new Error('Users with role `Restrictions` can\'t be granted the NSFW role.');
-    }
+    if(restrictionsRole && member.roles.cache.has(restrictionsRole.id) && role.name === 'NSFW') return await interaction.reply({ content: 'Users with role `Restrictions` can\'t be granted the NSFW role.', ephemeral: true });
 
     const hasRole = member.roles.cache.has(role.id);
     if(!hasRole) member.roles.add(role);
     else member.roles.remove(role);
 
+    const status = hasRole ? 'revoked' : 'granted';
+
     await interaction.reply({ embeds: [
         new MessageEmbed()
-            .setTitle(`Role ${role.name} has been ${hasRole ? 'revoked' : 'granted'}!`)
+            .setTitle(`Role ${role.name} has been ${status}!`)
             .setColor('RANDOM')
     ], ephemeral: true });
+
+    logger.info(`Roles collector \`${status}\` role \`${role.name}\` to \`${member.user.tag}\`.`);
 }

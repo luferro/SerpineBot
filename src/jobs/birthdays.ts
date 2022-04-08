@@ -2,7 +2,7 @@ import { Bot } from '../bot';
 import * as Birthdays from '../services/birthdays';
 import { birthdaysModel } from '../database/models/birthdays';
 import { settingsModel } from '../database/models/settings';
-import { JobError } from '../errors/jobError';
+import { logger } from '../utils/logger';
 
 export const data = {
     name: 'birthdays',
@@ -10,8 +10,6 @@ export const data = {
 }
 
 export const execute = async (client: Bot) => {
-    const errors: string[] = [];
-
     const birthdays = await birthdaysModel.find();
     for(const [guildId, guild] of client.guilds.cache) {
         for(const birthday of birthdays) {
@@ -28,11 +26,13 @@ export const execute = async (client: Bot) => {
             const channelId = settings?.birthdays.channelId;
             if(!channelId) continue;
 
-            await Birthdays.send(guild, channelId, birthday.userId, birthday.date).catch(error => {
-                errors.push(error.message);
-            });
+            const result = await Birthdays.send(guild, channelId, birthday.userId, birthday.date).catch((error: Error) => error);
+            if(result instanceof Error) {
+                logger.warn(`Birthdays job - ${result.message}`);
+                continue;
+            }
+
+            logger.info(`Birthdays job sent a message to \`${channelId}\` in guild \`${guild.name}\`.`);
         }
     }
-
-    if(errors.length > 0) throw new JobError(`Birthdays:\n${errors.join('\n')}`);
 }

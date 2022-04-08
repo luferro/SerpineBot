@@ -1,7 +1,7 @@
 import { Bot } from '../bot';
 import * as Reminders from '../services/reminders';
 import { remindersModel } from '../database/models/reminders';
-import { JobError } from '../errors/jobError';
+import { logger } from '../utils/logger';
 
 export const data = {
     name: 'reminders',
@@ -12,10 +12,15 @@ export const execute = async (client: Bot) => {
     const reminders = await remindersModel.find().sort({ timeEnd: 'asc' });
     if(reminders.length === 0) return;
 
-    const { reminderId, timeEnd } = reminders[0];
+    const { reminderId, userId, timeEnd } = reminders[0];
     if(Date.now() < timeEnd) return;
 
-    await Reminders.send(client, reminderId).catch(error => {
-        throw new JobError(error.message);
-    });
+    const result = await Reminders.send(client, reminderId).catch((error: Error) => error);
+    if(result instanceof Error) {
+        logger.warn(`Reminders job - ${result.message}.`);
+        return;
+    }
+
+    const user = await client.users.fetch(userId);
+    logger.info(`Reminders job notified \`${user.tag}\` regarding reminder \`${reminderId}\`.`)
 }
