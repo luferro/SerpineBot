@@ -5,7 +5,8 @@ import { Review } from '../types/responses';
 
 export const search = async (title: string) => {
     const results = await Google.search(`${title} opencritic review`);
-    return results[0]?.url.match(/\d+/g)?.[0];
+    const filteredResults = results.filter(item => item.url.includes('https://opencritic.com'));
+    return filteredResults[0]?.url.match(/\d+/g)?.[0];
 }
 
 export const getReviewById = async (id: string) => {
