@@ -15,10 +15,10 @@ export const remove = async (userId: string) => {
 
 export const send = async (guild: Guild, channelId: string, userId: string, birthday: string) => {
     const target = await guild.members.fetch(userId);
-    if(!target) throw new Error(`Birthdays: Couldn't find a target with userId ${userId} in guild ${guild.name}.`);
+    if(!target) throw new Error(`Couldn't find a target with userId ${userId} in guild ${guild.name}.`);
 
     const channel = await guild.channels.fetch(channelId) as TextChannel | null;
-    if(!channel) throw new Error(`Birthdays: Couldn't find a channel with channelId ${channelId} in guild ${guild.name}.`);
+    if(!channel) throw new Error(`Couldn't find a channel with channelId ${channelId} in guild ${guild.name}.`);
 
     const { 0: year, 1: month, 2: day } = birthday.split('-').map(Number);
     const dateDiff = Date.now() - new Date(year, month - 1, day).getTime();
