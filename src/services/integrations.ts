@@ -1,7 +1,7 @@
 import * as Steam from '../apis/steam';
 import { steamModel } from '../database/models/steam';
 
-export const addIntegration = async (userId: string, url: string) => {
+export const create = async (userId: string, url: string) => {
     const integration = await steamModel.findOne({ userId });
     if(integration) throw new Error('A Steam integration is already in place.');
 
@@ -30,7 +30,7 @@ export const addIntegration = async (userId: string, url: string) => {
     await steamModel.updateOne({ userId }, { $set: integrationInfo }, { upsert: true });
 }
 
-export const syncIntegration = async (userId: string) => {
+export const sync = async (userId: string) => {
     const integration = await steamModel.findOne({ userId });
     if(!integration) throw new Error('No Steam integration is in place.');
 
@@ -49,14 +49,14 @@ export const syncIntegration = async (userId: string) => {
     await steamModel.updateOne({ userId }, { $set: { 'wishlist.items': wishlistItems } });
 }
 
-export const deleteIntegration = async (userId: string) => {
+export const remove = async (userId: string) => {
     const integration = await steamModel.findOne({ userId });
     if(!integration) throw new Error('No Steam integration is in place.');
 
     await steamModel.deleteOne({ userId });
 }
 
-export const updateNotifications = async (userId: string, notifications: boolean) => {
+export const notifications = async (userId: string, notifications: boolean) => {
     const integration = await steamModel.findOne({ userId });
     if(!integration) throw new Error('No Steam integration is in place.');
 
