@@ -101,5 +101,5 @@ const assignRole = async (interaction: ButtonInteraction) => {
             .setColor('RANDOM')
     ], ephemeral: true });
 
-    logger.info(`Roles collector \`${status}\` role \`${role.name}\` to \`${member.user.tag}\`.`);
+    logger.info(`Roles collector \`${status}\` role \`${role.name}\` ${hasRole ? 'from' : 'to'} \`${member.user.tag}\` in guild ${interaction.guild?.name}.`);
 }
