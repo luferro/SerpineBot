@@ -14,48 +14,46 @@ export const data = {
 export const execute = async (client: Bot) => {
     const categories: (BlogCategories | DealCategories)[] = ['bundles', 'free games', 'paid games', 'prime gaming', 'sales'];
     for(const category of categories) {
-        if(category === 'free games' || category === 'paid games') {
-            const latestDeals = await Deals.getLatestDeals(category);
-            if(latestDeals.length === 0) continue;
-
-            for(const deal of latestDeals.reverse()) {
-                const { title, url, image, store, discount, regular, discounted, coupon } = deal;
-
-                const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
-                if(hasEntry) continue;
-
-                const message = new MessageEmbed()
-                    .setTitle(title)
-                    .setURL(url)
-                    .setThumbnail(image ?? '')
-                    .setDescription(`${discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''} **${discounted}** @ **${store}**`)
-                    .setColor('RANDOM');
-
-                if(category === 'paid games' && coupon) message.addField('Store coupon', `*${coupon}*`);
-
-                for(const [guildId, guild] of client.guilds.cache) {
-                    const webhook = await getWebhook(client, guildId, category);
-                    if(!webhook) continue;
-        
-                    await webhook.send({ embeds: [message]});
-                }
-
-                await SleepUtil.timeout(5000);
-            }
-        }
-        else {
+        if(category !== 'free games' && category !== 'paid games') {
             const { title, url, lead, image } = await Deals.getLatestBlogNews(category);
             if(!title || !url) continue;
+    
+            const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
+            if(hasEntry) continue;
+    
+            for(const [guildId, guild] of client.guilds.cache) {
+                const webhook = await getWebhook(client, guildId, category);
+                if(!webhook) continue;
+    
+                await webhook.send({ embeds: [
+                    new MessageEmbed()
+                        .setTitle(StringUtil.truncate(title))
+                        .setURL(url)
+                        .setThumbnail(image ?? '')
+                        .setDescription(lead ?? 'N/A')
+                        .setColor('RANDOM')
+                ]});
+            }
+
+            continue;
+        }
+
+        const latestDeals = await Deals.getLatestDeals(category);
+        for(const deal of latestDeals.reverse()) {
+            await SleepUtil.timeout(5000);
+            const { title, url, image, store, discount, regular, discounted, coupon } = deal;
 
             const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
             if(hasEntry) continue;
 
             const message = new MessageEmbed()
-                .setTitle(StringUtil.truncate(title))
+                .setTitle(title)
                 .setURL(url)
                 .setThumbnail(image ?? '')
-                .setDescription(lead ?? 'N/A')
-                .setColor('RANDOM')
+                .setDescription(`${discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''} **${discounted}** @ **${store}**`)
+                .setColor('RANDOM');
+                
+            if(category === 'paid games' && coupon) message.addField('Store coupon', `*${coupon}*`);
 
             for(const [guildId, guild] of client.guilds.cache) {
                 const webhook = await getWebhook(client, guildId, category);
