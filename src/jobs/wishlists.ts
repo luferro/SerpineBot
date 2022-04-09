@@ -33,7 +33,7 @@ export const execute = async (client: Bot) => {
 
             for(const [subscription, isInSubscription] of Object.entries(item.subscriptions)) {
                 if(!storedItem) break;
-                const [storedSubscription, isInStoredSubscription] = Object.entries(storedItem.subscriptions).find(([key, value]) => key === subscription)!;
+                const { 1: isInStoredSubscription } = Object.entries(storedItem.subscriptions).find(([key, value]) => key === subscription)!;
 
                 if(!isInStoredSubscription && isInSubscription) alert.addedTo.push(`> • **${subscription.replace(/_/g, ' ').toUpperCase()}**`);
                 if(isInStoredSubscription && !isInSubscription) alert.removedFrom.push(`> • **${subscription.replace(/_/g, ' ').toUpperCase()}**`);
@@ -49,7 +49,7 @@ export const execute = async (client: Bot) => {
                 removedFromSubscriptionAlerts?.push(alert) ?? wishlistAlerts.set('subscriptions.removed', [alert]);
             }
 
-            if(!storedItem?.released && item.released) {
+            if(storedItem && !storedItem.released && item.released) {
                 const releasedAlerts = wishlistAlerts.get('released');
                 releasedAlerts?.push(alert) ?? wishlistAlerts.set('released', [alert]);
 
