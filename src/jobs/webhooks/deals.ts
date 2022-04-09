@@ -21,20 +21,14 @@ export const execute = async (client: Bot) => {
             const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
             if(hasEntry) continue;
     
-            for(const [guildId, guild] of client.guilds.cache) {
-                const webhook = await getWebhook(client, guildId, category);
-                if(!webhook) continue;
-    
-                await webhook.send({ embeds: [
-                    new MessageEmbed()
-                        .setTitle(StringUtil.truncate(title))
-                        .setURL(url)
-                        .setThumbnail(image ?? '')
-                        .setDescription(lead ?? 'N/A')
-                        .setColor('RANDOM')
-                ]});
-            }
+            const message = new MessageEmbed()
+                .setTitle(StringUtil.truncate(title))
+                .setURL(url)
+                .setThumbnail(image ?? '')
+                .setDescription(lead ?? 'N/A')
+                .setColor('RANDOM');
 
+            await sendMessage(client, category, message);
             continue;
         }
 
@@ -52,15 +46,10 @@ export const execute = async (client: Bot) => {
                 .setThumbnail(image ?? '')
                 .setDescription(`${discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''} **${discounted}** @ **${store}**`)
                 .setColor('RANDOM');
-                
+
             if(category === 'paid games' && coupon) message.addField('Store coupon', `*${coupon}*`);
 
-            for(const [guildId, guild] of client.guilds.cache) {
-                const webhook = await getWebhook(client, guildId, category);
-                if(!webhook) continue;
-    
-                await webhook.send({ embeds: [message]});
-            }
+            await sendMessage(client, category, message);
         }
     }
 }
@@ -74,4 +63,13 @@ const getWebhook = async (client: Bot, guildId: string, category: BlogCategories
         'free games': () => Webhooks.getWebhook(client, guildId, 'Free Games')
     }
     return await options[category]();
+}
+
+const sendMessage = async (client: Bot, category: BlogCategories | DealCategories, message: MessageEmbed) => {
+    for(const [guildId, guild] of client.guilds.cache) {
+        const webhook = await getWebhook(client, guildId, category);
+        if(!webhook) continue;
+
+        await webhook.send({ embeds: [message]});
+    }
 }
