@@ -27,6 +27,9 @@ export const execute = async (client: Bot) => {
 
     for(const article of latestArticles.reverse()) {
         const { source: { name }, author, title, description, content, publishedAt, url, urlToImage } = article;
+        const image = urlToImage && !/^http(s?)/g.test(urlToImage)
+            ? 'https'.concat(urlToImage)
+            : urlToImage;
 
         for(const [guildId, guild] of client.guilds.cache) {
             const webhook = await Webhooks.getWebhook(client, guildId, 'World News');
@@ -37,7 +40,7 @@ export const execute = async (client: Bot) => {
                     .setAuthor({ name: name ?? author ?? 'N/A' })
                     .setTitle(StringUtil.truncate(title))
                     .setURL(url)
-                    .setThumbnail(urlToImage ?? '')
+                    .setThumbnail(image ?? '')
                     .setDescription(content ?? description ?? 'N/A')
                     .setTimestamp(new Date(publishedAt))
                     .setColor('RANDOM')
