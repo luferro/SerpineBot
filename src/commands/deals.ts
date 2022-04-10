@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
-import * as Deals from '../apis/deals';
+import * as GGDeals from '../apis/ggDeals';
 import * as Subscriptions from '../services/subscriptions';
 
 export const data = {
@@ -15,10 +15,10 @@ export const data = {
 export const execute = async (interaction: CommandInteraction) => {
     const game = interaction.options.getString('game')!;
 
-    const id = await Deals.search(game);
+    const id = await GGDeals.search(game);
     if(!id) return await interaction.reply({ content: `Couldn't find a match for ${game}.`, ephemeral: true });
 
-    const { name, image, historicalLows, officialStores, keyshops, coupons } = await Deals.getDealById(id);
+    const { name, image, historicalLows, officialStores, keyshops, coupons } = await GGDeals.getDealById(id);
     
     const subscriptions = await Subscriptions.getGamingSubscriptions(name);
     const formattedSubscriptions = subscriptions.map(item => `**${item.name}**`);

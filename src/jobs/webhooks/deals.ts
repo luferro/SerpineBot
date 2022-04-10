@@ -1,6 +1,6 @@
 import { MessageEmbed } from 'discord.js';
 import { Bot } from '../../bot';
-import * as Deals from '../../apis/deals';
+import * as GGDeals from '../../apis/ggDeals';
 import * as Webhooks from '../../services/webhooks';
 import { BlogCategories, DealCategories } from '../../types/categories';
 import * as StringUtil from '../../utils/string';
@@ -15,7 +15,7 @@ export const execute = async (client: Bot) => {
     const categories: (BlogCategories | DealCategories)[] = ['bundles', 'free games', 'paid games', 'prime gaming', 'sales'];
     for(const category of categories) {
         if(category !== 'free games' && category !== 'paid games') {
-            const { title, url, lead, image } = await Deals.getLatestBlogNews(category);
+            const { title, url, lead, image } = await GGDeals.getLatestBlogNews(category);
             if(!title || !url) continue;
     
             const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
@@ -32,7 +32,7 @@ export const execute = async (client: Bot) => {
             continue;
         }
 
-        const latestDeals = await Deals.getLatestDeals(category);
+        const latestDeals = await GGDeals.getLatestDeals(category);
         for(const deal of latestDeals.reverse()) {
             await SleepUtil.timeout(5000);
             const { title, url, image, store, discount, regular, discounted, coupon } = deal;
