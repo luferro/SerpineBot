@@ -8,7 +8,7 @@ export const search = async (title: string) => {
 
 export const getMangaById = async (id: string) => {
     const data = await fetch<Manga>(`https://api.mangadex.org/manga/${id}?includes[]=cover_art`);
-    const { attributes: { title: { en, ja, jp, "ja-ro": romaji } }, relationships } = data.data;
+    const { attributes: { title: { en, ja, jp, 'ja-ro': romaji } }, relationships } = data.data;
 
     const coverArt = relationships.find(item => item.type === 'cover_art')!;
     const image = coverArt ? `https://uploads.mangadex.org/covers/${id}/${coverArt.attributes!.fileName}` : null;
