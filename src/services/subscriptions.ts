@@ -40,7 +40,7 @@ export const getStreamingSubscriptions = async (title: string, category: TheMovi
             const { 1: entryName, 2: subscriptionName } = regexMatch;
 
             const url = $(element).find('.providers a').attr('href')!;
-            const destinationUrl = await getSubscriptionUrl(url);
+            const destinationUrl = await UrlUtil.getRedirectLocation(url);
 
             return {
                 name: subscriptionName,
@@ -53,16 +53,4 @@ export const getStreamingSubscriptions = async (title: string, category: TheMovi
     );
 
     return subscriptions.filter((item): item is NonNullable<typeof item> => !!item);
-}
-
-const getSubscriptionUrl = async (url: string) => {
-    const location = await UrlUtil.getRedirectLocation(url);
-    if(!location.includes('?')) return location;
-    
-    const params = new URL(location).searchParams;
-    for(const [param, value] of params) {
-        if(!UrlUtil.isUrl(value)) continue;
-
-        return value;
-    }
 }
