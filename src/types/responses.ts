@@ -54,7 +54,7 @@ export interface Manga {
                 en: string;
                 ja: string;
                 jp: string;
-                'ja-ro': string; 
+                'ja-ro': string;
             };
         };
         relationships: Relationship[];
