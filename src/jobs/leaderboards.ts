@@ -32,6 +32,6 @@ export const execute = async (client: Bot) => {
                 .setColor('RANDOM')
         ]});
 
-        logger.info(`Leaderboards job sent a message to channel \`${channel.name}\` in guild \`${guild.name}\`.`);
+        logger.info(`Leaderboards job sent a message to channel \`${channelId}\` in guild \`${guild.name}\`.`);
     }
 }

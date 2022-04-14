@@ -11,5 +11,5 @@ export const register = async (client: Bot) => {
         client.jobs.set(job.data.name, job);
     }
 
-    logger.info(`Jobs handler registered \`${files.length}\` jobs.`);
+    logger.info(`Jobs handler registered \`${files.length}\` job(s).`);
 }

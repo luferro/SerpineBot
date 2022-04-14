@@ -12,7 +12,7 @@ export const register = async (client: Bot) => {
         client.commands.set(command.data.name, command);
     }
 
-    logger.info(`Commands handler registered \`${files.length}\` commands.`);
+    logger.info(`Commands handler registered \`${files.length}\` command(s).`);
 }
 
 export const deploy = async (client: Bot) => {
@@ -35,6 +35,6 @@ export const deploy = async (client: Bot) => {
             });
         }
 
-        logger.info(`Commands handler deployed \`${guildCommands.size}\` slash commands to guild \`${guild.name}\`.`);
+        logger.info(`Commands handler deployed \`${guildCommands.size}\` slash command(s) to guild \`${guild.name}\`.`);
     }
 }
