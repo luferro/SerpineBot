@@ -56,10 +56,10 @@ export const execute = async (client: Bot | Client) => {
         
         if(!rolesMessage) await channel.send({ embeds: [message], components });
         else await rolesMessage.edit({ embeds: [message], components });
+
+        logger.info(`Roles job sent a message to channel \`${channelId}\` in guild \`${guild.name}\`.`);
         
         await handleCollector(channel);
-
-        logger.info(`Roles job sent a message to \`${channelId}\` in guild \`${guild.name}\`.`);
     }
 }
 
