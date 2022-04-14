@@ -2,6 +2,7 @@ import { Guild } from 'discord.js';
 import { Bot } from '../bot';
 import * as CommandsHandler from '../handlers/commands';
 import { settingsModel } from '../database/models/settings';
+import { logger } from '../utils/logger';
 
 export const data = {
     name: 'guildCreate',
@@ -29,4 +30,6 @@ export const execute = async (client: Bot, guild: Guild) => {
     }
 
     await settingsModel.updateOne({ guildId: guild.id }, { $set: guildInfo }, { upsert: true });
+
+    logger.info(`SerpineBot has joined guild \`${guild.name}\`.`);
 }
