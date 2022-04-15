@@ -12,6 +12,7 @@ import { Command, Event, Job, Music } from './types/bot';
 import { DatabaseError } from './errors/databaseError';
 import { EnvironmentError } from './errors/environmentError';
 import { stateModel } from './database/models/state';
+import { FetchError } from './errors/fetchError';
 
 export class Bot extends Client {
     public music: Collection<string, Music> = new Collection();
@@ -79,11 +80,17 @@ export class Bot extends Client {
     }
 
     private errorHandler = (error: unknown) => {
-        logger.error(error);
+        const isFetchError = error instanceof FetchError;
+        if(isFetchError) {
+            logger.warn(error.message);
+            return;
+        }
 
         const isDatabaseError = error instanceof DatabaseError;
         const isEnvironmentError = error instanceof EnvironmentError;
         if(isDatabaseError || isEnvironmentError) this.stop();
+
+        logger.error(error);
     }
 
     public stop = () => {
