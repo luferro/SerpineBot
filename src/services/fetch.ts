@@ -1,5 +1,6 @@
 import { request } from 'undici';
 import UserAgent from 'user-agents';
+import { FetchError } from '../errors/fetchError';
 import { HttpMethods } from '../types/categories';
 
 export const fetch = async <T> (url: string | URL, method: HttpMethods = 'GET', body?: URLSearchParams | string): Promise<T> => {
@@ -14,10 +15,8 @@ export const fetch = async <T> (url: string | URL, method: HttpMethods = 'GET', 
 
     if(res.statusCode >= 400) {
         await res.body.dump();
-        throw new Error(`\`${method}\` request to \`${url}\` failed. Status code: \`${res.statusCode}\`.`);
+        throw new FetchError(`\`${method}\` request to \`${url}\` failed. Status code: \`${res.statusCode}\`.`);
     }
 
-    return res.headers['content-type']?.includes('application/json')
-        ? await res.body.json()
-        : await res.body.text();
+    return res.headers['content-type']?.includes('application/json') ? await res.body.json() : await res.body.text();
 }
