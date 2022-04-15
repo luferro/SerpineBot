@@ -13,7 +13,7 @@ export const execute = async (client: Bot, interaction: CommandInteraction) => {
     const command = client.commands.get(interaction.commandName);
     if(!command) return;
 
-    logger.info(`User \`${interaction.user.tag}\` used interaction \`${`/${interaction.commandName} ${interaction.options.getSubcommand(false) ?? ''}`.trim()}\`.`);
+    logger.info(`User \`${interaction.user.tag}\` used interaction \`${`/${interaction.commandName} ${interaction.options.getSubcommand(false) ?? ''}`.trim()}\` in guild \`${interaction.guild!.name}\`.`);
 
     if(command.data.client) return await command.execute(client, interaction);
     await command.execute(interaction);
