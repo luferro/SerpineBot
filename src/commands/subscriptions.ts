@@ -12,9 +12,11 @@ export const data = {
         .setName('subscriptions')
         .setDescription('Subscription services related commands.')
         .addStringOption(option => option.setName('category').setDescription('Media category.').setRequired(true)
-            .addChoice('Games', 'gaming')
-            .addChoice('TV', 'tv')
-            .addChoice('Movies', 'movie')
+            .addChoices(
+                { name: 'Games', value: 'gaming' },
+                { name: 'TV', value: 'tv' },
+                { name: 'Movies', value: 'movie' }
+            )
         )
         .addStringOption(option => option.setName('media').setDescription('Media title').setRequired(true))
 }

@@ -12,13 +12,15 @@ export const data = {
         .addSubcommand(subcommand => subcommand.setName('create').setDescription('Creates a reminder.')
             .addIntegerOption(option => option.setName('time').setDescription('In how much time you want to be reminded of your message.').setRequired(true))
             .addStringOption(option => option.setName('unit').setDescription('Time unit.').setRequired(true)
-                .addChoice('Seconds', 'seconds')
-                .addChoice('Minutes', 'minutes')
-                .addChoice('Hours', 'hours')
-                .addChoice('Days', 'days')
-                .addChoice('Weeks', 'weeks')
-                .addChoice('Months', 'months')
-                .addChoice('Years', 'years')
+                .addChoices(
+                    { name: 'Seconds', value: 'seconds' },
+                    { name: 'Minutes', value: 'minutes' },
+                    { name: 'Hours', value: 'hours' },
+                    { name: 'Days', value: 'days' },
+                    { name: 'Weeks', value: 'weeks' },
+                    { name: 'Months', value: 'months' },
+                    { name: 'Years', value: 'years' }
+                )
             )
             .addStringOption(option => option.setName('message').setDescription('Message you want to be reminded of.').setRequired(true))
         )

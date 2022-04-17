@@ -1,4 +1,4 @@
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice';
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, DiscordGatewayAdapterCreator, joinVoiceChannel } from '@discordjs/voice';
 import { GuildMember, VoiceBasedChannel } from 'discord.js';
 import * as ytdl from 'play-dl';
 import { Bot } from '../bot';
@@ -39,7 +39,7 @@ export const join = (guildId: string, member: GuildMember) => {
     const subscription = {
         player: createAudioPlayer(),
 		resource: null,
-		connection: joinVoiceChannel({ channelId: voiceChannel.id, guildId: voiceChannel.guild.id, adapterCreator: voiceChannel.guild.voiceAdapterCreator }),
+		connection: joinVoiceChannel({ channelId: voiceChannel.id, guildId: voiceChannel.guild.id, adapterCreator: voiceChannel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator }),
 		playing: false,
 		looping: false,
 		queue: [] as QueueItem[]

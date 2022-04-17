@@ -13,35 +13,39 @@ export const data = {
         .setDefaultPermission(false)
         .addSubcommand(subcommand => subcommand.setName('create').setDescription('Create a webhook and assign it to a text channel.')
             .addStringOption(option => option.setName('category').setDescription('Webhook category.').setRequired(true)
-                .addChoice('NSFW', 'NSFW')
-                .addChoice('Memes', 'Memes')
-                .addChoice('Anime', 'Anime')
-                .addChoice('Manga', 'Manga')
-                .addChoice('World News', 'World News')
-                .addChoice('Gaming News', 'Gaming News')
-                .addChoice('Reviews', 'Reviews')
-                .addChoice('Deals', 'Deals')
-                .addChoice('Free Games', 'Free Games')
-                .addChoice('Xbox', 'Xbox')
-                .addChoice('Playstation', 'Playstation')
-                .addChoice('Nintendo', 'Nintendo')
+                .addChoices(
+                    { name: 'NSFW', value: 'NSFW' },
+                    { name: 'Memes', value: 'Memes' },
+                    { name: 'Anime', value: 'Anime' },
+                    { name: 'Manga', value: 'Manga' },
+                    { name: 'World News', value: 'World News' },
+                    { name: 'Gaming News', value: 'Gaming News' },
+                    { name: 'Reviews', value: 'Reviews' },
+                    { name: 'Deals', value: 'Deals' },
+                    { name: 'Free Games', value: 'Free Games' },
+                    { name: 'Xbox', value: 'Xbox' },
+                    { name: 'Playstation', value: 'Playstation' },
+                    { name: 'Nintendo', value: 'Nintendo' }
+                )
             )
             .addChannelOption(option => option.setName('channel').setDescription('Text channel to receive webhook content.').setRequired(true))
         )
         .addSubcommand(subcommand => subcommand.setName('delete').setDescription('Delete a webhook.')
             .addStringOption(option => option.setName('category').setDescription('Webhook category.').setRequired(true)
-                .addChoice('NSFW', 'NSFW')
-                .addChoice('Memes', 'Memes')
-                .addChoice('Anime', 'Anime')
-                .addChoice('Manga', 'Manga')
-                .addChoice('World News', 'World News')
-                .addChoice('Gaming News', 'Gaming News')
-                .addChoice('Reviews', 'Reviews')
-                .addChoice('Deals', 'Deals')
-                .addChoice('Free Games', 'Free Games')
-                .addChoice('Xbox', 'Xbox')
-                .addChoice('Playstation', 'Playstation')
-                .addChoice('Nintendo', 'Nintendo')
+                .addChoices(
+                    { name: 'NSFW', value: 'NSFW' },
+                    { name: 'Memes', value: 'Memes' },
+                    { name: 'Anime', value: 'Anime' },
+                    { name: 'Manga', value: 'Manga' },
+                    { name: 'World News', value: 'World News' },
+                    { name: 'Gaming News', value: 'Gaming News' },
+                    { name: 'Reviews', value: 'Reviews' },
+                    { name: 'Deals', value: 'Deals' },
+                    { name: 'Free Games', value: 'Free Games' },
+                    { name: 'Xbox', value: 'Xbox' },
+                    { name: 'Playstation', value: 'Playstation' },
+                    { name: 'Nintendo', value: 'Nintendo' }
+                )
             )
         )
 }

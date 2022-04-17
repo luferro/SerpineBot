@@ -1,4 +1,4 @@
-import { Permissions } from 'discord.js';
+import { ApplicationCommandDataResolvable, Permissions } from 'discord.js';
 import path from 'path';
 import { Bot } from '../bot';
 import * as FilesUtil from '../utils/files';
@@ -20,7 +20,7 @@ export const deploy = async (client: Bot) => {
         const users = await guild.members.fetch();
         const administrator = users.find(item => item.permissions.has(Permissions.FLAGS.ADMINISTRATOR))!;
 
-        const slashCommands = Bot.commands.map(item => item.data.slashCommand.toJSON());
+        const slashCommands = Bot.commands.map(item => item.data.slashCommand.toJSON()) as ApplicationCommandDataResolvable[];
         const guildCommands = await guild.commands.set(slashCommands);
         for(const [guildCommandId, guildCommand] of guildCommands) {
             if(guildCommand.defaultPermission) continue;

@@ -10,9 +10,11 @@ export const data = {
 		.setName('jokes')
 		.setDescription('Returns a random joke.')
 		.addStringOption(option => option.setName('category').setDescription('Joke category.').setRequired(true)
-			.addChoice('Dark Joke', 'dark')
-			.addChoice('Programming Joke', 'programming')
-			.addChoice('Miscellaneous Joke', 'miscellaneous')
+			.addChoices(
+				{ name: 'Dark Joke', value: 'dark' },
+				{ name: 'Programming Joke', value: 'programming' },
+				{ name: 'Miscellaneous Joke', value: 'miscellaneous' }
+			)
 		)
 }
 

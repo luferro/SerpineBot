@@ -10,14 +10,16 @@ export const data = {
         .setName('comics')
         .setDescription('Returns a random comic.')
         .addStringOption(option => option.setName('category').setDescription('Comic category.').setRequired(true)
-            .addChoice('Garfield', 'garfield')
-            .addChoice('Peanuts', 'peanuts')
-            .addChoice('Get Fuzzy', 'get fuzzy')
-            .addChoice('Fowl Language', 'fowl language')
-            .addChoice('Calvin and Hobbes', 'calvin and hobbes')
-            .addChoice('Jake Likes Onions', 'jake likes onions')
-            .addChoice('Sarah\'s Scribbles', 'sarahs scribbles')
-            .addChoice('Worry Lines', 'worry lines')
+            .addChoices(
+                { name: 'Garfield', value: 'garfield' },
+                { name: 'Peanuts', value: 'peanuts' },
+                { name: 'Get Fuzzy', value: 'get fuzzy' },
+                { name: 'Fowl Language', value: 'fowl language' },
+                { name: 'Calvin and Hobbes', value: 'calvin and hobbes' },
+                { name: 'Jake Likes Onions', value: 'jake likes onions' },
+                { name: 'Sarah\'s Scribbles', value: 'sarahs scribbles' },
+                { name: 'Worry Lines', value: 'worry lines' }
+            )
         )
 }
 

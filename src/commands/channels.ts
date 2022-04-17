@@ -14,8 +14,10 @@ export const data = {
         .addSubcommand(subcommand => subcommand.setName('create').setDescription('Create a guild channel.')
             .addStringOption(option => option.setName('name').setDescription('Channel name.').setRequired(true))
             .addStringOption(option => option.setName('type').setDescription('Whether it should be a text or voice channel.').setRequired(true)
-                .addChoice('Text Channel', 'GUILD_TEXT')
-                .addChoice('Voice Channel', 'GUILD_VOICE')
+                .addChoices(
+                    { name: 'Text Channel', value: 'GUILD_TEXT' },
+                    { name: 'Voice Channel', value: 'GUILD_VOICE' }
+                )
             )
             .addStringOption(option => option.setName('topic').setDescription('Topic of the text channel.'))
             .addBooleanOption(option => option.setName('nsfw').setDescription('Whether the channel is NSFW.'))
@@ -31,17 +33,21 @@ export const data = {
         )
         .addSubcommand(subcommand => subcommand.setName('assign').setDescription('Assign a bot message to a text channel.')
             .addStringOption(option => option.setName('category').setDescription('Message category.').setRequired(true)
-                .addChoice('Roles', 'ROLES_MESSAGE')
-                .addChoice('Leaderboards', 'LEADERBOARDS_MESSAGE')
-                .addChoice('Birthdays', 'BIRTHDAYS_MESSAGE')
+                .addChoices(
+                    { name: 'Roles', value: 'GUILD_TEXT' },
+                    { name: 'Leaderboards', value: 'LEADERBOARDS_MESSAGE' },
+                    { name: 'Birthdays', value: 'BIRTHDAYS_MESSAGE' }
+                )
             )
             .addChannelOption(option => option.setName('channel').setDescription('Text channel to receive bot message.').setRequired(true))
         )
         .addSubcommand(subcommand => subcommand.setName('dissociate').setDescription('Dissociate a bot message from a text channel.')
             .addStringOption(option => option.setName('category').setDescription('Message category.').setRequired(true)
-                .addChoice('Roles', 'ROLES_MESSAGE')
-                .addChoice('Leaderboards', 'LEADERBOARDS_MESSAGE')
-                .addChoice('Birthdays', 'BIRTHDAYS_MESSAGE')
+                .addChoices(
+                    { name: 'Roles', value: 'GUILD_TEXT' },
+                    { name: 'Leaderboards', value: 'LEADERBOARDS_MESSAGE' },
+                    { name: 'Birthdays', value: 'BIRTHDAYS_MESSAGE' }
+                )
             )
             .addChannelOption(option => option.setName('channel').setDescription('Text channel which has the bot message assigned.').setRequired(true))
         )
