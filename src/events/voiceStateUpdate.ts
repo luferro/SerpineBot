@@ -9,5 +9,5 @@ export const data = {
 export const execute = async (client: Bot, oldState: VoiceState, newState: VoiceState) => {
     const isSelf = oldState.guild.me?.user.id === oldState.member?.user.id;
     const isStillInVoiceChannel = newState.channel?.isVoice();
-    if(isSelf && !isStillInVoiceChannel) client.music.delete(newState.guild.id);
+    if(isSelf && !isStillInVoiceChannel) Bot.music.delete(newState.guild.id);
 }

@@ -5,11 +5,11 @@ import * as FilesUtil from '../utils/files';
 import { Command } from '../types/bot';
 import { logger } from '../utils/logger';
 
-export const register = async (client: Bot) => {
+export const register = async () => {
     const files = FilesUtil.getFiles(path.resolve(__dirname, '../commands'));
     for(const file of files) {
         const command: Command = await import(`../commands/${file}`);
-        client.commands.set(command.data.name, command);
+        Bot.commands.set(command.data.name, command);
     }
 
     logger.info(`Commands handler registered \`${files.length}\` command(s).`);
@@ -20,7 +20,7 @@ export const deploy = async (client: Bot) => {
         const users = await guild.members.fetch();
         const administrator = users.find(item => item.permissions.has(Permissions.FLAGS.ADMINISTRATOR))!;
 
-        const slashCommands = client.commands.map(item => item.data.slashCommand.toJSON());
+        const slashCommands = Bot.commands.map(item => item.data.slashCommand.toJSON());
         const guildCommands = await guild.commands.set(slashCommands);
         for(const [guildCommandId, guildCommand] of guildCommands) {
             if(guildCommand.defaultPermission) continue;

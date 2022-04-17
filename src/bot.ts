@@ -15,10 +15,10 @@ import { stateModel } from './database/models/state';
 import { FetchError } from './errors/fetchError';
 
 export class Bot extends Client {
-    public music: Collection<string, Music> = new Collection();
-    public commands: Collection<string, Command> = new Collection();
-    public events: Collection<string, Event> = new Collection();
-    public jobs: Collection<string, Job> = new Collection();
+    public static music: Collection<string, Music> = new Collection();
+    public static commands: Collection<string, Command> = new Collection();
+    public static events: Collection<string, Event> = new Collection();
+    public static jobs: Collection<string, Job> = new Collection();
 
     constructor(options: ClientOptions) {
         super(options);
@@ -41,13 +41,13 @@ export class Bot extends Client {
     }
 
     private register = async () => {
-        await JobsHandler.register(this);
-        await EventsHandler.register(this);
-        await CommandsHandler.register(this);
+        await JobsHandler.register();
+        await EventsHandler.register();
+        await CommandsHandler.register();
     }
 
     private startListeners = () => {
-        for(const [name, event] of this.events.entries()) {
+        for(const [name, event] of Bot.events.entries()) {
             this[event.data.once ? 'once' : 'on'](name, async (...args: unknown[]) =>
                 await event.execute(this, ...args).catch(this.errorHandler)
             );
@@ -57,7 +57,7 @@ export class Bot extends Client {
     }
 
     private startJobs = () => {
-        for(const [name, job] of this.jobs.entries()) {
+        for(const [name, job] of Bot.jobs.entries()) {
             const cronjob = new CronJob(job.data.schedule, async () =>
                 await job.execute(this).catch(this.errorHandler)
             );
