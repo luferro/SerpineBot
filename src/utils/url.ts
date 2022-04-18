@@ -5,7 +5,7 @@ export const isValid = (string: string) => {
         const url = new URL(string);
         const validProtocol = ['http:', 'https:'].some(item => item === url.protocol);
 
-        return url.host && url.hostname && validProtocol;
+        return Boolean(url.host && url.hostname && validProtocol);
     } catch (error) {
         return false;
     }
