@@ -1,7 +1,9 @@
 import { TimeUnits } from '../types/categories';
 
 export const centsToEuros = (cents: number) => {
-    return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+    return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
+        .format(cents / 100)
+        .replace(String.fromCharCode(160), ' ');
 }
 
 export const minutesToHours = (time: number) => {
@@ -30,8 +32,8 @@ export const timeToMilliseconds = (time: number, unit: TimeUnits) => {
         'hours': time * 1000 * 60 * 60,
         'days': time * 1000 * 60 * 60 * 24,
         'weeks': time * 1000 * 60 * 60 * 24 * 7,
-        'months': time * 1000 * 60 * 60 * 24 * 30,
-        'years': time * 1000 * 60 * 60 * 24 * 30 * 12
+        'months': time * 1000 * 60 * 60 * 24 * 30.4375,
+        'years': time * 1000 * 60 * 60 * 24 * 365.25
     }
 
     return options[unit];
