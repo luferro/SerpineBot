@@ -6,32 +6,34 @@ import { steamModel } from '../database/models/steam';
 import { logger } from '../utils/logger';
 
 export const data = {
-    name: 'leaderboards',
-    schedule: '0 0 0 * * 0'
-}
+	name: 'leaderboards',
+	schedule: '0 0 0 * * 0',
+};
 
 export const execute = async (client: Bot) => {
-    const leaderboard = await Leaderboards.getSteamLeaderboard(client);
-    if(leaderboard.length === 0) return;
+	const leaderboard = await Leaderboards.getSteamLeaderboard(client);
+	if (leaderboard.length === 0) return;
 
-    await steamModel.updateMany({}, { $set: { 'recentlyPlayed.$[].weeklyHours': 0 } });
+	await steamModel.updateMany({}, { $set: { 'recentlyPlayed.$[].weeklyHours': 0 } });
 
-    for(const [guildId, guild] of client.guilds.cache) {
-        const settings = await settingsModel.findOne({ guildId });
-        const channelId = settings?.leaderboards.steam.channelId;
-        if(!channelId) continue;
+	for (const [guildId, guild] of client.guilds.cache) {
+		const settings = await settingsModel.findOne({ guildId });
+		const channelId = settings?.leaderboards.steam.channelId;
+		if (!channelId) continue;
 
-        const channel = await client.channels.fetch(channelId) as TextChannel | null;
-        if(!channel) continue;
+		const channel = (await client.channels.fetch(channelId)) as TextChannel | null;
+		if (!channel) continue;
 
-        await channel.send({ embeds: [
-            new MessageEmbed()
-                .setTitle('Weekly Steam Leaderboard')
-                .setDescription(leaderboard.join('\n'))
-                .setFooter({ text: 'Leaderboard resets every sunday.' })
-                .setColor('RANDOM')
-        ]});
+		await channel.send({
+			embeds: [
+				new MessageEmbed()
+					.setTitle('Weekly Steam Leaderboard')
+					.setDescription(leaderboard.join('\n'))
+					.setFooter({ text: 'Leaderboard resets every sunday.' })
+					.setColor('RANDOM'),
+			],
+		});
 
-        logger.info(`Leaderboards job sent a message to channel \`${channelId}\` in guild \`${guild.name}\`.`);
-    }
-}
+		logger.info(`Leaderboards job sent a message to channel _*${channelId}*_ in guild _*${guild.name}*_.`);
+	}
+};

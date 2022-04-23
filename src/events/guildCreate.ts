@@ -5,31 +5,31 @@ import { settingsModel } from '../database/models/settings';
 import { logger } from '../utils/logger';
 
 export const data = {
-    name: 'guildCreate',
-    once: false
-}
+	name: 'guildCreate',
+	once: false,
+};
 
 export const execute = async (client: Bot, guild: Guild) => {
-    await CommandsHandler.deploy(client);
-    const settings = await settingsModel.findOne({ guildId: guild.id });
-    
-    const guildInfo = {
-        roles: {
-            channelId: settings?.roles.channelId ?? null,
-            options: settings?.roles.options ?? []
-        },
-        birthdays: {
-            channelId: settings?.birthdays.channelId ?? null
-        },
-        leaderboards: {
-            steam: {
-                channelId: settings?.leaderboards.steam.channelId ?? null
-            }
-        },
-        webhooks: settings?.webhooks ?? []
-    }
+	await CommandsHandler.deploy(client);
+	const settings = await settingsModel.findOne({ guildId: guild.id });
 
-    await settingsModel.updateOne({ guildId: guild.id }, { $set: guildInfo }, { upsert: true });
+	const guildInfo = {
+		roles: {
+			channelId: settings?.roles.channelId ?? null,
+			options: settings?.roles.options ?? [],
+		},
+		birthdays: {
+			channelId: settings?.birthdays.channelId ?? null,
+		},
+		leaderboards: {
+			steam: {
+				channelId: settings?.leaderboards.steam.channelId ?? null,
+			},
+		},
+		webhooks: settings?.webhooks ?? [],
+	};
 
-    logger.info(`SerpineBot has joined guild \`${guild.name}\`.`);
-}
+	await settingsModel.updateOne({ guildId: guild.id }, { $set: guildInfo }, { upsert: true });
+
+	logger.info(`SerpineBot has joined guild _*${guild.name}*_.`);
+};

@@ -4,66 +4,87 @@ import * as Reminders from '../services/reminders';
 import { TimeUnits } from '../types/categories';
 
 export const data = {
-    name: 'reminders',
-    client: false,
-    slashCommand: new SlashCommandBuilder()
-        .setName('reminders')
-        .setDescription('Reminder related commands.')
-        .addSubcommand(subcommand => subcommand.setName('create').setDescription('Creates a reminder.')
-            .addIntegerOption(option => option.setName('time').setDescription('In how much time you want to be reminded of your message.').setRequired(true))
-            .addStringOption(option => option.setName('unit').setDescription('Time unit.').setRequired(true)
-                .addChoices(
-                    { name: 'Seconds', value: 'seconds' },
-                    { name: 'Minutes', value: 'minutes' },
-                    { name: 'Hours', value: 'hours' },
-                    { name: 'Days', value: 'days' },
-                    { name: 'Weeks', value: 'weeks' },
-                    { name: 'Months', value: 'months' },
-                    { name: 'Years', value: 'years' }
-                )
-            )
-            .addStringOption(option => option.setName('message').setDescription('Message you want to be reminded of.').setRequired(true))
-        )
-        .addSubcommand(subcommand => subcommand.setName('delete').setDescription('Delete a reminder.')
-            .addStringOption(option => option.setName('id').setDescription('Id of the reminder to be deleted.').setRequired(true))
-        )
-}
+	name: 'reminders',
+	client: false,
+	slashCommand: new SlashCommandBuilder()
+		.setName('reminders')
+		.setDescription('Reminder related commands.')
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('create')
+				.setDescription('Creates a reminder.')
+				.addIntegerOption((option) =>
+					option
+						.setName('time')
+						.setDescription('In how much time you want to be reminded of your message.')
+						.setRequired(true),
+				)
+				.addStringOption((option) =>
+					option
+						.setName('unit')
+						.setDescription('Time unit.')
+						.setRequired(true)
+						.addChoices(
+							{ name: 'Seconds', value: 'seconds' },
+							{ name: 'Minutes', value: 'minutes' },
+							{ name: 'Hours', value: 'hours' },
+							{ name: 'Days', value: 'days' },
+							{ name: 'Weeks', value: 'weeks' },
+							{ name: 'Months', value: 'months' },
+							{ name: 'Years', value: 'years' },
+						),
+				)
+				.addStringOption((option) =>
+					option.setName('message').setDescription('Message you want to be reminded of.').setRequired(true),
+				),
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('delete')
+				.setDescription('Delete a reminder.')
+				.addStringOption((option) =>
+					option.setName('id').setDescription('Id of the reminder to be deleted.').setRequired(true),
+				),
+		),
+};
 
 export const execute = async (interaction: CommandInteraction) => {
-    const subcommand = interaction.options.getSubcommand();
+	const subcommand = interaction.options.getSubcommand();
 
-    const select: Record<string, Function> = {
-        'create': createReminder,
-        'delete': deleteReminder
-    }
+	const select: Record<string, (interaction: CommandInteraction) => Promise<void>> = {
+		create: createReminder,
+		delete: deleteReminder,
+	};
 
-    await select[subcommand](interaction);
-}
+	await select[subcommand](interaction);
+};
 
 const createReminder = async (interaction: CommandInteraction) => {
-    const time = interaction.options.getInteger('time')!;
-    const unit = interaction.options.getString('unit')! as TimeUnits;
-    const message = interaction.options.getString('message')!;
+	const time = interaction.options.getInteger('time')!;
+	const unit = interaction.options.getString('unit')! as TimeUnits;
+	const message = interaction.options.getString('message')!;
 
-    const result = await Reminders.create(interaction.user.id, time, unit, message).catch((error: Error) => error);
-    if(result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const result = await Reminders.create(interaction.user.id, time, unit, message).catch((error: Error) => error);
+	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
 
-    await interaction.reply({ embeds: [
-        new MessageEmbed()
-            .setTitle(`**Reminder ID:** ${result.reminderId}`)
-            .setDescription(`<@${interaction.user.id}>, I'll remind you about **${message}** in *${time} ${unit}*!`)
-            .setColor('RANDOM')
-    ], ephemeral: true });
-}
+	await interaction.reply({
+		embeds: [
+			new MessageEmbed()
+				.setTitle(`**Reminder ID:** ${result.reminderId}`)
+				.setDescription(`<@${interaction.user.id}>, I'll remind you about **${message}** in *${time} ${unit}*!`)
+				.setColor('RANDOM'),
+		],
+		ephemeral: true,
+	});
+};
 
 const deleteReminder = async (interaction: CommandInteraction) => {
-    const reminderId = interaction.options.getString('reminder')!;
+	const reminderId = interaction.options.getString('reminder')!;
 
-    await Reminders.remove(reminderId);
+	await Reminders.remove(reminderId);
 
-    await interaction.reply({ embeds: [
-        new MessageEmbed()
-            .setTitle('Deleted 1 reminder!')
-            .setColor('RANDOM')
-    ], ephemeral: true });
-}
+	await interaction.reply({
+		embeds: [new MessageEmbed().setTitle('Deleted 1 reminder!').setColor('RANDOM')],
+		ephemeral: true,
+	});
+};
