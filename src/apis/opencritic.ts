@@ -5,22 +5,22 @@ import { Review } from '../types/responses';
 
 export const search = async (title: string) => {
 	const results = await Google.search(`${title} opencritic review`);
-	const filteredResults = results.filter((item) => item.url.includes('https://opencritic.com'));
+	const filteredResults = results.filter(({ url }) => url.includes('https://opencritic.com'));
+
 	return filteredResults[0]?.url.match(/\d+/g)?.[0];
 };
 
 export const getReviewById = async (id: string) => {
-	const data = await fetch<Review>(`https://api.opencritic.com/api/game/${id}`);
 	const {
 		name,
-		bannerScreenshot,
-		firstReleaseDate,
+		tier,
+		Platforms,
 		numReviews,
 		topCriticScore,
-		tier,
 		percentRecommended,
-		Platforms,
-	} = data;
+		firstReleaseDate,
+		bannerScreenshot,
+	} = await fetch<Review>(`https://api.opencritic.com/api/game/${id}`);
 
 	return {
 		name,
@@ -31,6 +31,6 @@ export const getReviewById = async (id: string) => {
 		count: numReviews,
 		score: topCriticScore !== -1 ? Math.round(topCriticScore) : null,
 		recommended: percentRecommended !== -1 ? Math.round(percentRecommended) : null,
-		platforms: Platforms.map((platform) => `> ${platform.name}`),
+		platforms: Platforms.map(({ name }) => `> ${name}`),
 	};
 };

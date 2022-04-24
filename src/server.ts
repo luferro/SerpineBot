@@ -14,5 +14,5 @@ import { Bot } from './bot';
 	});
 	client.start();
 
-	process.on('SIGINT', client.stop).on('SIGTERM', client.stop);
+	['SIGINT', 'SIGTERM'].forEach((event) => process.on(event, client.stop));
 })();

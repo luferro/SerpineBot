@@ -13,7 +13,6 @@ export const search = async (query: string) => {
 		.map((element) => {
 			const name = $(element).find('h3').text();
 			const url = $(element).find('a').attr('href')!;
-
 			if (!name && !url) return;
 
 			return {
@@ -21,5 +20,5 @@ export const search = async (query: string) => {
 				url,
 			};
 		})
-		.filter((item): item is NonNullable<typeof item> => !!item);
+		.filter((element): element is NonNullable<typeof element> => !!element);
 };

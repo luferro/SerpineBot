@@ -12,7 +12,10 @@ export const execute = async (client: Bot) => {
 	const reminders = await remindersModel.find().sort({ timeEnd: 'asc' });
 	if (reminders.length === 0) return;
 
-	const { reminderId, userId, timeEnd } = reminders[0];
+	const {
+		0: { reminderId, userId, timeEnd },
+	} = reminders;
+
 	if (Date.now() < timeEnd) return;
 
 	const result = await Reminders.send(client, reminderId).catch((error: Error) => error);

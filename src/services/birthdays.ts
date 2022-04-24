@@ -13,9 +13,9 @@ export const getBirthdays = async (client: Client) => {
 	const birthdays = await birthdaysModel.find();
 
 	return Promise.all(
-		birthdays.map(async (item) => {
-			const { 1: month, 2: day } = item.date.split('-');
-			const user = await client.users.fetch(item.userId);
+		birthdays.map(async ({ userId, date }) => {
+			const { 1: month, 2: day } = date.split('-');
+			const user = await client.users.fetch(userId);
 
 			return {
 				user,

@@ -1,4 +1,4 @@
-import { chromium, Page } from 'playwright-chromium';
+import { chromium, Page, Route } from 'playwright-chromium';
 import * as StringUtil from '../utils/string';
 import { subscriptionsModel } from '../database/models/subscriptions';
 import { GamePassCategories, EAPlayCategories } from '../types/categories';
@@ -27,8 +27,8 @@ export const execute = async () => {
 			await timeout(1000 * 60);
 
 			const page = await context.newPage();
-			await page.route('**/*', (route) => {
-				const hasResource = ['font', 'image'].some((item) => item === route.request().resourceType());
+			await page.route('**/*', (route: Route) => {
+				const hasResource = ['font', 'image'].some((resource) => resource === route.request().resourceType());
 				return hasResource ? route.abort() : route.continue();
 			});
 
@@ -53,16 +53,16 @@ const getGamePass = async (page: Page, category: GamePassCategories) => {
 
 		const data = await page.$$eval('.gameList [itemtype="http://schema.org/Product"]', (elements) => {
 			return elements
-				.map((item) => {
-					const name = item.querySelector('h3')?.textContent;
+				.map((element) => {
+					const name = element.querySelector('h3')?.textContent;
 					if (!name) return;
 
 					return {
 						name,
-						url: item.querySelector('a')?.href,
+						url: element.querySelector('a')?.href,
 					};
 				})
-				.filter((item): item is NonNullable<typeof item> => !!item);
+				.filter((element): element is NonNullable<typeof element> => !!element);
 		});
 		items.push(...data.map((item) => ({ ...item, slug: StringUtil.slug(item.name) })));
 
@@ -105,9 +105,9 @@ const getUbisoftPlus = async (page: Page) => {
 
 	const data = await page.$$eval('.game-list_inner > div', (elements) => {
 		return elements
-			.map((item) => {
-				const shortTitle = item.querySelector('h3.game-short-title')!.textContent!;
-				const longTitle = item.querySelector('h3.game-long-title')!.textContent!;
+			.map((element) => {
+				const shortTitle = element.querySelector('h3.game-short-title')!.textContent!;
+				const longTitle = element.querySelector('h3.game-long-title')!.textContent!;
 				if (!shortTitle && !longTitle) return;
 
 				return {
@@ -115,7 +115,7 @@ const getUbisoftPlus = async (page: Page) => {
 					url: undefined,
 				};
 			})
-			.filter((item): item is NonNullable<typeof item> => !!item);
+			.filter((element): element is NonNullable<typeof element> => !!element);
 	});
 	const items = [...data.map((item) => ({ ...item, slug: StringUtil.slug(item.name) }))];
 
@@ -161,16 +161,16 @@ const getEAPlay = async (page: Page, category: EAPlayCategories) => {
 
 	const data = await page.$$eval('section.origin-gdp-tilelist > ul li[origin-postrepeat]', (elements) => {
 		return elements
-			.map((item) => {
-				const name = item.querySelector('h1.home-tile-header')?.textContent;
+			.map((element) => {
+				const name = element.querySelector('h1.home-tile-header')?.textContent;
 				if (!name) return;
 
 				return {
 					name,
-					url: item.querySelector('a')?.href,
+					url: element.querySelector('a')?.href,
 				};
 			})
-			.filter((item): item is NonNullable<typeof item> => !!item);
+			.filter((element): element is NonNullable<typeof element> => !!element);
 	});
 	const items = [...data.map((item) => ({ ...item, slug: StringUtil.slug(item.name) }))];
 

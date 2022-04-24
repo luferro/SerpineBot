@@ -13,11 +13,11 @@ export const getGamingSubscriptions = async (title: string) => {
 		{ $match: { 'items.slug': { $regex: regex } } },
 	]);
 
-	return subscriptions.map((subscription) => ({
-		name: subscription.name as string,
+	return subscriptions.map(({ name, items }) => ({
+		name: name as string,
 		entry: {
-			name: subscription.items.name as string,
-			url: subscription.items.url as string,
+			name: items.name as string,
+			url: items.url as string,
 		},
 	}));
 };
@@ -60,5 +60,5 @@ export const getStreamingSubscriptions = async (title: string, category: TheMovi
 			}),
 	);
 
-	return subscriptions.filter((item): item is NonNullable<typeof item> => !!item);
+	return subscriptions.filter((subscription): subscription is NonNullable<typeof subscription> => !!subscription);
 };

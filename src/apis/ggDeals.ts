@@ -8,6 +8,7 @@ export const search = async (title: string) => {
 	const $ = load(data);
 
 	const href = $('#games-list .game-list-item a').first().attr('href');
+
 	return href?.match(/\/game\/(.*)\//)?.pop();
 };
 
@@ -38,7 +39,7 @@ export const getDealById = async (id: string) => {
 		const isStored = couponsArray.includes(couponText);
 		if (!isStored) couponsArray.push(couponText);
 
-		const couponIndex = couponsArray.findIndex((item) => item === couponText);
+		const couponIndex = couponsArray.findIndex((storedCouponText) => storedCouponText === couponText);
 		if (couponIndex === -1) return;
 
 		return couponIndex + 1;
@@ -76,15 +77,13 @@ export const getDealById = async (id: string) => {
 			}),
 	);
 
-	const coupons = couponsArray.map((item, index) => `> *(${index + 1}) ${item}*`);
-
 	return {
 		name,
 		image,
 		historicalLows,
 		officialStores,
 		keyshops,
-		coupons,
+		coupons: couponsArray.map((couponText, index) => `> *(${index + 1}) ${couponText}*`),
 	};
 };
 

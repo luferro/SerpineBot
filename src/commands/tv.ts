@@ -17,7 +17,7 @@ export const execute = async (interaction: CommandInteraction) => {
 	const id = await TheMovieDB.search(show, 'tv');
 	if (!id) return await interaction.reply({ content: `Couldn't find a match for ${show}.`, ephemeral: true });
 
-	const { name, tagline, overview, url, status, firstEpisode, nextEpisode, seasons, image, score, runtime, genres } =
+	const { name, description, url, status, firstEpisode, nextEpisode, seasons, image, score, runtime, genres } =
 		await TheMovieDB.getTvShowById(id);
 	const { stream } = await TheMovieDB.getProviders(id, 'tv');
 
@@ -26,12 +26,7 @@ export const execute = async (interaction: CommandInteraction) => {
 			new MessageEmbed()
 				.setTitle(name)
 				.setURL(url)
-				.setDescription(
-					`
-                        ${tagline ? `*${tagline}*` : ''}
-                        \n${overview ? overview : ''}
-                    `,
-				)
+				.setDescription(description)
 				.setThumbnail(image ?? '')
 				.addField('**Status**', status?.toString() ?? 'N/A')
 				.addField('**First Episode**', firstEpisode?.toString() ?? 'N/A', true)
@@ -39,8 +34,8 @@ export const execute = async (interaction: CommandInteraction) => {
 				.addField('**Seasons**', seasons?.toString() ?? 'N/A', true)
 				.addField('**Score**', score?.toString() ?? 'N/A', true)
 				.addField('**Runtime**', runtime?.toString() ?? 'N/A', true)
-				.addField('**Genres**', genres.length > 0 ? genres.join('\n') : 'N/A', true)
-				.addField('**Stream**', stream.length > 0 ? stream.join('\n') : 'N/A')
+				.addField('**Genres**', genres.join('\n') || 'N/A', true)
+				.addField('**Stream**', stream.join('\n') || 'N/A')
 				.setColor('RANDOM'),
 		],
 	});

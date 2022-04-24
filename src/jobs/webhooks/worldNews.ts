@@ -11,32 +11,22 @@ export const data = {
 };
 
 export const execute = async (client: Bot) => {
-	const latestArticles = await NewsAPI.getLatestArticles();
-	if (latestArticles.length === 0) return;
+	const articles = await NewsAPI.getLatestArticles();
+	if (articles.length === 0) return;
 
-	for (const article of latestArticles) {
-		const { title, url } = article;
-
+	for (const { title, url } of articles) {
 		const hasEntry = await client.manageState('World News', 'News', title, url);
 		if (!hasEntry) continue;
 
-		const articleIndex = latestArticles.findIndex((item) => item.title === title && item.url === url);
-		latestArticles.splice(articleIndex);
+		const articleIndex = articles.findIndex(
+			({ title: articleTitle, url: articleUrl }) => articleTitle === title && articleUrl === url,
+		);
+		articles.splice(articleIndex);
 		break;
 	}
 
-	for (const article of latestArticles.reverse()) {
-		const {
-			source: { name },
-			author,
-			title,
-			description,
-			content,
-			publishedAt,
-			url,
-			urlToImage,
-		} = article;
-		const image = urlToImage && !/^http(s?)/g.test(urlToImage) ? 'https'.concat(urlToImage) : urlToImage;
+	for (const { title, url, author, description, content, source, urlToImage, publishedAt } of articles.reverse()) {
+		const image = /^http(s?)/g.test(urlToImage) ? urlToImage : '';
 
 		for (const { 0: guildId } of client.guilds.cache) {
 			const webhook = await Webhooks.getWebhook(client, guildId, 'World News');
@@ -45,7 +35,7 @@ export const execute = async (client: Bot) => {
 			await webhook.send({
 				embeds: [
 					new MessageEmbed()
-						.setAuthor({ name: name ?? author ?? 'N/A' })
+						.setAuthor({ name: source.name ?? author ?? 'N/A' })
 						.setTitle(StringUtil.truncate(title))
 						.setURL(url)
 						.setThumbnail(image ?? '')

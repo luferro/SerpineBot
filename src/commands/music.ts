@@ -177,14 +177,14 @@ const search = async (interaction: CommandInteraction) => {
 
 	const query = interaction.options.getString('query')!;
 	const results = await Youtube.search(query, 10);
-	const formattedResults = results.map(
-		(item, index) => `\`${index + 1}.\` **[${item.title}](${item.url})** | \`${item.duration}\``,
-	);
+	const formattedResults = results
+		.map(({ title, url, duration }, index) => `\`${index + 1}.\` **[${title}](${url})** | \`${duration}\``)
+		.join('\n');
 
-	const selectOptions = results.map((item, index) => ({
-		label: `${index + 1}. ${item.title}`,
-		description: item.duration,
-		value: item.url,
+	const selectOptions = results.map(({ title, duration, url }, index) => ({
+		label: `${index + 1}. ${title}`,
+		description: duration,
+		value: url,
 	}));
 	selectOptions.push({ label: 'Cancel', description: `Stop searching for ${query}`, value: 'CANCEL' });
 
@@ -199,7 +199,7 @@ const search = async (interaction: CommandInteraction) => {
 		embeds: [
 			new MessageEmbed()
 				.setTitle(`Search results for \`${query}\``)
-				.setDescription(formattedResults.join('\n'))
+				.setDescription(formattedResults)
 				.setFooter({ text: "Select 'Cancel' from the selection menu to stop searching." })
 				.setColor('RANDOM'),
 		],
@@ -255,7 +255,7 @@ const search = async (interaction: CommandInteraction) => {
 				}
 
 				const results = await Youtube.search(query, 20);
-				const selectedMusic = results.find((item) => item.url === values[0])!;
+				const selectedMusic = results.find(({ url }) => url === values[0])!;
 
 				const music = {
 					requested: collectedInteraction.user.tag,
@@ -380,11 +380,10 @@ const queue = async (interaction: CommandInteraction) => {
 	const formattedQueue = queue
 		.slice(1, 10)
 		.map(
-			(item, index) =>
-				`\`${index + 1}.\` **[${item.title}](${item.url})** | \`${item.duration}\`\nRequest by \`${
-					item.requested
-				}\``,
-		);
+			({ title, url, duration, requested }, index) =>
+				`\`${index + 1}.\` **[${title}](${url})** | \`${duration}\`\nRequest by \`${requested}\``,
+		)
+		.join('\n');
 
 	await interaction.reply({
 		embeds: [
@@ -396,7 +395,7 @@ const queue = async (interaction: CommandInteraction) => {
 						? `**[${playing.title}](${playing.url})** | \`${playing.duration}\`\nRequest by \`${playing.requested}\``
 						: 'Nothing is playing.',
 				)
-				.addField('Queue', formattedQueue.length > 0 ? formattedQueue.join('\n') : 'Queue is empty.')
+				.addField('Queue', formattedQueue || 'Queue is empty.')
 				.setFooter({ text: `${playing ? queue.length - 1 : queue.length} total items in queue.` })
 				.setColor('RANDOM'),
 		],

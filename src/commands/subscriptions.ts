@@ -40,20 +40,15 @@ export const execute = async (interaction: CommandInteraction) => {
 			entry: { name },
 		},
 	} = subscriptions;
-	const formattedSubscriptions = subscriptions.map((item) =>
-		item.entry.url ? `**[${item.name}](${item.entry.url})**` : `**${item.name}**`,
-	);
+	const formattedSubscriptions = subscriptions
+		.map(({ name, entry }) => (entry.url ? `**[${name}](${entry.url})**` : `**${name}**`))
+		.join('\n');
 
 	await interaction.reply({
 		embeds: [
 			new MessageEmbed()
 				.setTitle(StringUtil.truncate(name))
-				.addField(
-					`Available in **${subscriptions.length}** ${
-						subscriptions.length > 1 ? 'subscriptions' : 'subscription'
-					}`,
-					formattedSubscriptions.join('\n'),
-				)
+				.addField(`Available in **${subscriptions.length}** subscription(s)`, formattedSubscriptions)
 				.setColor('RANDOM'),
 		],
 	});

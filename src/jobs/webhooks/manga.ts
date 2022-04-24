@@ -11,37 +11,41 @@ export const data = {
 };
 
 export const execute = async (client: Bot) => {
-	const latestChapters = await Mangadex.getLastestChapters();
-	if (latestChapters.length === 0) return;
+	const chapters = await Mangadex.getLastestChapters();
+	if (chapters.length === 0) return;
 
 	const chaptersByManga = new Map(
-		latestChapters
+		chapters
 			.reverse()
-			.map((item) => [item.mangaId, latestChapters.filter((nestedItem) => nestedItem.mangaId === item.mangaId)]),
+			.map(({ mangaId }) => [
+				mangaId,
+				chapters.filter(({ mangaId: currentMangaId }) => currentMangaId === mangaId),
+			]),
 	);
-	for (const [mangaId, chapters] of chaptersByManga) {
-		for (const chapter of chapters) {
-			const { chapterId, title, url } = chapter;
-
+	for (const [mangaId, mangaChapters] of chaptersByManga) {
+		for (const { chapterId, title, url } of mangaChapters) {
 			await SleepUtil.timeout(1000);
+
 			const hasEntry = await client.manageState('Manga', 'Chapters', `${chapterId} - ${title}`, url);
 			if (!hasEntry) continue;
 
-			const chapterIndex = chapters.findIndex((item) => item.chapterId === chapter.chapterId);
-			chapters.splice(chapterIndex);
+			const chapterIndex = mangaChapters.findIndex(
+				({ chapterId: currentChapterId }) => currentChapterId === chapterId,
+			);
+			mangaChapters.splice(chapterIndex);
 			break;
 		}
-		if (chapters.length === 0) continue;
+		if (mangaChapters.length === 0) continue;
 
 		const { title, url, image } = await Mangadex.getMangaById(mangaId);
 		if (!title && !url) continue;
 
-		const formattedChapters = chapters
+		const formattedChapters = mangaChapters
 			.slice(0, 10)
 			.reverse()
-			.map((item) => `**[${item.title}](${item.url})**`);
-		chapters.length - formattedChapters.length > 0 &&
-			formattedChapters.push(`And ${chapters.length - formattedChapters.length} more!`);
+			.map(({ title, url }) => `**[${title}](${url})**`);
+		mangaChapters.length - formattedChapters.length > 0 &&
+			formattedChapters.push(`And ${mangaChapters.length - formattedChapters.length} more!`);
 
 		for (const { 0: guildId } of client.guilds.cache) {
 			const webhook = await Webhooks.getWebhook(client, guildId, 'Manga');

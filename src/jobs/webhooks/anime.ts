@@ -36,25 +36,25 @@ export const execute = async (client: Bot) => {
 	if (hasEntry) return;
 
 	const streams = streamsList
-		.map((item) => {
-			const stream = selftext?.split('\n').find((nestedItem) => nestedItem.includes(item.url));
+		.map(({ name, url }) => {
+			const stream = selftext?.split('\n').find((text) => text.includes(url));
 			if (!stream) return;
 
-			return `> **[${item.name}](${stream.match(/(?<=\()(.*)(?=\))/g)![0]})**`;
+			return `> **[${name}](${stream.match(/(?<=\()(.*)(?=\))/g)![0]})**`;
 		})
-		.filter((item): item is NonNullable<typeof item> => !!item);
+		.filter((stream): stream is NonNullable<typeof stream> => !!stream);
 
 	const aggregators = aggregatorsList
-		.map((item) => {
-			const aggregator = selftext?.split('\n').find((nestedItem) => nestedItem.includes(item.url));
+		.map(({ name, url }) => {
+			const aggregator = selftext?.split('\n').find((text) => text.includes(url));
 			if (!aggregator) return;
 
-			return `> **[${item.name}](${aggregator.match(/(?<=\()(.*)(?=\))/g)![0]})**`;
+			return `> **[${name}](${aggregator.match(/(?<=\()(.*)(?=\))/g)![0]})**`;
 		})
-		.filter((item): item is NonNullable<typeof item> => !!item);
+		.filter((aggregator): aggregator is NonNullable<typeof aggregator> => !!aggregator);
 
-	const myAnimeListAgg = aggregators.find((item) => item?.includes('myanimelist.net'));
-	const id = myAnimeListAgg?.match(/\((.*?)\)/g)?.[0].match(/\d+/g)?.[0];
+	const malAggregator = aggregators.find((aggregator) => aggregator?.includes('myanimelist.net'));
+	const id = malAggregator?.match(/\((.*?)\)/g)?.[0].match(/\d+/g)?.[0];
 	if (!id) return;
 
 	const { episodes, score, image } = await JikanMoe.getAnimeById(id);
@@ -69,8 +69,8 @@ export const execute = async (client: Bot) => {
 					.setTitle(StringUtil.truncate(title.replace(/Discussion|discussion/, '')))
 					.setURL(url)
 					.setThumbnail(image ?? '')
-					.addField('**Streams**', streams.length > 0 ? streams.join('\n') : 'N/A')
-					.addField('**Trackers**', aggregators.length > 0 ? aggregators.join('\n') : 'N/A')
+					.addField('**Streams**', streams.join('\n') || 'N/A')
+					.addField('**Trackers**', aggregators.join('\n') || 'N/A')
 					.addField('**Total episodes**', episodes?.toString() ?? 'N/A', true)
 					.addField('**Score**', score?.toString() ?? 'N/A', true)
 					.setColor('RANDOM'),

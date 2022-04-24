@@ -10,7 +10,7 @@ export const create = async (guildId: string, channel: TextChannel, webhookName:
 	const settings = await settingsModel.findOne({ guildId });
 	const webhooks = settings?.webhooks ?? [];
 
-	const hasWebhook = webhooks.some((item) => item.name === webhookName);
+	const hasWebhook = webhooks.some(({ name }) => name === webhookName);
 	if (hasWebhook) throw new Error('Webhook has already been assigned to a text channel in this guild.');
 
 	const { id, token, name } = await channel.createWebhook(webhookName);
@@ -26,12 +26,12 @@ export const getWebhook = async (client: Bot, guildId: string, webhookName: Webh
 	const webhooks = settings?.webhooks ?? [];
 	const guildWebhooks = await guild.fetchWebhooks();
 
-	const guildWebhook = webhooks.find((item) => item.name === webhookName);
+	const guildWebhook = webhooks.find(({ name }) => name === webhookName);
 	if (!guildWebhook) return;
 
 	const hasWebhook = guildWebhooks.has(guildWebhook.id);
 	if (!hasWebhook) {
-		const webhookIndex = webhooks.findIndex((item) => item.name === webhookName);
+		const webhookIndex = webhooks.findIndex(({ name }) => name === webhookName);
 		webhooks.splice(webhookIndex, 1);
 
 		await settingsModel.updateOne({ guild: guild.id }, { $set: { webhooks } });
@@ -45,7 +45,7 @@ export const remove = async (client: Bot, guildId: string, webhookName: WebhookC
 	const settings = await settingsModel.findOne({ guildId });
 	const webhooks = settings?.webhooks ?? [];
 
-	const hasWebhook = webhooks.some((item) => item.name === webhookName);
+	const hasWebhook = webhooks.some(({ name }) => name === webhookName);
 	if (!hasWebhook) throw new Error('Webhook is not assigned to a text channel in this guild.');
 
 	const webhook = await getWebhook(client, guildId, webhookName);
@@ -53,7 +53,7 @@ export const remove = async (client: Bot, guildId: string, webhookName: WebhookC
 
 	await webhook.delete();
 
-	const webhookIndex = webhooks.findIndex((item) => item.name === webhookName);
+	const webhookIndex = webhooks.findIndex(({ name }) => name === webhookName);
 	webhooks.splice(webhookIndex, 1);
 
 	await settingsModel.updateOne({ guildId }, { $set: { webhooks } });

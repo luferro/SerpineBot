@@ -13,7 +13,9 @@ export const data = {
 
 export const execute = async (interaction: CommandInteraction) => {
 	const query = interaction.options.getString('query')!;
-	const results = await Youtube.search(query);
+	const {
+		0: { url },
+	} = await Youtube.search(query);
 
-	await interaction.reply({ content: results[0].url });
+	await interaction.reply({ content: url });
 };

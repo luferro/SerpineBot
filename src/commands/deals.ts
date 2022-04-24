@@ -21,7 +21,7 @@ export const execute = async (interaction: CommandInteraction) => {
 	const { name, image, historicalLows, officialStores, keyshops, coupons } = await GGDeals.getDealById(id);
 
 	const subscriptions = await Subscriptions.getGamingSubscriptions(name);
-	const formattedSubscriptions = subscriptions.map((item) => `**${item.name}**`);
+	const formattedSubscriptions = subscriptions.map(({ name }) => `**${name}**`).join('\n');
 
 	await interaction.reply({
 		embeds: [
@@ -29,14 +29,11 @@ export const execute = async (interaction: CommandInteraction) => {
 				.setTitle(name)
 				.setURL(`https://gg.deals/eu/game/${id}`)
 				.setThumbnail(image ?? '')
-				.addField('Historical Low Prices', historicalLows.length > 0 ? historicalLows.join('\n') : 'N/A')
-				.addField('Official Stores', officialStores.length > 0 ? officialStores.join('\n') : 'N/A', true)
-				.addField('Keyshops', keyshops.length > 0 ? keyshops.join('\n') : 'N/A', true)
-				.addField('Coupons', coupons.length > 0 ? coupons.join('\n') : 'N/A')
-				.addField(
-					'Subscriptions',
-					formattedSubscriptions.length > 0 ? formattedSubscriptions.join('\n') : 'N/A',
-				)
+				.addField('Historical Low Prices', historicalLows.join('\n') || 'N/A')
+				.addField('Official Stores', officialStores.join('\n') || 'N/A', true)
+				.addField('Keyshops', keyshops.join('\n') || 'N/A', true)
+				.addField('Coupons', coupons.join('\n') || 'N/A')
+				.addField('Subscriptions', formattedSubscriptions || 'N/A')
 				.setColor('RANDOM'),
 		],
 	});

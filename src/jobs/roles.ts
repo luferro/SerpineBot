@@ -27,8 +27,8 @@ export const execute = async (client: Bot | Client) => {
 		if (!channelId) continue;
 
 		const roles = settings.roles.options
-			.map((item) => {
-				const messageRole = guild.roles.cache.find((nestedItem) => nestedItem.id === item);
+			.map((id) => {
+				const messageRole = guild.roles.cache.find(({ id: nestedRoleId }) => nestedRoleId === id);
 				if (!messageRole) return;
 
 				return messageRole.name;
@@ -39,7 +39,6 @@ export const execute = async (client: Bot | Client) => {
 		const rows = Math.ceil(roles.length / ITEMS_PER_ROW);
 		for (let index = 0; index < rows; index++) {
 			const row = new MessageActionRow();
-
 			for (const role of roles.slice(0, ITEMS_PER_ROW)) {
 				const button = new MessageButton()
 					.setCustomId(role)
@@ -64,12 +63,12 @@ export const execute = async (client: Bot | Client) => {
 		if (!channel) continue;
 
 		const messages = await channel.messages.fetch();
-		const rolesMessage = messages.find((item) => item?.embeds[0]?.title === 'Text channel roles');
+		const rolesMessage = messages.find((message) => message?.embeds[0]?.title === 'Text channel roles');
 
 		if (!rolesMessage) await channel.send({ embeds: [message], components });
 		else await rolesMessage.edit({ embeds: [message], components });
 
-		logger.info(`Roles job sent a message to channel \`${channelId}\` in guild \`${guild.name}\`.`);
+		logger.info(`Roles job sent a message to channel _*${channelId}*_ in guild _*${guild.name}*_.`);
 
 		await handleCollector(channel);
 	}
@@ -96,8 +95,8 @@ const assignRole = async (interaction: ButtonInteraction) => {
 	const member = interaction.member as GuildMember;
 	if (member.user.bot) return;
 
-	const role = member.guild.roles.cache.find((role) => role.name === interaction.customId)!;
-	const restrictionsRole = member.guild.roles.cache.find((role) => role.name === 'Restrictions');
+	const role = member.guild.roles.cache.find(({ name }) => name === interaction.customId)!;
+	const restrictionsRole = member.guild.roles.cache.find(({ name }) => name === 'Restrictions');
 
 	if (restrictionsRole && member.roles.cache.has(restrictionsRole.id) && role.name === 'NSFW')
 		return await interaction.reply({
@@ -117,8 +116,8 @@ const assignRole = async (interaction: ButtonInteraction) => {
 	});
 
 	logger.info(
-		`Roles collector \`${status}\` role \`${role.name}\` ${hasRole ? 'from' : 'to'} \`${
+		`Roles collector _*${status}*_ role _*${role.name}*_ ${hasRole ? 'from' : 'to'} _*${
 			member.user.tag
-		}\` in guild \`${interaction.guild?.name}\`.`,
+		}*_ in guild _*${interaction.guild?.name}*_.`,
 	);
 };

@@ -26,12 +26,12 @@ export const getComics = async (category: ComicCategories) => {
 
 	const title = $('.comic').attr('data-feature-name');
 	const author = $('.comic').attr('creator');
-	const href = $('.comic').attr('data-url');
+	const url = $('.comic').attr('data-url');
 	const image = $('.comic').attr('data-image');
 
 	return {
 		image,
-		title: title !== author ? `${title} by ${author}` : title,
-		url: href,
+		url,
+		title: title === author ? title : `${title} by ${author}`,
 	};
 };

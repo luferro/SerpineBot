@@ -14,10 +14,12 @@ export const data = {
 export const execute = async (client: Bot) => {
 	const categories: XboxWireCategories[] = ['gamepass', 'deals with gold', 'games with gold'];
 	for (const category of categories) {
-		const article = await Xbox.getLatestXboxWireNews(category);
-		if (!article) continue;
+		const articles = await Xbox.getLatestXboxWireNews(category);
+		if (articles.length === 0) continue;
 
-		const { title, url, image } = article;
+		const {
+			0: { title, url, image },
+		} = articles;
 
 		const hasEntry = await client.manageState('Xbox', StringUtil.capitalize(category), title, url);
 		if (hasEntry) continue;

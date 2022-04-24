@@ -4,8 +4,7 @@ import { JokeCategories } from '../types/categories';
 import { Joke } from '../types/responses';
 
 export const getJokeByCategory = async (category: JokeCategories) => {
-	const data = await fetch<Joke>(`https://sv443.net/jokeapi/v2/joke/${category}`);
-	const { joke, setup, delivery } = data;
+	const { joke, setup, delivery } = await fetch<Joke>(`https://sv443.net/jokeapi/v2/joke/${category}`);
 
 	return {
 		category: `${StringUtil.capitalize(category)} Joke`,

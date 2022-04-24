@@ -115,11 +115,10 @@ const updateRole = async (interaction: CommandInteraction) => {
 const deleteRole = async (interaction: CommandInteraction) => {
 	const role = interaction.options.getRole('role')! as Role;
 
-	const { name } = role;
 	await Roles.remove(role);
 
 	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(`Role ${name} has been deleted.`).setColor('RANDOM')],
+		embeds: [new MessageEmbed().setTitle(`Role ${role.name} has been deleted.`).setColor('RANDOM')],
 		ephemeral: true,
 	});
 };

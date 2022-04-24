@@ -48,11 +48,10 @@ export class Bot extends Client {
 
 	private startListeners = () => {
 		for (const [name, event] of Bot.events.entries()) {
-			this[event.data.once ? 'once' : 'on'](name, (...args: unknown[]) =>
-				event.execute(this, ...args).catch(this.errorHandler),
-			);
+			const eventType = event.data.once ? 'once' : 'on';
+			this[eventType](name, (...args: unknown[]) => event.execute(this, ...args).catch(this.errorHandler));
 
-			logger.info(`Event listener is listening ${event.data.once ? 'once' : 'on'} _*${name}*_.`);
+			logger.info(`Event listener is listening ${eventType} _*${name}*_.`);
 		}
 	};
 
@@ -70,7 +69,9 @@ export class Bot extends Client {
 
 		const categoryState = await stateModel.findOne({ category });
 		const stateEntries = categoryState?.entries.get(subcategory) ?? [];
-		const hasEntry = stateEntries.some((item) => item.title === title || item.url === url);
+		const hasEntry = stateEntries.some(
+			({ title: stateTitle, url: stateUrl }) => stateTitle === title || stateUrl === url,
+		);
 
 		if (!hasEntry)
 			await stateModel.updateOne(

@@ -29,7 +29,7 @@ export const execute = async (client: Bot) => {
 			const webhook = await Webhooks.getWebhook(client, guildId, 'Memes');
 			if (!webhook) continue;
 
-			const hasVideoExtension = ['gif', 'gifv', 'mp4'].some((item) => url.includes(item));
+			const hasVideoExtension = ['.gif', '.gifv', '.mp4'].some((extension) => url.includes(extension));
 			if (hasVideoExtension) {
 				await webhook.send({
 					content: `**[${StringUtil.truncate(title)}](<https://www.reddit.com${permalink}>)**\n${url}`,

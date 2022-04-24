@@ -38,23 +38,22 @@ export const execute = async (client: Bot) => {
 			continue;
 		}
 
-		const latestDeals = await GGDeals.getLatestDeals(category);
-		for (const deal of latestDeals.reverse()) {
+		const deals = await GGDeals.getLatestDeals(category);
+		for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
 			await SleepUtil.timeout(5000);
-			const { title, url, image, store, discount, regular, discounted, coupon } = deal;
 
 			const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
 			if (hasEntry) continue;
+
+			const description = `${
+				discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''
+			} **${discounted}** @ **${store}**`;
 
 			const message = new MessageEmbed()
 				.setTitle(title)
 				.setURL(url)
 				.setThumbnail(image ?? '')
-				.setDescription(
-					`${
-						discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''
-					} **${discounted}** @ **${store}**`,
-				)
+				.setDescription(description)
 				.setColor('RANDOM');
 
 			if (category === 'paid games' && coupon) message.addField('Store coupon', `*${coupon}*`);

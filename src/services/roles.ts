@@ -39,14 +39,14 @@ export const remove = async (role: Role) => {
 };
 
 export const assign = async (guild: Guild, userId: string, role: Role) => {
-	const member = guild.members.cache.find((item) => item.id === userId)!;
+	const member = guild.members.cache.find(({ id }) => id === userId)!;
 	if (member.roles.cache.has(role.id)) throw new Error(`${member.user.tag} already has role ${role.name}.`);
 
 	await member.roles.add(role);
 };
 
 export const dissociate = async (guild: Guild, userId: string, role: Role) => {
-	const member = guild.members.cache.find((item) => item.id === userId)!;
+	const member = guild.members.cache.find(({ id }) => id === userId)!;
 	if (!member.roles.cache.has(role.id)) throw new Error(`${member.user.tag} doesn't have role ${role.name}.`);
 
 	await member.roles.remove(role);

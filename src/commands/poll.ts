@@ -29,16 +29,18 @@ export const execute = async (interaction: CommandInteraction) => {
 			});
 
 		const reactions: string[] = [];
-		const list = choices.map((item, index) => {
-			reactions.push(pollOptions[index]);
-			return `> ${pollOptions[index]} **${item.split(' ').map(StringUtil.capitalize).join(' ')}**`;
-		});
+		const formattedChoices = choices
+			.map((choice, index) => {
+				reactions.push(pollOptions[index]);
+				return `> ${pollOptions[index]} **${choice.split(' ').map(StringUtil.capitalize).join(' ')}**`;
+			})
+			.join('\n');
 
 		const message = (await interaction.reply({
 			embeds: [
 				new MessageEmbed()
 					.setTitle(StringUtil.capitalize(question))
-					.setDescription(list.join('\n'))
+					.setDescription(formattedChoices)
 					.setColor('RANDOM'),
 			],
 			fetchReply: true,

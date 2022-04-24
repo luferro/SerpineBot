@@ -32,7 +32,7 @@ export const execute = async (interaction: CommandInteraction) => {
 				.setURL(url)
 				.setThumbnail(image ?? '')
 				.addField('**Release date**', releaseDate)
-				.addField('**Available on**', platforms.length > 0 ? platforms.join('\n') : 'N/A')
+				.addField('**Available on**', platforms.join('\n') || 'N/A')
 				.addField('**Tier**', tier?.toString() ?? 'N/A')
 				.addField('**Score**', score?.toString() ?? 'N/A', true)
 				.addField('**Reviews count**', count?.toString() ?? 'N/A', true)

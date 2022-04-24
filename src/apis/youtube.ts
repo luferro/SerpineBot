@@ -3,19 +3,19 @@ import { fetch } from '../services/fetch';
 import { Channel, Video } from '../types/responses';
 
 export const isVideo = (url: string) => {
-	return ytdl.yt_validate(url);
+	return ytdl.yt_validate(url) === 'video';
 };
 
 export const search = async (query: string, limit = 1) => {
 	const data = await ytdl.search(query, { source: { youtube: 'video' }, limit });
 
-	return data.map((item) => ({
-		title: item.title ?? 'N/A',
-		channel: item.channel?.name ?? 'N/A',
-		url: item.url,
-		thumbnail: item.thumbnails[0]?.url,
-		duration: item.durationRaw,
-		isLivestream: item.live,
+	return data.map(({ title, channel, url, thumbnails, durationRaw, live }) => ({
+		title: title ?? 'N/A',
+		channel: channel?.name ?? 'N/A',
+		url,
+		thumbnail: thumbnails[0]?.url,
+		duration: durationRaw,
+		isLivestream: live,
 	}));
 };
 
@@ -26,11 +26,12 @@ export const getVideoId = (url: string) => {
 
 export const getChannelId = async (url: string) => {
 	const videoId = getVideoId(url);
-	const data = await fetch<Video>(
+
+	const { items } = await fetch<Video>(
 		`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.YOUTUBE_API_KEY}`,
 	);
 
-	return data.items[0]?.snippet.channelId;
+	return items[0]?.snippet.channelId;
 };
 
 export const getSubscribers = async (url: string) => {
@@ -40,10 +41,9 @@ export const getSubscribers = async (url: string) => {
 	const queryOption = isIdType ? 'id' : 'forUsername';
 	const channelId = await getChannelId(url);
 
-	const data = await fetch<Channel>(
+	const { items } = await fetch<Channel>(
 		`https://youtube.googleapis.com/youtube/v3/channels?part=statistics&${queryOption}=${channelId}&key=${process.env.YOUTUBE_API_KEY}`,
 	);
-	const subscriberCount = data.items?.[0].statistics?.subscriberCount ?? 0;
 
-	return Number(subscriberCount);
+	return Number(items?.[0].statistics?.subscriberCount ?? 0);
 };

@@ -17,13 +17,15 @@ export const getSteamLeaderboard = async (client: Bot | Client) => {
 		const data = await Steam.getRecentlyPlayed(integration.profile.id);
 		if (!data) continue;
 
-		const recentlyPlayed = data.map((item) => {
-			const storedEntry = integration.recentlyPlayed.find((nestedItem) => nestedItem.id === item.id);
-			const storedWeeklyHours = storedEntry?.weeklyHours ?? 0;
+		const recentlyPlayed = data.map((game) => {
+			const storedItem = integration.recentlyPlayed.find(
+				({ id: nestedStoredItemId }) => nestedStoredItemId === game.id,
+			);
+			const storedWeeklyHours = storedItem?.weeklyHours ?? 0;
 
 			return {
-				...item,
-				weeklyHours: storedWeeklyHours + item.weeklyHours,
+				...game,
+				weeklyHours: storedWeeklyHours + game.weeklyHours,
 			};
 		});
 		await steamModel.updateOne({ userId: integration.userId }, { $set: { recentlyPlayed } });
@@ -34,7 +36,7 @@ export const getSteamLeaderboard = async (client: Bot | Client) => {
 		const user = await client.users.fetch(integration.userId);
 
 		leaderboard.push({
-			tag: user.tag,
+			user,
 			topPlayed: {
 				name,
 				url,
@@ -46,9 +48,9 @@ export const getSteamLeaderboard = async (client: Bot | Client) => {
 	return leaderboard
 		.sort((a, b) => b.topPlayed.hours - a.topPlayed.hours)
 		.slice(0, 10)
-		.map((item, index) => {
+		.map(({ user, topPlayed }, index) => {
 			const position = Medals[index + 1] ?? `\`${index + 1}.\``;
-			const description = `**${item.tag}** with \`${item.topPlayed.hours}h\`\nTop played game was **[${item.topPlayed.name}](${item.topPlayed.url})**`;
+			const description = `**${user.tag}** with \`${topPlayed.hours}h\`\nTop played game was **[${topPlayed.name}](${topPlayed.url})**`;
 
 			return `${position} ${description}`;
 		});

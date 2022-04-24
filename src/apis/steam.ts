@@ -19,17 +19,20 @@ export const getSteamId64 = async (customId: string) => {
 	const data = await fetch<SteamId64>(
 		`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.STEAM_API_KEY}&vanityurl=${customId}`,
 	);
+
 	return data.response?.steamid;
 };
 
 export const getProfile = async (steamId: string) => {
-	const data = await fetch<SteamProfiles>(
+	const {
+		response: {
+			players: {
+				0: { personaname, avatarfull, personastate, lastlogoff, timecreated },
+			},
+		},
+	} = await fetch<SteamProfiles>(
 		`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`,
 	);
-
-	const {
-		0: { personaname, avatarfull, personastate, lastlogoff, timecreated },
-	} = data.response.players;
 
 	return {
 		name: personaname,
@@ -44,24 +47,21 @@ export const getWishlist = async (steamId: string) => {
 	const wishlist = [];
 
 	let page = 0;
-	let hasMore = true;
-	while (hasMore) {
+	while (true) {
 		const data = await fetch<Wishlist>(
 			`https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=${page}`,
 		);
 
-		hasMore = Object.keys(data).some((id) => !isNaN(Number(id)));
+		const hasMore = Object.keys(data).some((id) => !isNaN(Number(id)));
 		if (!hasMore) break;
 
-		for (const [id, game] of Object.entries(data)) {
-			const { name, release_date, priority, is_free_game, subs } = game;
-
+		for (const [id, { name, release_date, priority, is_free_game, subs }] of Object.entries(data)) {
 			const discount = subs?.length > 0 ? subs[0].discount_pct : null;
+			const discounted = subs?.length > 0 ? ConverterUtil.centsToEuros(subs[0].price) : null;
 			const regular =
 				subs?.length > 0
 					? ConverterUtil.centsToEuros(Math.round(subs[0].price / ((100 - subs[0].discount_pct) / 100)))
 					: null;
-			const discounted = subs?.length > 0 ? ConverterUtil.centsToEuros(subs[0].price) : null;
 
 			const subscriptions = await Subscriptions.getGamingSubscriptions(name);
 
@@ -77,41 +77,44 @@ export const getWishlist = async (steamId: string) => {
 				released: typeof release_date === 'string',
 				sale: Boolean(discount && discounted),
 				subscriptions: {
-					xbox_game_pass: subscriptions.some((item) => item.name === 'Xbox Game Pass'),
-					pc_game_pass: subscriptions.some((item) => item.name === 'PC Game Pass'),
-					ubisoft_plus: subscriptions.some((item) => item.name === 'Ubisoft+'),
-					ea_play_pro: subscriptions.some((item) => item.name === 'EA Play Pro'),
-					ea_play: subscriptions.some((item) => item.name === 'EA Play'),
+					xbox_game_pass: subscriptions.some(({ name }) => name === 'Xbox Game Pass'),
+					pc_game_pass: subscriptions.some(({ name }) => name === 'PC Game Pass'),
+					ubisoft_plus: subscriptions.some(({ name }) => name === 'Ubisoft+'),
+					ea_play_pro: subscriptions.some(({ name }) => name === 'EA Play Pro'),
+					ea_play: subscriptions.some(({ name }) => name === 'EA Play'),
 				},
 			});
 		}
 		page++;
 	}
+
 	return wishlist.sort(
 		(a, b) => (a.priority !== 0 ? a.priority : Infinity) - (b.priority !== 0 ? b.priority : Infinity),
 	);
 };
 
 export const getRecentlyPlayed = async (steamId: string) => {
-	const data = await fetch<RecentlyPlayed>(
-		`http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${process.env.STEAM_API_KEY}&steamid=${steamId}&format=json`,
+	const {
+		response: { games },
+	} = await fetch<RecentlyPlayed>(
+		`https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${process.env.STEAM_API_KEY}&steamid=${steamId}&format=json`,
 	);
-	if (!data.response.games) return;
+	if (!games) return;
 
 	const integration = await steamModel.findOne({ 'profile.id': steamId });
 
-	return data.response.games.map((item) => {
-		const totalHours = ConverterUtil.minutesToHours(item.playtime_forever);
-		const twoWeeksHours = ConverterUtil.minutesToHours(item.playtime_2weeks);
+	return games.map(({ appid, name, playtime_2weeks, playtime_forever }) => {
+		const twoWeeksHours = ConverterUtil.minutesToHours(playtime_2weeks);
+		const totalHours = ConverterUtil.minutesToHours(playtime_forever);
 
-		const storedEntry = integration?.recentlyPlayed?.find((nestedItem) => nestedItem.id === item.appid);
+		const storedEntry = integration?.recentlyPlayed?.find(({ id }) => id === appid);
 		const weeklyHours = storedEntry ? totalHours - storedEntry.totalHours : twoWeeksHours;
 
 		return {
-			id: item.appid,
-			name: item.name,
-			url: `https://store.steampowered.com/app/${item.appid}`,
-			totalHours: ConverterUtil.minutesToHours(item.playtime_forever),
+			id: appid,
+			name,
+			url: `https://store.steampowered.com/app/${appid}`,
+			totalHours: ConverterUtil.minutesToHours(playtime_forever),
 			weeklyHours: Number(weeklyHours.toFixed(1)),
 		};
 	});
@@ -123,7 +126,6 @@ export const getNextSale = async () => {
 
 	const sale = $('p').first().attr('content');
 	const status = $('span.status').first().text();
-
 	const upcoming = $('.row')
 		.first()
 		.children('div')
@@ -147,7 +149,7 @@ export const getTopPlayed = async () => {
 	const data = await fetch<string>('https://store.steampowered.com/stats/');
 	const $ = load(data);
 
-	const topPlayed = $('.player_count_row')
+	return $('.player_count_row')
 		.get()
 		.map((element, index) => {
 			const url = $(element).find('a').first().attr('href');
@@ -156,8 +158,6 @@ export const getTopPlayed = async () => {
 			return `\`${index + 1}.\` **[${name}](${url})**`;
 		})
 		.slice(0, 10);
-
-	return { topPlayed };
 };
 
 export const getTopSellers = async () => {
@@ -170,15 +170,16 @@ export const getTopSellers = async () => {
 			const url = $(element).first().attr('href');
 			const name = $(element).find('.responsive_search_name_combined .title').first().text();
 
-			return { name, url };
+			return {
+				name,
+				url,
+			};
 		});
 
-	const topSellers = sellersInfo
-		.filter((item, index, self) => index === self.findIndex((nestedItem) => nestedItem.url === item.url))
+	return sellersInfo
+		.filter(({ url }, index, self) => index === self.findIndex(({ url: nestedUrl }) => nestedUrl === url))
 		.slice(0, 10)
-		.map((item, index) => `\`${index + 1}.\` **[${item.name}](${item.url})**`);
-
-	return { topSellers };
+		.map(({ name, url }, index) => `\`${index + 1}.\` **[${name}](${url})**`);
 };
 
 export const getUpcoming = async () => {
@@ -194,10 +195,8 @@ export const getUpcoming = async () => {
 			return { name, url };
 		});
 
-	const upcoming = upcomingInfo
-		.filter((item, index, self) => index === self.findIndex((nestedItem) => nestedItem.url === item.url))
+	return upcomingInfo
+		.filter(({ url }, index, self) => index === self.findIndex(({ url: nestedUrl }) => nestedUrl === url))
 		.slice(0, 10)
-		.map((item, index) => `\`${index + 1}.\` **[${item.name}](${item.url})**`);
-
-	return { upcoming };
+		.map(({ name, url }, index) => `\`${index + 1}.\` **[${name}](${url})**`);
 };

@@ -6,9 +6,9 @@ export const connect = async () => {
 	const options = {
 		useUnifiedTopology: true,
 		useNewUrlParser: true,
-	};
+	} as ConnectOptions;
 
-	await mongoose.connect(process.env.MONGO_URI!, options as ConnectOptions).catch(() => {
+	await mongoose.connect(process.env.MONGO_URI!, options).catch(() => {
 		throw new DatabaseError('Failed to connect to database.');
 	});
 

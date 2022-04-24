@@ -31,7 +31,7 @@ export const execute = async (client: Bot) => {
 			const webhook = await Webhooks.getWebhook(client, guildId, 'NSFW');
 			if (!webhook) continue;
 
-			const hasVideoExtension = ['gif', 'gifv', 'mp4'].some((item) => nsfwUrl.includes(item));
+			const hasVideoExtension = ['.gif', '.gifv', '.mp4'].some((extension) => nsfwUrl.includes(extension));
 			if (secure_media || hasVideoExtension) {
 				await webhook.send({
 					content: `**[${StringUtil.truncate(title)}](<https://www.reddit.com${permalink}>)**\n${nsfwUrl}`,
@@ -52,7 +52,7 @@ export const execute = async (client: Bot) => {
 	}
 };
 
-const getUrl = (url: string, mediaItem: string | undefined, galleryItem: string | undefined) => {
+const getUrl = (url: string, mediaItem?: string, galleryItem?: string) => {
 	if (mediaItem) return mediaItem.replace(mediaItem.split('-')[1], 'mobile.mp4');
 	if (galleryItem) return `https://i.redd.it/${galleryItem}.jpg`;
 	return url;

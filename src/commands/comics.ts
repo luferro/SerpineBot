@@ -31,8 +31,7 @@ export const execute = async (interaction: CommandInteraction) => {
 	const choice = interaction.options.getString('category')! as ComicCategories;
 
 	const { title, url, image } = await GoComics.getComics(choice);
-	if (!title || !url || !image)
-		return await interaction.reply({ content: "Couldn't find the requested comic.", ephemeral: true });
+	if (!title || !url || !image) return await interaction.reply({ content: 'No comic was found.', ephemeral: true });
 
 	await interaction.reply({
 		embeds: [new MessageEmbed().setTitle(title).setURL(url).setImage(image).setColor('RANDOM')],

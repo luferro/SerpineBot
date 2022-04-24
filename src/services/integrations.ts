@@ -22,8 +22,8 @@ export const create = async (userId: string, url: string) => {
 			id: steamId,
 			url: `https://steamcommunity.com/profiles/${steamId}`,
 		},
-		wishlist: wishlist.map((item) => ({ ...item, notified: false })),
-		recentlyPlayed: recentlyPlayed.map((item) => ({ ...item, weeklyHours: 0 })),
+		wishlist: wishlist.map((game) => ({ ...game, notified: false })),
+		recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })),
 		notifications: true,
 	};
 
@@ -37,12 +37,12 @@ export const sync = async (userId: string) => {
 	const wishlist = await Steam.getWishlist(integration.profile.id);
 	if (!wishlist) throw new Error('Steam wishlist is either private or empty.');
 
-	const wishlistItems = wishlist.map((item) => {
-		const game = integration.wishlist.find((storedItem) => storedItem.name === item.name);
+	const wishlistItems = wishlist.map((game) => {
+		const storedItem = integration.wishlist.find(({ id: nestedStoredItemId }) => nestedStoredItemId === game.id);
 
 		return {
-			...item,
-			notified: game?.notified ?? false,
+			...game,
+			notified: storedItem?.notified ?? false,
 		};
 	});
 

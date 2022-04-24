@@ -119,20 +119,20 @@ export const execute = async (interaction: CommandInteraction) => {
 const getRoleOptions = (guild: Guild) => {
 	const roles = [...guild.roles.cache.values()].sort((a, b) => a.position - b.position);
 	return roles
-		.map((item) => {
-			if (item.id === guild.roles.everyone.id || item.tags) return;
+		.map(({ id, name, tags }) => {
+			if (id === guild.roles.everyone.id || tags) return;
 
 			return {
-				label: item.name,
-				value: item.id,
+				label: name,
+				value: id,
 			};
 		})
-		.filter((item): item is NonNullable<typeof item> => !!item);
+		.filter((option): option is NonNullable<typeof option> => !!option);
 };
 
 const getLeaderboardOptions = () => {
 	const leaderboards = ['Steam'];
-	return leaderboards.map((item) => ({ label: item, value: item }));
+	return leaderboards.map((option) => ({ label: option, value: option }));
 };
 
 const createChannel = async (interaction: CommandInteraction) => {
@@ -175,11 +175,10 @@ const deleteChannel = async (interaction: CommandInteraction) => {
 	if (!isValid)
 		return await interaction.reply({ content: 'Channel must be a text or voice channel.', ephemeral: true });
 
-	const { name } = channel;
 	await Channels.remove(channel);
 
 	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(`Channel ${name} has been deleted.`).setColor('RANDOM')],
+		embeds: [new MessageEmbed().setTitle(`Channel ${channel.name} has been deleted.`).setColor('RANDOM')],
 		ephemeral: true,
 	});
 };
@@ -205,7 +204,7 @@ const assignChannel = async (interaction: CommandInteraction) => {
 
 	const options = category === 'ROLES_MESSAGE' ? getRoleOptions(guild) : getLeaderboardOptions();
 	if (options.length === 0)
-		return await interaction.reply({ content: `Invalid length of options for ${category}`, ephemeral: true });
+		return await interaction.reply({ content: `Invalid length of options for ${category}.`, ephemeral: true });
 
 	const selectMenu = new MessageActionRow().addComponents(
 		new MessageSelectMenu()

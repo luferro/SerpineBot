@@ -34,15 +34,16 @@ export const search = async (title: string) => {
 	let completionist: string | undefined;
 	for (const element of $('.search_list_details_block').first().find('div').get()) {
 		const label = $(element).text();
+		const isMainLabel = ['Main Story', 'Single-Player', 'Solo'].some((labelText) => label.startsWith(labelText));
+		const isMainExtraLabel = ['Main + Extra', 'Co-Op'].some((labelText) => label.startsWith(labelText));
+		const isCompletionistLabel = ['Completionist', 'Vs.'].some((labelText) => label.startsWith(labelText));
+
 		const time = $(element).next().text();
+		const playtime = parse(time);
 
-		const isMainLabel = ['Main Story', 'Single-Player', 'Solo'].some((item) => label.startsWith(item));
-		const isMainExtraLabel = ['Main + Extra', 'Co-Op'].some((item) => label.startsWith(item));
-		const isCompletionistLabel = ['Completionist', 'Vs.'].some((item) => label.startsWith(item));
-
-		if (isMainLabel) main = parse(time);
-		if (isMainExtraLabel) mainExtra = parse(time);
-		if (isCompletionistLabel) completionist = parse(time);
+		if (isMainLabel) main = playtime;
+		if (isMainExtraLabel) mainExtra = playtime;
+		if (isCompletionistLabel) completionist = playtime;
 	}
 
 	return {

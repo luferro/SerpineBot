@@ -18,7 +18,9 @@ export const execute = async (client: Bot) => {
 
 		const wishlistAlerts = new Map<string, Alert[]>();
 		const wishlistItems = wishlist.map((item) => {
-			const storedItem = integration.wishlist.find((nestedItem) => nestedItem.name === item.name);
+			const storedItem = integration.wishlist.find(
+				({ name: nestedStoredItemName }) => nestedStoredItemName === item.name,
+			);
 			let notified = storedItem && item.sale ? storedItem.notified : false;
 
 			const alert = {

@@ -62,7 +62,7 @@ const getNextSale = async (interaction: CommandInteraction) => {
 };
 
 const getTopPlayed = async (interaction: CommandInteraction) => {
-	const { topPlayed } = await Steam.getTopPlayed();
+	const topPlayed = await Steam.getTopPlayed();
 
 	await interaction.reply({
 		embeds: [
@@ -75,7 +75,7 @@ const getTopPlayed = async (interaction: CommandInteraction) => {
 };
 
 const getTopSellers = async (interaction: CommandInteraction) => {
-	const { topSellers } = await Steam.getTopSellers();
+	const topSellers = await Steam.getTopSellers();
 
 	await interaction.reply({
 		embeds: [
@@ -88,7 +88,7 @@ const getTopSellers = async (interaction: CommandInteraction) => {
 };
 
 const getUpcoming = async (interaction: CommandInteraction) => {
-	const { upcoming } = await Steam.getUpcoming();
+	const upcoming = await Steam.getUpcoming();
 
 	await interaction.reply({
 		embeds: [
@@ -150,10 +150,8 @@ const getWishlist = async (interaction: CommandInteraction) => {
 	const formattedWishlist = integration.wishlist
 		.slice(0, 10)
 		.map(
-			(item, index) =>
-				`\`${index + 1}.\` **[${item.name}](${item.url})** | ${
-					item.discounted || (item.free && 'Free') || 'N/A'
-				}`,
+			({ name, url, discounted, free }, index) =>
+				`\`${index + 1}.\` **[${name}](${url})** | ${discounted || (free && 'Free') || 'N/A'}`,
 		);
 	integration.wishlist.length - formattedWishlist.length > 0 &&
 		formattedWishlist.push(`And ${integration.wishlist.length - formattedWishlist.length} more!`);

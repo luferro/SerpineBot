@@ -7,15 +7,16 @@ export const search = async (title: string) => {
 };
 
 export const getMangaById = async (id: string) => {
-	const data = await fetch<Manga>(`https://api.mangadex.org/manga/${id}?includes[]=cover_art`);
 	const {
-		attributes: {
-			title: { en, ja, jp, 'ja-ro': romaji },
+		data: {
+			attributes: {
+				title: { en, ja, jp, 'ja-ro': romaji },
+			},
+			relationships,
 		},
-		relationships,
-	} = data.data;
+	} = await fetch<Manga>(`https://api.mangadex.org/manga/${id}?includes[]=cover_art`);
 
-	const coverArt = relationships.find((item) => item.type === 'cover_art')!;
+	const coverArt = relationships.find(({ type }) => type === 'cover_art')!;
 	const image = coverArt ? `https://uploads.mangadex.org/covers/${id}/${coverArt.attributes!.fileName}` : null;
 
 	return {
@@ -27,14 +28,13 @@ export const getMangaById = async (id: string) => {
 };
 
 export const getLastestChapters = async (limit = 20) => {
-	const data = await fetch<Results<Chapter>>(
+	const { data } = await fetch<Results<Chapter>>(
 		`https://api.mangadex.org/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&limit=${limit}`,
 	);
 
-	return data.data.map(({ id, attributes, relationships }) => {
-		const manga = relationships.find((item) => item.type === 'manga')!;
+	return data.map(({ id, attributes: { title, chapter, externalUrl }, relationships }) => {
+		const manga = relationships.find(({ type }) => type === 'manga')!;
 
-		const { title, chapter, externalUrl } = attributes;
 		const chapterNumber = chapter ? `Ch. ${chapter}` : '';
 		const chapterTitle = title ?? '';
 

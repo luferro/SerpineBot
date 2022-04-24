@@ -17,9 +17,7 @@ export const execute = async (interaction: CommandInteraction) => {
 	const id = await TheMovieDB.search(movie, 'movie');
 	if (!id) return await interaction.reply({ content: `Couldn't find a match for ${movie}.`, ephemeral: true });
 
-	const { name, tagline, overview, url, releaseDate, image, score, runtime, genres } = await TheMovieDB.getMovieById(
-		id,
-	);
+	const { name, description, url, releaseDate, image, score, runtime, genres } = await TheMovieDB.getMovieById(id);
 	const { stream, buy, rent } = await TheMovieDB.getProviders(id, 'movie');
 
 	await interaction.reply({
@@ -27,20 +25,15 @@ export const execute = async (interaction: CommandInteraction) => {
 			new MessageEmbed()
 				.setTitle(name)
 				.setURL(url)
-				.setDescription(
-					`
-                ${tagline ? `*${tagline}*` : ''}
-                \n${overview ? overview : ''}
-            `,
-				)
+				.setDescription(description)
 				.setThumbnail(image ?? '')
 				.addField('**Release date**', releaseDate?.toString() ?? 'N/A')
 				.addField('**Score**', score?.toString() ?? 'N/A', true)
 				.addField('**Runtime**', runtime?.toString() ?? 'N/A', true)
-				.addField('**Genres**', genres.length > 0 ? genres.join('\n') : 'N/A', true)
-				.addField('**Buy**', buy.length > 0 ? buy.join('\n') : 'N/A', true)
-				.addField('**Rent**', rent.length > 0 ? rent.join('\n') : 'N/A', true)
-				.addField('**Stream**', stream.length > 0 ? stream.join('\n') : 'N/A', true)
+				.addField('**Genres**', genres.join('\n') || 'N/A', true)
+				.addField('**Buy**', buy.join('\n') || 'N/A', true)
+				.addField('**Rent**', rent.join('\n') || 'N/A', true)
+				.addField('**Stream**', stream.join('\n') || 'N/A', true)
 				.setColor('RANDOM'),
 		],
 	});

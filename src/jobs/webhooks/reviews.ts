@@ -11,19 +11,19 @@ export const data = {
 };
 
 export const execute = async (client: Bot) => {
-	const data = await Reddit.getPostsByFlair('Games', 'new', ['Review Thread']);
 	const {
 		0: {
 			data: { selftext },
 		},
-	} = data;
+	} = await Reddit.getPostsByFlair('Games', 'new', ['Review Thread']);
+
 	const selftextArray = selftext?.split('\n') ?? [];
 
-	const opencriticMatch = selftextArray.find((item) => item.includes('https://opencritic.com/game/'));
+	const opencriticMatch = selftextArray.find((text) => text.includes('https://opencritic.com/game/'));
 	const opencriticUrl = opencriticMatch?.match(/(?<=\()(.*)(?=\))/g)?.[0];
 	const opencriticId = opencriticUrl?.match(/\d+/g)?.[0];
 
-	const metacriticMatch = selftextArray.find((item) => item.includes('https://www.metacritic.com/game/'));
+	const metacriticMatch = selftextArray.find((text) => text.includes('https://www.metacritic.com/game/'));
 	const metacriticSlug = metacriticMatch?.split('/')[5];
 
 	const id = opencriticId ?? (metacriticSlug && (await OpenCritic.search(metacriticSlug)));
@@ -47,7 +47,7 @@ export const execute = async (client: Bot) => {
 					.setURL(url)
 					.setThumbnail(image ?? '')
 					.addField('**Release date**', releaseDate)
-					.addField('**Available on**', platforms.length > 0 ? platforms.join('\n') : 'N/A')
+					.addField('**Available on**', platforms.join('\n') || 'N/A')
 					.addField('**Tier**', tier?.toString() ?? 'N/A')
 					.addField('**Score**', score?.toString() ?? 'N/A', true)
 					.addField('**Reviews count**', count?.toString() ?? 'N/A', true)

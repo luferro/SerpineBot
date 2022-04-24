@@ -115,10 +115,10 @@ export const seek = async (guildId: string, time: string) => {
 		timeToConvert
 			.split(':')
 			.reverse()
-			.forEach((item, index) => {
-				if (index === 0) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(item), 'seconds');
-				if (index === 1) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(item), 'minutes');
-				if (index === 2) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(item), 'hours');
+			.forEach((time, index) => {
+				if (index === 0) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), 'seconds');
+				if (index === 1) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), 'minutes');
+				if (index === 2) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), 'hours');
 			});
 
 		return totalMilliseconds;
@@ -142,7 +142,9 @@ export const loop = async (guildId: string) => {
 
 	musicSubscription.looping = !musicSubscription.looping;
 
-	return { looping: musicSubscription.looping };
+	return {
+		looping: musicSubscription.looping,
+	};
 };
 
 export const skip = async (guildId: string) => {
@@ -156,7 +158,10 @@ export const skip = async (guildId: string) => {
 	musicSubscription.player.stop();
 	await play(guildId);
 
-	return { skippedItem, playing: musicSubscription.queue[0].title };
+	return {
+		skippedItem,
+		playing: musicSubscription.queue[0].title,
+	};
 };
 
 export const pause = async (guildId: string) => {
@@ -165,7 +170,9 @@ export const pause = async (guildId: string) => {
 
 	musicSubscription.player.pause();
 
-	return { pausedItem: musicSubscription.queue[0].title };
+	return {
+		pausedItem: musicSubscription.queue[0].title,
+	};
 };
 
 export const resume = async (guildId: string) => {
@@ -174,12 +181,17 @@ export const resume = async (guildId: string) => {
 
 	musicSubscription.player.unpause();
 
-	return { resumedItem: musicSubscription.queue[0].title };
+	return {
+		resumedItem: musicSubscription.queue[0].title,
+	};
 };
 
 export const queue = (guildId: string) => {
 	const musicSubscription = Bot.music.get(guildId)!;
 	const playing = musicSubscription.queue[0];
 
-	return { playing, queue: musicSubscription.queue };
+	return {
+		playing,
+		queue: musicSubscription.queue,
+	};
 };

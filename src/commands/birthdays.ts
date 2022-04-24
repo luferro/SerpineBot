@@ -70,7 +70,7 @@ const getBirthdays = async (interaction: CommandInteraction) => {
 		return firstDate.getTime() - secondDate.getTime();
 	});
 
-	const formattedBirthday = sortedBirthdays.map((item) => `> **${item.birthday}** ${item.user.tag}`).join('\n');
+	const formattedBirthday = sortedBirthdays.map(({ birthday, user }) => `> **${birthday}** ${user.tag}`).join('\n');
 
 	await interaction.reply({
 		embeds: [new MessageEmbed().setTitle('Birthdays').setDescription(formattedBirthday).setColor('RANDOM')],
