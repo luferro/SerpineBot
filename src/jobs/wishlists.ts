@@ -16,61 +16,69 @@ export const execute = async (client: Bot) => {
 		const wishlist = await Steam.getWishlist(integration.profile.id);
 		if (!wishlist) continue;
 
-		const wishlistAlerts = new Map<string, Alert[]>();
-		const wishlistItems = wishlist.map((item) => {
-			const storedItem = integration.wishlist.find(
-				({ name: nestedStoredItemName }) => nestedStoredItemName === item.name,
-			);
-			let notified = storedItem && item.sale ? storedItem.notified : false;
+		const wishlistAlerts = new Map<string, Alert[]>([
+			['sale', []],
+			['released', []],
+			['subscriptions.added', []],
+			['subscriptions.removed', []],
+		]);
+		const wishlistItems = wishlist.map((game) => {
+			const saleAlerts = wishlistAlerts.get('sale')!;
+			const releasedAlerts = wishlistAlerts.get('released')!;
+			const addedToSubscriptionAlerts = wishlistAlerts.get('subscriptions.added')!;
+			const removedFromSubscriptionAlerts = wishlistAlerts.get('subscriptions.removed')!;
+
+			const {
+				name,
+				url,
+				discount,
+				regular,
+				discounted,
+				subscriptions,
+				sale: isSale,
+				released: isReleased,
+			} = game;
 
 			const alert = {
-				name: item.name,
-				url: item.url,
-				discount: item.discount,
-				regular: item.regular,
-				discounted: item.discounted,
+				name,
+				url,
+				discount,
+				regular,
+				discounted,
 				addedTo: [] as string[],
 				removedFrom: [] as string[],
 			};
 
-			for (const [subscription, isInSubscription] of Object.entries(item.subscriptions)) {
-				if (!storedItem) break;
-				const { 1: isInStoredSubscription } = Object.entries(storedItem.subscriptions).find(
-					({ 0: key }) => key === subscription,
+			const storedItem = integration.wishlist.find(
+				({ name: nestedStoredItemName }) => nestedStoredItemName === name,
+			);
+			let notified = storedItem && isSale ? storedItem.notified : false;
+
+			for (const [subscription, isInSubscription] of Object.entries(subscriptions)) {
+				const { 1: isInStoredSubscription } = Object.entries(storedItem?.subscriptions ?? {}).find(
+					([key]) => key === subscription,
 				)!;
 
-				if (!isInStoredSubscription && isInSubscription)
-					alert.addedTo.push(`> • **${subscription.replace(/_/g, ' ').toUpperCase()}**`);
-				if (isInStoredSubscription && !isInSubscription)
-					alert.removedFrom.push(`> • **${subscription.replace(/_/g, ' ').toUpperCase()}**`);
+				const formmattedSubscription = `> • **${subscription.replace(/_/g, ' ').toUpperCase()}**`;
+
+				if (!isInStoredSubscription && isInSubscription) alert.addedTo.push(formmattedSubscription);
+				if (isInStoredSubscription && !isInSubscription) alert.removedFrom.push(formmattedSubscription);
 			}
 
-			if (alert.addedTo.length > 0) {
-				const addedToSubscriptionAlerts = wishlistAlerts.get('subscriptions.added');
-				addedToSubscriptionAlerts?.push(alert) ?? wishlistAlerts.set('subscriptions.added', [alert]);
-			}
+			const isSaleAlert = isSale && isReleased && !notified;
+			const isReleasedAlert = storedItem && !storedItem.released && game.released;
+			const isAddedToSubscriptionAlert = alert.addedTo.length > 0;
+			const isRemovedFromSubscriptionAlert = alert.removedFrom.length > 0;
 
-			if (alert.removedFrom.length > 0) {
-				const removedFromSubscriptionAlerts = wishlistAlerts.get('subscriptions.removed');
-				removedFromSubscriptionAlerts?.push(alert) ?? wishlistAlerts.set('subscriptions.removed', [alert]);
-			}
+			if (isSaleAlert) saleAlerts.push(alert);
+			if (isReleasedAlert) releasedAlerts.push(alert);
+			if (isAddedToSubscriptionAlert) addedToSubscriptionAlerts.push(alert);
+			if (isRemovedFromSubscriptionAlert) removedFromSubscriptionAlerts.push(alert);
 
-			if (storedItem && !storedItem.released && item.released) {
-				const releasedAlerts = wishlistAlerts.get('released');
-				releasedAlerts?.push(alert) ?? wishlistAlerts.set('released', [alert]);
-
-				if (item.sale) notified = true;
-			}
-
-			if (item.sale && item.released && !notified) {
-				const saleAlerts = wishlistAlerts.get('sale');
-				saleAlerts?.push(alert) ?? wishlistAlerts.set('sale', [alert]);
-
-				notified = true;
-			}
+			if (isSaleAlert || (isReleasedAlert && isSale)) notified = true;
 
 			return {
-				...item,
+				...game,
 				notified,
 			};
 		});
