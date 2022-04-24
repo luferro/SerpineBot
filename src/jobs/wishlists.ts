@@ -28,23 +28,10 @@ export const execute = async (client: Bot) => {
 			const addedToSubscriptionAlerts = wishlistAlerts.get('subscriptions.added')!;
 			const removedFromSubscriptionAlerts = wishlistAlerts.get('subscriptions.removed')!;
 
-			const {
-				name,
-				url,
-				discount,
-				regular,
-				discounted,
-				subscriptions,
-				sale: isSale,
-				released: isReleased,
-			} = game;
+			const { name, subscriptions, sale: isSale, released: isReleased } = game;
 
 			const alert = {
-				name,
-				url,
-				discount,
-				regular,
-				discounted,
+				...game,
 				addedTo: [] as string[],
 				removedFrom: [] as string[],
 			};
@@ -66,7 +53,7 @@ export const execute = async (client: Bot) => {
 			}
 
 			const isSaleAlert = isSale && isReleased && !notified;
-			const isReleasedAlert = storedItem && !storedItem.released && game.released;
+			const isReleasedAlert = storedItem && !storedItem.released && isReleased;
 			const isAddedToSubscriptionAlert = alert.addedTo.length > 0;
 			const isRemovedFromSubscriptionAlert = alert.removedFrom.length > 0;
 
@@ -86,6 +73,8 @@ export const execute = async (client: Bot) => {
 		await steamModel.updateOne({ userId: integration.userId }, { $set: { wishlist: wishlistItems } });
 
 		for (const [category, alerts] of wishlistAlerts.entries()) {
+			if (alerts.length === 0) continue;
+
 			const user = await client.users.fetch(integration.userId);
 
 			const title = getTitle(category, alerts.length);
@@ -128,15 +117,15 @@ const getTitle = (category: string, totalItems: number) => {
 const getDescription = (category: string, items: Alert[]) => {
 	const options: Record<string, string[]> = {
 		'subscriptions.added': items.map(
-			(item) => `> **[${item.name}](${item.url})** added to:\n${item.addedTo.join('\n')}`,
+			({ name, url, addedTo }) => `> **[${name}](${url})** added to:\n${addedTo.join('\n')}`,
 		),
 		'subscriptions.removed': items.map(
-			(item) => `> **[${item.name}](${item.url})** removed from:\n${item.removedFrom.join('\n')}`,
+			({ name, url, removedFrom }) => `> **[${name}](${url})** removed from:\n${removedFrom.join('\n')}`,
 		),
-		'released': items.map((item) => `> **[${item.name}](${item.url})** available for **${item.discounted}**`),
+		'released': items.map(({ name, url, discounted }) => `> **[${name}](${url})** available for **${discounted}**`),
 		'sale': items.map(
-			(item) =>
-				`> **[${item.name}](${item.url})** is ***${item.discount}%*** off! ~~${item.regular}~~ | **${item.discounted}**`,
+			({ name, url, discount, regular, discounted }) =>
+				`> **[${name}](${url})** is ***${discount}%*** off! ~~${regular}~~ | **${discounted}**`,
 		),
 	};
 
