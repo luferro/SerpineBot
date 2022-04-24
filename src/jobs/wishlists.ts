@@ -42,7 +42,9 @@ export const execute = async (client: Bot) => {
 			let notified = storedItem && isSale ? storedItem.notified : false;
 
 			for (const [subscription, isInSubscription] of Object.entries(subscriptions)) {
-				const { 1: isInStoredSubscription } = Object.entries(storedItem?.subscriptions ?? {}).find(
+				if (!storedItem) break;
+
+				const { 1: isInStoredSubscription } = Object.entries(storedItem.subscriptions).find(
 					([key]) => key === subscription,
 				)!;
 
