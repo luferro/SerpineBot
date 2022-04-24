@@ -22,7 +22,7 @@
 		"@types/user-agents": "^1.0.2",
 		"@typescript-eslint/eslint-plugin": "^5.20.0",
 		"@typescript-eslint/parser": "^5.20.0",
-		"eslint": "^8.13.0",
+		"eslint": "^8.14.0",
 		"eslint-config-prettier": "^8.5.0",
 		"jest": "^27.5.1",
 		"prettier": "^2.6.2",
@@ -38,12 +38,12 @@
 		"discord.js": "^13.6.0",
 		"dotenv": "^16.0.0",
 		"ffmpeg-static": "^5.0.0",
-		"mongoose": "^6.3.0",
+		"mongoose": "^6.3.1",
 		"play-dl": "^1.9.4",
-		"playwright-chromium": "^1.21.0",
+		"playwright-chromium": "^1.21.1",
 		"tweetnacl": "^1.0.3",
 		"undici": "^5.0.0",
-		"user-agents": "^1.0.989",
+		"user-agents": "^1.0.995",
 		"winston": "^3.7.2"
 	}
 }
