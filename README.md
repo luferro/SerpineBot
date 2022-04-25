@@ -27,11 +27,11 @@ npm start
 
 **Luís Ferro**
 
--   [Github](https://github.com/Serpin3)
+-   [Github](https://github.com/luferro)
 -   [LinkedIn](https://www.linkedin.com/in/luis-ferro/)
 
 ## License
 
-Copyright © 2022 [Luís Ferro](https://github.com/Serpin3)
+Copyright © 2022 [Luís Ferro](https://github.com/luferro)
 
 This project is licensed under the [MIT license](LICENSE).
