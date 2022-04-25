@@ -81,7 +81,7 @@ const getGamePass = async (page: Page, category: GamePassCategories) => {
 		{ upsert: true },
 	);
 
-	logger.info(`Subscriptions job found _*${items.length}*_ items for _*${category}*_ Game Pass*.`);
+	logger.info(`Subscriptions job found _*${items.length}*_ items for _*${category} Game Pass*_.`);
 };
 
 const getUbisoftPlus = async (page: Page) => {
