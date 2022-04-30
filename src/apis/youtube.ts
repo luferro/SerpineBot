@@ -3,7 +3,11 @@ import { fetch } from '../services/fetch';
 import { Channel, Video } from '../types/responses';
 
 export const isVideo = (url: string) => {
-	return ytdl.yt_validate(url) === 'video';
+	return url.startsWith('https') && ytdl.yt_validate(url) === 'video';
+};
+
+export const isPlaylist = (url: string) => {
+	return ytdl.yt_validate(url) === 'playlist';
 };
 
 export const search = async (query: string, limit = 1) => {
@@ -32,6 +36,28 @@ export const getChannelId = async (url: string) => {
 	);
 
 	return items[0]?.snippet.channelId;
+};
+
+export const getPlaylist = async (url: string) => {
+	const playlist = await ytdl.playlist_info(url);
+	const videos = await playlist.all_videos();
+
+	const { title, channel, videoCount } = playlist;
+
+	return {
+		title: title ?? 'N/A',
+		channel: channel?.name ?? 'N/A',
+		url,
+		count: videoCount,
+		videos: videos.map(({ title, channel, url, thumbnails, durationRaw, live }) => ({
+			title: title ?? 'N/A',
+			channel: channel?.name ?? 'N/A',
+			url,
+			thumbnail: thumbnails[0]?.url,
+			duration: durationRaw,
+			isLivestream: live,
+		})),
+	};
 };
 
 export const getSubscribers = async (url: string) => {

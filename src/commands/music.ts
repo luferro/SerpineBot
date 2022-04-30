@@ -117,11 +117,41 @@ const add = async (interaction: CommandInteraction) => {
 	if (!Bot.music.has(guild.id)) Music.join(guild.id, member);
 
 	const query = interaction.options.getString('query')!;
-	const results = await Youtube.search(query);
+
+	if (Youtube.isPlaylist(query)) {
+		const { title, url, channel, count, videos } = await Youtube.getPlaylist(query);
+		for (const video of videos) {
+			const music = {
+				playlist: {
+					title,
+					url,
+				},
+				requested: interaction.user.tag,
+				...video,
+			};
+
+			await Music.addToQueue(guild.id, music).catch((error: Error) => error);
+		}
+
+		return await interaction.reply({
+			embeds: [
+				new MessageEmbed()
+					.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
+					.setTitle(title)
+					.setURL(url)
+					.addField('**Channel**', channel, true)
+					.addField('**Count**', count?.toString() ?? 'N/A', true)
+					.setColor('RANDOM'),
+			],
+		});
+	}
+
+	const video = (await Youtube.search(query)).shift();
+	if (!video) return await interaction.reply({ content: `No results were found for ${query}.`, ephemeral: true });
 
 	const music = {
 		requested: interaction.user.tag,
-		...results[0],
+		...video,
 	};
 
 	const result = await Music.addToQueue(guild.id, music).catch((error: Error) => error);
@@ -378,7 +408,7 @@ const queue = async (interaction: CommandInteraction) => {
 
 	const { playing, queue } = Music.queue(guild.id);
 	const formattedQueue = queue
-		.slice(1, 10)
+		.slice(0, 10)
 		.map(
 			({ title, url, duration, requested }, index) =>
 				`\`${index + 1}.\` **[${title}](${url})** | \`${duration}\`\nRequest by \`${requested}\``,
@@ -389,14 +419,14 @@ const queue = async (interaction: CommandInteraction) => {
 		embeds: [
 			new MessageEmbed()
 				.setTitle(`Queue for ${guild.name}`)
-				.addField(
-					'Now playing',
-					playing
-						? `**[${playing.title}](${playing.url})** | \`${playing.duration}\`\nRequest by \`${playing.requested}\``
-						: 'Nothing is playing.',
+				.setDescription(
+					`__Now playing__\n${
+						playing
+							? `**[${playing.title}](${playing.url})** | \`${playing.duration}\`\nRequest by \`${playing.requested}\``
+							: 'Nothing is playing.'
+					}\n\n__Queue__\n${formattedQueue || 'Queue is empty.'}`,
 				)
-				.addField('Queue', formattedQueue || 'Queue is empty.')
-				.setFooter({ text: `${playing ? queue.length - 1 : queue.length} total items in queue.` })
+				.setFooter({ text: `${queue.length} total items in queue.` })
 				.setColor('RANDOM'),
 		],
 	});
