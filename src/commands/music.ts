@@ -411,7 +411,7 @@ const queue = async (interaction: CommandInteraction) => {
 		.slice(0, 10)
 		.map(
 			({ title, url, duration, requested }, index) =>
-				`\`${index + 1}.\` **[${title}](${url})** | \`${duration}\`\nRequest by \`${requested}\``,
+				`\`${index + 1}.\` **[${title}](${url})** | **${duration}**\nRequest by \`${requested}\``,
 		)
 		.join('\n');
 
@@ -420,11 +420,11 @@ const queue = async (interaction: CommandInteraction) => {
 			new MessageEmbed()
 				.setTitle(`Queue for ${guild.name}`)
 				.setDescription(
-					`__Now playing__\n${
+					`**Now playing**\n${
 						playing
-							? `**[${playing.title}](${playing.url})** | \`${playing.duration}\`\nRequest by \`${playing.requested}\``
+							? `**[${playing.title}](${playing.url})** | **${playing.duration}**\nRequest by \`${playing.requested}\``
 							: 'Nothing is playing.'
-					}\n\n__Queue__\n${formattedQueue || 'Queue is empty.'}`,
+					}\n\n**Queue**\n${formattedQueue || 'Queue is empty.'}`,
 				)
 				.setFooter({ text: `${queue.length} total items in queue.` })
 				.setColor('RANDOM'),
