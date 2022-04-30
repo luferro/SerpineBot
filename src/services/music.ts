@@ -188,10 +188,12 @@ export const resume = async (guildId: string) => {
 
 export const queue = (guildId: string) => {
 	const musicSubscription = Bot.music.get(guildId)!;
-	const playing = musicSubscription.queue[0];
+
+	const queue = [...musicSubscription.queue];
+	const playing = queue.shift();
 
 	return {
 		playing,
-		queue: musicSubscription.queue,
+		queue,
 	};
 };

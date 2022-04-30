@@ -36,6 +36,10 @@ export interface QueueItem {
 	url: string;
 	duration: string;
 	isLivestream: boolean;
+	playlist?: {
+		title: string;
+		url: string;
+	};
 	requested: string;
 }
 
