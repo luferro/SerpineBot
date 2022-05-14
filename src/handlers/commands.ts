@@ -17,8 +17,8 @@ export const register = async () => {
 
 export const deploy = async (client: Bot) => {
 	for (const { 1: guild } of client.guilds.cache) {
-		const slashCommands = Bot.commands.map((item) =>
-			item.data.slashCommand.toJSON(),
+		const slashCommands = Bot.commands.map((command) =>
+			command.data.slashCommand.toJSON(),
 		) as ApplicationCommandDataResolvable[];
 
 		const guildCommands = await guild.commands.set(slashCommands);
