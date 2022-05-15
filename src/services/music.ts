@@ -149,12 +149,11 @@ export const loop = async (guildId: string) => {
 
 export const skip = async (guildId: string) => {
 	const musicSubscription = Bot.music.get(guildId)!;
+	if (musicSubscription.queue.length === 1) throw new Error('There are no more items to skip.');
 	if (musicSubscription.looping) musicSubscription.looping = false;
 	if (musicSubscription.player.state.status === AudioPlayerStatus.Paused) musicSubscription.player.unpause();
 
 	const skippedItem = musicSubscription.queue[0].title;
-
-	if (musicSubscription.queue.length === 1) throw new Error('There are no more items to skip.');
 
 	musicSubscription.player.stop();
 	await play(guildId);
