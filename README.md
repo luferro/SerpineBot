@@ -1,6 +1,6 @@
 ## SerpineBot
 
-[![CodeFactor](https://www.codefactor.io/repository/github/serpin3/serpinebot/badge)](https://www.codefactor.io/repository/github/serpin3/serpinebot)
+[![CodeFactor](https://www.codefactor.io/repository/github/luferro/serpinebot/badge)](https://www.codefactor.io/repository/github/luferro/serpinebot)
 
 A multipurpose Discord bot.
 
