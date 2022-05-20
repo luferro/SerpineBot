@@ -4,10 +4,8 @@ import * as StringUtil from '../utils/string';
 import { Review } from '../types/responses';
 
 export const search = async (title: string) => {
-	const results = await Google.search(`${title} opencritic review`);
-	const filteredResults = results.filter(({ url }) => url.includes('https://opencritic.com'));
-
-	return filteredResults[0]?.url.match(/\d+/g)?.[0];
+	const results = await Google.search(`${title} site:https://opencritic.com`);
+	return results[0]?.url.match(/\d+/g)?.[0];
 };
 
 export const getReviewById = async (id: string) => {
