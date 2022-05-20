@@ -1,4 +1,5 @@
 import { load } from 'cheerio';
+import * as Google from '../apis/google';
 import { fetch } from '../services/fetch';
 
 const parse = (text: string) => {
@@ -11,34 +12,31 @@ const parse = (text: string) => {
 };
 
 export const search = async (title: string) => {
-	const formData = new URLSearchParams();
-	formData.append('queryString', title);
-	formData.append('t', 'games');
-	formData.append('sorthead', 'popular');
-	formData.append('sortd', 'Normal Order');
-	formData.append('plat', '');
-	formData.append('length_type', 'main');
-	formData.append('length_min', '');
-	formData.append('length_max', '');
-	formData.append('detail', '0');
+	const results = await Google.search(`${title} site:https://howlongtobeat.com`);
+	if (results.length === 0) return;
 
-	const data = await fetch<string>('https://howlongtobeat.com/search_results?page=1', 'POST', formData);
+	const params = new URL(results[0].url).searchParams;
+	return params.get('id');
+};
+
+export const getGameById = async (id: string) => {
+	const data = await fetch<string>(`https://howlongtobeat.com/game?id=${id}`);
 	const $ = load(data);
 
-	const name = $('ul').first().find('li').first().find('h3 a').text();
-	const src = $('ul').first().find('li').first().find('img').attr('src');
+	const name = $('.profile_header_game .profile_header').text().trim();
+	const src = $('.profile_header_game .game_image img').attr('src');
 	const image = src && `https://howlongtobeat.com${src}`;
 
 	let main: string | undefined;
 	let mainExtra: string | undefined;
 	let completionist: string | undefined;
-	for (const element of $('.search_list_details_block').first().find('div').get()) {
-		const label = $(element).text();
+	for (const element of $('.game_times ul li').get()) {
+		const label = $(element).find('h5').text();
 		const isMainLabel = ['Main Story', 'Single-Player', 'Solo'].some((labelText) => label.startsWith(labelText));
 		const isMainExtraLabel = ['Main + Extra', 'Co-Op'].some((labelText) => label.startsWith(labelText));
 		const isCompletionistLabel = ['Completionist', 'Vs.'].some((labelText) => label.startsWith(labelText));
 
-		const time = $(element).next().text();
+		const time = $(element).find('div').text();
 		const playtime = parse(time);
 
 		if (isMainLabel) main = playtime;
