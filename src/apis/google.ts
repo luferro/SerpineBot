@@ -11,6 +11,8 @@ export const search = async (query: string) => {
 		.children()
 		.get()
 		.map((element) => {
+			if (Object.keys(element.attribs).length === 1) return;
+
 			const name = $(element).find('h3').text();
 			const url = $(element).find('a').attr('href')!;
 			if (!name && !url) return;
