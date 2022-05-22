@@ -23,6 +23,12 @@ npm install
 npm start
 ```
 
+## Testing
+
+```
+npm test
+```
+
 ## Author
 
 **Luís Ferro**
