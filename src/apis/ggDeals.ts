@@ -18,6 +18,7 @@ export const getDealById = async (id: string) => {
 
 	const name = $('.image-game').first().attr('alt')!;
 	const image = $('.image-game').first().attr('src')?.replace('307xt176', '616xt353');
+	const isValidScheme = /^(http|https)/g.test(image ?? '');
 
 	const historicalLows = $('#game-lowest-tab-price .game-lowest-price-row')
 		.get()
@@ -79,10 +80,10 @@ export const getDealById = async (id: string) => {
 
 	return {
 		name,
-		image,
 		historicalLows,
 		officialStores,
 		keyshops,
+		image: isValidScheme ? image : undefined,
 		coupons: couponsArray.map((couponText, index) => `> *(${index + 1}) ${couponText}*`),
 	};
 };
