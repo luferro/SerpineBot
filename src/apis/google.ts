@@ -11,7 +11,8 @@ export const search = async (query: string) => {
 		.children()
 		.get()
 		.map((element) => {
-			if (Object.keys(element.attribs).length === 1) return;
+			const isRelevant = $(element).find('cite').length > 0;
+			if (!isRelevant) return;
 
 			const name = $(element).find('h3').text();
 			const url = $(element).find('a').attr('href')!;
