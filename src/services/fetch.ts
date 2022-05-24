@@ -17,6 +17,10 @@ export const fetch = async <T>(
 		body: body?.toString(),
 	});
 
+	res.body.on('error', (error) => {
+		throw new FetchError(`_*${method}*_ request to _*${url}*_ failed. Reason: ${error.message}`);
+	});
+
 	if (res.statusCode >= 400) {
 		await res.body.dump();
 		throw new FetchError(`_*${method}*_ request to _*${url}*_ failed. Status code: _*${res.statusCode}*_.`);
