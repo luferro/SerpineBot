@@ -1,8 +1,8 @@
-import { fetch } from '../../src/services/fetch';
+import { fetch } from '../../src/utils/fetch';
 
 describe('Fetch service', () => {
 	it('should make a GET request', async () => {
-		const data = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+		const data = await fetch({ url: 'https://jsonplaceholder.typicode.com/posts/1' });
 
 		expect(data).toHaveProperty('id');
 	});
@@ -13,7 +13,7 @@ describe('Fetch service', () => {
 			body: 'bar',
 			userId: 1,
 		});
-		const data = await fetch('https://jsonplaceholder.typicode.com/posts', 'POST', body);
+		const data = await fetch({ method: 'POST', url: 'https://jsonplaceholder.typicode.com/posts', body });
 
 		expect(data).toHaveProperty('id');
 	});
@@ -25,7 +25,7 @@ describe('Fetch service', () => {
 			body: 'bar',
 			userId: 1,
 		});
-		const data = await fetch('https://jsonplaceholder.typicode.com/posts/1', 'PUT', body);
+		const data = await fetch({ method: 'PUT', url: 'https://jsonplaceholder.typicode.com/posts/1', body });
 
 		expect(data).toHaveProperty('id');
 	});
@@ -34,13 +34,13 @@ describe('Fetch service', () => {
 		const body = JSON.stringify({
 			title: 'foo',
 		});
-		const data = await fetch('https://jsonplaceholder.typicode.com/posts/1', 'PATCH', body);
+		const data = await fetch({ method: 'PATCH', url: 'https://jsonplaceholder.typicode.com/posts/1', body });
 
 		expect(data).toHaveProperty('id');
 	});
 
 	it('should make a DELETE request', async () => {
-		const data = await fetch('https://jsonplaceholder.typicode.com/posts/1', 'DELETE');
+		const data = await fetch({ method: 'DELETE', url: 'https://jsonplaceholder.typicode.com/posts/1' });
 
 		expect(data).toStrictEqual({});
 	});
