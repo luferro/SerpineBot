@@ -55,7 +55,7 @@ const getNextSale = async (interaction: CommandInteraction) => {
 			new MessageEmbed()
 				.setTitle('When is the next Steam sale?')
 				.setDescription(`*${status || ''}*\n**${sale || "Couldn't find the next steam sale."}**`)
-				.addField('Upcoming Games', upcoming.length > 0 ? upcoming.join('\n') : 'N/A')
+				.addField('Upcoming Sales', upcoming.length > 0 ? upcoming.join('\n') : 'N/A')
 				.setColor('RANDOM'),
 		],
 	});
