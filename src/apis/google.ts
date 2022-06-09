@@ -1,8 +1,8 @@
 import { load } from 'cheerio';
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 
 export const search = async (query: string) => {
-	const data = await fetch<string>(`https://www.google.com/search?q=${query}`);
+	const data = await fetch<string>({ url: `https://www.google.com/search?q=${query}` });
 	const $ = load(data);
 
 	return $('#search')

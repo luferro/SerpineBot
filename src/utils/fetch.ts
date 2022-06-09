@@ -1,13 +1,9 @@
 import { request } from 'undici';
 import UserAgent from 'user-agents';
 import { FetchError } from '../errors/fetchError';
-import { HttpMethods } from '../types/categories';
+import { Request } from '../types/request';
 
-export const fetch = async <T>(
-	url: string | URL,
-	method: HttpMethods = 'GET',
-	body?: URLSearchParams | string,
-): Promise<T> => {
+export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<T> => {
 	const res = await request(url, {
 		method,
 		headers: {
@@ -15,10 +11,6 @@ export const fetch = async <T>(
 			'content-type': body instanceof URLSearchParams ? 'application/x-www-form-urlencoded' : 'application/json',
 		},
 		body: body?.toString(),
-	});
-
-	res.body.on('error', (error) => {
-		throw new FetchError(`_*${method}*_ request to _*${url}*_ failed. Reason: ${error.message}`);
 	});
 
 	if (res.statusCode >= 400) {

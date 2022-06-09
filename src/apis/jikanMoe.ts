@@ -1,4 +1,4 @@
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import { Anime } from '../types/responses';
 
 export const getAnimeById = async (id: string) => {
@@ -17,7 +17,7 @@ export const getAnimeById = async (id: string) => {
 			trailer,
 			images,
 		},
-	} = await fetch<Anime>(`https://api.jikan.moe/v4/anime/${id}`);
+	} = await fetch<Anime>({ url: `https://api.jikan.moe/v4/anime/${id}` });
 
 	return {
 		id,

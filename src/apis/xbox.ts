@@ -1,5 +1,5 @@
 import { load } from 'cheerio';
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import * as Youtube from './youtube';
 import { XboxWireCategories } from '../types/categories';
 
@@ -10,7 +10,7 @@ export const getLatestXboxWireNews = async (category: XboxWireCategories) => {
 		'games with gold': 'https://news.xbox.com/en-us/games/',
 	};
 
-	const data = await fetch<string>(options[category]);
+	const data = await fetch<string>({ url: options[category] });
 	const $ = load(data);
 
 	return $('.media.feed')

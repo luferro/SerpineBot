@@ -1,19 +1,21 @@
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import * as ConverterUtil from '../utils/converter';
 import { TheMovieDBCategories } from '../types/categories';
 import { Movie, Providers, Result, Results, TV } from '../types/responses';
 
 export const search = async (title: string, category: TheMovieDBCategories) => {
-	const data = await fetch<Results<Result>>(
-		`https://api.themoviedb.org/3/search/${category}?query=${title}&api_key=${process.env.THEMOVIEDB_API_KEY}`,
-	);
+	const data = await fetch<Results<Result>>({
+		url: `https://api.themoviedb.org/3/search/${category}?query=${title}&api_key=${process.env.THEMOVIEDB_API_KEY}`,
+	});
 
 	return data.results[0]?.id.toString();
 };
 
 export const getMovieById = async (id: string) => {
 	const { title, tagline, overview, homepage, release_date, poster_path, vote_average, runtime, genres } =
-		await fetch<Movie>(`https://api.themoviedb.org/3/movie/${id}?api_key=${process.env.THEMOVIEDB_API_KEY}`);
+		await fetch<Movie>({
+			url: `https://api.themoviedb.org/3/movie/${id}?api_key=${process.env.THEMOVIEDB_API_KEY}`,
+		});
 
 	return {
 		name: title,
@@ -41,7 +43,7 @@ export const getTvShowById = async (id: string) => {
 		vote_average,
 		episode_run_time,
 		genres,
-	} = await fetch<TV>(`https://api.themoviedb.org/3/tv/${id}?api_key=${process.env.THEMOVIEDB_API_KEY}`);
+	} = await fetch<TV>({ url: `https://api.themoviedb.org/3/tv/${id}?api_key=${process.env.THEMOVIEDB_API_KEY}` });
 
 	return {
 		name,
@@ -61,9 +63,9 @@ export const getTvShowById = async (id: string) => {
 export const getProviders = async (id: string, category: TheMovieDBCategories) => {
 	const {
 		results: { PT },
-	} = await fetch<Providers>(
-		`https://api.themoviedb.org/3/${category}/${id}/watch/providers?api_key=${process.env.THEMOVIEDB_API_KEY}`,
-	);
+	} = await fetch<Providers>({
+		url: `https://api.themoviedb.org/3/${category}/${id}/watch/providers?api_key=${process.env.THEMOVIEDB_API_KEY}`,
+	});
 
 	return {
 		url: PT?.link,

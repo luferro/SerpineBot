@@ -2,8 +2,6 @@ export type ChannelCategories = 'GUILD_TEXT' | 'GUILD_VOICE';
 
 export type MessageCategories = 'LEADERBOARDS_MESSAGE' | 'ROLES_MESSAGE' | 'BIRTHDAYS_MESSAGE';
 
-export type HttpMethods = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-
 export type TimeUnits = 'seconds' | 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | 'years';
 
 export type WebhookCategories =

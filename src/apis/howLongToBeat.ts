@@ -1,6 +1,6 @@
 import { load } from 'cheerio';
 import * as Google from '../apis/google';
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 
 const parse = (text: string) => {
 	if (!/\d+/.test(text)) return;
@@ -20,7 +20,7 @@ export const search = async (title: string) => {
 };
 
 export const getGameById = async (id: string) => {
-	const data = await fetch<string>(`https://howlongtobeat.com/game?id=${id}`);
+	const data = await fetch<string>({ url: `https://howlongtobeat.com/game?id=${id}` });
 	const $ = load(data);
 
 	const name = $('.profile_header_game .profile_header').text().trim();

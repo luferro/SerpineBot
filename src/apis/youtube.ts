@@ -1,5 +1,5 @@
 import * as ytdl from 'play-dl';
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import { Channel, Video } from '../types/responses';
 
 export const isVideo = (url: string) => {
@@ -31,9 +31,9 @@ export const getVideoId = (url: string) => {
 export const getChannelId = async (url: string) => {
 	const videoId = getVideoId(url);
 
-	const { items } = await fetch<Video>(
-		`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.YOUTUBE_API_KEY}`,
-	);
+	const { items } = await fetch<Video>({
+		url: `https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.YOUTUBE_API_KEY}`,
+	});
 
 	return items[0]?.snippet.channelId;
 };
@@ -67,9 +67,9 @@ export const getSubscribers = async (url: string) => {
 	const queryOption = isIdType ? 'id' : 'forUsername';
 	const channelId = await getChannelId(url);
 
-	const { items } = await fetch<Channel>(
-		`https://youtube.googleapis.com/youtube/v3/channels?part=statistics&${queryOption}=${channelId}&key=${process.env.YOUTUBE_API_KEY}`,
-	);
+	const { items } = await fetch<Channel>({
+		url: `https://youtube.googleapis.com/youtube/v3/channels?part=statistics&${queryOption}=${channelId}&key=${process.env.YOUTUBE_API_KEY}`,
+	});
 
 	return Number(items?.[0].statistics?.subscriberCount ?? 0);
 };

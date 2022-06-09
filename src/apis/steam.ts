@@ -1,5 +1,5 @@
 import { load } from 'cheerio';
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import * as Subscriptions from '../services/subscriptions';
 import * as ConverterUtil from '../utils/converter';
 import { steamModel } from '../database/models/steam';
@@ -16,9 +16,9 @@ enum SteamStatus {
 }
 
 export const getSteamId64 = async (customId: string) => {
-	const data = await fetch<SteamId64>(
-		`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.STEAM_API_KEY}&vanityurl=${customId}`,
-	);
+	const data = await fetch<SteamId64>({
+		url: `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.STEAM_API_KEY}&vanityurl=${customId}`,
+	});
 
 	return data.response?.steamid;
 };
@@ -30,9 +30,9 @@ export const getProfile = async (steamId: string) => {
 				0: { personaname, avatarfull, personastate, lastlogoff, timecreated },
 			},
 		},
-	} = await fetch<SteamProfiles>(
-		`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`,
-	);
+	} = await fetch<SteamProfiles>({
+		url: `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`,
+	});
 
 	return {
 		name: personaname,
@@ -48,9 +48,9 @@ export const getWishlist = async (steamId: string) => {
 
 	let page = 0;
 	while (true) {
-		const data = await fetch<Wishlist>(
-			`https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=${page}`,
-		);
+		const data = await fetch<Wishlist>({
+			url: `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=${page}`,
+		});
 
 		const hasMore = Object.keys(data).some((id) => !isNaN(Number(id)));
 		if (!hasMore) break;
@@ -96,9 +96,9 @@ export const getWishlist = async (steamId: string) => {
 export const getRecentlyPlayed = async (steamId: string) => {
 	const {
 		response: { games },
-	} = await fetch<RecentlyPlayed>(
-		`https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${process.env.STEAM_API_KEY}&steamid=${steamId}&format=json`,
-	);
+	} = await fetch<RecentlyPlayed>({
+		url: `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${process.env.STEAM_API_KEY}&steamid=${steamId}&format=json`,
+	});
 	if (!games) return;
 
 	const integration = await steamModel.findOne({ 'profile.id': steamId });
@@ -121,7 +121,7 @@ export const getRecentlyPlayed = async (steamId: string) => {
 };
 
 export const getNextSale = async () => {
-	const data = await fetch<string>('https://prepareyourwallet.com/');
+	const data = await fetch<string>({ url: 'https://prepareyourwallet.com/' });
 	const $ = load(data);
 
 	const sale = $('p').first().attr('content');
@@ -146,7 +146,7 @@ export const getNextSale = async () => {
 };
 
 export const getTopPlayed = async () => {
-	const data = await fetch<string>('https://store.steampowered.com/stats/');
+	const data = await fetch<string>({ url: 'https://store.steampowered.com/stats/' });
 	const $ = load(data);
 
 	return $('.player_count_row')
@@ -161,7 +161,7 @@ export const getTopPlayed = async () => {
 };
 
 export const getTopSellers = async () => {
-	const data = await fetch<string>('https://store.steampowered.com/search/?filter=topsellers&os=win');
+	const data = await fetch<string>({ url: 'https://store.steampowered.com/search/?filter=topsellers&os=win' });
 	const $ = load(data);
 
 	const sellersInfo = $('.search_result_row')
@@ -183,7 +183,7 @@ export const getTopSellers = async () => {
 };
 
 export const getUpcoming = async () => {
-	const data = await fetch<string>('https://store.steampowered.com/search/?filter=popularcomingsoon&os=win');
+	const data = await fetch<string>({ url: 'https://store.steampowered.com/search/?filter=popularcomingsoon&os=win' });
 	const $ = load(data);
 
 	const upcomingInfo = $('.search_result_row')

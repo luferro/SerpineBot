@@ -1,4 +1,4 @@
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import * as Google from './google';
 import * as StringUtil from '../utils/string';
 import { Review } from '../types/responses';
@@ -18,7 +18,7 @@ export const getReviewById = async (id: string) => {
 		percentRecommended,
 		firstReleaseDate,
 		bannerScreenshot,
-	} = await fetch<Review>(`https://api.opencritic.com/api/game/${id}`);
+	} = await fetch<Review>({ url: `https://api.opencritic.com/api/game/${id}` });
 
 	return {
 		name,

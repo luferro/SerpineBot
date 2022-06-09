@@ -1,18 +1,18 @@
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import { Article, Results } from '../types/responses';
 
 const getNationalNews = async () => {
-	const { articles } = await fetch<Results<Article>>(
-		`https://newsapi.org/v2/top-headlines?country=pt&pageSize=10&apiKey=${process.env.NEWS_API_KEY}`,
-	);
+	const { articles } = await fetch<Results<Article>>({
+		url: `https://newsapi.org/v2/top-headlines?country=pt&pageSize=10&apiKey=${process.env.NEWS_API_KEY}`,
+	});
 
 	return articles;
 };
 
 const getInternationalNews = async () => {
-	const { articles } = await fetch<Results<Article>>(
-		`https://newsapi.org/v2/top-headlines?language=en&pageSize=10&apiKey=${process.env.NEWS_API_KEY}`,
-	);
+	const { articles } = await fetch<Results<Article>>({
+		url: `https://newsapi.org/v2/top-headlines?language=en&pageSize=10&apiKey=${process.env.NEWS_API_KEY}`,
+	});
 
 	return articles;
 };

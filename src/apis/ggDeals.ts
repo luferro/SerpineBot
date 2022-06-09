@@ -1,10 +1,10 @@
 import { load } from 'cheerio';
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import { BlogCategories, DealCategories } from '../types/categories';
 import * as UrlUtil from '../utils/url';
 
 export const search = async (title: string) => {
-	const data = await fetch<string>(`https://gg.deals/eu/games/?view=list&title=${title}`);
+	const data = await fetch<string>({ url: `https://gg.deals/eu/games/?view=list&title=${title}` });
 	const $ = load(data);
 
 	const href = $('#games-list .game-list-item a').first().attr('href');
@@ -13,7 +13,7 @@ export const search = async (title: string) => {
 };
 
 export const getDealById = async (id: string) => {
-	const data = await fetch<string>(`https://gg.deals/eu/game/${id}`);
+	const data = await fetch<string>({ url: `https://gg.deals/eu/game/${id}` });
 	const $ = load(data);
 
 	const name = $('.image-game').first().attr('alt')!;
@@ -95,7 +95,7 @@ export const getLatestBlogNews = async (category: BlogCategories) => {
 		'prime gaming': 'https://gg.deals/news/prime-gaming-free-games',
 	};
 
-	const data = await fetch<string>(options[category]);
+	const data = await fetch<string>({ url: options[category] });
 	const $ = load(data);
 
 	const title = $('.news-section .news-list .news-info-wrapper .news-title a').first().text();
@@ -120,7 +120,7 @@ export const getLatestDeals = async (category: DealCategories) => {
 		'paid games': 'https://gg.deals/eu/deals/?maxDiscount=99&minRating=8&sort=date',
 	};
 
-	const data = await fetch<string>(options[category]);
+	const data = await fetch<string>({ url: options[category] });
 	const $ = load(data);
 
 	return Promise.all(

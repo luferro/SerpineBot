@@ -1,4 +1,4 @@
-import { fetch } from '../services/fetch';
+import { fetch } from '../utils/fetch';
 import { load } from 'cheerio';
 import * as StringUtil from '../utils/string';
 import * as UrlUtil from '../utils/url';
@@ -29,7 +29,7 @@ export const getStreamingSubscriptions = async (title: string, category: TheMovi
 	const { url } = await TheMovieDB.getProviders(id, category);
 	if (!url) return;
 
-	const data = await fetch<string>(url);
+	const data = await fetch<string>({ url });
 	const $ = load(data);
 
 	const subscriptions = await Promise.all(
