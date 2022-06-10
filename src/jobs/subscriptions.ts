@@ -45,7 +45,10 @@ const getGamePass = async (page: Page, category: GamePassCategories) => {
 	await page.waitForLoadState('networkidle');
 	await page.waitForTimeout(5000);
 
-	if (category === 'PC') await page.click(`[data-theplat="pc"]`);
+	if (category === 'PC') await page.click('[data-theplat="pc"]');
+
+	const isPlatformSelected = (await page.$$(`.platselected[data-theplat="${category.toLowerCase()}"]`)).length > 0;
+	if (!isPlatformSelected) return;
 
 	const items = [];
 	while (true) {
