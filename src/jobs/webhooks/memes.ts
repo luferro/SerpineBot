@@ -10,9 +10,10 @@ export const data = {
 	schedule: '0 */5 * * * *',
 };
 
+const SUBREDDITS = ['Memes', 'DankMemes', 'ProgrammerHumor'];
+
 export const execute = async (client: Bot) => {
-	const subreddits = ['Memes', 'DankMemes', 'ProgrammerHumor'];
-	for (const subreddit of subreddits) {
+	for (const subreddit of SUBREDDITS) {
 		const {
 			0: {
 				data: { title, permalink, url, is_self },

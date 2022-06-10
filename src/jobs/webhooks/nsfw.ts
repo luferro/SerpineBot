@@ -10,9 +10,10 @@ export const data = {
 	schedule: '0 */5 * * * *',
 };
 
+const SUBREDDITS = ['Boobs', 'Gonewild', 'RealGirls', 'BiggerThanYouThought', 'TittyDrop', 'BreedingMaterial'];
+
 export const execute = async (client: Bot) => {
-	const subreddits = ['Boobs', 'Gonewild', 'RealGirls', 'BiggerThanYouThought', 'TittyDrop', 'BreedingMaterial'];
-	for (const subreddit of subreddits) {
+	for (const subreddit of SUBREDDITS) {
 		const {
 			0: {
 				data: { title, permalink, url, secure_media, gallery_data },

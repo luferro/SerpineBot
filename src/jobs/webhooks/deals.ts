@@ -11,15 +11,16 @@ export const data = {
 	schedule: '0 */5 * * * *',
 };
 
+const CATEGORIES: (BlogCategories | DealCategories)[] = [
+	'bundles',
+	'free games',
+	'paid games',
+	'prime gaming',
+	'sales',
+];
+
 export const execute = async (client: Bot) => {
-	const categories: (BlogCategories | DealCategories)[] = [
-		'bundles',
-		'free games',
-		'paid games',
-		'prime gaming',
-		'sales',
-	];
-	for (const category of categories) {
+	for (const category of CATEGORIES) {
 		if (category !== 'free games' && category !== 'paid games') {
 			const { title, url, lead, image } = await GGDeals.getLatestBlogNews(category);
 			if (!title || !url) continue;

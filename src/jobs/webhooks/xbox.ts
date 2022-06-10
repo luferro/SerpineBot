@@ -11,9 +11,10 @@ export const data = {
 	schedule: '0 */3 * * * *',
 };
 
+const CATEGORIES: XboxWireCategories[] = ['gamepass', 'deals with gold', 'games with gold'];
+
 export const execute = async (client: Bot) => {
-	const categories: XboxWireCategories[] = ['gamepass', 'deals with gold', 'games with gold'];
-	for (const category of categories) {
+	for (const category of CATEGORIES) {
 		const articles = await Xbox.getLatestXboxWireNews(category);
 		if (articles.length === 0) continue;
 
