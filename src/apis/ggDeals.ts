@@ -105,11 +105,12 @@ export const getLatestBlogNews = async (category: BlogCategories) => {
 		.first()
 		.attr('src')
 		?.replace('352cr184', '912cr476');
+	const isValidScheme = /^(http|https)/g.test(image ?? '');
 
 	return {
 		title,
 		lead,
-		image,
+		image: isValidScheme ? image : undefined,
 		url: `https://gg.deals${href}`,
 	};
 };
@@ -137,6 +138,7 @@ export const getLatestDeals = async (category: DealCategories) => {
 				const discounted = $(element).find(':nth-child(4) div.price-wrapper span.game-price-new').text();
 
 				const url = await UrlUtil.getRedirectLocation(`https://gg.deals${href}`);
+				const isValidScheme = /^(http|https)/g.test(image ?? '');
 
 				return {
 					title,
@@ -146,7 +148,7 @@ export const getLatestDeals = async (category: DealCategories) => {
 					regular,
 					discounted,
 					discount,
-					image,
+					image: isValidScheme ? image : undefined,
 				};
 			}),
 	);
