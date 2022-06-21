@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Settings } from '../../types/schemas';
 
 const schema = new mongoose.Schema<Settings>({
@@ -24,4 +24,4 @@ const schema = new mongoose.Schema<Settings>({
 	],
 });
 
-export const settingsModel = mongoose.model('settings', schema);
+export const settingsModel: Model<Settings> = mongoose.model('settings', schema);

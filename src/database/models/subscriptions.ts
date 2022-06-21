@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Subscriptions } from '../../types/schemas';
 
 const schema = new mongoose.Schema<Subscriptions>(
@@ -16,4 +16,4 @@ const schema = new mongoose.Schema<Subscriptions>(
 	{ timestamps: true },
 );
 
-export const subscriptionsModel = mongoose.model('subscriptions', schema);
+export const subscriptionsModel: Model<Subscriptions> = mongoose.model('subscriptions', schema);

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Steam } from '../../types/schemas';
 
 const schema = new mongoose.Schema<Steam>({
@@ -41,4 +41,4 @@ const schema = new mongoose.Schema<Steam>({
 	notifications: { type: Boolean, required: true },
 });
 
-export const steamModel = mongoose.model('steam', schema, 'steam');
+export const steamModel: Model<Steam> = mongoose.model('steam', schema, 'steam');

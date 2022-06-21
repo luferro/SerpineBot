@@ -95,3 +95,8 @@ export interface Subscriptions {
 	items: SubscriptionItem[];
 	count: number;
 }
+
+export interface SubscriptionsAggregate {
+	name: string;
+	items: SubscriptionItem;
+}

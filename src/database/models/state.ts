@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { State } from '../../types/schemas';
 
 const schema = new mongoose.Schema<State>(
@@ -17,4 +17,4 @@ const schema = new mongoose.Schema<State>(
 	{ timestamps: true },
 );
 
-export const stateModel = mongoose.model('state', schema, 'state');
+export const stateModel: Model<State> = mongoose.model('state', schema, 'state');

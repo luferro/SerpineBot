@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Reminder } from '../../types/schemas';
 
 const schema = new mongoose.Schema<Reminder>({
@@ -9,4 +9,4 @@ const schema = new mongoose.Schema<Reminder>({
 	message: { type: String, required: true },
 });
 
-export const remindersModel = mongoose.model('reminders', schema);
+export const remindersModel: Model<Reminder> = mongoose.model('reminders', schema);

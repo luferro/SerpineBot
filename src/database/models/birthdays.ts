@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Birthday } from '../../types/schemas';
 
 const schema = new mongoose.Schema<Birthday>({
@@ -6,4 +6,4 @@ const schema = new mongoose.Schema<Birthday>({
 	date: { type: String, required: true },
 });
 
-export const birthdaysModel = mongoose.model('birthdays', schema);
+export const birthdaysModel: Model<Birthday> = mongoose.model('birthdays', schema);

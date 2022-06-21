@@ -5,19 +5,21 @@ import * as UrlUtil from '../utils/url';
 import * as TheMovieDB from '../apis/theMovieDB';
 import { subscriptionsModel } from '../database/models/subscriptions';
 import { TheMovieDBCategories } from '../types/categories';
+import { SubscriptionsAggregate } from '../types/schemas';
 
 export const getGamingSubscriptions = async (title: string) => {
 	const regex = new RegExp(`^${StringUtil.slug(title).replace(/-/g, '.*-')}`);
-	const subscriptions = await subscriptionsModel.aggregate([
+
+	const subscriptions = (await subscriptionsModel.aggregate([
 		{ $unwind: { path: '$items' } },
 		{ $match: { 'items.slug': { $regex: regex } } },
-	]);
+	])) as unknown as SubscriptionsAggregate[];
 
 	return subscriptions.map(({ name, items }) => ({
-		name: name as string,
+		name,
 		entry: {
-			name: items.name as string,
-			url: items.url as string,
+			name: items.name,
+			url: items.url,
 		},
 	}));
 };
