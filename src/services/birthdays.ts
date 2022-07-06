@@ -36,9 +36,8 @@ export const send = async (guild: Guild, channelId: string, userId: string, birt
 	const channel = (await guild.channels.fetch(channelId)) as TextChannel | null;
 	if (!channel) throw new Error(`Couldn't find a channel with channelId ${channelId} in guild ${guild.name}.`);
 
-	const { 0: year, 1: month, 2: day } = birthday.split('-').map(Number);
-	const dateDiff = Date.now() - new Date(year, month - 1, day).getTime();
-	const age = Math.floor(dateDiff / (1000 * 60 * 60 * 24 * 365.25));
+	const { 0: year } = birthday.split('-').map(Number);
+	const age = new Date().getFullYear() - year;
 
 	const { gif } = await Tenor.search('Happy Birthday Meme');
 	await channel.send({
