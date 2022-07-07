@@ -118,7 +118,7 @@ export const getLatestBlogNews = async (category: BlogCategories) => {
 export const getLatestDeals = async (category: DealCategories) => {
 	const options: Record<string, string> = {
 		'free games': 'https://gg.deals/eu/deals/?minDiscount=100&minRating=0&sort=date',
-		'paid games': 'https://gg.deals/eu/deals/?maxDiscount=99&minRating=8&sort=date',
+		'paid games': 'https://gg.deals/eu/deals/?maxDiscount=99&minRating=6&sort=date',
 	};
 
 	const data = await fetch<string>({ url: options[category] });
