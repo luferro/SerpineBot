@@ -21,6 +21,9 @@ export const execute = async (client: Bot) => {
 	const isTweet = secure_media?.type === 'twitter.com';
 	const newsUrl = getUrl(url, isVideo, isTweet);
 
+	const isInvalidMediaPost = !isVideo && Youtube.isVideo(url);
+	if (isInvalidMediaPost) return;
+
 	const hasEntry = await client.manageState('Gaming News', 'News', title, newsUrl);
 	if (hasEntry || crosspost_parent || is_self) return;
 
