@@ -1,35 +1,36 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
-import * as Reddit from '../../apis/reddit';
+import * as Nintendo from '../../apis/nintendo';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
+import { WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: 'nintendo',
+	name: WebhookJobName.Nintendo,
 	schedule: '0 */3 * * * *',
 };
 
 export const execute = async (client: Bot) => {
+	const articles = await Nintendo.getLatestNintendoNews();
+	if (articles.length === 0) return;
+
 	const {
-		0: {
-			data: { title, url, secure_media, is_self, crosspost_parent },
-		},
-	} = await Reddit.getPostsByFlair('NintendoSwitch', 'new', ['News']);
+		0: { title, url, image },
+	} = articles;
 
 	const hasEntry = await client.manageState('Nintendo', 'News', title, url);
-	if (hasEntry || crosspost_parent || is_self) return;
+	if (hasEntry) return;
 
 	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await Webhooks.getWebhook(client, guildId, 'Nintendo');
+		const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.Nintendo);
 		if (!webhook) continue;
 
-		if (secure_media) {
-			await webhook.send({ content: `**${StringUtil.truncate(title)}**\n${url}` });
-			continue;
-		}
+		const embed = new EmbedBuilder()
+			.setTitle(StringUtil.truncate(title))
+			.setURL(url)
+			.setThumbnail(image)
+			.setColor('Random');
 
-		await webhook.send({
-			embeds: [new MessageEmbed().setTitle(StringUtil.truncate(title)).setURL(url).setColor('RANDOM')],
-		});
+		await webhook.send({ embeds: [embed] });
 	}
 };

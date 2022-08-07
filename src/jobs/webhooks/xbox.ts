@@ -1,20 +1,22 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
 import * as Xbox from '../../apis/xbox';
 import * as Youtube from '../../apis/youtube';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
-import { XboxWireCategories } from '../../types/categories';
+import { WebhookCategory, WebhookJobName, XboxWireCategory } from '../../types/enums';
 
 export const data = {
-	name: 'xbox',
+	name: WebhookJobName.Xbox,
 	schedule: '0 */3 * * * *',
 };
 
-const CATEGORIES: XboxWireCategories[] = ['gamepass', 'deals with gold', 'games with gold'];
-
 export const execute = async (client: Bot) => {
-	for (const category of CATEGORIES) {
+	const categories = Object.keys(XboxWireCategory)
+		.filter((element) => !isNaN(Number(element)))
+		.map(Number) as XboxWireCategory[];
+
+	for (const category of categories) {
 		const articles = await Xbox.getLatestXboxWireNews(category);
 		if (articles.length === 0) continue;
 
@@ -22,11 +24,11 @@ export const execute = async (client: Bot) => {
 			0: { title, url, image },
 		} = articles;
 
-		const hasEntry = await client.manageState('Xbox', StringUtil.capitalize(category), title, url);
+		const hasEntry = await client.manageState('Xbox', XboxWireCategory[category], title, url);
 		if (hasEntry) continue;
 
 		for (const { 0: guildId } of client.guilds.cache) {
-			const webhook = await Webhooks.getWebhook(client, guildId, 'Xbox');
+			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.Xbox);
 			if (!webhook) continue;
 
 			if (Youtube.isVideo(url)) {
@@ -34,12 +36,11 @@ export const execute = async (client: Bot) => {
 				continue;
 			}
 
-			const message = new MessageEmbed().setTitle(StringUtil.truncate(title)).setURL(url).setColor('RANDOM');
-			category === 'gamepass' && title.toLowerCase().includes('coming soon')
-				? message.setImage(image)
-				: message.setThumbnail(image);
+			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
+			if (category === XboxWireCategory.Gamepass && title.startsWith('Coming')) embed.setImage(image);
+			else embed.setThumbnail(image);
 
-			await webhook.send({ embeds: [message] });
+			await webhook.send({ embeds: [embed] });
 		}
 	}
 };

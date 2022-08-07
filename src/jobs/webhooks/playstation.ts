@@ -1,35 +1,40 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
-import * as Reddit from '../../apis/reddit';
+import * as Playstation from '../../apis/playstation';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
+import { PlaystationBlogCategory, WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: 'playstation',
+	name: WebhookJobName.Playstation,
 	schedule: '0 */3 * * * *',
 };
 
 export const execute = async (client: Bot) => {
-	const {
-		0: {
-			data: { title, url, secure_media, is_self, crosspost_parent },
-		},
-	} = await Reddit.getPostsByFlair('PS5', 'new', ['Articles %26 Blogs', ':ps: Official']);
+	const categories = Object.keys(PlaystationBlogCategory)
+		.filter((element) => !isNaN(Number(element)))
+		.map(Number) as PlaystationBlogCategory[];
 
-	const hasEntry = await client.manageState('Playstation', 'News', title, url);
-	if (hasEntry || crosspost_parent || is_self) return;
+	for (const category of categories) {
+		const articles = await Playstation.getLatestPlaystationBlogNews(category);
+		if (articles.length === 0) continue;
 
-	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await Webhooks.getWebhook(client, guildId, 'Playstation');
-		if (!webhook) continue;
+		const {
+			0: { title, url, image },
+		} = articles;
 
-		if (secure_media) {
-			await webhook.send({ content: `**${StringUtil.truncate(title)}**\n${url}` });
-			continue;
+		const hasEntry = await client.manageState('Playstation', PlaystationBlogCategory[category], title, url);
+		if (hasEntry) continue;
+
+		for (const { 0: guildId } of client.guilds.cache) {
+			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.Xbox);
+			if (!webhook) continue;
+
+			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
+			if (category === PlaystationBlogCategory.PlaystationPlus) embed.setImage(image);
+			else embed.setThumbnail(image);
+
+			await webhook.send({ embeds: [embed] });
 		}
-
-		await webhook.send({
-			embeds: [new MessageEmbed().setTitle(StringUtil.truncate(title)).setURL(url).setColor('RANDOM')],
-		});
 	}
 };
