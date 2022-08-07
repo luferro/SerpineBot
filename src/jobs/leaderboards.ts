@@ -25,7 +25,6 @@ export const execute = async (client: Bot) => {
 	};
 
 	for (const [guildId, guild] of client.guilds.cache) {
-		if (guildId === '223461927311900674') continue;
 		const settings = await settingsModel.findOne({ guildId });
 
 		const channels = {
