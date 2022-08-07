@@ -3,7 +3,7 @@ import { Bot } from '../bot';
 import { settingsModel } from '../database/models/settings';
 import { WebhookCategory } from '../types/enums';
 
-const getWebhookNameFromCategory = (category: WebhookCategory) => {
+export const getWebhookNameFromCategory = (category: WebhookCategory) => {
 	const webhookNames = {
 		[WebhookCategory.Nsfw]: 'NSFW',
 		[WebhookCategory.Memes]: 'Memes',

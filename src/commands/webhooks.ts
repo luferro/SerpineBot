@@ -99,7 +99,7 @@ const createWebhook = async (client: Bot, interaction: ChatInputCommandInteracti
 	await Webhooks.create(guild.id, channel, category);
 
 	const embed = new EmbedBuilder()
-		.setTitle(`${WebhookCategory[category]} webhook has been assigned to ${channel.name}.`)
+		.setTitle(`${Webhooks.getWebhookNameFromCategory(category)} webhook has been assigned to ${channel.name}.`)
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });
@@ -112,7 +112,7 @@ const deleteWebhook = async (client: Bot, interaction: ChatInputCommandInteracti
 	await Webhooks.remove(client, guild.id, category);
 
 	const embed = new EmbedBuilder()
-		.setTitle(`${WebhookCategory[category]} webhook has been deleted.`)
+		.setTitle(`${Webhooks.getWebhookNameFromCategory(category)} webhook has been deleted.`)
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });
