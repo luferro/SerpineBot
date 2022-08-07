@@ -28,7 +28,7 @@ export const execute = async () => {
 
 			const options = {
 				[GamingSubscription.PcGamePass]: () => updateGamepassEntries(page, GamingSubscription.PcGamePass),
-				[GamingSubscription.XboxGamepass]: () => updateGamepassEntries(page, GamingSubscription.PcGamePass),
+				[GamingSubscription.XboxGamepass]: () => updateGamepassEntries(page, GamingSubscription.XboxGamepass),
 				[GamingSubscription.EaPlay]: () => updateEaPlayEntries(page, GamingSubscription.EaPlay),
 				[GamingSubscription.EaPlayPro]: () => updateEaPlayEntries(page, GamingSubscription.EaPlayPro),
 				[GamingSubscription.UbisoftPlus]: () => updateUbisoftPlusEntries(page),
@@ -89,11 +89,11 @@ const updateGamepassEntries = async (
 	const subscription = await subscriptionsModel.findOne({ name: `${platform} Game Pass` });
 	if (items.length < Math.round((subscription?.items.length ?? 0) * 0.6)) return;
 
-	await subscriptionsModel.updateOne(
-		{ name: `${platform} Game Pass` },
-		{ $set: { items, count: items.length } },
-		{ upsert: true },
-	);
+	// await subscriptionsModel.updateOne(
+	// 	{ name: `${platform} Game Pass` },
+	// 	{ $set: { items, count: items.length } },
+	// 	{ upsert: true },
+	// );
 
 	logger.info(`Subscriptions job found _*${items.length}*_ items for _*${platform} Game Pass*_.`);
 };
@@ -136,11 +136,11 @@ const updateUbisoftPlusEntries = async (page: Page) => {
 	const subscription = await subscriptionsModel.findOne({ name: 'Ubisoft+' });
 	if (items.length < Math.round((subscription?.items.length ?? 0) * 0.6)) return;
 
-	await subscriptionsModel.updateOne(
-		{ name: 'Ubisoft+' },
-		{ $set: { items, count: items.length } },
-		{ upsert: true },
-	);
+	// await subscriptionsModel.updateOne(
+	// 	{ name: 'Ubisoft+' },
+	// 	{ $set: { items, count: items.length } },
+	// 	{ upsert: true },
+	// );
 
 	logger.info(`Subscriptions job found _*${items.length}*_ items for _*Ubisoft+*_.`);
 };
@@ -198,11 +198,11 @@ const updateEaPlayEntries = async (page: Page, category: GamingSubscription.EaPl
 	const subscription = await subscriptionsModel.findOne({ name: subscriptionName });
 	if (items.length < Math.round((subscription?.items.length ?? 0) * 0.6)) return;
 
-	await subscriptionsModel.updateOne(
-		{ name: subscriptionName },
-		{ $set: { items, count: items.length } },
-		{ upsert: true },
-	);
+	// await subscriptionsModel.updateOne(
+	// 	{ name: subscriptionName },
+	// 	{ $set: { items, count: items.length } },
+	// 	{ upsert: true },
+	// );
 
 	logger.info(`Subscriptions job found _*${items.length}*_ items for _*${subscriptionName}*_.`);
 };
