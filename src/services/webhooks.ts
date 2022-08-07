@@ -3,8 +3,8 @@ import { Bot } from '../bot';
 import { settingsModel } from '../database/models/settings';
 import { WebhookCategory } from '../types/enums';
 
-export const create = async (guildId: string, channel: TextChannel, category: WebhookCategory) => {
-	const names = {
+const getWebhookNameFromCategory = (category: WebhookCategory) => {
+	const webhookNames = {
 		[WebhookCategory.Nsfw]: 'NSFW',
 		[WebhookCategory.Memes]: 'Memes',
 		[WebhookCategory.Anime]: 'Anime',
@@ -18,7 +18,11 @@ export const create = async (guildId: string, channel: TextChannel, category: We
 		[WebhookCategory.PlayStation]: 'PlayStation',
 		[WebhookCategory.Nintendo]: 'Nintendo',
 	};
-	const webhookName = names[category];
+	return webhookNames[category];
+};
+
+export const create = async (guildId: string, channel: TextChannel, category: WebhookCategory) => {
+	const webhookName = getWebhookNameFromCategory(category);
 
 	if (category === WebhookCategory.Nsfw && !channel.nsfw)
 		throw new Error('NSFW webhook can only be assigned to a NSFW text channel.');
@@ -36,7 +40,7 @@ export const create = async (guildId: string, channel: TextChannel, category: We
 };
 
 export const getWebhook = async (client: Bot, guildId: string, category: WebhookCategory) => {
-	const webhookName = WebhookCategory[category];
+	const webhookName = getWebhookNameFromCategory(category);
 
 	const guild = await client.guilds.fetch(guildId);
 	const settings = await settingsModel.findOne({ guildId });
@@ -60,7 +64,7 @@ export const getWebhook = async (client: Bot, guildId: string, category: Webhook
 };
 
 export const remove = async (client: Bot, guildId: string, category: WebhookCategory) => {
-	const webhookName = WebhookCategory[category];
+	const webhookName = getWebhookNameFromCategory(category);
 
 	const settings = await settingsModel.findOne({ guildId });
 	const webhooks = settings?.webhooks ?? [];
