@@ -3,17 +3,17 @@ import { Bot } from '../../bot';
 import * as Playstation from '../../apis/playstation';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
-import { PlaystationBlogCategory, WebhookCategory, WebhookJobName } from '../../types/enums';
+import { PlayStationBlogCategory, WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: WebhookJobName.Playstation,
+	name: WebhookJobName.PlayStation,
 	schedule: '0 */3 * * * *',
 };
 
 export const execute = async (client: Bot) => {
-	const categories = Object.keys(PlaystationBlogCategory)
+	const categories = Object.keys(PlayStationBlogCategory)
 		.filter((element) => !isNaN(Number(element)))
-		.map(Number) as PlaystationBlogCategory[];
+		.map(Number) as PlayStationBlogCategory[];
 
 	for (const category of categories) {
 		const articles = await Playstation.getLatestPlaystationBlogNews(category);
@@ -23,7 +23,7 @@ export const execute = async (client: Bot) => {
 			0: { title, url, image },
 		} = articles;
 
-		const hasEntry = await client.manageState('Playstation', PlaystationBlogCategory[category], title, url);
+		const hasEntry = await client.manageState('PlayStation', PlayStationBlogCategory[category], title, url);
 		if (hasEntry) continue;
 
 		for (const { 0: guildId } of client.guilds.cache) {
@@ -31,7 +31,7 @@ export const execute = async (client: Bot) => {
 			if (!webhook) continue;
 
 			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
-			if (category === PlaystationBlogCategory.PlaystationPlus) embed.setImage(image);
+			if (category === PlayStationBlogCategory.PlayStationPlus) embed.setImage(image);
 			else embed.setThumbnail(image);
 
 			await webhook.send({ embeds: [embed] });

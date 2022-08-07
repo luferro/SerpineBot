@@ -38,7 +38,7 @@ export const data = {
 							{ name: 'Deals', value: WebhookCategory.Deals },
 							{ name: 'Free Games', value: WebhookCategory.FreeGames },
 							{ name: 'Xbox', value: WebhookCategory.Xbox },
-							{ name: 'Playstation', value: WebhookCategory.Playstation },
+							{ name: 'Playstation', value: WebhookCategory.PlayStation },
 							{ name: 'Nintendo', value: WebhookCategory.Nintendo },
 						),
 				)
@@ -69,7 +69,7 @@ export const data = {
 							{ name: 'Deals', value: WebhookCategory.Deals },
 							{ name: 'Free Games', value: WebhookCategory.FreeGames },
 							{ name: 'Xbox', value: WebhookCategory.Xbox },
-							{ name: 'Playstation', value: WebhookCategory.Playstation },
+							{ name: 'Playstation', value: WebhookCategory.PlayStation },
 							{ name: 'Nintendo', value: WebhookCategory.Nintendo },
 						),
 				),

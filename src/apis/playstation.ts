@@ -1,12 +1,12 @@
 import { load } from 'cheerio';
 import { fetch } from '../utils/fetch';
-import { PlaystationBlogCategory } from '../types/enums';
+import { PlayStationBlogCategory } from '../types/enums';
 
-export const getLatestPlaystationBlogNews = async (category: PlaystationBlogCategory) => {
+export const getLatestPlaystationBlogNews = async (category: PlayStationBlogCategory) => {
 	const options: Record<typeof category, string> = {
-		[PlaystationBlogCategory.PlaystationPlus]: 'https://blog.playstation.com/category/ps-plus/',
-		[PlaystationBlogCategory.PlaystationStore]: 'https://blog.playstation.com/category/ps-store/',
-		[PlaystationBlogCategory.StateOfPlay]: 'https://blog.playstation.com/tag/state-of-play/',
+		[PlayStationBlogCategory.PlayStationPlus]: 'https://blog.playstation.com/category/ps-plus/',
+		[PlayStationBlogCategory.PlayStationStore]: 'https://blog.playstation.com/category/ps-store/',
+		[PlayStationBlogCategory.StateOfPlay]: 'https://blog.playstation.com/tag/state-of-play/',
 	};
 
 	const data = await fetch<string>({ url: options[category] });
