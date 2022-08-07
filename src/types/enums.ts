@@ -50,7 +50,7 @@ export enum WebhookJobName {
 	Reviews = 'reviews',
 	Deals = 'deals',
 	Xbox = 'xbox',
-	Playstation = 'playstation',
+	PlayStation = 'playstation',
 	Nintendo = 'nintendo',
 }
 
@@ -64,18 +64,18 @@ export enum EventName {
 }
 
 export enum WebhookCategory {
-	Nsfw = 'NSFW',
-	Memes = 'Memes',
-	Anime = 'Anime',
-	Manga = 'Manga',
-	WorldNews = 'World News',
-	GamingNews = 'Gaming News',
-	Reviews = 'Reviews',
-	Deals = 'Deals',
-	FreeGames = 'Free Games',
-	Xbox = 'Xbox',
-	Playstation = 'Playstation',
-	Nintendo = 'Nintendo',
+	Nsfw,
+	Memes,
+	Anime,
+	Manga,
+	WorldNews,
+	GamingNews,
+	Reviews,
+	Deals,
+	FreeGames,
+	Xbox,
+	PlayStation,
+	Nintendo,
 }
 
 export enum MessageCategory {
@@ -130,9 +130,9 @@ export enum XboxWireCategory {
 	Podcast,
 }
 
-export enum PlaystationBlogCategory {
-	PlaystationPlus,
-	PlaystationStore,
+export enum PlayStationBlogCategory {
+	PlayStationPlus,
+	PlayStationStore,
 	StateOfPlay,
 }
 

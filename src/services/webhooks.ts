@@ -4,7 +4,21 @@ import { settingsModel } from '../database/models/settings';
 import { WebhookCategory } from '../types/enums';
 
 export const create = async (guildId: string, channel: TextChannel, category: WebhookCategory) => {
-	const webhookName = WebhookCategory[category];
+	const names = {
+		[WebhookCategory.Nsfw]: 'NSFW',
+		[WebhookCategory.Memes]: 'Memes',
+		[WebhookCategory.Anime]: 'Anime',
+		[WebhookCategory.Manga]: 'Manga',
+		[WebhookCategory.WorldNews]: 'World News',
+		[WebhookCategory.GamingNews]: 'Gaming News',
+		[WebhookCategory.Reviews]: 'Game Reviews',
+		[WebhookCategory.Deals]: 'Game Deals',
+		[WebhookCategory.FreeGames]: 'Free Games',
+		[WebhookCategory.Xbox]: 'Xbox',
+		[WebhookCategory.PlayStation]: 'PlayStation',
+		[WebhookCategory.Nintendo]: 'Nintendo',
+	};
+	const webhookName = names[category];
 
 	if (category === WebhookCategory.Nsfw && !channel.nsfw)
 		throw new Error('NSFW webhook can only be assigned to a NSFW text channel.');
