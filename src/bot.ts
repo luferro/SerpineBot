@@ -13,12 +13,13 @@ import { Command, Event, Job, Music } from './types/bot';
 import { FetchError } from './errors/fetchError';
 import { DatabaseError } from './errors/databaseError';
 import { EnvironmentError } from './errors/environmentError';
+import { CommandName, EventName, JobName, WebhookJobName } from './types/enums';
 
 export class Bot extends Client {
 	public static music: Collection<string, Music> = new Collection();
-	public static commands: Collection<string, Command> = new Collection();
-	public static events: Collection<string, Event> = new Collection();
-	public static jobs: Collection<string, Job> = new Collection();
+	public static events: Collection<EventName, Event> = new Collection();
+	public static commands: Collection<CommandName, Command> = new Collection();
+	public static jobs: Collection<JobName | WebhookJobName, Job> = new Collection();
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -29,12 +30,14 @@ export class Bot extends Client {
 		logger.info('Starting SerpineBot.');
 
 		try {
-			await Database.connect();
 			await this.login(process.env.BOT_TOKEN);
+			await Database.connect();
 			await this.register();
 
 			this.startListeners();
 			this.startJobs();
+
+			if (this.isReady()) this.emit('ready', this as Client<boolean>);
 		} catch (error) {
 			this.errorHandler(error);
 		}
@@ -84,15 +87,12 @@ export class Bot extends Client {
 	};
 
 	private errorHandler = (error: unknown) => {
-		const isFetchError = error instanceof FetchError;
-		if (isFetchError) {
+		if (error instanceof FetchError) {
 			logger.warn(error.message);
 			return;
 		}
 
-		const isDatabaseError = error instanceof DatabaseError;
-		const isEnvironmentError = error instanceof EnvironmentError;
-		if (isDatabaseError || isEnvironmentError) this.stop();
+		if (error instanceof DatabaseError || error instanceof EnvironmentError) this.stop();
 
 		logger.error(error);
 	};

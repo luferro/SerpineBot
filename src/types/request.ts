@@ -1,7 +1,7 @@
-type HttpMethods = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
+import { HttpMethod } from './enums';
 
 export interface Request {
 	url: string | URL;
-	method?: HttpMethods;
+	method?: HttpMethod;
 	body?: string | URLSearchParams;
 }

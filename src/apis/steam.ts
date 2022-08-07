@@ -4,23 +4,14 @@ import * as Subscriptions from '../services/subscriptions';
 import * as ConverterUtil from '../utils/converter';
 import { steamModel } from '../database/models/steam';
 import { RecentlyPlayed, SteamId64, SteamProfiles, Wishlist } from '../types/responses';
-
-enum SteamStatus {
-	'Offline',
-	'Online',
-	'Busy',
-	'Away',
-	'Snooze',
-	'Looking to trade',
-	'Looking to play',
-}
+import { SteamStatus } from '../types/enums';
 
 export const getSteamId64 = async (customId: string) => {
 	const data = await fetch<SteamId64>({
 		url: `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${process.env.STEAM_API_KEY}&vanityurl=${customId}`,
 	});
 
-	return data.response?.steamid;
+	return data.response?.steamid ?? null;
 };
 
 export const getProfile = async (steamId: string) => {
@@ -94,15 +85,13 @@ export const getWishlist = async (steamId: string) => {
 };
 
 export const getRecentlyPlayed = async (steamId: string) => {
-	const {
-		response: { games },
-	} = await fetch<RecentlyPlayed>({
+	const { response } = await fetch<RecentlyPlayed>({
 		url: `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${process.env.STEAM_API_KEY}&steamid=${steamId}&format=json`,
 	});
-	if (!games) return;
 
 	const integration = await steamModel.findOne({ 'profile.id': steamId });
 
+	const games = response.games ?? [];
 	return games.map(({ appid, name, playtime_2weeks, playtime_forever }) => {
 		const twoWeeksHours = ConverterUtil.minutesToHours(playtime_2weeks);
 		const totalHours = ConverterUtil.minutesToHours(playtime_forever);
@@ -124,7 +113,7 @@ export const getNextSale = async () => {
 	const data = await fetch<string>({ url: 'https://prepareyourwallet.com/' });
 	const $ = load(data);
 
-	const sale = $('p').first().attr('content');
+	const sale = $('p').first().attr('content') ?? null;
 	const status = $('span.status').first().text();
 	const upcoming = $('.row')
 		.first()

@@ -1,4 +1,4 @@
-import { Client, Guild, TextChannel } from 'discord.js';
+import { Client, Guild } from 'discord.js';
 import * as Tenor from '../apis/tenor';
 import { birthdaysModel } from '../database/models/birthdays';
 
@@ -33,8 +33,9 @@ export const send = async (guild: Guild, channelId: string, userId: string, birt
 	const target = await guild.members.fetch(userId);
 	if (!target) throw new Error(`Couldn't find a target with userId ${userId} in guild ${guild.name}.`);
 
-	const channel = (await guild.channels.fetch(channelId)) as TextChannel | null;
-	if (!channel) throw new Error(`Couldn't find a channel with channelId ${channelId} in guild ${guild.name}.`);
+	const channel = await guild.channels.fetch(channelId);
+	if (!channel?.isTextBased())
+		throw new Error(`Couldn't find a channel with channelId ${channelId} in guild ${guild.name}.`);
 
 	const { 0: year } = birthday.split('-').map(Number);
 	const age = new Date().getFullYear() - year;

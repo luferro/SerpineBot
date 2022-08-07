@@ -1,12 +1,12 @@
 import { chromium, Page, Route } from 'playwright-chromium';
 import * as StringUtil from '../utils/string';
 import { subscriptionsModel } from '../database/models/subscriptions';
-import { GamePassCategories, EAPlayCategories } from '../types/categories';
 import { timeout } from '../utils/sleep';
 import { logger } from '../utils/logger';
+import { GamingSubscription, JobName } from '../types/enums';
 
 export const data = {
-	name: 'subscriptions',
+	name: JobName.Subsriptions,
 	schedule: '0 0 15 * * *',
 };
 
@@ -14,40 +14,51 @@ export const execute = async () => {
 	const browser = await chromium.launch({ chromiumSandbox: false });
 	const context = await browser.newContext();
 
-	const functions = [
-		(page: Page) => getGamePass(page, 'Xbox'),
-		(page: Page) => getGamePass(page, 'PC'),
-		(page: Page) => getEAPlay(page, 'Base'),
-		(page: Page) => getEAPlay(page, 'Pro'),
-		(page: Page) => getUbisoftPlus(page),
-	];
+	const subscriptions = Object.keys(GamingSubscription)
+		.filter((element) => !isNaN(Number(element)))
+		.map(Number) as GamingSubscription[];
 
 	try {
-		for (const fetchSubscription of functions) {
-			await timeout(1000 * 60);
-
+		for (const subscription of subscriptions) {
 			const page = await context.newPage();
 			await page.route('**/*', (route: Route) => {
 				const hasResource = ['font', 'image'].some((resource) => resource === route.request().resourceType());
 				return hasResource ? route.abort() : route.continue();
 			});
 
-			await fetchSubscription(page);
+			const options = {
+				[GamingSubscription.PcGamePass]: () => updateGamepassEntries(page, GamingSubscription.PcGamePass),
+				[GamingSubscription.XboxGamepass]: () => updateGamepassEntries(page, GamingSubscription.PcGamePass),
+				[GamingSubscription.EaPlay]: () => updateEaPlayEntries(page, GamingSubscription.EaPlay),
+				[GamingSubscription.EaPlayPro]: () => updateEaPlayEntries(page, GamingSubscription.EaPlayPro),
+				[GamingSubscription.UbisoftPlus]: () => updateUbisoftPlusEntries(page),
+			};
+
+			await options[subscription]();
+
 			await page.close();
+			await timeout(1000 * 60);
 		}
 	} finally {
 		await browser.close();
 	}
 };
 
-const getGamePass = async (page: Page, category: GamePassCategories) => {
+const updateGamepassEntries = async (
+	page: Page,
+	category: GamingSubscription.PcGamePass | GamingSubscription.XboxGamepass,
+) => {
 	await page.goto('https://www.xbox.com/pt-PT/xbox-game-pass/games');
 	await page.waitForLoadState('networkidle');
 	await page.waitForTimeout(5000);
 
-	if (category === 'PC') await page.click('[data-theplat="pc"]');
+	let platform;
+	if (category === GamingSubscription.PcGamePass) {
+		await page.click('[data-theplat="pc"]');
+		platform = 'PC';
+	} else platform = 'Xbox';
 
-	const isPlatformSelected = (await page.$$(`.platselected[data-theplat="${category.toLowerCase()}"]`)).length > 0;
+	const isPlatformSelected = (await page.$$(`.platselected[data-theplat="${platform.toLowerCase()}"]`)).length > 0;
 	if (!isPlatformSelected) return;
 
 	const items = [];
@@ -75,19 +86,19 @@ const getGamePass = async (page: Page, category: GamePassCategories) => {
 		await page.click('.paginatenext:not(.pag-disabled) a');
 	}
 
-	const subscription = await subscriptionsModel.findOne({ name: `${category} Game Pass` });
+	const subscription = await subscriptionsModel.findOne({ name: `${platform} Game Pass` });
 	if (items.length < Math.round((subscription?.items.length ?? 0) * 0.6)) return;
 
 	await subscriptionsModel.updateOne(
-		{ name: `${category} Game Pass` },
+		{ name: `${platform} Game Pass` },
 		{ $set: { items, count: items.length } },
 		{ upsert: true },
 	);
 
-	logger.info(`Subscriptions job found _*${items.length}*_ items for _*${category} Game Pass*_.`);
+	logger.info(`Subscriptions job found _*${items.length}*_ items for _*${platform} Game Pass*_.`);
 };
 
-const getUbisoftPlus = async (page: Page) => {
+const updateUbisoftPlusEntries = async (page: Page) => {
 	await page.goto('https://store.ubi.com/eu/ubisoftplus/games');
 	await page.waitForLoadState('networkidle');
 	await page.waitForTimeout(5000);
@@ -134,11 +145,18 @@ const getUbisoftPlus = async (page: Page) => {
 	logger.info(`Subscriptions job found _*${items.length}*_ items for _*Ubisoft+*_.`);
 };
 
-const getEAPlay = async (page: Page, category: EAPlayCategories) => {
+const updateEaPlayEntries = async (page: Page, category: GamingSubscription.EaPlay | GamingSubscription.EaPlayPro) => {
+	let subscriptionName, subscriptionGroup;
+	if (category === GamingSubscription.EaPlay) {
+		subscriptionName = 'EA Play';
+		subscriptionGroup = '';
+	} else {
+		subscriptionName = 'EA Play Pro';
+		subscriptionGroup = 'premium-';
+	}
+
 	await page.goto(
-		`https://www.origin.com/irl/en-us/store/browse?fq=subscriptionGroup:${
-			category === 'Pro' ? 'premium-' : ''
-		}vault-games`,
+		`https://www.origin.com/irl/en-us/store/browse?fq=subscriptionGroup:${subscriptionGroup}vault-games`,
 	);
 	await page.waitForLoadState('networkidle');
 	await page.waitForTimeout(5000);
@@ -177,16 +195,14 @@ const getEAPlay = async (page: Page, category: EAPlayCategories) => {
 	});
 	const items = [...data.map((item) => ({ ...item, slug: StringUtil.slug(item.name) }))];
 
-	const subscription = await subscriptionsModel.findOne({ name: category === 'Pro' ? 'EA Play Pro' : 'EA Play' });
+	const subscription = await subscriptionsModel.findOne({ name: subscriptionName });
 	if (items.length < Math.round((subscription?.items.length ?? 0) * 0.6)) return;
 
 	await subscriptionsModel.updateOne(
-		{ name: category === 'Pro' ? 'EA Play Pro' : 'EA Play' },
+		{ name: subscriptionName },
 		{ $set: { items, count: items.length } },
 		{ upsert: true },
 	);
 
-	logger.info(
-		`Subscriptions job found _*${items.length}*_ items for _*${category === 'Pro' ? 'EA Play Pro' : 'EA Play'}*_.`,
-	);
+	logger.info(`Subscriptions job found _*${items.length}*_ items for _*${subscriptionName}*_.`);
 };

@@ -1,21 +1,21 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
 import { AudioPlayer, AudioResource, VoiceConnection } from '@discordjs/voice';
-import { CommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import { Bot } from '../bot';
+import { CommandName, EventName, JobName, WebhookJobName } from './enums';
 
 export interface Command {
 	data: {
-		name: string;
+		name: CommandName;
 		slashCommand: SlashCommandBuilder | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 		client: boolean;
 	};
-	execute(integration: CommandInteraction): Promise<void>;
-	execute(client: Bot, interaction: CommandInteraction): Promise<void>;
+	execute(integration: ChatInputCommandInteraction): Promise<void>;
+	execute(client: Bot, interaction: ChatInputCommandInteraction): Promise<void>;
 }
 
 export interface Event {
 	data: {
-		name: string;
+		name: EventName;
 		once: boolean;
 	};
 	execute(...args: unknown[]): Promise<void>;
@@ -23,7 +23,7 @@ export interface Event {
 
 export interface Job {
 	data: {
-		name: string;
+		name: JobName | WebhookJobName;
 		schedule: string | Date;
 	};
 	execute(...args: unknown[]): Promise<void>;

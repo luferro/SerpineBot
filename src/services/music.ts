@@ -11,6 +11,7 @@ import { Bot } from '../bot';
 import * as ConverterUtil from '../utils/converter';
 import * as Sleep from '../utils/sleep';
 import { QueueItem } from '../types/bot';
+import { TimeUnit } from '../types/enums';
 
 const playerOnIdle = async (guildId: string) => {
 	const musicSubscription = Bot.music.get(guildId)!;
@@ -103,28 +104,28 @@ export const clearQueue = async (guildId: string) => {
 	musicSubscription.queue.length = 1;
 };
 
-export const seek = async (guildId: string, time: string) => {
-	if (!/([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?/g.test(time))
-		throw new Error('Invalid time format. Use the following format hh?:mm:ss where ? is optional.');
+export const seek = async (guildId: string, timestamp: string) => {
+	if (!/([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?/g.test(timestamp))
+		throw new Error('Invalid timestamp format. Use the following format hh?:mm:ss where ? is optional.');
 
 	const musicSubscription = Bot.music.get(guildId)!;
 	if (musicSubscription.queue.length === 0) throw new Error('Queue is empty.');
 
-	const getMilliseconds = (timeToConvert: string) => {
+	const getMilliseconds = (timestampToConvert: string) => {
 		let totalMilliseconds = 0;
-		timeToConvert
+		timestampToConvert
 			.split(':')
 			.reverse()
 			.forEach((time, index) => {
-				if (index === 0) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), 'seconds');
-				if (index === 1) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), 'minutes');
-				if (index === 2) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), 'hours');
+				if (index === 0) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), TimeUnit.Seconds);
+				if (index === 1) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), TimeUnit.Minutes);
+				if (index === 2) totalMilliseconds += ConverterUtil.timeToMilliseconds(Number(time), TimeUnit.Hours);
 			});
 
 		return totalMilliseconds;
 	};
 
-	const seekMilliseconds = getMilliseconds(time);
+	const seekMilliseconds = getMilliseconds(timestamp);
 	const musicMilliseconds = getMilliseconds(musicSubscription.queue[0].duration);
 
 	if (seekMilliseconds < 0 || seekMilliseconds > musicMilliseconds)

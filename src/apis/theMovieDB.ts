@@ -1,11 +1,13 @@
 import { fetch } from '../utils/fetch';
 import * as ConverterUtil from '../utils/converter';
-import { TheMovieDBCategories } from '../types/categories';
 import { Movie, Providers, Result, Results, TV } from '../types/responses';
+import { SubscriptionCategory } from '../types/enums';
 
-export const search = async (title: string, category: TheMovieDBCategories) => {
+export const search = async (title: string, category: Exclude<SubscriptionCategory, SubscriptionCategory.Gaming>) => {
+	const searchCategory = category === SubscriptionCategory.Movies ? 'movie' : 'tv';
+
 	const data = await fetch<Results<Result>>({
-		url: `https://api.themoviedb.org/3/search/${category}?query=${title}&api_key=${process.env.THEMOVIEDB_API_KEY}`,
+		url: `https://api.themoviedb.org/3/search/${searchCategory}?query=${title}&api_key=${process.env.THEMOVIEDB_API_KEY}`,
 	});
 
 	return data.results[0]?.id.toString();
@@ -20,10 +22,10 @@ export const getMovieById = async (id: string) => {
 	return {
 		name: title,
 		description: `${tagline ? `*${tagline}*` : ''}\n${overview ? overview : ''}`,
-		url: homepage,
+		url: homepage || null,
 		releaseDate: release_date,
-		image: `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${poster_path}`,
-		score: `${vote_average}/10`,
+		image: poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${poster_path}` : null,
+		score: `${vote_average.toFixed(1)}/10`,
 		runtime: ConverterUtil.minutesToHoursAndMinutes(runtime),
 		genres: genres.map(({ name }) => `> ${name}`),
 	};
@@ -49,26 +51,31 @@ export const getTvShowById = async (id: string) => {
 		name,
 		status,
 		description: `${tagline ? `*${tagline}*` : ''}\n${overview ? overview : ''}`,
-		url: homepage,
+		url: homepage || null,
 		firstEpisode: first_air_date,
-		nextEpisode: next_episode_to_air instanceof Object ? next_episode_to_air.air_date : next_episode_to_air,
+		nextEpisode: next_episode_to_air instanceof Object ? next_episode_to_air.air_date : next_episode_to_air ?? null,
 		seasons: seasons.length,
-		image: `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${poster_path}`,
-		score: `${vote_average}/10`,
+		image: poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${poster_path}` : null,
+		score: `${vote_average.toFixed(1)}/10`,
 		runtime: ConverterUtil.minutesToHoursAndMinutes(episode_run_time[0]),
 		genres: genres.map(({ name }) => `> ${name}`),
 	};
 };
 
-export const getProviders = async (id: string, category: TheMovieDBCategories) => {
+export const getProviders = async (
+	id: string,
+	category: Exclude<SubscriptionCategory, SubscriptionCategory.Gaming>,
+) => {
+	const searchCategory = category === SubscriptionCategory.Movies ? 'movie' : 'tv';
+
 	const {
 		results: { PT },
 	} = await fetch<Providers>({
-		url: `https://api.themoviedb.org/3/${category}/${id}/watch/providers?api_key=${process.env.THEMOVIEDB_API_KEY}`,
+		url: `https://api.themoviedb.org/3/${searchCategory}/${id}/watch/providers?api_key=${process.env.THEMOVIEDB_API_KEY}`,
 	});
 
 	return {
-		url: PT?.link,
+		url: PT?.link ?? null,
 		buy: PT?.buy?.map(({ provider_name }) => `> ${provider_name}`) ?? [],
 		rent: PT?.rent?.map(({ provider_name }) => `> ${provider_name}`) ?? [],
 		stream: PT?.flatrate?.map(({ provider_name }) => `> ${provider_name}`) ?? [],

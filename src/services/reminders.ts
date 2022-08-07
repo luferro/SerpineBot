@@ -1,13 +1,13 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { randomUUID } from 'crypto';
 import { Bot } from '../bot';
 import * as ConverterUtil from '../utils/converter';
 import { remindersModel } from '../database/models/reminders';
-import { TimeUnits } from '../types/categories';
+import { TimeUnit } from '../types/enums';
 
-export const create = async (userId: string, time: number, unit: TimeUnits, message: string) => {
-	if (unit === 'seconds' && time < 300) throw new Error('Time has to be greater or equal than 300 seconds.');
-	if (unit === 'minutes' && time < 5) throw new Error('Time has to be greater or equal than 5 minutes.');
+export const create = async (userId: string, time: number, unit: TimeUnit, message: string) => {
+	if (unit === TimeUnit.Seconds && time < 300) throw new Error('Time has to be greater or equal than 300 seconds.');
+	if (unit === TimeUnit.Minutes && time < 5) throw new Error('Time has to be greater or equal than 5 minutes.');
 
 	const ms = ConverterUtil.timeToMilliseconds(time, unit);
 
@@ -41,14 +41,12 @@ export const send = async (client: Bot, reminderId: string) => {
 
 	const reminderDate = new Date(timeStart).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' });
 
-	await target.send({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(`Reminder set on ${reminderDate}`)
-				.setDescription(`**Message**:\n${message.trim()}`)
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(`Reminder set on ${reminderDate}`)
+		.setDescription(`**Message**:\n${message.trim()}`)
+		.setColor('Random');
+
+	await target.send({ embeds: [embed] });
 
 	await remove(reminderId);
 };

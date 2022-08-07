@@ -1,59 +1,53 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, Message, SlashCommandBuilder } from 'discord.js';
+import { CommandName, PollOptions } from '../types/enums';
 import * as StringUtil from '../utils/string';
 
 export const data = {
-	name: 'poll',
+	name: CommandName.Poll,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('poll')
+		.setName(CommandName.Poll)
 		.setDescription('Creates a poll with reactions.')
 		.addStringOption((option) => option.setName('question').setDescription('Poll question.').setRequired(true))
 		.addStringOption((option) =>
-			option.setName('options').setDescription('Poll options. Options must be separated by a delimiter.'),
+			option
+				.setName('options')
+				.setDescription('Poll options must be separated by a comma, semi-colon or the "or" keyword.'),
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
-	const question = interaction.options.getString('question')!;
+export const execute = async (interaction: ChatInputCommandInteraction) => {
+	const question = interaction.options.getString('question', true);
 	const options = interaction.options.getString('options');
-
-	const pollOptions = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
 
 	if (options) {
 		const choices = options.split(/or|,|;/);
-		if (choices.length <= 1 || choices.length > 10)
-			return await interaction.reply({
-				content: 'Poll allows a minimum of 2 options and a maximum of 10 options.',
-				ephemeral: true,
-			});
+		if (choices.length < 2 || choices.length > 10)
+			throw new Error('Invalid quantity. Choose between 2 and 10 options.');
 
 		const reactions: string[] = [];
 		const formattedChoices = choices
 			.map((choice, index) => {
-				reactions.push(pollOptions[index]);
-				return `> ${pollOptions[index]} **${choice.split(' ').map(StringUtil.capitalize).join(' ')}**`;
+				reactions.push(PollOptions[index + 1]);
+				return `> ${PollOptions[index + 1]} **${choice.split(' ').map(StringUtil.capitalize).join(' ')}**`;
 			})
 			.join('\n');
 
-		const message = (await interaction.reply({
-			embeds: [
-				new MessageEmbed()
-					.setTitle(StringUtil.capitalize(question))
-					.setDescription(formattedChoices)
-					.setColor('RANDOM'),
-			],
-			fetchReply: true,
-		})) as Message;
+		const embed = new EmbedBuilder()
+			.setTitle(StringUtil.capitalize(question))
+			.setDescription(formattedChoices)
+			.setColor('Random');
+
+		const message = await interaction.reply({ embeds: [embed], fetchReply: true });
 		return addReactions(message, reactions);
 	}
 
-	const message = (await interaction.reply({
-		embeds: [
-			new MessageEmbed().setTitle(StringUtil.capitalize(question)).setDescription('👍🏻 or 👎🏻').setColor('RANDOM'),
-		],
-		fetchReply: true,
-	})) as Message;
+	const embed = new EmbedBuilder()
+		.setTitle(StringUtil.capitalize(question))
+		.setDescription('Vote with 👍🏻 or 👎🏻')
+		.setColor('Random');
+
+	const message = await interaction.reply({ embeds: [embed], fetchReply: true });
 	addReactions(message, ['👍🏻', '👎🏻']);
 };
 

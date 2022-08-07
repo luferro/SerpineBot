@@ -3,7 +3,7 @@ import * as Google from '../apis/google';
 import { fetch } from '../utils/fetch';
 
 const parse = (text: string) => {
-	if (!/\d+/.test(text)) return;
+	if (!/\d+/.test(text)) throw new Error(`String "${text}" can't be parsed.`);
 
 	const [time, unit] = text.split(' ');
 	if (unit === 'Mins') return `${time}m`;
@@ -13,7 +13,7 @@ const parse = (text: string) => {
 
 export const search = async (title: string) => {
 	const results = await Google.search(`${title} site:https://howlongtobeat.com`);
-	if (results.length === 0) return;
+	if (results.length === 0) throw new Error(`No results were found for ${title}`);
 
 	const params = new URL(results[0].url).searchParams;
 	return params.get('id');
@@ -24,12 +24,12 @@ export const getGameById = async (id: string) => {
 	const $ = load(data);
 
 	const name = $('.profile_header_game .profile_header').text().trim();
-	const src = $('.profile_header_game .game_image img').attr('src');
+	const src = $('.profile_header_game .game_image img').attr('src') ?? null;
 	const image = src && `https://howlongtobeat.com${src}`;
 
-	let main: string | undefined;
-	let mainExtra: string | undefined;
-	let completionist: string | undefined;
+	let main: string | null = null;
+	let mainExtra: string | null = null;
+	let completionist: string | null = null;
 	for (const element of $('.game_times ul li').get()) {
 		const label = $(element).find('h5').text();
 		const isMainLabel = ['Main Story', 'Single-Player', 'Solo'].some((labelText) => label.startsWith(labelText));

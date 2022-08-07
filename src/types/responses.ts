@@ -10,15 +10,15 @@ export interface Anime {
 	data: {
 		mal_id: number;
 		title: string;
-		title_english?: string;
+		title_english: string | null;
 		url: string;
 		season: string;
 		year: number;
 		broadcast: {
-			day?: string;
-			time?: string;
-			timezone?: string;
-			string?: string;
+			day: string | null;
+			time: string | null;
+			timezone: string | null;
+			string: string | null;
 		};
 		status: string;
 		score: number;
@@ -26,11 +26,11 @@ export interface Anime {
 		duration: string;
 		images: {
 			jpg: {
-				large_image_url?: string;
+				large_image_url: string | null;
 			};
 		};
 		trailer: {
-			url?: string;
+			url: string | null;
 		};
 	};
 }
@@ -87,12 +87,12 @@ export interface Review {
 	id: number;
 	name: string;
 	firstReleaseDate: string;
-	bannerScreenshot?: {
+	bannerScreenshot: {
 		fullRes: string;
 	};
 	numReviews: number;
 	topCriticScore: number;
-	tier?: string;
+	tier: string;
 	percentRecommended: number;
 	Platforms: Platform[];
 }
@@ -269,6 +269,6 @@ export interface Article {
 	description: string;
 	content: string;
 	url: string;
-	urlToImage: string;
+	urlToImage: string | null;
 	publishedAt: string;
 }

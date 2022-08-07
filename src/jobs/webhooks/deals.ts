@@ -1,85 +1,77 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
 import * as GGDeals from '../../apis/ggDeals';
 import * as Webhooks from '../../services/webhooks';
-import { BlogCategories, DealCategories } from '../../types/categories';
 import * as StringUtil from '../../utils/string';
 import * as SleepUtil from '../../utils/sleep';
+import { DealsCategory, WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: 'deals',
+	name: WebhookJobName.Deals,
 	schedule: '0 */5 * * * *',
 };
 
-const CATEGORIES: (BlogCategories | DealCategories)[] = [
-	'bundles',
-	'free games',
-	'paid games',
-	'prime gaming',
-	'sales',
-];
-
 export const execute = async (client: Bot) => {
-	for (const category of CATEGORIES) {
-		if (category !== 'free games' && category !== 'paid games') {
-			const { title, url, lead, image } = await GGDeals.getLatestBlogNews(category);
-			if (!title || !url) continue;
+	const categories = Object.keys(DealsCategory)
+		.filter((element) => !isNaN(Number(element)))
+		.map(Number) as DealsCategory[];
 
-			const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
-			if (hasEntry) continue;
+	for (const category of categories) {
+		if (category === DealsCategory.FreeGames || category === DealsCategory.PaidGames) {
+			const deals = await GGDeals.getLatestDeals(category);
+			for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
+				const hasEntry = await client.manageState('Deals', DealsCategory[category], title, url);
+				if (hasEntry) continue;
 
-			const message = new MessageEmbed()
-				.setTitle(StringUtil.truncate(title))
-				.setURL(url)
-				.setThumbnail(image ?? '')
-				.setDescription(lead ?? 'N/A')
-				.setColor('RANDOM');
+				const description = `${
+					discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''
+				} **${discounted}** @ **${store}**`;
 
-			await sendMessage(client, category, message);
+				const embed = new EmbedBuilder()
+					.setTitle(title)
+					.setURL(url)
+					.setThumbnail(image)
+					.setDescription(description)
+					.setColor('Random');
+
+				if (category === DealsCategory.PaidGames && coupon)
+					embed.addFields([{ name: 'Store coupon', value: `*${coupon}*` }]);
+
+				await sendMessage(client, category, embed);
+				await SleepUtil.timeout(5000);
+			}
 			continue;
 		}
 
-		const deals = await GGDeals.getLatestDeals(category);
-		for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
-			await SleepUtil.timeout(5000);
+		const { title, url, lead, image } = await GGDeals.getLatestBlogNews(category);
+		if (!title || !url) continue;
 
-			const hasEntry = await client.manageState('Deals', StringUtil.capitalize(category), title, url);
-			if (hasEntry) continue;
+		const hasEntry = await client.manageState('Deals', DealsCategory[category], title, url);
+		if (hasEntry) continue;
 
-			const description = `${
-				discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''
-			} **${discounted}** @ **${store}**`;
+		const embed = new EmbedBuilder()
+			.setTitle(StringUtil.truncate(title))
+			.setURL(url)
+			.setThumbnail(image)
+			.setDescription(lead ?? 'N/A')
+			.setColor('Random');
 
-			const message = new MessageEmbed()
-				.setTitle(title)
-				.setURL(url)
-				.setThumbnail(image ?? '')
-				.setDescription(description)
-				.setColor('RANDOM');
-
-			if (category === 'paid games' && coupon) message.addField('Store coupon', `*${coupon}*`);
-
-			await sendMessage(client, category, message);
-		}
+		await sendMessage(client, category, embed);
 	}
 };
 
-const getWebhook = async (client: Bot, guildId: string, category: BlogCategories | DealCategories) => {
-	const options = {
-		'sales': () => Webhooks.getWebhook(client, guildId, 'Deals'),
-		'bundles': () => Webhooks.getWebhook(client, guildId, 'Deals'),
-		'prime gaming': () => Webhooks.getWebhook(client, guildId, 'Free Games'),
-		'paid games': () => Webhooks.getWebhook(client, guildId, 'Deals'),
-		'free games': () => Webhooks.getWebhook(client, guildId, 'Free Games'),
-	};
-	return await options[category]();
+const getWebhook = async (client: Bot, guildId: string, category: DealsCategory) => {
+	if (category === DealsCategory.FreeGames || category === DealsCategory.PrimeGaming)
+		return await Webhooks.getWebhook(client, guildId, WebhookCategory.FreeGames);
+
+	return await Webhooks.getWebhook(client, guildId, WebhookCategory.Deals);
 };
 
-const sendMessage = async (client: Bot, category: BlogCategories | DealCategories, message: MessageEmbed) => {
+const sendMessage = async (client: Bot, category: DealsCategory, embed: EmbedBuilder) => {
 	for (const { 0: guildId } of client.guilds.cache) {
 		const webhook = await getWebhook(client, guildId, category);
 		if (!webhook) continue;
 
-		await webhook.send({ embeds: [message] });
+		await webhook.send({ embeds: [embed] });
 	}
 };

@@ -2,9 +2,10 @@ import { Bot } from '../bot';
 import * as CommandsHandler from '../handlers/commands';
 import { settingsModel } from '../database/models/settings';
 import { logger } from '../utils/logger';
+import { EventName } from '../types/enums';
 
 export const data = {
-	name: 'ready',
+	name: EventName.Ready,
 	once: true,
 };
 

@@ -1,21 +1,24 @@
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
 	ButtonInteraction,
+	ButtonStyle,
 	Client,
+	ComponentType,
+	EmbedBuilder,
 	GuildMember,
-	MessageActionRow,
-	MessageButton,
-	MessageEmbed,
-	TextChannel,
+	TextBasedChannel,
 } from 'discord.js';
 import { Bot } from '../bot';
 import { settingsModel } from '../database/models/settings';
+import { JobName } from '../types/enums';
 import { logger } from '../utils/logger';
 
 const COMPONENTS_LIMIT = 5;
 const ITEMS_PER_ROW = 5;
 
 export const data = {
-	name: 'roles',
+	name: JobName.Roles,
 	schedule: new Date(Date.now() + 1000 * 60),
 };
 
@@ -35,32 +38,32 @@ export const execute = async (client: Bot | Client) => {
 			})
 			.filter((item): item is NonNullable<typeof item> => !!item);
 
-		const components = [];
+		const components: ActionRowBuilder<ButtonBuilder>[] = [];
 		const rows = Math.ceil(roles.length / ITEMS_PER_ROW);
 		for (let index = 0; index < rows; index++) {
-			const row = new MessageActionRow();
+			const actionRow = new ActionRowBuilder() as ActionRowBuilder<ButtonBuilder>;
 			for (const role of roles.slice(0, ITEMS_PER_ROW)) {
-				const button = new MessageButton()
+				const button = new ButtonBuilder()
 					.setCustomId(role)
 					.setLabel(role)
-					.setStyle(role === 'NSFW' ? 'DANGER' : 'PRIMARY');
+					.setStyle(role === 'NSFW' ? ButtonStyle.Danger : ButtonStyle.Primary);
 
-				row.addComponents(button);
+				actionRow.addComponents(button);
 			}
 			roles.splice(0, ITEMS_PER_ROW);
-			components.push(row);
+			components.push(actionRow);
 		}
 		if (components.length > COMPONENTS_LIMIT) continue;
 
-		const message = new MessageEmbed()
+		const message = new EmbedBuilder()
 			.setTitle('Text channel roles')
 			.setDescription(
 				'Use the buttons below to claim or revoke a role.\nEach role grants access to a different text channel.',
 			)
-			.setColor('RANDOM');
+			.setColor('Random');
 
-		const channel = (await client.channels.fetch(channelId)) as TextChannel;
-		if (!channel) continue;
+		const channel = await client.channels.fetch(channelId);
+		if (!channel?.isTextBased()) continue;
 
 		const messages = await channel.messages.fetch();
 		const rolesMessage = messages.find((message) => message?.embeds[0]?.title === 'Text channel roles');
@@ -74,8 +77,8 @@ export const execute = async (client: Bot | Client) => {
 	}
 };
 
-const handleCollector = async (channel: TextChannel) => {
-	const collector = channel.createMessageComponentCollector({ componentType: 'BUTTON', max: 1 });
+const handleCollector = async (channel: TextBasedChannel) => {
+	const collector = channel.createMessageComponentCollector({ componentType: ComponentType.Button, max: 1 });
 	await new Promise<void>((resolve, reject) => {
 		collector.on('end', async (collected) => {
 			try {
@@ -110,10 +113,9 @@ const assignRole = async (interaction: ButtonInteraction) => {
 
 	const status = hasRole ? 'revoked' : 'granted';
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(`Role ${role.name} has been ${status}!`).setColor('RANDOM')],
-		ephemeral: true,
-	});
+	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been ${status}!`).setColor('Random');
+
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 
 	logger.info(
 		`Roles collector _*${status}*_ role _*${role.name}*_ ${hasRole ? 'from' : 'to'} _*${

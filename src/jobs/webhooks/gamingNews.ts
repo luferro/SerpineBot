@@ -1,12 +1,13 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
 import * as Reddit from '../../apis/reddit';
 import * as Youtube from '../../apis/youtube';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
+import { WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: 'gamingNews',
+	name: WebhookJobName.GamingNews,
 	schedule: '0 */3 * * * *',
 };
 
@@ -21,8 +22,7 @@ export const execute = async (client: Bot) => {
 	const isTweet = secure_media?.type === 'twitter.com';
 	const newsUrl = getUrl(url, isVideo, isTweet);
 
-	const isInvalidMediaPost = !isVideo && Youtube.isVideo(url);
-	if (isInvalidMediaPost) return;
+	if (!isVideo && Youtube.isVideo(url)) return;
 
 	const hasEntry = await client.manageState('Gaming News', 'News', title, newsUrl);
 	if (hasEntry || crosspost_parent || is_self) return;
@@ -31,7 +31,7 @@ export const execute = async (client: Bot) => {
 	if (typeof subscribers === 'number' && subscribers < 50_000) return;
 
 	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await Webhooks.getWebhook(client, guildId, 'Gaming News');
+		const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.GamingNews);
 		if (!webhook) continue;
 
 		if (secure_media) {
@@ -39,9 +39,9 @@ export const execute = async (client: Bot) => {
 			continue;
 		}
 
-		await webhook.send({
-			embeds: [new MessageEmbed().setTitle(StringUtil.truncate(title)).setURL(newsUrl).setColor('RANDOM')],
-		});
+		const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(newsUrl).setColor('Random');
+
+		await webhook.send({ embeds: [embed] });
 	}
 };
 

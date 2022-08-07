@@ -1,12 +1,13 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
 import * as NewsAPI from '../../apis/newsApi';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
 import * as SleepUtil from '../../utils/sleep';
+import { WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: 'worldNews',
+	name: WebhookJobName.WorldNews,
 	schedule: '0 */30 * * * *',
 };
 
@@ -19,31 +20,29 @@ export const execute = async (client: Bot) => {
 		if (!hasEntry) continue;
 
 		const articleIndex = articles.findIndex(
-			({ title: articleTitle, url: articleUrl }) => articleTitle === title && articleUrl === url,
+			({ title: currentTitle, url: currentUrl }) => currentTitle === title && currentUrl === url,
 		);
 		articles.splice(articleIndex);
 		break;
 	}
 
 	for (const { title, url, author, description, content, source, urlToImage, publishedAt } of articles.reverse()) {
-		const image = /^http(s?)/g.test(urlToImage) ? urlToImage : '';
+		const image = urlToImage?.startsWith('http') ? urlToImage : null;
 
 		for (const { 0: guildId } of client.guilds.cache) {
-			const webhook = await Webhooks.getWebhook(client, guildId, 'World News');
+			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.WorldNews);
 			if (!webhook) continue;
 
-			await webhook.send({
-				embeds: [
-					new MessageEmbed()
-						.setAuthor({ name: source.name ?? author ?? 'N/A' })
-						.setTitle(StringUtil.truncate(title))
-						.setURL(url)
-						.setThumbnail(image ?? '')
-						.setDescription(content ?? description ?? 'N/A')
-						.setTimestamp(new Date(publishedAt))
-						.setColor('RANDOM'),
-				],
-			});
+			const embed = new EmbedBuilder()
+				.setAuthor({ name: source.name ?? author ?? 'N/A' })
+				.setTitle(StringUtil.truncate(title))
+				.setURL(url)
+				.setThumbnail(image)
+				.setDescription(content ?? description ?? 'N/A')
+				.setTimestamp(new Date(publishedAt))
+				.setColor('Random');
+
+			await webhook.send({ embeds: [embed] });
 
 			await SleepUtil.timeout(5000);
 		}

@@ -1,21 +1,21 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as HowLongToBeat from '../apis/howLongToBeat';
+import { CommandName } from '../types/enums';
 
 export const data = {
-	name: 'hltb',
+	name: CommandName.HowLongToBeat,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('hltb')
-		.setDescription('Returns an average playtime needed to beat a given game.')
+		.setName(CommandName.HowLongToBeat)
+		.setDescription('Average playtime required to beat a given game.')
 		.addStringOption((option) => option.setName('game').setDescription('Game title.').setRequired(true)),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
-	const game = interaction.options.getString('game')!;
+export const execute = async (interaction: ChatInputCommandInteraction) => {
+	const game = interaction.options.getString('game', true);
 
 	const id = await HowLongToBeat.search(game);
-	if (!id) return await interaction.reply({ content: `Couldn't find a match for ${game}.`, ephemeral: true });
+	if (!id) throw new Error(`No matches for ${game}.`);
 
 	const {
 		name,
@@ -24,18 +24,29 @@ export const execute = async (interaction: CommandInteraction) => {
 	} = await HowLongToBeat.getGameById(id);
 
 	const hasPlaytimes = main || mainExtra || completionist;
-	if (!hasPlaytimes)
-		return await interaction.reply({ content: `No playtimes were found for ${name}.`, ephemeral: true });
+	if (!hasPlaytimes) throw new Error(`No playtimes were found for ${name}.`);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(`How long to beat \`${name}\``)
-				.setThumbnail(image ?? '')
-				.addField('**Main Story**', main ? `~${main}` : 'N/A', true)
-				.addField('**Main Story + Extras**', mainExtra ? `~${mainExtra}` : 'N/A', true)
-				.addField('**Completionist**', completionist ? `~${completionist}` : 'N/A', true)
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(`How long to beat \`${name}\``)
+		.setThumbnail(image)
+		.addFields([
+			{
+				name: '**Main Story**',
+				value: main ? `~${main}` : 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Main Story + Extras**',
+				value: mainExtra ? `~${mainExtra}` : 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Completionist**',
+				value: completionist ? `~${completionist}` : 'N/A',
+				inline: true,
+			},
+		])
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };

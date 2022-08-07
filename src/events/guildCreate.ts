@@ -3,9 +3,10 @@ import { Bot } from '../bot';
 import * as CommandsHandler from '../handlers/commands';
 import { settingsModel } from '../database/models/settings';
 import { logger } from '../utils/logger';
+import { EventName } from '../types/enums';
 
 export const data = {
-	name: 'guildCreate',
+	name: EventName.GuildCreate,
 	once: false,
 };
 
@@ -24,6 +25,9 @@ export const execute = async (client: Bot, guild: Guild) => {
 		leaderboards: {
 			steam: {
 				channelId: settings?.leaderboards.steam.channelId ?? null,
+			},
+			xbox: {
+				channelId: settings?.leaderboards.xbox.channelId ?? null,
 			},
 		},
 		webhooks: settings?.webhooks ?? [],

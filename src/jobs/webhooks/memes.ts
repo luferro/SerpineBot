@@ -1,19 +1,18 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
 import * as Reddit from '../../apis/reddit';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
 import * as FilesUtil from '../../utils/files';
+import { WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: 'memes',
+	name: WebhookJobName.Memes,
 	schedule: '0 */5 * * * *',
 };
 
-const SUBREDDITS = ['Memes', 'DankMemes', 'ProgrammerHumor'];
-
 export const execute = async (client: Bot) => {
-	for (const subreddit of SUBREDDITS) {
+	for (const subreddit of process.env.MEMES_SUBREDDITS?.split(',') ?? []) {
 		const {
 			0: {
 				data: { title, permalink, url, is_self },
@@ -23,30 +22,28 @@ export const execute = async (client: Bot) => {
 		const isMediaAvailable = await FilesUtil.isAvailable(url);
 		if (!isMediaAvailable) continue;
 
-		const hasEntry = await client.manageState('Memes', StringUtil.capitalize(subreddit), title, url);
+		const hasEntry = await client.manageState('Memes', subreddit, title, url);
 		if (hasEntry || is_self) continue;
 
 		for (const { 0: guildId } of client.guilds.cache) {
-			const webhook = await Webhooks.getWebhook(client, guildId, 'Memes');
+			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.Memes);
 			if (!webhook) continue;
 
 			const hasVideoExtension = ['.gif', '.gifv', '.mp4'].some((extension) => url.includes(extension));
 			if (hasVideoExtension) {
-				await webhook.send({
-					content: `**[${StringUtil.truncate(title)}](<https://www.reddit.com${permalink}>)**\n${url}`,
-				});
+				const formattedTitle = `[${StringUtil.truncate(title)}](<https://www.reddit.com${permalink}>)`;
+
+				await webhook.send({ content: `**${formattedTitle}**\n${url}` });
 				continue;
 			}
 
-			await webhook.send({
-				embeds: [
-					new MessageEmbed()
-						.setTitle(StringUtil.truncate(title))
-						.setURL(`https://www.reddit.com${permalink}`)
-						.setImage(url)
-						.setColor('RANDOM'),
-				],
-			});
+			const embed = new EmbedBuilder()
+				.setTitle(StringUtil.truncate(title))
+				.setURL(`https://www.reddit.com${permalink}`)
+				.setImage(url)
+				.setColor('Random');
+
+			await webhook.send({ embeds: [embed] });
 		}
 	}
 };

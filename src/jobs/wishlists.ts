@@ -1,12 +1,13 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../bot';
 import * as Steam from '../apis/steam';
 import { steamModel } from '../database/models/steam';
-import { Alert, AlertType } from '../types/alerts';
+import { Alert } from '../types/alerts';
 import { logger } from '../utils/logger';
+import { AlertCategory, JobName } from '../types/enums';
 
 export const data = {
-	name: 'wishlists',
+	name: JobName.Wishlists,
 	schedule: '0 */15 7-23 * * *',
 };
 
@@ -16,11 +17,11 @@ export const execute = async (client: Bot) => {
 		const wishlist = await Steam.getWishlist(integration.profile.id);
 		if (!wishlist) continue;
 
-		const wishlistAlerts = new Map<AlertType, Alert[]>([
-			['SALE', []],
-			['RELEASED', []],
-			['SUBSCRIPTION.ADDED', []],
-			['SUBSCRIPTION.REMOVED', []],
+		const wishlistAlerts = new Map<AlertCategory, Alert[]>([
+			[AlertCategory.Sale, []],
+			[AlertCategory.Released, []],
+			[AlertCategory.AddedToSubscription, []],
+			[AlertCategory.RemovedFromSubscription, []],
 		]);
 		const wishlistItems = wishlist.map((game) => {
 			const { name, url, discount, regular, discounted, subscriptions, sale, released } = game;
@@ -57,22 +58,22 @@ export const execute = async (client: Bot) => {
 			const wasRelease = storedItem?.released ?? released;
 			const isRelease = !wasRelease && released;
 			if (isRelease) {
-				wishlistAlerts.get('RELEASED')!.push(alert);
+				wishlistAlerts.get(AlertCategory.Released)!.push(alert);
 				if (sale) notified = true;
 			}
 
 			const wasSale = storedItem?.sale ?? sale;
 			const isSale = !wasSale && sale && released;
 			if (isSale && !notified) {
-				wishlistAlerts.get('SALE')!.push(alert);
+				wishlistAlerts.get(AlertCategory.Sale)!.push(alert);
 				notified = true;
 			}
 
 			const isAddedToSubscription = alert.addedTo.length > 0;
-			if (isAddedToSubscription) wishlistAlerts.get('SUBSCRIPTION.ADDED')!.push(alert);
+			if (isAddedToSubscription) wishlistAlerts.get(AlertCategory.AddedToSubscription)!.push(alert);
 
 			const isRemovedFromSubscription = alert.removedFrom.length > 0;
-			if (isRemovedFromSubscription) wishlistAlerts.get('SUBSCRIPTION.REMOVED')!.push(alert);
+			if (isRemovedFromSubscription) wishlistAlerts.get(AlertCategory.RemovedFromSubscription)!.push(alert);
 
 			return {
 				...game,
@@ -87,7 +88,7 @@ export const execute = async (client: Bot) => {
 
 			const title = getTitle(category, alerts.length);
 			const description = getDescription(category, alerts.slice(0, 10)).join('\n');
-			const embed = new MessageEmbed().setTitle(title).setDescription(description).setColor('RANDOM');
+			const embed = new EmbedBuilder().setTitle(title).setDescription(description).setColor('Random');
 
 			const user = await client.users.fetch(integration.userId);
 			await user.send({ embeds: [embed] });
@@ -99,21 +100,21 @@ export const execute = async (client: Bot) => {
 	}
 };
 
-const getTitle = (category: AlertType, totalItems: number) => {
-	const options: Record<AlertType, string> = {
-		'SUBSCRIPTION.ADDED':
+const getTitle = (category: AlertCategory, totalItems: number) => {
+	const options: Record<typeof category, string> = {
+		[AlertCategory.AddedToSubscription]:
 			totalItems === 1
 				? '**1** item from your wishlist is now included with a subscription service!'
 				: `**${totalItems}** items from your wishlist are now included with a subscription service!`,
-		'SUBSCRIPTION.REMOVED':
+		[AlertCategory.RemovedFromSubscription]:
 			totalItems === 1
 				? '**1** item from your wishlist has left a subscription service!'
 				: `**${totalItems}** items from your wishlist have left a subscription service!`,
-		'RELEASED':
+		[AlertCategory.Released]:
 			totalItems === 1
 				? '**1** item from your wishlist is now available!'
 				: `**${totalItems}** items from your wishlist are now available!`,
-		'SALE':
+		[AlertCategory.Sale]:
 			totalItems === 1
 				? '**1** item from your wishlist is on sale!'
 				: `**${totalItems}** items from your wishlist are on sale!`,
@@ -122,16 +123,18 @@ const getTitle = (category: AlertType, totalItems: number) => {
 	return options[category];
 };
 
-const getDescription = (category: AlertType, items: Alert[]) => {
-	const options: Record<AlertType, string[]> = {
-		'SUBSCRIPTION.ADDED': items.map(
+const getDescription = (category: AlertCategory, items: Alert[]) => {
+	const options: Record<typeof category, string[]> = {
+		[AlertCategory.AddedToSubscription]: items.map(
 			({ name, url, addedTo }) => `> **[${name}](${url})** added to:\n${addedTo.join('\n')}`,
 		),
-		'SUBSCRIPTION.REMOVED': items.map(
+		[AlertCategory.RemovedFromSubscription]: items.map(
 			({ name, url, removedFrom }) => `> **[${name}](${url})** removed from:\n${removedFrom.join('\n')}`,
 		),
-		'RELEASED': items.map(({ name, url, discounted }) => `> **[${name}](${url})** available for **${discounted}**`),
-		'SALE': items.map(
+		[AlertCategory.Released]: items.map(
+			({ name, url, discounted }) => `> **[${name}](${url})** available for **${discounted}**`,
+		),
+		[AlertCategory.Sale]: items.map(
 			({ name, url, discount, regular, discounted }) =>
 				`> **[${name}](${url})** is ***${discount}%*** off! ~~${regular}~~ | **${discounted}**`,
 		),

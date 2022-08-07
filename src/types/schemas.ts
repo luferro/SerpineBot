@@ -30,6 +30,9 @@ export interface Settings {
 		steam: {
 			channelId: string | null;
 		};
+		xbox: {
+			channelId: string | null;
+		};
 	};
 	webhooks: Webhook[];
 }
@@ -44,7 +47,7 @@ export interface State {
 	entries: Map<string, Entry[]>;
 }
 
-interface WishlistItem {
+interface SteamWishlistItem {
 	id: string;
 	name: string;
 	url: string;
@@ -65,7 +68,7 @@ interface WishlistItem {
 	notified: boolean;
 }
 
-interface RecentlyPlayedItem {
+interface SteamRecentlyPlayedItem {
 	id: number;
 	name: string;
 	url: string;
@@ -79,9 +82,17 @@ export interface Steam {
 		id: string;
 		url: string;
 	};
-	wishlist: WishlistItem[];
-	recentlyPlayed: RecentlyPlayedItem[];
+	wishlist: SteamWishlistItem[];
+	recentlyPlayed: SteamRecentlyPlayedItem[];
 	notifications: boolean;
+}
+
+export interface Xbox {
+	userId: string;
+	profile: {
+		gamertag: string;
+		gamerscore: number;
+	};
 }
 
 interface SubscriptionItem {

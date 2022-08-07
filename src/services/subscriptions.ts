@@ -4,8 +4,8 @@ import * as StringUtil from '../utils/string';
 import * as UrlUtil from '../utils/url';
 import * as TheMovieDB from '../apis/theMovieDB';
 import { subscriptionsModel } from '../database/models/subscriptions';
-import { TheMovieDBCategories } from '../types/categories';
 import { SubscriptionsAggregate } from '../types/schemas';
+import { SubscriptionCategory } from '../types/enums';
 
 export const getGamingSubscriptions = async (title: string) => {
 	const regex = new RegExp(`^${StringUtil.slug(title).replace(/-/g, '.*-')}`);
@@ -24,7 +24,10 @@ export const getGamingSubscriptions = async (title: string) => {
 	}));
 };
 
-export const getStreamingSubscriptions = async (title: string, category: TheMovieDBCategories) => {
+export const getStreamingSubscriptions = async (
+	title: string,
+	category: Exclude<SubscriptionCategory, SubscriptionCategory.Gaming>,
+) => {
 	const id = await TheMovieDB.search(title, category);
 	if (!id) return;
 

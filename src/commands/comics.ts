@@ -1,39 +1,38 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as GoComics from '../apis/goComics';
-import { ComicCategories } from '../types/categories';
+import { ComicSelection, CommandName } from '../types/enums';
 
 export const data = {
-	name: 'comics',
+	name: CommandName.Comics,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('comics')
-		.setDescription('Returns a random comic.')
-		.addStringOption((option) =>
+		.setName(CommandName.Comics)
+		.setDescription('Random comic page from the available options.')
+		.addIntegerOption((option) =>
 			option
-				.setName('category')
-				.setDescription('Comic category.')
+				.setName('selection')
+				.setDescription('Comic selection.')
 				.setRequired(true)
 				.addChoices(
-					{ name: 'Garfield', value: 'garfield' },
-					{ name: 'Peanuts', value: 'peanuts' },
-					{ name: 'Get Fuzzy', value: 'get fuzzy' },
-					{ name: 'Fowl Language', value: 'fowl language' },
-					{ name: 'Calvin and Hobbes', value: 'calvin and hobbes' },
-					{ name: 'Jake Likes Onions', value: 'jake likes onions' },
-					{ name: "Sarah's Scribbles", value: 'sarahs scribbles' },
-					{ name: 'Worry Lines', value: 'worry lines' },
+					{ name: 'Garfield', value: ComicSelection.Garfield },
+					{ name: 'Peanuts', value: ComicSelection.Peanuts },
+					{ name: 'Get Fuzzy', value: ComicSelection.GetFuzzy },
+					{ name: 'Fowl Language', value: ComicSelection.FowlLanguage },
+					{ name: 'Calvin and Hobbes', value: ComicSelection.CalvinAndHobbes },
+					{ name: 'Jake Likes Onions', value: ComicSelection.JakeLikesOnions },
+					{ name: "Sarah's Scribbles", value: ComicSelection.SarahsScribbles },
+					{ name: 'Worry Lines', value: ComicSelection.WorryLines },
 				),
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
-	const choice = interaction.options.getString('category')! as ComicCategories;
+export const execute = async (interaction: ChatInputCommandInteraction) => {
+	const selection = interaction.options.getInteger('category', true) as ComicSelection;
 
-	const { title, url, image } = await GoComics.getComics(choice);
-	if (!title || !url || !image) return await interaction.reply({ content: 'No comic was found.', ephemeral: true });
+	const { title, url, image } = await GoComics.getComics(selection);
+	if (!title || !url || !image) throw new Error('No comic was found.');
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(title).setURL(url).setImage(image).setColor('RANDOM')],
-	});
+	const embed = new EmbedBuilder().setTitle(title).setURL(url).setImage(image).setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };

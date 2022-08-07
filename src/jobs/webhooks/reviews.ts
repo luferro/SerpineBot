@@ -1,12 +1,13 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
 import * as OpenCritic from '../../apis/opencritic';
 import * as Reddit from '../../apis/reddit';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
+import { WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: 'reviews',
+	name: WebhookJobName.Reviews,
 	schedule: '0 */30 * * * *',
 };
 
@@ -37,23 +38,44 @@ export const execute = async (client: Bot) => {
 	if (hasEntry) return;
 
 	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await Webhooks.getWebhook(client, guildId, 'Reviews');
+		const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.Reviews);
 		if (!webhook) continue;
 
-		await webhook.send({
-			embeds: [
-				new MessageEmbed()
-					.setTitle(StringUtil.truncate(name))
-					.setURL(url)
-					.setThumbnail(image ?? '')
-					.addField('**Release date**', releaseDate)
-					.addField('**Available on**', platforms.join('\n') || 'N/A')
-					.addField('**Tier**', tier?.toString() ?? 'N/A')
-					.addField('**Score**', score?.toString() ?? 'N/A', true)
-					.addField('**Reviews count**', count?.toString() ?? 'N/A', true)
-					.addField('**Critics Recommended**', recommended ? `${recommended}%` : 'N/A', true)
-					.setColor('RANDOM'),
-			],
-		});
+		const embed = new EmbedBuilder()
+			.setTitle(StringUtil.truncate(name))
+			.setURL(url)
+			.setThumbnail(image)
+			.addFields([
+				{
+					name: '**Release date**',
+					value: releaseDate,
+				},
+				{
+					name: '**Available on**',
+					value: platforms.join('\n') || 'N/A',
+				},
+				{
+					name: '**Tier**',
+					value: tier?.toString() ?? 'N/A',
+				},
+				{
+					name: '**Score**',
+					value: score?.toString() ?? 'N/A',
+					inline: true,
+				},
+				{
+					name: '**Reviews count**',
+					value: count?.toString() ?? 'N/A',
+					inline: true,
+				},
+				{
+					name: '**Critics Recommended**',
+					value: recommended ? `${recommended}%` : 'N/A',
+					inline: true,
+				},
+			])
+			.setColor('Random');
+
+		await webhook.send({ embeds: [embed] });
 	}
 };

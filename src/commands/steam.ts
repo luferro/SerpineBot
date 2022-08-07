@@ -1,40 +1,40 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, GuildMember, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, GuildMember, SlashCommandBuilder } from 'discord.js';
 import * as Steam from '../apis/steam';
 import * as Leaderboards from '../services/leaderboards';
 import { steamModel } from '../database/models/steam';
+import { CommandName } from '../types/enums';
 
 export const data = {
-	name: 'steam',
+	name: CommandName.Steam,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('steam')
+		.setName(CommandName.Steam)
 		.setDescription('Steam related commands.')
-		.addSubcommand((subcommand) => subcommand.setName('sale').setDescription('Returns the next steam sale.'))
-		.addSubcommand((subcommand) => subcommand.setName('top').setDescription("Returns Steam's top played games."))
-		.addSubcommand((subcommand) => subcommand.setName('hot').setDescription("Returns Steam's top sellers."))
-		.addSubcommand((subcommand) => subcommand.setName('new').setDescription("Returns Steam's upcoming games."))
+		.addSubcommand((subcommand) => subcommand.setName('sale').setDescription('Next steam sales.'))
+		.addSubcommand((subcommand) => subcommand.setName('top').setDescription("Steam's top played games."))
+		.addSubcommand((subcommand) => subcommand.setName('hot').setDescription("Steam's top sellers."))
+		.addSubcommand((subcommand) => subcommand.setName('new').setDescription("Steam's upcoming games."))
 		.addSubcommand((subcommand) =>
-			subcommand.setName('leaderboard').setDescription('Returns the Steam leaderboard for the week.'),
+			subcommand.setName('leaderboard').setDescription('Steam leaderboard for the current week.'),
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('profile')
-				.setDescription('Returns the Steam profile for your account/mentioned user.')
+				.setDescription('Steam profile for your account/mentioned user.')
 				.addMentionableOption((option) => option.setName('mention').setDescription('User mention.')),
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('wishlist')
-				.setDescription('Returns the Steam wishlist for your account/mentioned user.')
+				.setDescription('Steam wishlist for your account/mentioned user.')
 				.addMentionableOption((option) => option.setName('mention').setDescription('User mention.')),
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
+export const execute = async (interaction: ChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (interaction: CommandInteraction) => Promise<void>> = {
+	const select: Record<string, (interaction: ChatInputCommandInteraction) => Promise<void>> = {
 		new: getUpcoming,
 		top: getTopPlayed,
 		hot: getTopSellers,
@@ -47,105 +47,117 @@ export const execute = async (interaction: CommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const getNextSale = async (interaction: CommandInteraction) => {
+const getNextSale = async (interaction: ChatInputCommandInteraction) => {
 	const { sale, status, upcoming } = await Steam.getNextSale();
+	if (!sale) throw new Error('No dates were found for the next steam sale.');
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle('When is the next Steam sale?')
-				.setDescription(`*${status || ''}*\n**${sale || "Couldn't find the next steam sale."}**`)
-				.addField('Upcoming Sales', upcoming.length > 0 ? upcoming.join('\n') : 'N/A')
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle('When is the next Steam sale?')
+		.setDescription(`*${status || ''}*\n**${sale}**`)
+		.addFields([
+			{
+				name: '**Upcoming Sales**',
+				value: upcoming.join('\n') || 'N/A',
+			},
+		])
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const getTopPlayed = async (interaction: CommandInteraction) => {
+const getTopPlayed = async (interaction: ChatInputCommandInteraction) => {
 	const topPlayed = await Steam.getTopPlayed();
+	if (topPlayed.length === 0) throw new Error("No games were found in Steam's top played list.");
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle('Steam Top Played')
-				.setDescription(topPlayed.length > 0 ? topPlayed.join('\n') : 'N/A')
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle("Steam's Top Played")
+		.setDescription(topPlayed.join('\n'))
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const getTopSellers = async (interaction: CommandInteraction) => {
+const getTopSellers = async (interaction: ChatInputCommandInteraction) => {
 	const topSellers = await Steam.getTopSellers();
+	if (topSellers.length === 0) throw new Error("No games were found in Steam's top sellers list.");
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle('Steam Top Sellers')
-				.setDescription(topSellers.length > 0 ? topSellers.join('\n') : 'N/A')
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle("Steam's Top Sellers")
+		.setDescription(topSellers.join('\n'))
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const getUpcoming = async (interaction: CommandInteraction) => {
+const getUpcoming = async (interaction: ChatInputCommandInteraction) => {
 	const upcoming = await Steam.getUpcoming();
+	if (upcoming.length === 0) throw new Error("No games were found in Steam's upcoming list.");
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle('Steam Upcoming')
-				.setDescription(upcoming.length > 0 ? upcoming.join('\n') : 'N/A')
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle("Steam's Upcoming Games")
+		.setDescription(upcoming.join('\n'))
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const getLeaderboard = async (interaction: CommandInteraction) => {
+const getLeaderboard = async (interaction: ChatInputCommandInteraction) => {
 	const leaderboard = await Leaderboards.getSteamLeaderboard(interaction.client);
-	if (!leaderboard)
-		return await interaction.reply({ content: 'No Steam leaderboard is available.', ephemeral: true });
+	if (leaderboard.length === 0) throw new Error('No Steam leaderboard is available.');
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle('Weekly Steam Leaderboard')
-				.setDescription(leaderboard.join('\n'))
-				.setFooter({ text: 'Leaderboard resets every sunday.' })
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle('Weekly Steam Leaderboard')
+		.setDescription(leaderboard.join('\n'))
+		.setFooter({ text: 'Leaderboard resets every sunday at 00:00 UTC.' })
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const getProfile = async (interaction: CommandInteraction) => {
+const getProfile = async (interaction: ChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 	const userId = mention?.user.id ?? interaction.user.id;
 
 	const integration = await steamModel.findOne({ userId });
-	if (!integration) return await interaction.reply({ content: 'No Steam integration is in place.', ephemeral: true });
+	if (!integration) throw new Error('No Steam integration is in place.');
 
 	const { name, image, status, logoutAt, createdAt } = await Steam.getProfile(integration.profile.id);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(name)
-				.setURL(integration.profile.url)
-				.setThumbnail(image ?? '')
-				.addField('SteamId64', integration.profile.id)
-				.addField('Status', status)
-				.addField('Created at', createdAt, true)
-				.addField('Last logout at', logoutAt, true)
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(name)
+		.setURL(integration.profile.url)
+		.setThumbnail(image)
+		.addFields([
+			{
+				name: '**SteamId64**',
+				value: integration.profile.id,
+			},
+			{
+				name: '**Status**',
+				value: status,
+			},
+			{
+				name: '**Created at**',
+				value: createdAt,
+				inline: true,
+			},
+			{
+				name: '**Last logout at**',
+				value: logoutAt,
+				inline: true,
+			},
+		])
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const getWishlist = async (interaction: CommandInteraction) => {
+const getWishlist = async (interaction: ChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 	const user = mention?.user ?? interaction.user;
 
 	const integration = await steamModel.findOne({ userId: user.id });
-	if (!integration) return await interaction.reply({ content: 'No Steam integration is in place.', ephemeral: true });
+	if (!integration) throw new Error('No Steam integration is in place.');
 
 	const formattedWishlist = integration.wishlist
 		.slice(0, 10)
@@ -153,16 +165,14 @@ const getWishlist = async (interaction: CommandInteraction) => {
 			({ name, url, discounted, free }, index) =>
 				`\`${index + 1}.\` **[${name}](${url})** | ${discounted || (free && 'Free') || 'N/A'}`,
 		);
-	integration.wishlist.length - formattedWishlist.length > 0 &&
-		formattedWishlist.push(`And ${integration.wishlist.length - formattedWishlist.length} more!`);
+	const hasMoreItems = integration.wishlist.length - formattedWishlist.length > 0;
+	if (hasMoreItems) formattedWishlist.push(`And ${integration.wishlist.length - formattedWishlist.length} more!`);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(`\`${user.tag}\`'s wishlist`)
-				.setURL(`https://store.steampowered.com/wishlist/profiles/${integration.profile.id}/#sort=order`)
-				.setDescription(formattedWishlist.join('\n'))
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(`\`${user.tag}\`'s wishlist`)
+		.setURL(`https://store.steampowered.com/wishlist/profiles/${integration.profile.id}/#sort=order`)
+		.setDescription(formattedWishlist.join('\n'))
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };

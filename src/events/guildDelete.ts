@@ -1,10 +1,11 @@
 import { Guild } from 'discord.js';
 import { Bot } from '../bot';
 import { settingsModel } from '../database/models/settings';
+import { EventName } from '../types/enums';
 import { logger } from '../utils/logger';
 
 export const data = {
-	name: 'guildDelete',
+	name: EventName.GuildDelete,
 	once: false,
 };
 

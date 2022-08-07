@@ -1,38 +1,45 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, Guild, GuildBasedChannel, MessageEmbed, TextChannel } from 'discord.js';
+import {
+	ChannelType,
+	ChatInputCommandInteraction,
+	EmbedBuilder,
+	Guild,
+	GuildBasedChannel,
+	PermissionFlagsBits,
+	SlashCommandBuilder,
+} from 'discord.js';
 import { Bot } from '../bot';
 import * as Webhooks from '../services/webhooks';
-import { WebhookCategories } from '../types/categories';
+import { CommandName, WebhookCategory } from '../types/enums';
 
 export const data = {
-	name: 'webhooks',
+	name: CommandName.Webhooks,
 	client: true,
 	slashCommand: new SlashCommandBuilder()
-		.setName('webhooks')
+		.setName(CommandName.Webhooks)
 		.setDescription('Webhooks related commands.')
-		.setDefaultPermission(false)
+		.setDefaultMemberPermissions(PermissionFlagsBits.ManageWebhooks)
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('create')
 				.setDescription('Create a webhook and assign it to a text channel.')
-				.addStringOption((option) =>
+				.addIntegerOption((option) =>
 					option
 						.setName('category')
 						.setDescription('Webhook category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'NSFW', value: 'NSFW' },
-							{ name: 'Memes', value: 'Memes' },
-							{ name: 'Anime', value: 'Anime' },
-							{ name: 'Manga', value: 'Manga' },
-							{ name: 'World News', value: 'World News' },
-							{ name: 'Gaming News', value: 'Gaming News' },
-							{ name: 'Reviews', value: 'Reviews' },
-							{ name: 'Deals', value: 'Deals' },
-							{ name: 'Free Games', value: 'Free Games' },
-							{ name: 'Xbox', value: 'Xbox' },
-							{ name: 'Playstation', value: 'Playstation' },
-							{ name: 'Nintendo', value: 'Nintendo' },
+							{ name: 'NSFW', value: WebhookCategory.Nsfw },
+							{ name: 'Memes', value: WebhookCategory.Memes },
+							{ name: 'Anime', value: WebhookCategory.Anime },
+							{ name: 'Manga', value: WebhookCategory.Manga },
+							{ name: 'World News', value: WebhookCategory.WorldNews },
+							{ name: 'Gaming News', value: WebhookCategory.GamingNews },
+							{ name: 'Reviews', value: WebhookCategory.Reviews },
+							{ name: 'Deals', value: WebhookCategory.Deals },
+							{ name: 'Free Games', value: WebhookCategory.FreeGames },
+							{ name: 'Xbox', value: WebhookCategory.Xbox },
+							{ name: 'Playstation', value: WebhookCategory.Playstation },
+							{ name: 'Nintendo', value: WebhookCategory.Nintendo },
 						),
 				)
 				.addChannelOption((option) =>
@@ -46,34 +53,34 @@ export const data = {
 			subcommand
 				.setName('delete')
 				.setDescription('Delete a webhook.')
-				.addStringOption((option) =>
+				.addIntegerOption((option) =>
 					option
 						.setName('category')
 						.setDescription('Webhook category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'NSFW', value: 'NSFW' },
-							{ name: 'Memes', value: 'Memes' },
-							{ name: 'Anime', value: 'Anime' },
-							{ name: 'Manga', value: 'Manga' },
-							{ name: 'World News', value: 'World News' },
-							{ name: 'Gaming News', value: 'Gaming News' },
-							{ name: 'Reviews', value: 'Reviews' },
-							{ name: 'Deals', value: 'Deals' },
-							{ name: 'Free Games', value: 'Free Games' },
-							{ name: 'Xbox', value: 'Xbox' },
-							{ name: 'Playstation', value: 'Playstation' },
-							{ name: 'Nintendo', value: 'Nintendo' },
+							{ name: 'NSFW', value: WebhookCategory.Nsfw },
+							{ name: 'Memes', value: WebhookCategory.Memes },
+							{ name: 'Anime', value: WebhookCategory.Anime },
+							{ name: 'Manga', value: WebhookCategory.Manga },
+							{ name: 'World News', value: WebhookCategory.WorldNews },
+							{ name: 'Gaming News', value: WebhookCategory.GamingNews },
+							{ name: 'Reviews', value: WebhookCategory.Reviews },
+							{ name: 'Deals', value: WebhookCategory.Deals },
+							{ name: 'Free Games', value: WebhookCategory.FreeGames },
+							{ name: 'Xbox', value: WebhookCategory.Xbox },
+							{ name: 'Playstation', value: WebhookCategory.Playstation },
+							{ name: 'Nintendo', value: WebhookCategory.Nintendo },
 						),
 				),
 		),
 };
 
-export const execute = async (client: Bot, interaction: CommandInteraction) => {
+export const execute = async (client: Bot, interaction: ChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
 	const select = (category: string) => {
-		const options: Record<string, (client: Bot, interaction: CommandInteraction) => Promise<void>> = {
+		const options: Record<string, (client: Bot, interaction: ChatInputCommandInteraction) => Promise<void>> = {
 			create: createWebhook,
 			delete: deleteWebhook,
 		};
@@ -82,34 +89,31 @@ export const execute = async (client: Bot, interaction: CommandInteraction) => {
 	await select(subcommand);
 };
 
-const createWebhook = async (client: Bot, interaction: CommandInteraction) => {
-	const category = interaction.options.getString('category')! as WebhookCategories;
-	const channel = interaction.options.getChannel('channel')! as GuildBasedChannel;
+const createWebhook = async (client: Bot, interaction: ChatInputCommandInteraction) => {
+	const category = interaction.options.getInteger('category', true) as WebhookCategory;
+	const channel = interaction.options.getChannel('channel', true) as GuildBasedChannel;
 
-	if (channel.type !== 'GUILD_TEXT')
-		return await interaction.reply({ content: 'Webhooks can only be assigned to text channels.', ephemeral: true });
+	if (channel.type !== ChannelType.GuildText) throw new Error('Webhooks can only be assigned to text channels.');
 
 	const guild = interaction.guild as Guild;
-	const textChannel = channel as TextChannel;
+	await Webhooks.create(guild.id, channel, category);
 
-	const result = await Webhooks.create(guild.id, textChannel, category).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const embed = new EmbedBuilder()
+		.setTitle(`${WebhookCategory[category]} webhook has been assigned to ${channel.name}.`)
+		.setColor('Random');
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed().setTitle(`${category} webhook has been assigned to ${channel.name}.`).setColor('RANDOM'),
-		],
-	});
+	await interaction.reply({ embeds: [embed] });
 };
 
-const deleteWebhook = async (client: Bot, interaction: CommandInteraction) => {
-	const category = interaction.options.getString('category')! as WebhookCategories;
+const deleteWebhook = async (client: Bot, interaction: ChatInputCommandInteraction) => {
+	const category = interaction.options.getInteger('category', true) as WebhookCategory;
 	const guild = interaction.guild as Guild;
 
-	const result = await Webhooks.remove(client, guild.id, category).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	await Webhooks.remove(client, guild.id, category);
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(`${category} webhook has been deleted.`).setColor('RANDOM')],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(`${WebhookCategory[category]} webhook has been deleted.`)
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };

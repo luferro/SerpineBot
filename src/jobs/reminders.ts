@@ -2,9 +2,10 @@ import { Bot } from '../bot';
 import * as Reminders from '../services/reminders';
 import { remindersModel } from '../database/models/reminders';
 import { logger } from '../utils/logger';
+import { JobName } from '../types/enums';
 
 export const data = {
-	name: 'reminders',
+	name: JobName.Reminders,
 	schedule: '*/10 * * * * *',
 };
 
@@ -18,12 +19,12 @@ export const execute = async (client: Bot) => {
 
 	if (Date.now() < timeEnd) return;
 
-	const result = await Reminders.send(client, reminderId).catch((error: Error) => error);
-	if (result instanceof Error) {
-		logger.warn(`Reminders job - ${result.message}.`);
+	try {
+		await Reminders.send(client, reminderId);
+		const user = await client.users.fetch(userId);
+		logger.info(`Reminders job notified _*${user.tag}*_ regarding reminder _*${reminderId}*_.`);
+	} catch (error) {
+		logger.warn(`Reminders job - ${(error as Error).message}.`);
 		return;
 	}
-
-	const user = await client.users.fetch(userId);
-	logger.info(`Reminders job notified _*${user.tag}*_ regarding reminder _*${reminderId}*_.`);
 };

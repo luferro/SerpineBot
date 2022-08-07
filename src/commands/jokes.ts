@@ -1,33 +1,32 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as Jokes from '../apis/jokes';
-import { JokeCategories } from '../types/categories';
+import { CommandName, JokeCategory } from '../types/enums';
 
 export const data = {
-	name: 'jokes',
+	name: CommandName.Jokes,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('jokes')
-		.setDescription('Returns a random joke.')
-		.addStringOption((option) =>
+		.setName(CommandName.Jokes)
+		.setDescription('Random joke from the available options.')
+		.addIntegerOption((option) =>
 			option
 				.setName('category')
 				.setDescription('Joke category.')
 				.setRequired(true)
 				.addChoices(
-					{ name: 'Dark Joke', value: 'dark' },
-					{ name: 'Programming Joke', value: 'programming' },
-					{ name: 'Miscellaneous Joke', value: 'miscellaneous' },
+					{ name: 'Dark Joke', value: JokeCategory.Dark },
+					{ name: 'Programming Joke', value: JokeCategory.Programming },
+					{ name: 'Miscellaneous Joke', value: JokeCategory.Miscellaneous },
 				),
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
-	const choice = interaction.options.getString('category')! as JokeCategories;
+export const execute = async (interaction: ChatInputCommandInteraction) => {
+	const category = interaction.options.getInteger('category', true) as JokeCategory;
 
-	const { category, joke } = await Jokes.getJokeByCategory(choice);
+	const { joke } = await Jokes.getJokeByCategory(category);
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(category).setDescription(joke).setColor('RANDOM')],
-	});
+	const embed = new EmbedBuilder().setTitle(`${JokeCategory[category]} joke`).setDescription(joke).setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };

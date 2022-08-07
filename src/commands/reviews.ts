@@ -1,43 +1,60 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as OpenCritic from '../apis/opencritic';
+import { CommandName } from '../types/enums';
 
 export const data = {
-	name: 'reviews',
+	name: CommandName.Reviews,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('reviews')
-		.setDescription('Returns reviews for a game.')
+		.setName(CommandName.Reviews)
+		.setDescription('Reviews for a given game.')
 		.addStringOption((option) => option.setName('game').setDescription('Game title.').setRequired(true)),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
-	const game = interaction.options.getString('game')!;
+export const execute = async (interaction: ChatInputCommandInteraction) => {
+	const game = interaction.options.getString('game', true);
 
 	const id = await OpenCritic.search(game);
-	if (!id) return await interaction.reply({ content: `Couldn't find a match for ${game}.`, ephemeral: true });
+	if (!id) throw new Error(`No matches for ${game}.`);
 
 	const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
 		await OpenCritic.getReviewById(id);
-	if (!tier && !score)
-		return await interaction.reply({
-			content: `${name} currently doesn't have enough reviews to be displayed.`,
-			ephemeral: true,
-		});
+	if (!tier && !score) throw new Error(`${name} doesn't have enough reviews to be displayed.`);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(name)
-				.setURL(url)
-				.setThumbnail(image ?? '')
-				.addField('**Release date**', releaseDate)
-				.addField('**Available on**', platforms.join('\n') || 'N/A')
-				.addField('**Tier**', tier?.toString() ?? 'N/A')
-				.addField('**Score**', score?.toString() ?? 'N/A', true)
-				.addField('**Reviews count**', count?.toString() ?? 'N/A', true)
-				.addField('**Critics Recommended**', recommended ? `${recommended}%` : 'N/A', true)
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(name)
+		.setURL(url)
+		.setThumbnail(image)
+		.addFields([
+			{
+				name: '**Release date**',
+				value: releaseDate,
+			},
+			{
+				name: '**Available on**',
+				value: platforms.join('\n') || 'N/A',
+			},
+			{
+				name: '**Tier**',
+				value: tier?.toString() ?? 'N/A',
+			},
+			{
+				name: '**Score**',
+				value: score?.toString() ?? 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Reviews count**',
+				value: count?.toString() ?? 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Critics Recommended**',
+				value: recommended ? `${recommended}%` : 'N/A',
+				inline: true,
+			},
+		])
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };

@@ -1,40 +1,67 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as TheMovieDB from '../apis/theMovieDB';
+import { CommandName, SubscriptionCategory } from '../types/enums';
 
 export const data = {
-	name: 'movies',
+	name: CommandName.Movies,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('movies')
-		.setDescription('Returns an overview for a movie.')
+		.setName(CommandName.Movies)
+		.setDescription('Overview for a given movie.')
 		.addStringOption((option) => option.setName('movie').setDescription('Movie title.').setRequired(true)),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
-	const movie = interaction.options.getString('movie')!;
+export const execute = async (interaction: ChatInputCommandInteraction) => {
+	const movie = interaction.options.getString('movie', true);
 
-	const id = await TheMovieDB.search(movie, 'movie');
-	if (!id) return await interaction.reply({ content: `Couldn't find a match for ${movie}.`, ephemeral: true });
+	const id = await TheMovieDB.search(movie, SubscriptionCategory.Movies);
+	if (!id) throw new Error(`No matches for ${movie}.`);
 
 	const { name, description, url, releaseDate, image, score, runtime, genres } = await TheMovieDB.getMovieById(id);
-	const { stream, buy, rent } = await TheMovieDB.getProviders(id, 'movie');
+	const { stream, buy, rent } = await TheMovieDB.getProviders(id, SubscriptionCategory.Movies);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(name)
-				.setURL(url)
-				.setDescription(description)
-				.setThumbnail(image ?? '')
-				.addField('**Release date**', releaseDate?.toString() ?? 'N/A')
-				.addField('**Score**', score?.toString() ?? 'N/A', true)
-				.addField('**Runtime**', runtime?.toString() ?? 'N/A', true)
-				.addField('**Genres**', genres.join('\n') || 'N/A', true)
-				.addField('**Buy**', buy.join('\n') || 'N/A', true)
-				.addField('**Rent**', rent.join('\n') || 'N/A', true)
-				.addField('**Stream**', stream.join('\n') || 'N/A', true)
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(name)
+		.setURL(url)
+		.setDescription(description)
+		.setThumbnail(image)
+		.addFields([
+			{
+				name: '**Release date**',
+				value: releaseDate?.toString() ?? 'N/A',
+			},
+			{
+				name: '**Score**',
+				value: score?.toString() ?? 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Runtime**',
+				value: runtime?.toString() ?? 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Genres**',
+				value: genres.join('\n') || 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Buy**',
+				value: buy.join('\n') || 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Rent**',
+				value: rent.join('\n') || 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Stream**',
+				value: stream.join('\n') || 'N/A',
+				inline: true,
+			},
+		])
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };

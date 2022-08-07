@@ -1,23 +1,24 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
 import {
-	CommandInteraction,
+	ActionRowBuilder,
+	ChatInputCommandInteraction,
+	ComponentType,
+	EmbedBuilder,
 	Guild,
 	GuildMember,
-	MessageActionRow,
-	MessageEmbed,
-	MessageSelectMenu,
+	SelectMenuBuilder,
 	SelectMenuInteraction,
-	TextBasedChannel,
+	SlashCommandBuilder,
 } from 'discord.js';
 import { Bot } from '../bot';
 import * as Youtube from '../apis/youtube';
 import * as Music from '../services/music';
+import { CommandName } from '../types/enums';
 
 export const data = {
-	name: 'music',
+	name: CommandName.Music,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('music')
+		.setName(CommandName.Music)
 		.setDescription('Music related commands.')
 		.addSubcommand((subcommand) =>
 			subcommand.setName('join').setDescription("Bot joins the voice channel you're in."),
@@ -49,7 +50,9 @@ export const data = {
 			subcommand
 				.setName('seek')
 				.setDescription('Jump to a given minute.')
-				.addStringOption((option) => option.setName('time').setDescription('Time <3:20>.').setRequired(true)),
+				.addStringOption((option) =>
+					option.setName('timestamp').setDescription('Timestamp to jump to (e.g. 2:30).').setRequired(true),
+				),
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
@@ -64,17 +67,13 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
+export const execute = async (interaction: ChatInputCommandInteraction) => {
 	const member = interaction.member as GuildMember;
-	if (!member.voice.channel)
-		return await interaction.reply({
-			content: 'You must be in a voice channel to use music related commands.',
-			ephemeral: true,
-		});
+	if (!member.voice.channel) throw new Error('You must be in a voice channel to use music related commands.');
 
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (interaction: CommandInteraction) => Promise<void>> = {
+	const select: Record<string, (interaction: ChatInputCommandInteraction) => Promise<void>> = {
 		join: join,
 		leave: leave,
 		play: add,
@@ -92,31 +91,31 @@ export const execute = async (interaction: CommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const join = async (interaction: CommandInteraction) => {
+const join = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
 	const member = interaction.member as GuildMember;
+	if (Bot.music.has(guild.id)) throw new Error('SerpineBot is already connect to a voice channel.');
 
 	Music.join(guild.id, member);
 
 	await interaction.reply({ content: 'SerpineBot has joined your voice channel. ', ephemeral: true });
 };
 
-const leave = async (interaction: CommandInteraction) => {
+const leave = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
 	Music.leave(guild.id);
 
 	await interaction.reply({ content: 'SerpineBot has left your voice channel.', ephemeral: true });
 };
 
-const add = async (interaction: CommandInteraction) => {
+const add = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
 	const member = interaction.member as GuildMember;
 	if (!Bot.music.has(guild.id)) Music.join(guild.id, member);
 
-	const query = interaction.options.getString('query')!;
+	const query = interaction.options.getString('query', true);
 
 	if (Youtube.isPlaylist(query)) {
 		const { title, url, channel, count, videos } = await Youtube.getPlaylist(query);
@@ -133,80 +132,92 @@ const add = async (interaction: CommandInteraction) => {
 			await Music.addToQueue(guild.id, music).catch((error: Error) => error);
 		}
 
-		return await interaction.reply({
-			embeds: [
-				new MessageEmbed()
-					.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
-					.setTitle(title)
-					.setURL(url)
-					.addField('**Channel**', channel, true)
-					.addField('**Count**', count?.toString() ?? 'N/A', true)
-					.setColor('RANDOM'),
-			],
-		});
+		const embed = new EmbedBuilder()
+			.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
+			.setTitle(title)
+			.setURL(url)
+			.addFields([
+				{
+					name: '**Channel**',
+					value: channel,
+					inline: true,
+				},
+				{
+					name: '**Count**',
+					value: count?.toString() ?? 'N/A',
+					inline: true,
+				},
+			])
+			.setColor('Random');
+
+		await interaction.reply({ embeds: [embed] });
+		return;
 	}
 
 	const video = (await Youtube.search(query)).shift();
-	if (!video) return await interaction.reply({ content: `No results were found for ${query}.`, ephemeral: true });
+	if (!video) throw new Error(`No matches for ${query}.`);
 
 	const music = {
 		requested: interaction.user.tag,
 		...video,
 	};
 
-	const result = await Music.addToQueue(guild.id, music).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const { position } = await Music.addToQueue(guild.id, music);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
-				.setTitle(music.title)
-				.setURL(music.url)
-				.setThumbnail(music.thumbnail ?? '')
-				.addField(
-					'**Position in queue**',
-					result.position === 0 ? 'Currently playing' : result.position.toString(),
-					true,
-				)
-				.addField('**Channel**', music.channel, true)
-				.addField('**Duration**', music.duration, true)
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
+		.setTitle(music.title)
+		.setURL(music.url)
+		.setThumbnail(music.thumbnail)
+		.addFields([
+			{
+				name: '**Position in queue**',
+				value: position === 0 ? 'Currently playing' : position.toString(),
+				inline: true,
+			},
+			{
+				name: '**Channel**',
+				value: music.channel,
+				inline: true,
+			},
+			{
+				name: '**Duration**',
+				value: music.duration,
+				inline: true,
+			},
+		])
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const remove = async (interaction: CommandInteraction) => {
+const remove = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-	const position = interaction.options.getInteger('position')!;
-
-	const result = await Music.removeFromQueue(guild.id, position).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const position = interaction.options.getInteger('position', true);
+	await Music.removeFromQueue(guild.id, position);
 
 	await queue(interaction);
 };
 
-const clear = async (interaction: CommandInteraction) => {
+const clear = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-	const result = await Music.clearQueue(guild.id).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	await Music.clearQueue(guild.id);
 
 	await queue(interaction);
 };
 
-const search = async (interaction: CommandInteraction) => {
+const search = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
 	const member = interaction.member as GuildMember;
 	if (!Bot.music.has(guild.id)) Music.join(guild.id, member);
 
-	const query = interaction.options.getString('query')!;
+	const query = interaction.options.getString('query', true);
 	const results = await Youtube.search(query, 10);
+
 	const formattedResults = results
 		.map(({ title, url, duration }, index) => `\`${index + 1}.\` **[${title}](${url})** | \`${duration}\``)
 		.join('\n');
@@ -218,193 +229,157 @@ const search = async (interaction: CommandInteraction) => {
 	}));
 	selectOptions.push({ label: 'Cancel', description: `Stop searching for ${query}`, value: 'CANCEL' });
 
-	const selectMenu = new MessageActionRow().addComponents(
-		new MessageSelectMenu()
-			.setCustomId('musicSearchSelectMenu')
-			.setPlaceholder('Nothing selected.')
-			.addOptions(selectOptions),
-	);
+	const selectMenu = new SelectMenuBuilder()
+		.setCustomId('musicSearchSelectMenu')
+		.setPlaceholder('Nothing selected.')
+		.addOptions(selectOptions);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(`Search results for \`${query}\``)
-				.setDescription(formattedResults)
-				.setFooter({ text: "Select 'Cancel' from the selection menu to stop searching." })
-				.setColor('RANDOM'),
-		],
-		components: [selectMenu],
-		ephemeral: true,
-	});
+	const actionRow = new ActionRowBuilder().addComponents(selectMenu) as ActionRowBuilder<SelectMenuBuilder>;
 
-	const interactionChannel = interaction.channel as TextBasedChannel;
+	const embed = new EmbedBuilder()
+		.setTitle(`Search results for \`${query}\``)
+		.setDescription(formattedResults)
+		.setFooter({ text: "Select 'Cancel' from the selection menu to stop searching." })
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed], components: [actionRow], ephemeral: true });
+
 	const filter = (filterInteraction: SelectMenuInteraction) =>
 		filterInteraction.customId === 'musicSearchSelectMenu' && filterInteraction.user.id === interaction.user.id;
 
-	const collector = interactionChannel.createMessageComponentCollector({
+	const collector = interaction.channel?.createMessageComponentCollector({
 		filter,
-		componentType: 'SELECT_MENU',
+		componentType: ComponentType.SelectMenu,
 		max: 1,
 		time: 60 * 1000,
 	});
-	await new Promise<void>((resolve, reject) => {
-		collector.on('end', async (collected) => {
-			try {
-				const collectedInteraction = collected.first();
-				if (!collectedInteraction) {
-					await interaction.editReply({ content: 'Search timeout.', embeds: [], components: [] });
-					return;
-				}
+	collector?.on('end', async (collected) => {
+		try {
+			const collectedInteraction = collected.first();
+			if (!collectedInteraction) throw new Error('Search timeout.');
 
-				const collectedMember = collectedInteraction.member as GuildMember;
-				if (!collectedMember.voice.channel) {
-					await interaction.editReply({
-						content: 'You must be in a voice channel to select an item for the search menu.',
-						embeds: [],
-						components: [],
-					});
-					return;
-				}
+			const collectedMember = collectedInteraction.member as GuildMember;
+			if (!collectedMember.voice.channel)
+				throw new Error('You must be in a voice channel to select an item from the search menu.');
 
-				const collectedGuild = collectedInteraction.guild as Guild;
-				if (!Bot.music.has(collectedGuild.id)) {
-					await interaction.editReply({
-						content: "SerpineBot isn't connected to a voice channel.",
-						embeds: [],
-						components: [],
-					});
-					return;
-				}
+			const collectedGuild = collectedInteraction.guild as Guild;
+			if (!Bot.music.has(collectedGuild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-				const { values } = collectedInteraction;
-				if (values.length === 0 || values[0] === 'CANCEL') {
-					return await collectedInteraction.update({
-						embeds: [new MessageEmbed().setTitle('Search has been canceled.').setColor('RANDOM')],
-						components: [],
-					});
-				}
+			const { values } = collectedInteraction;
+			if (values.length === 0 || values[0] === 'CANCEL') {
+				const embed = new EmbedBuilder().setTitle('Search has been canceled.').setColor('Random');
 
-				const results = await Youtube.search(query, 20);
-				const selectedMusic = results.find(({ url }) => url === values[0])!;
-
-				const music = {
-					requested: collectedInteraction.user.tag,
-					...selectedMusic,
-				};
-
-				const result = await Music.addToQueue(guild.id, music).catch((error: Error) => error);
-				if (result instanceof Error) {
-					await interaction.reply({ content: result.message, embeds: [], components: [] });
-					return;
-				}
-
-				await collectedInteraction.update({
-					embeds: [
-						new MessageEmbed()
-							.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
-							.setTitle(music.title)
-							.setURL(music.url)
-							.setThumbnail(music.thumbnail ?? '')
-							.addField(
-								'**Position in queue**',
-								result.position === 0 ? 'Currently playing' : result.position.toString(),
-								true,
-							)
-							.addField('**Channel**', music.channel, true)
-							.addField('**Duration**', music.duration, true)
-							.setColor('RANDOM'),
-					],
-					components: [],
-				});
-
-				resolve();
-			} catch (error) {
-				reject(error);
+				await collectedInteraction.update({ embeds: [embed], components: [] });
+				return;
 			}
-		});
+
+			const results = await Youtube.search(query, 20);
+			const selectedMusic = results.find(({ url }) => url === values[0])!;
+
+			const music = {
+				requested: collectedInteraction.user.tag,
+				...selectedMusic,
+			};
+
+			const { position } = await Music.addToQueue(guild.id, music);
+
+			const embed = new EmbedBuilder()
+				.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
+				.setTitle(music.title)
+				.setURL(music.url)
+				.setThumbnail(music.thumbnail)
+				.addFields([
+					{
+						name: '**Position in queue**',
+						value: position === 0 ? 'Currently playing' : position.toString(),
+						inline: true,
+					},
+					{
+						name: '**Channel**',
+						value: music.channel,
+						inline: true,
+					},
+					{
+						name: '**Duration**',
+						value: music.duration,
+						inline: true,
+					},
+				])
+				.setColor('Random');
+
+			await collectedInteraction.update({ embeds: [embed], components: [] });
+		} catch (error) {
+			await interaction[interaction.replied ? 'editReply' : 'reply']({
+				content: (error as Error).message,
+				embeds: [],
+				components: [],
+			});
+		}
 	});
 };
 
-const pause = async (interaction: CommandInteraction) => {
+const pause = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-	const result = await Music.pause(guild.id).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const { pausedItem } = await Music.pause(guild.id);
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(`Pausing \`${result.pausedItem}\`.`).setColor('RANDOM')],
-	});
+	const embed = new EmbedBuilder().setTitle(`Pausing \`${pausedItem}\`.`).setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const resume = async (interaction: CommandInteraction) => {
+const resume = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-	const result = await Music.resume(guild.id).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const { resumedItem } = await Music.resume(guild.id);
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(`Pausing \`${result.resumedItem}\`.`).setColor('RANDOM')],
-	});
+	const embed = new EmbedBuilder().setTitle(`Pausing \`${resumedItem}\`.`).setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const seek = async (interaction: CommandInteraction) => {
+const seek = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-	const time = interaction.options.getString('time')!;
+	const timestamp = interaction.options.getString('timestamp', true);
+	await Music.seek(guild.id, timestamp);
 
-	const result = await Music.seek(guild.id, time).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const embed = new EmbedBuilder().setTitle(`Started playing from minute \`${timestamp}\`.`).setColor('Random');
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle(`Started playing from minute \`${time}\`.`).setColor('RANDOM')],
-	});
+	await interaction.reply({ embeds: [embed] });
 };
 
-const skip = async (interaction: CommandInteraction) => {
+const skip = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-	const result = await Music.skip(guild.id).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const { playing, skippedItem } = await Music.skip(guild.id);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(`Skipped \`${result.skippedItem}\`.`)
-				.setDescription(`Now playing \`${result.playing}\`.`)
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(`Skipped \`${skippedItem}\`.`)
+		.setDescription(`Now playing \`${playing}\`.`)
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const loop = async (interaction: CommandInteraction) => {
+const loop = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-	const result = await Music.loop(guild.id).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const { looping } = await Music.loop(guild.id);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(result.looping ? 'Loop has been enabled.' : 'Loop has been disabled.')
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder().setTitle(`Loop has been ${looping ? 'enabled' : 'disabled'}.`).setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };
 
-const queue = async (interaction: CommandInteraction) => {
+const queue = async (interaction: ChatInputCommandInteraction) => {
 	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id))
-		return await interaction.reply({ content: "SerpineBot isn't connected to a voice channel.", ephemeral: true });
+	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
 
 	const { playing, queue } = Music.queue(guild.id);
 	const formattedQueue = queue
@@ -415,19 +390,17 @@ const queue = async (interaction: CommandInteraction) => {
 		)
 		.join('\n');
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(`Queue for ${guild.name}`)
-				.setDescription(
-					`**Now playing**\n${
-						playing
-							? `**[${playing.title}](${playing.url})** | **${playing.duration}**\nRequest by \`${playing.requested}\``
-							: 'Nothing is playing.'
-					}\n\n**Queue**\n${formattedQueue || 'Queue is empty.'}`,
-				)
-				.setFooter({ text: `${queue.length} total items in queue.` })
-				.setColor('RANDOM'),
-		],
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(`Queue for ${guild.name}`)
+		.setDescription(
+			`**Now playing**\n${
+				playing
+					? `**[${playing.title}](${playing.url})** | **${playing.duration}**\nRequest by \`${playing.requested}\``
+					: 'Nothing is playing.'
+			}\n\n**Queue**\n${formattedQueue || 'Queue is empty.'}`,
+		)
+		.setFooter({ text: `${queue.length} total items in queue.` })
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed] });
 };

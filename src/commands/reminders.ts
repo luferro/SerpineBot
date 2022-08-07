@@ -1,13 +1,12 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as Reminders from '../services/reminders';
-import { TimeUnits } from '../types/categories';
+import { CommandName, TimeUnit } from '../types/enums';
 
 export const data = {
-	name: 'reminders',
+	name: CommandName.Reminders,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('reminders')
+		.setName(CommandName.Reminders)
 		.setDescription('Reminder related commands.')
 		.addSubcommand((subcommand) =>
 			subcommand
@@ -16,26 +15,26 @@ export const data = {
 				.addIntegerOption((option) =>
 					option
 						.setName('time')
-						.setDescription('In how much time you want to be reminded of your message.')
+						.setDescription('Time interval until you are reminded of your message.')
 						.setRequired(true),
 				)
-				.addStringOption((option) =>
+				.addIntegerOption((option) =>
 					option
 						.setName('unit')
 						.setDescription('Time unit.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'Seconds', value: 'seconds' },
-							{ name: 'Minutes', value: 'minutes' },
-							{ name: 'Hours', value: 'hours' },
-							{ name: 'Days', value: 'days' },
-							{ name: 'Weeks', value: 'weeks' },
-							{ name: 'Months', value: 'months' },
-							{ name: 'Years', value: 'years' },
+							{ name: 'Seconds', value: TimeUnit.Seconds },
+							{ name: 'Minutes', value: TimeUnit.Minutes },
+							{ name: 'Hours', value: TimeUnit.Hours },
+							{ name: 'Days', value: TimeUnit.Days },
+							{ name: 'Weeks', value: TimeUnit.Weeks },
+							{ name: 'Months', value: TimeUnit.Months },
+							{ name: 'Years', value: TimeUnit.Years },
 						),
 				)
 				.addStringOption((option) =>
-					option.setName('message').setDescription('Message you want to be reminded of.').setRequired(true),
+					option.setName('message').setDescription('Reminder message.').setRequired(true),
 				),
 		)
 		.addSubcommand((subcommand) =>
@@ -48,10 +47,10 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
+export const execute = async (interaction: ChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (interaction: CommandInteraction) => Promise<void>> = {
+	const select: Record<string, (interaction: ChatInputCommandInteraction) => Promise<void>> = {
 		create: createReminder,
 		delete: deleteReminder,
 	};
@@ -59,32 +58,27 @@ export const execute = async (interaction: CommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const createReminder = async (interaction: CommandInteraction) => {
-	const time = interaction.options.getInteger('time')!;
-	const unit = interaction.options.getString('unit')! as TimeUnits;
-	const message = interaction.options.getString('message')!;
+const createReminder = async (interaction: ChatInputCommandInteraction) => {
+	const time = interaction.options.getInteger('time', true);
+	const unit = interaction.options.getInteger('unit', true) as TimeUnit;
+	const message = interaction.options.getString('message', true);
 
-	const result = await Reminders.create(interaction.user.id, time, unit, message).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	const { reminderId } = await Reminders.create(interaction.user.id, time, unit, message);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(`**Reminder ID:** ${result.reminderId}`)
-				.setDescription(`<@${interaction.user.id}>, I'll remind you about **${message}** in *${time} ${unit}*!`)
-				.setColor('RANDOM'),
-		],
-		ephemeral: true,
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(`**Reminder Id:** ${reminderId}`)
+		.setDescription(`${interaction.user}, I'll remind you about **${message}** in *${time} ${TimeUnit[unit]}*.`)
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const deleteReminder = async (interaction: CommandInteraction) => {
-	const reminderId = interaction.options.getString('reminder')!;
+const deleteReminder = async (interaction: ChatInputCommandInteraction) => {
+	const reminderId = interaction.options.getString('reminder', true);
 
 	await Reminders.remove(reminderId);
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle('Deleted 1 reminder!').setColor('RANDOM')],
-		ephemeral: true,
-	});
+	const embed = new EmbedBuilder().setTitle(`Reminder ${reminderId} has been deleted.`).setColor('Random');
+
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

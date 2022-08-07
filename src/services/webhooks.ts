@@ -1,10 +1,12 @@
 import { TextChannel } from 'discord.js';
 import { Bot } from '../bot';
 import { settingsModel } from '../database/models/settings';
-import { WebhookCategories } from '../types/categories';
+import { WebhookCategory } from '../types/enums';
 
-export const create = async (guildId: string, channel: TextChannel, webhookName: WebhookCategories) => {
-	if (webhookName === 'NSFW' && !channel.nsfw)
+export const create = async (guildId: string, channel: TextChannel, category: WebhookCategory) => {
+	const webhookName = WebhookCategory[category];
+
+	if (category === WebhookCategory.Nsfw && !channel.nsfw)
 		throw new Error('NSFW webhook can only be assigned to a NSFW text channel.');
 
 	const settings = await settingsModel.findOne({ guildId });
@@ -13,13 +15,15 @@ export const create = async (guildId: string, channel: TextChannel, webhookName:
 	const hasWebhook = webhooks.some(({ name }) => name === webhookName);
 	if (hasWebhook) throw new Error('Webhook has already been assigned to a text channel in this guild.');
 
-	const { id, token, name } = await channel.createWebhook(webhookName);
+	const { id, token, name } = await channel.createWebhook({ name: webhookName });
 	webhooks.push({ id, token: token!, name });
 
 	await settingsModel.updateOne({ guildId }, { $set: { webhooks } }, { upsert: true });
 };
 
-export const getWebhook = async (client: Bot, guildId: string, webhookName: WebhookCategories) => {
+export const getWebhook = async (client: Bot, guildId: string, category: WebhookCategory) => {
+	const webhookName = WebhookCategory[category];
+
 	const guild = await client.guilds.fetch(guildId);
 	const settings = await settingsModel.findOne({ guildId });
 
@@ -41,14 +45,16 @@ export const getWebhook = async (client: Bot, guildId: string, webhookName: Webh
 	return await client.fetchWebhook(guildWebhook.id, guildWebhook.token);
 };
 
-export const remove = async (client: Bot, guildId: string, webhookName: WebhookCategories) => {
+export const remove = async (client: Bot, guildId: string, category: WebhookCategory) => {
+	const webhookName = WebhookCategory[category];
+
 	const settings = await settingsModel.findOne({ guildId });
 	const webhooks = settings?.webhooks ?? [];
 
 	const hasWebhook = webhooks.some(({ name }) => name === webhookName);
 	if (!hasWebhook) throw new Error('Webhook is not assigned to a text channel in this guild.');
 
-	const webhook = await getWebhook(client, guildId, webhookName);
+	const webhook = await getWebhook(client, guildId, category);
 	if (!webhook) return;
 
 	await webhook.delete();

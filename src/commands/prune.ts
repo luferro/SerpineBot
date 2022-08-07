@@ -1,31 +1,21 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, GuildMember, Permissions, TextChannel } from 'discord.js';
+import { ChatInputCommandInteraction, PermissionFlagsBits, SlashCommandBuilder, TextChannel } from 'discord.js';
+import { CommandName } from '../types/enums';
 
 export const data = {
-	name: 'prune',
+	name: CommandName.Prune,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('prune')
-		.setDescription("Delete messages from any user. Maximum of 100 messages and can't be older than 2 weeks.")
+		.setName(CommandName.Prune)
+		.setDescription("Deletes the last N messages. Maximum of 100 messages and these can't be older than 2 weeks.")
+		.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
 		.addIntegerOption((option) =>
 			option.setName('quantity').setDescription('Quantity of messages to delete.').setRequired(true),
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
-	const member = interaction.member as GuildMember;
-	if (!member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
-		return await interaction.reply({
-			content: "You don't have permissions to execute this command.",
-			ephemeral: true,
-		});
-
-	const quantity = interaction.options.getInteger('quantity')!;
-	if (quantity < 2 || quantity > 100)
-		return await interaction.reply({
-			content: 'Invalid quantity. Choose between 2 and 100 messages.',
-			ephemeral: true,
-		});
+export const execute = async (interaction: ChatInputCommandInteraction) => {
+	const quantity = interaction.options.getInteger('quantity', true);
+	if (quantity < 2 || quantity > 100) throw new Error('Invalid quantity. Choose between 2 and 100 messages.');
 
 	const channel = interaction.channel as TextChannel;
 	const messages = await channel.bulkDelete(quantity, true);

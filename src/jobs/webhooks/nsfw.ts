@@ -1,19 +1,18 @@
-import { MessageEmbed } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
 import * as Reddit from '../../apis/reddit';
 import * as Webhooks from '../../services/webhooks';
 import * as StringUtil from '../../utils/string';
 import * as FilesUtil from '../../utils/files';
+import { WebhookCategory, WebhookJobName } from '../../types/enums';
 
 export const data = {
-	name: 'nsfw',
+	name: WebhookJobName.Nsfw,
 	schedule: '0 */5 * * * *',
 };
 
-const SUBREDDITS = ['Boobs', 'Gonewild', 'RealGirls', 'BiggerThanYouThought', 'TittyDrop', 'BreedingMaterial'];
-
 export const execute = async (client: Bot) => {
-	for (const subreddit of SUBREDDITS) {
+	for (const subreddit of process.env.NSFW_SUBREDDITS?.split(',') ?? []) {
 		const {
 			0: {
 				data: { title, permalink, url, secure_media, gallery_data },
@@ -25,30 +24,28 @@ export const execute = async (client: Bot) => {
 		const isMediaAvailable = await FilesUtil.isAvailable(nsfwUrl);
 		if (!isMediaAvailable) continue;
 
-		const hasEntry = await client.manageState('NSFW', StringUtil.capitalize(subreddit), title, nsfwUrl);
+		const hasEntry = await client.manageState('NSFW', subreddit, title, nsfwUrl);
 		if (hasEntry) continue;
 
 		for (const { 0: guildId } of client.guilds.cache) {
-			const webhook = await Webhooks.getWebhook(client, guildId, 'NSFW');
+			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.Nsfw);
 			if (!webhook) continue;
 
 			const hasVideoExtension = ['.gif', '.gifv', '.mp4'].some((extension) => nsfwUrl.includes(extension));
-			if (secure_media || hasVideoExtension) {
-				await webhook.send({
-					content: `**[${StringUtil.truncate(title)}](<https://www.reddit.com${permalink}>)**\n${nsfwUrl}`,
-				});
+			if (hasVideoExtension || secure_media) {
+				const formattedTitle = `[${StringUtil.truncate(title)}](<https://www.reddit.com${permalink}>)`;
+
+				await webhook.send({ content: `**${formattedTitle}**\n${nsfwUrl}` });
 				continue;
 			}
 
-			await webhook.send({
-				embeds: [
-					new MessageEmbed()
-						.setTitle(StringUtil.truncate(title))
-						.setURL(`https://www.reddit.com${permalink}`)
-						.setImage(nsfwUrl)
-						.setColor('RANDOM'),
-				],
-			});
+			const embed = new EmbedBuilder()
+				.setTitle(StringUtil.truncate(title))
+				.setURL(`https://www.reddit.com${permalink}`)
+				.setImage(nsfwUrl)
+				.setColor('Random');
+
+			await webhook.send({ embeds: [embed] });
 		}
 	}
 };

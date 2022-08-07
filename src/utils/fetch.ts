@@ -1,9 +1,10 @@
 import { request } from 'undici';
 import UserAgent from 'user-agents';
 import { FetchError } from '../errors/fetchError';
+import { HttpMethod } from '../types/enums';
 import { Request } from '../types/request';
 
-export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<T> => {
+export const fetch = async <T>({ method = HttpMethod.GET, url, body }: Request): Promise<T> => {
 	const res = await request(url, {
 		method,
 		headers: {

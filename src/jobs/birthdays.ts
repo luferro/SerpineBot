@@ -3,9 +3,10 @@ import * as Birthdays from '../services/birthdays';
 import { birthdaysModel } from '../database/models/birthdays';
 import { settingsModel } from '../database/models/settings';
 import { logger } from '../utils/logger';
+import { JobName } from '../types/enums';
 
 export const data = {
-	name: 'birthdays',
+	name: JobName.Birthdays,
 	schedule: '0 0 0 * * *',
 };
 
@@ -26,15 +27,13 @@ export const execute = async (client: Bot) => {
 			const channelId = settings?.birthdays.channelId;
 			if (!channelId) continue;
 
-			const result = await Birthdays.send(guild, channelId, birthday.userId, birthday.date).catch(
-				(error: Error) => error,
-			);
-			if (result instanceof Error) {
-				logger.warn(`Birthdays job - ${result.message}`);
+			try {
+				await Birthdays.send(guild, channelId, birthday.userId, birthday.date);
+				logger.info(`Birthdays job sent a message to _*${channelId}*_ in guild _*${guild.name}*_.`);
+			} catch (error) {
+				logger.warn(`Birthdays job - ${(error as Error).message}`);
 				continue;
 			}
-
-			logger.info(`Birthdays job sent a message to _*${channelId}*_ in guild _*${guild.name}*_.`);
 		}
 	}
 };

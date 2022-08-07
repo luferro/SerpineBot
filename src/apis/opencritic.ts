@@ -22,7 +22,7 @@ export const getReviewById = async (id: string) => {
 
 	return {
 		name,
-		tier,
+		tier: tier || null,
 		url: `https://opencritic.com/game/${id}/${StringUtil.slug(name)}`,
 		releaseDate: firstReleaseDate.split('T')[0],
 		image: bannerScreenshot ? `https:${bannerScreenshot.fullRes}` : null,

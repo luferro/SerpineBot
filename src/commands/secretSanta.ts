@@ -1,27 +1,35 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed, User } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder, User } from 'discord.js';
+import { CommandName } from '../types/enums';
 
 export const data = {
-	name: 'secretsanta',
+	name: CommandName.SecretSanta,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('secretsanta')
+		.setName(CommandName.SecretSanta)
 		.setDescription('Organizes a secret santa.')
 		.addStringOption((option) =>
 			option
 				.setName('mentions')
 				.setDescription('Mention users participating in this Secret Santa.')
 				.setRequired(true),
+		)
+		.addIntegerOption((option) =>
+			option
+				.setName('value')
+				.setDescription('Maximum value in euros to be used in this Secret Santa.')
+				.setRequired(true),
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
-	const mentions = interaction.options.getString('mentions')!.match(/\d+/g);
-	if (!mentions) return await interaction.reply({ content: 'Invalid input detected.', ephemeral: true });
+export const execute = async (interaction: ChatInputCommandInteraction) => {
+	const mentions = interaction.options.getString('mentions', true).match(/\d+/g);
+	const value = interaction.options.getInteger('value', true);
+
+	if (!mentions) throw new Error('Invalid participant detected.');
+	if (value < 5) throw new Error('Mininum value of 5€ required.');
 
 	const uniqueMentions = new Set(mentions);
-	if (uniqueMentions.size !== mentions.length)
-		return await interaction.reply({ content: 'Duplicated user entry detected.', ephemeral: true });
+	if (uniqueMentions.size !== mentions.length) throw new Error('Duplicated participant detected.');
 
 	const users = await Promise.all(
 		mentions.map(async (id) => {
@@ -34,32 +42,35 @@ export const execute = async (interaction: CommandInteraction) => {
 		}),
 	);
 	const filteredUsers = users.filter((item): item is NonNullable<typeof item> => !!item);
-	if (filteredUsers.length < 3)
-		return await interaction.reply({
-			content: 'Secret Santa must have at least 3 valid members.',
-			ephemeral: true,
-		});
+	if (filteredUsers.length < 3) throw new Error('Minimum of 3 participants required.');
 
 	const shuffledUsers = shuffle(filteredUsers);
 	for (const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
-		gifter.send({
-			embeds: [
-				new MessageEmbed()
-					.setTitle(`Secret Santa ${new Date().getFullYear()}`)
-					.addField('Gifts exchange', `**25/12/${new Date().getFullYear()}**`)
-					.addField('Value', '**30€**')
-					.addField('Prepare a gift for', `**${receiver.tag}**`)
-					.addField('**NOTE 1**', 'Update your wishlist.', true)
-					.addField('**NOTE 2**', 'You can combine multiple items.', true)
-					.setFooter({ text: `${new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}` })
-					.setColor('RANDOM'),
-			],
-		});
+		const embed = new EmbedBuilder()
+			.setTitle(`Secret Santa ${new Date().getFullYear()}`)
+			.addFields([
+				{
+					name: '**Gifts exchange**',
+					value: `**25/12/${new Date().getFullYear()}**`,
+				},
+				{
+					name: '**Value**',
+					value: `**${value}€** (Combination of multiple items is allowed.)`,
+				},
+				{
+					name: '**Prepare a gift for**',
+					value: `**${receiver.tag}**`,
+				},
+			])
+			.setFooter({ text: 'Remember to update your wishlist. ' })
+			.setColor('Random');
+
+		gifter.send({ embeds: [embed] });
 	}
 
-	await interaction.reply({ content: 'A private message has been sent to each user with more details!' });
+	await interaction.reply({ content: 'A DM has been sent to each participant with more details.' });
 };
 
 const shuffle = (array: User[]) => {
