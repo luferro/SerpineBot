@@ -14,6 +14,9 @@ const schema = new mongoose.Schema<Settings>({
 		steam: {
 			channelId: { type: String, required: true },
 		},
+		xbox: {
+			channelId: { type: String, required: true },
+		},
 	},
 	webhooks: [
 		{

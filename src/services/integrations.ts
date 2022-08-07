@@ -1,7 +1,19 @@
 import * as Steam from '../apis/steam';
+import * as Xbox from '../apis/xbox';
 import { steamModel } from '../database/models/steam';
+import { xboxModel } from '../database/models/xbox';
+import { IntegrationCategory } from '../types/enums';
 
-export const create = async (userId: string, url: string) => {
+export const create = async (category: IntegrationCategory, userId: string, account: string) => {
+	const integrations = {
+		[IntegrationCategory.Steam]: createSteamIntegration,
+		[IntegrationCategory.Xbox]: createXboxIntegration,
+	};
+
+	await integrations[category](userId, account);
+};
+
+const createSteamIntegration = async (userId: string, url: string) => {
 	const integration = await steamModel.findOne({ userId });
 	if (integration) throw new Error('A Steam integration is already in place.');
 
@@ -15,7 +27,7 @@ export const create = async (userId: string, url: string) => {
 	const wishlist = await Steam.getWishlist(steamId);
 	if (!wishlist) throw new Error('Steam wishlist is either private or empty.');
 
-	const recentlyPlayed = (await Steam.getRecentlyPlayed(steamId)) ?? [];
+	const recentlyPlayed = await Steam.getRecentlyPlayed(steamId);
 
 	const integrationInfo = {
 		profile: {
@@ -30,7 +42,34 @@ export const create = async (userId: string, url: string) => {
 	await steamModel.updateOne({ userId }, { $set: integrationInfo }, { upsert: true });
 };
 
-export const sync = async (userId: string) => {
+const createXboxIntegration = async (userId: string, gamertag: string) => {
+	const integration = await xboxModel.findOne({ userId });
+	if (integration) throw new Error('A Xbox integration is already in place.');
+
+	const isGamertagValid = await Xbox.isGamertagValid(gamertag);
+	if (!isGamertagValid) throw new Error('Invalid Xbox gamertag.');
+
+	const { name, gamerscore } = await Xbox.getProfile(gamertag);
+
+	const integrationInfo = {
+		profile: {
+			gamertag: name,
+			gamerscore,
+		},
+	};
+
+	await xboxModel.updateOne({ userId }, { $set: integrationInfo }, { upsert: true });
+};
+
+export const sync = async (category: Exclude<IntegrationCategory, IntegrationCategory.Xbox>, userId: string) => {
+	const integrations = {
+		[IntegrationCategory.Steam]: syncSteamIntegration,
+	};
+
+	await integrations[category](userId);
+};
+
+const syncSteamIntegration = async (userId: string) => {
 	const integration = await steamModel.findOne({ userId });
 	if (!integration) throw new Error('No Steam integration is in place.');
 
@@ -49,14 +88,42 @@ export const sync = async (userId: string) => {
 	await steamModel.updateOne({ userId }, { $set: { 'wishlist.items': wishlistItems } });
 };
 
-export const remove = async (userId: string) => {
+export const remove = async (category: IntegrationCategory, userId: string) => {
+	const integrations = {
+		[IntegrationCategory.Steam]: removeSteamIntegration,
+		[IntegrationCategory.Xbox]: removeXboxIntegration,
+	};
+
+	await integrations[category](userId);
+};
+
+const removeSteamIntegration = async (userId: string) => {
 	const integration = await steamModel.findOne({ userId });
 	if (!integration) throw new Error('No Steam integration is in place.');
 
 	await steamModel.deleteOne({ userId });
 };
 
-export const notifications = async (userId: string, notifications: boolean) => {
+const removeXboxIntegration = async (userId: string) => {
+	const integration = await xboxModel.findOne({ userId });
+	if (!integration) throw new Error('No Xbox integration is in place.');
+
+	await xboxModel.deleteOne({ userId });
+};
+
+export const notifications = async (
+	category: Exclude<IntegrationCategory, IntegrationCategory.Xbox>,
+	userId: string,
+	notifications: boolean,
+) => {
+	const integrations = {
+		[IntegrationCategory.Steam]: steamIntegrationNotifications,
+	};
+
+	await integrations[category](userId, notifications);
+};
+
+const steamIntegrationNotifications = async (userId: string, notifications: boolean) => {
 	const integration = await steamModel.findOne({ userId });
 	if (!integration) throw new Error('No Steam integration is in place.');
 

@@ -1,39 +1,79 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as Integrations from '../services/integrations';
+import { CommandName, IntegrationCategory } from '../types/enums';
 
 export const data = {
-	name: 'integrations',
+	name: CommandName.Integrations,
 	client: false,
 	slashCommand: new SlashCommandBuilder()
-		.setName('integrations')
-		.setDescription('Bot integrations related commands.')
-		.addSubcommand((subcommand) =>
-			subcommand.setName('sync').setDescription('Synchronizes an integration manually.'),
-		)
-		.addSubcommand((subcommand) => subcommand.setName('delete').setDescription('Deletes an integration.'))
+		.setName(CommandName.Integrations)
+		.setDescription('Integrations related commands.')
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('import')
 				.setDescription('Adds an integration.')
+				.addIntegerOption((option) =>
+					option
+						.setName('category')
+						.setDescription('Integration category.')
+						.setRequired(true)
+						.addChoices(
+							{ name: 'Steam', value: IntegrationCategory.Steam },
+							{ name: 'Xbox', value: IntegrationCategory.Xbox },
+						),
+				)
 				.addStringOption((option) =>
-					option.setName('url').setDescription('Profile account URL.').setRequired(true),
+					option.setName('account').setDescription('Steam profile url or Xbox gamertag.').setRequired(true),
+				),
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('sync')
+				.setDescription('Synchronizes an integration manually.')
+				.addIntegerOption((option) =>
+					option
+						.setName('category')
+						.setDescription('Integration category.')
+						.setRequired(true)
+						.addChoices({ name: 'Steam', value: IntegrationCategory.Steam }),
+				),
+		)
+		.addSubcommand((subcommand) =>
+			subcommand
+				.setName('delete')
+				.setDescription('Deletes an integration.')
+				.addIntegerOption((option) =>
+					option
+						.setName('category')
+						.setDescription('Integration category.')
+						.setRequired(true)
+						.addChoices(
+							{ name: 'Steam', value: IntegrationCategory.Steam },
+							{ name: 'Xbox', value: IntegrationCategory.Xbox },
+						),
 				),
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('notifications')
 				.setDescription('Turns an integration notifications on or off.')
+				.addIntegerOption((option) =>
+					option
+						.setName('category')
+						.setDescription('Integration category.')
+						.setRequired(true)
+						.addChoices({ name: 'Steam', value: IntegrationCategory.Steam }),
+				)
 				.addBooleanOption((option) =>
 					option.setName('option').setDescription('Option as a boolean.').setRequired(true),
 				),
 		),
 };
 
-export const execute = async (interaction: CommandInteraction) => {
+export const execute = async (interaction: ChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (interaction: CommandInteraction) => Promise<void>> = {
+	const select: Record<string, (interaction: ChatInputCommandInteraction) => Promise<void>> = {
 		sync: syncIntegration,
 		import: addIntegration,
 		delete: deleteIntegration,
@@ -43,50 +83,60 @@ export const execute = async (interaction: CommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const addIntegration = async (interaction: CommandInteraction) => {
-	const url = interaction.options.getString('url')!;
+const addIntegration = async (interaction: ChatInputCommandInteraction) => {
+	const category = interaction.options.getInteger('category', true) as IntegrationCategory;
+	const account = interaction.options.getString('account', true);
 
-	const result = await Integrations.create(interaction.user.id, url).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	await Integrations.create(category, interaction.user.id, account);
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle('Steam profile imported successfully!').setColor('RANDOM')],
-		ephemeral: true,
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(`${IntegrationCategory[category]} account imported successfully.`)
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const syncIntegration = async (interaction: CommandInteraction) => {
-	const result = await Integrations.sync(interaction.user.id).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+const syncIntegration = async (interaction: ChatInputCommandInteraction) => {
+	const category = interaction.options.getInteger('category', true) as Exclude<
+		IntegrationCategory,
+		IntegrationCategory.Xbox
+	>;
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle('Steam wishlist synced successfully!').setColor('RANDOM')],
-		ephemeral: true,
-	});
+	await Integrations.sync(category, interaction.user.id);
+
+	const embed = new EmbedBuilder()
+		.setTitle(`${IntegrationCategory[category]} integration synced successfully.`)
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const integrationNotifications = async (interaction: CommandInteraction) => {
-	const option = interaction.options.getBoolean('option')!;
+const integrationNotifications = async (interaction: ChatInputCommandInteraction) => {
+	const category = interaction.options.getInteger('category', true) as Exclude<
+		IntegrationCategory,
+		IntegrationCategory.Xbox
+	>;
+	const option = interaction.options.getBoolean('option', true);
 
-	const result = await Integrations.notifications(interaction.user.id, option).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+	await Integrations.notifications(category, interaction.user.id, option);
 
-	await interaction.reply({
-		embeds: [
-			new MessageEmbed()
-				.setTitle(`Steam integration notifications have been turned ${option ? 'on' : 'off'}!`)
-				.setColor('RANDOM'),
-		],
-		ephemeral: true,
-	});
+	const embed = new EmbedBuilder()
+		.setTitle(
+			`${IntegrationCategory[category]} integration notifications have been turned ${option ? 'on' : 'off'}.`,
+		)
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const deleteIntegration = async (interaction: CommandInteraction) => {
-	const result = await Integrations.remove(interaction.user.id).catch((error: Error) => error);
-	if (result instanceof Error) return await interaction.reply({ content: result.message, ephemeral: true });
+const deleteIntegration = async (interaction: ChatInputCommandInteraction) => {
+	const category = interaction.options.getInteger('category', true) as IntegrationCategory;
 
-	await interaction.reply({
-		embeds: [new MessageEmbed().setTitle('Steam integration deleted successfully!').setColor('RANDOM')],
-		ephemeral: true,
-	});
+	await Integrations.remove(category, interaction.user.id);
+
+	const embed = new EmbedBuilder()
+		.setTitle(`${IntegrationCategory[category]} integration deleted successfully.`)
+		.setColor('Random');
+
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
