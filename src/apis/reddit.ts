@@ -6,7 +6,7 @@ export const getPosts = async (subreddit: string, sort = 'hot', limit = 100) => 
 		url: `https://www.reddit.com/r/${subreddit}/${sort}.json?limit=${limit}&restrict_sr=1`,
 	});
 
-	return data.children
+	return (data.children ?? [])
 		.filter(
 			({ data: { stickied, is_video, removed_by_category } }) => !stickied && !is_video && !removed_by_category,
 		)
@@ -21,7 +21,7 @@ export const getPostsByFlair = async (subreddit: string, sort = 'hot', flairs: s
 		url: `https://www.reddit.com/r/${subreddit}/search.json?q=${flair}&sort=${sort}&restrict_sr=1`,
 	});
 
-	return data.children
+	return (data.children ?? [])
 		.filter(
 			({ data: { stickied, is_video, removed_by_category } }) => !stickied && !is_video && !removed_by_category,
 		)
