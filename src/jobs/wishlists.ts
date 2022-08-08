@@ -94,7 +94,7 @@ export const execute = async (client: Bot) => {
 			await user.send({ embeds: [embed] });
 
 			logger.info(
-				`Wishlists job notified _*${user.tag}*_ about _*${alerts.length}*_ items in _*${category}*_ category.`,
+				`Wishlists job notified _*${user.tag}*_ about _*${alerts.length}*_ items in _*${AlertCategory[category]}*_ category.`,
 			);
 		}
 	}
