@@ -4,8 +4,8 @@ import { PlayStationBlogCategory } from '../types/enums';
 
 export const getLatestPlaystationBlogNews = async (category: PlayStationBlogCategory) => {
 	const options: Record<typeof category, string> = {
-		[PlayStationBlogCategory.PlayStationPlus]: 'https://blog.playstation.com/category/ps-plus/',
-		[PlayStationBlogCategory.PlayStationStore]: 'https://blog.playstation.com/category/ps-store/',
+		[PlayStationBlogCategory.PlayStationPlus]: 'https://blog.playstation.com/tag/playstation-plus/',
+		[PlayStationBlogCategory.PlayStationStore]: 'https://blog.playstation.com/tag/playstation-store/',
 		[PlayStationBlogCategory.StateOfPlay]: 'https://blog.playstation.com/tag/state-of-play/',
 	};
 
