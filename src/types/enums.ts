@@ -153,7 +153,6 @@ export enum AnimeAggregator {
 	AniList = 'anilist.co',
 	MyAnimeList = 'myanimelist.net',
 	AnimePlanet = 'www.anime-planet.com',
-	AniDb = 'anidb.net',
 }
 
 export enum AnimeStream {
