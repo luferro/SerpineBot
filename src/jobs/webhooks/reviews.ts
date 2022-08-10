@@ -14,9 +14,11 @@ export const data = {
 export const execute = async (client: Bot) => {
 	const {
 		0: {
-			data: { selftext },
+			data: { title, selftext },
 		},
-	} = await Reddit.getPostsByFlair('Games', 'new', ['Review Thread']);
+	} = await Reddit.getPosts('Games', 'new');
+
+	if (!/Review(.*?)Thread/gi.test(title)) return;
 
 	const selftextArray = selftext?.split('\n') ?? [];
 
