@@ -27,7 +27,7 @@ export const execute = async (client: Bot) => {
 		if (hasEntry) continue;
 
 		for (const { 0: guildId } of client.guilds.cache) {
-			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.Xbox);
+			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.PlayStation);
 			if (!webhook) continue;
 
 			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
