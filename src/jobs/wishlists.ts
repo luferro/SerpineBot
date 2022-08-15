@@ -77,6 +77,7 @@ export const execute = async (client: Bot) => {
 
 			return {
 				...game,
+				released: storedItem?.released || game.released,
 				notified,
 			};
 		});
