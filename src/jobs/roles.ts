@@ -42,7 +42,7 @@ export const execute = async (client: Bot | Client) => {
 		const rows = Math.ceil(roles.length / ITEMS_PER_ROW);
 		for (let index = 0; index < rows; index++) {
 			const actionRow = new ActionRowBuilder() as ActionRowBuilder<ButtonBuilder>;
-			for (const role of roles.slice(0, ITEMS_PER_ROW)) {
+			for (const role of roles.splice(0, ITEMS_PER_ROW)) {
 				const button = new ButtonBuilder()
 					.setCustomId(role)
 					.setLabel(role)
@@ -50,7 +50,6 @@ export const execute = async (client: Bot | Client) => {
 
 				actionRow.addComponents(button);
 			}
-			roles.splice(0, ITEMS_PER_ROW);
 			components.push(actionRow);
 		}
 		if (components.length > COMPONENTS_LIMIT) continue;
@@ -101,11 +100,13 @@ const assignRole = async (interaction: ButtonInteraction) => {
 	const role = member.guild.roles.cache.find(({ name }) => name === interaction.customId)!;
 	const restrictionsRole = member.guild.roles.cache.find(({ name }) => name === 'Restrictions');
 
-	if (restrictionsRole && member.roles.cache.has(restrictionsRole.id) && role.name === 'NSFW')
-		return await interaction.reply({
+	if (restrictionsRole && member.roles.cache.has(restrictionsRole.id) && role.name === 'NSFW') {
+		await interaction.reply({
 			content: "Users with role `Restrictions` can't be granted the NSFW role.",
 			ephemeral: true,
 		});
+		return;
+	}
 
 	const hasRole = member.roles.cache.has(role.id);
 	if (!hasRole) member.roles.add(role);
