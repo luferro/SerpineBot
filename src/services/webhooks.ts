@@ -22,29 +22,29 @@ export const getWebhookNameFromCategory = (category: WebhookCategory) => {
 };
 
 export const create = async (guildId: string, channel: TextChannel, category: WebhookCategory) => {
-	const webhookName = getWebhookNameFromCategory(category);
-
 	if (category === WebhookCategory.Nsfw && !channel.nsfw)
 		throw new Error('NSFW webhook can only be assigned to a NSFW text channel.');
 
 	const settings = await settingsModel.findOne({ guildId });
 	const webhooks = settings?.webhooks ?? [];
 
+	const webhookName = getWebhookNameFromCategory(category);
 	const hasWebhook = webhooks.some(({ name }) => name === webhookName);
 	if (hasWebhook) throw new Error('Webhook has already been assigned to a text channel in this guild.');
 
 	const { id, token, name } = await channel.createWebhook({ name: webhookName });
-	webhooks.push({ id, token: token!, name });
+	if (!token) throw new Error('No token was provided.');
+
+	webhooks.push({ id, token, name });
 
 	await settingsModel.updateOne({ guildId }, { $set: { webhooks } }, { upsert: true });
 };
 
 export const getWebhook = async (client: Bot, guildId: string, category: WebhookCategory) => {
-	const webhookName = getWebhookNameFromCategory(category);
-
 	const guild = await client.guilds.fetch(guildId);
 	const settings = await settingsModel.findOne({ guildId });
 
+	const webhookName = getWebhookNameFromCategory(category);
 	const webhooks = settings?.webhooks ?? [];
 	const guildWebhooks = await guild.fetchWebhooks();
 
@@ -64,11 +64,10 @@ export const getWebhook = async (client: Bot, guildId: string, category: Webhook
 };
 
 export const remove = async (client: Bot, guildId: string, category: WebhookCategory) => {
-	const webhookName = getWebhookNameFromCategory(category);
-
 	const settings = await settingsModel.findOne({ guildId });
 	const webhooks = settings?.webhooks ?? [];
 
+	const webhookName = getWebhookNameFromCategory(category);
 	const hasWebhook = webhooks.some(({ name }) => name === webhookName);
 	if (!hasWebhook) throw new Error('Webhook is not assigned to a text channel in this guild.');
 
