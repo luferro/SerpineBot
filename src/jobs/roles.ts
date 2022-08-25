@@ -4,9 +4,11 @@ import {
 	ButtonInteraction,
 	ButtonStyle,
 	Client,
+	Collection,
 	ComponentType,
 	EmbedBuilder,
 	GuildMember,
+	Message,
 	TextBasedChannel,
 } from 'discord.js';
 import { Bot } from '../bot';
@@ -64,7 +66,7 @@ export const execute = async (client: Bot | Client) => {
 		const channel = await client.channels.fetch(channelId);
 		if (!channel?.isTextBased()) continue;
 
-		const messages = await channel.messages.fetch();
+		const messages = (await channel.messages.fetch()) as Collection<string, Message>;
 		const rolesMessage = messages.find((message) => message?.embeds[0]?.title === 'Text channel roles');
 
 		if (!rolesMessage) await channel.send({ embeds: [message], components });
