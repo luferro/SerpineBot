@@ -15,11 +15,13 @@ export const execute = async (client: Bot) => {
 	for (const subreddit of process.env.NSFW_SUBREDDITS?.split(',') ?? []) {
 		const {
 			0: {
-				data: { title, permalink, url, secure_media, gallery_data },
+				data: { title, permalink, url, gallery_data, preview },
 			},
 		} = await Reddit.getPosts(subreddit);
 
-		const nsfwUrl = getUrl(url, secure_media?.oembed.thumbnail_url, gallery_data?.items[0]?.media_id);
+		const galleryMediaId = gallery_data?.items[0].media_id;
+		const redditFallbackUrl = preview.reddit_video_preview?.fallback_url;
+		const nsfwUrl = getUrl(url, galleryMediaId, redditFallbackUrl);
 
 		const isMediaAvailable = await FilesUtil.isAvailable(nsfwUrl);
 		if (!isMediaAvailable) continue;
@@ -32,7 +34,7 @@ export const execute = async (client: Bot) => {
 			if (!webhook) continue;
 
 			const hasVideoExtension = ['.gif', '.gifv', '.mp4'].some((extension) => nsfwUrl.includes(extension));
-			if (hasVideoExtension || secure_media) {
+			if (hasVideoExtension || preview.reddit_video_preview) {
 				const formattedTitle = `[${StringUtil.truncate(title)}](<https://www.reddit.com${permalink}>)`;
 
 				await webhook.send({ content: `**${formattedTitle}**\n${nsfwUrl}` });
@@ -50,8 +52,7 @@ export const execute = async (client: Bot) => {
 	}
 };
 
-const getUrl = (url: string, mediaItem?: string, galleryItem?: string) => {
-	if (mediaItem) return mediaItem.replace(mediaItem.split('-')[1], 'mobile.mp4');
-	if (galleryItem) return `https://i.redd.it/${galleryItem}.jpg`;
-	return url;
+const getUrl = (url: string, galleryMediaId?: string, fallbackUrl?: string) => {
+	if (galleryMediaId) return `https://i.redd.it/${galleryMediaId}.jpg`;
+	return fallbackUrl ?? url;
 };

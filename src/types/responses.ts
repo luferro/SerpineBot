@@ -109,13 +109,14 @@ interface ChildrenItem {
 		permalink: string;
 		secure_media?: {
 			type: string;
-			oembed: {
-				author_url: string;
-				thumbnail_url: string;
-			};
 		};
 		gallery_data?: {
 			items: GalleryItem[];
+		};
+		preview: {
+			reddit_video_preview?: {
+				fallback_url: string;
+			};
 		};
 		is_self: boolean;
 		crosspost_parent: boolean | null;
