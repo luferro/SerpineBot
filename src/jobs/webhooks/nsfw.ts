@@ -15,16 +15,19 @@ export const execute = async (client: Bot) => {
 	for (const subreddit of process.env.NSFW_SUBREDDITS?.split(',') ?? []) {
 		const {
 			0: {
-				data: { title, permalink, url, gallery_data, preview },
+				data: { title, permalink, url, gallery_data, preview, secure_media },
 			},
 		} = await Reddit.getPosts(subreddit);
 
+		const isRedGif = secure_media?.type === 'redgifs.com';
+		const redditFallbackUrl = preview?.reddit_video_preview?.fallback_url;
+		if (isRedGif && !redditFallbackUrl) continue;
+
 		const galleryMediaId = gallery_data?.items[0].media_id;
-		const redditFallbackUrl = preview.reddit_video_preview?.fallback_url;
 		const nsfwUrl = getUrl(url, galleryMediaId, redditFallbackUrl);
 
-		const isMediaAvailable = await FilesUtil.isAvailable(nsfwUrl);
-		if (!isMediaAvailable) continue;
+		const isReachable = await FilesUtil.isReachable(nsfwUrl);
+		if (!isReachable) continue;
 
 		const hasEntry = await client.manageState('NSFW', subreddit, title, nsfwUrl);
 		if (hasEntry) continue;
@@ -34,7 +37,7 @@ export const execute = async (client: Bot) => {
 			if (!webhook) continue;
 
 			const hasVideoExtension = ['.gif', '.gifv', '.mp4'].some((extension) => nsfwUrl.includes(extension));
-			if (hasVideoExtension || preview.reddit_video_preview) {
+			if (hasVideoExtension || isRedGif) {
 				const formattedTitle = `[${StringUtil.truncate(title)}](<https://www.reddit.com${permalink}>)`;
 
 				await webhook.send({ content: `**${formattedTitle}**\n${nsfwUrl}` });

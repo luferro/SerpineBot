@@ -113,7 +113,7 @@ interface ChildrenItem {
 		gallery_data?: {
 			items: GalleryItem[];
 		};
-		preview: {
+		preview?: {
 			reddit_video_preview?: {
 				fallback_url: string;
 			};
