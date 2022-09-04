@@ -19,8 +19,8 @@ export const execute = async (client: Bot) => {
 			},
 		} = await Reddit.getPosts(subreddit);
 
-		const isMediaAvailable = await FilesUtil.isAvailable(url);
-		if (!isMediaAvailable) continue;
+		const isReachable = await FilesUtil.isReachable(url);
+		if (!isReachable) continue;
 
 		const hasEntry = await client.manageState('Memes', subreddit, title, url);
 		if (hasEntry || is_self) continue;

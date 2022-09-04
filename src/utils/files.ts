@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { fetch } from './fetch';
 
-export const isAvailable = async (file: string) => {
+export const isReachable = async (file: string) => {
 	try {
 		await fetch({ url: file });
 		const isRemoved = file.includes('removed');
