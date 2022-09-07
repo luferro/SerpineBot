@@ -26,21 +26,19 @@ export const execute = async (client: Bot) => {
 		break;
 	}
 
-	for (const { title, url, author, description, content, source, urlToImage, publishedAt } of articles.reverse()) {
-		const image = urlToImage?.startsWith('http') ? urlToImage : null;
-
+	for (const { title, url, author, description, image, publishedAt } of articles.reverse()) {
 		for (const { 0: guildId } of client.guilds.cache) {
 			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.WorldNews);
 			if (!webhook) continue;
 
 			const embed = new EmbedBuilder()
-				.setAuthor({ name: source.name ?? author ?? 'N/A' })
 				.setTitle(StringUtil.truncate(title))
 				.setURL(url)
+				.setDescription(description)
 				.setThumbnail(image)
-				.setDescription(content ?? description ?? 'N/A')
 				.setTimestamp(new Date(publishedAt))
 				.setColor('Random');
+			if (author) embed.setAuthor({ name: author });
 
 			await webhook.send({ embeds: [embed] });
 

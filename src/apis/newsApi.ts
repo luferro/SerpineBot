@@ -18,7 +18,18 @@ const getInternationalNews = async () => {
 };
 
 export const getLatestArticles = async (limit = 10) => {
-	return [...(await getNationalNews()), ...(await getInternationalNews())]
+	const nationalNews = await getNationalNews();
+	const internationalNews = await getInternationalNews();
+
+	return [...nationalNews, ...internationalNews]
+		.map(({ title, url, author, description, content, source, urlToImage, publishedAt }) => ({
+			title,
+			url,
+			publishedAt,
+			author: source.name ?? author,
+			description: content ?? description,
+			image: urlToImage?.startsWith('http') ? urlToImage : null,
+		}))
 		.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
 		.slice(0, limit);
 };
