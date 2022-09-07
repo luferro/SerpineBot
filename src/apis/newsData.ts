@@ -3,19 +3,19 @@ import * as StringUtil from '../utils/string';
 import { Article, Results } from '../types/responses';
 
 const getPortugalNews = async () => {
-	const { articles } = await fetch<Results<Article>>({
+	const { results } = await fetch<Results<Article>>({
 		url: `https://newsdata.io/api/1/news?apikey=${process.env.NEWS_DATA_API_KEY}&country=pt `,
 	});
 
-	return articles;
+	return results;
 };
 
 const getWorldNews = async () => {
-	const { articles } = await fetch<Results<Article>>({
+	const { results } = await fetch<Results<Article>>({
 		url: `https://newsdata.io/api/1/news?apikey=${process.env.NEWS_DATA_API_KEY}&language=en&category=world `,
 	});
 
-	return articles;
+	return results;
 };
 
 export const getLatestArticles = async (limit = 10) => {
