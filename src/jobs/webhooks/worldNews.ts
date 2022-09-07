@@ -1,8 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../bot';
-import * as NewsAPI from '../../apis/newsApi';
+import * as NewsAPI from '../../apis/newsData';
 import * as Webhooks from '../../services/webhooks';
-import * as StringUtil from '../../utils/string';
 import * as SleepUtil from '../../utils/sleep';
 import { WebhookCategory, WebhookJobName } from '../../types/enums';
 
@@ -26,19 +25,19 @@ export const execute = async (client: Bot) => {
 		break;
 	}
 
-	for (const { title, url, author, description, image, publishedAt } of articles.reverse()) {
+	for (const { title, url, publisher, description, image, publishedAt } of articles.reverse()) {
 		for (const { 0: guildId } of client.guilds.cache) {
 			const webhook = await Webhooks.getWebhook(client, guildId, WebhookCategory.WorldNews);
 			if (!webhook) continue;
 
 			const embed = new EmbedBuilder()
-				.setTitle(StringUtil.truncate(title))
+				.setAuthor({ name: publisher })
+				.setTitle(title)
 				.setURL(url)
 				.setDescription(description)
 				.setThumbnail(image)
-				.setTimestamp(new Date(publishedAt))
+				.setTimestamp(publishedAt)
 				.setColor('Random');
-			if (author) embed.setAuthor({ name: author });
 
 			await webhook.send({ embeds: [embed] });
 

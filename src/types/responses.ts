@@ -262,14 +262,11 @@ export interface Gif {
 }
 
 export interface Article {
-	source: {
-		name: string | null;
-	};
-	author: string | null;
+	source_id: string;
 	title: string;
+	link: string;
 	description: string;
 	content: string;
-	url: string;
-	urlToImage: string | null;
-	publishedAt: string;
+	image_url: string;
+	pubDate: string;
 }
