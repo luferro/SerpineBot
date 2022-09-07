@@ -8,7 +8,7 @@ export const scanVariables = () => {
 		'THEMOVIEDB_API_KEY',
 		'STEAM_API_KEY',
 		'TENOR_API_KEY',
-		'NEWS_API_KEY',
+		'NEWS_DATA_API_KEY',
 	];
 
 	const keysNotFound = [];
