@@ -7,6 +7,8 @@ import { Request } from '../types/request';
 setGlobalDispatcher(
 	new Agent({
 		connect: { timeout: 60_000 },
+		headersTimeout: 60_000,
+		bodyTimeout: 60_000,
 	}),
 );
 
