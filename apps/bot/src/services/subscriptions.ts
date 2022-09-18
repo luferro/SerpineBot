@@ -8,8 +8,8 @@ export const getGamingSubscriptions = async (title: string) => {
 	const regex = new RegExp(`^${StringUtil.slug(title).replace(/-/g, '.*-')}`);
 
 	const subscriptions = (await subscriptionsModel.aggregate([
-		{ $unwind: { path: '$items' } },
-		{ $match: { 'items.slug': { $regex: regex } } },
+		{ $unwind: { path: '$catalog' } },
+		{ $match: { 'catalog.slug': { $regex: regex } } },
 	])) as unknown as SubscriptionsAggregate[];
 
 	return subscriptions.map(({ name, catalog }) => ({
