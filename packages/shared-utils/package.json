@@ -1,0 +1,23 @@
+{
+	"name": "@luferro/shared-utils",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Utilities shared between packages",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^18.7.16",
+		"@types/user-agents": "^1.0.2",
+		"typescript": "^4.8.2"
+	},
+	"dependencies": {
+		"undici": "^5.10.0",
+		"user-agents": "^1.0.1126"
+	}
+}

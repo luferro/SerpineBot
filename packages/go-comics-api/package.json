@@ -1,0 +1,22 @@
+{
+	"name": "@luferro/go-comics-api",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Go Comics api wrapper",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^18.7.16",
+		"typescript": "^4.8.2"
+	},
+	"dependencies": {
+		"@luferro/shared-utils": "workspace:^",
+		"cheerio": "^1.0.0-rc.12"
+	}
+}

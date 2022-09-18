@@ -1,13 +1,32 @@
 {
 	"compilerOptions": {
-		"target": "ES2021",
+		// https://www.typescriptlang.org/tsconfig#Type_Checking_6248
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strict": true,
+
+		// https://www.typescriptlang.org/tsconfig#Modules_6244
 		"module": "commonjs",
-		"rootDir": "./src",
-		"outDir": "./dist",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+
+		// https://www.typescriptlang.org/tsconfig#Emit_6246
+		"importsNotUsedAsValues": "error",
+
+		// https://www.typescriptlang.org/tsconfig#Interop_Constraints_6252
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
-		"strict": true,
+
+		// https://www.typescriptlang.org/tsconfig#Language_and_Environment_6254
+		"lib": ["ESNext"],
+		"target": "esnext",
+
+		// https://www.typescriptlang.org/tsconfig#Completeness_6257
 		"skipLibCheck": true
-	},
-	"include": ["src/**/*.ts"]
+	}
 }

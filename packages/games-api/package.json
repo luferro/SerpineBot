@@ -1,0 +1,24 @@
+{
+	"name": "@luferro/games-api",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Gaming related apis wrapper",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^18.7.16",
+		"typescript": "^4.8.2"
+	},
+	"dependencies": {
+		"@luferro/shared-utils": "workspace:^",
+		"@luferro/google-api": "workspace:^",
+		"playwright-chromium": "^1.25.1",
+		"cheerio": "^1.0.0-rc.12"
+	}
+}
