@@ -1,9 +1,9 @@
 import type { Bot } from '../structures/bot';
 import type { ButtonInteraction, Client, Collection, GuildMember, Message, TextBasedChannel } from 'discord.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder } from 'discord.js';
+import { logger } from '@luferro/shared-utils';
 import { settingsModel } from '../database/models/settings';
 import { JobName } from '../types/enums';
-import { logger } from '../utils/logger';
 
 const COMPONENTS_LIMIT = 5;
 const ITEMS_PER_ROW = 5;
@@ -61,7 +61,7 @@ export const execute = async (client: Bot | Client) => {
 		if (!rolesMessage) await channel.send({ embeds: [message], components });
 		else await rolesMessage.edit({ embeds: [message], components });
 
-		logger.info(`Roles job sent a message to channel _*${channelId}*_ in guild _*${guild.name}*_.`);
+		logger.info(`Roles job sent a message to channel **${channelId}** in guild **${guild.name}**.`);
 
 		await handleCollector(channel);
 	}
@@ -86,11 +86,12 @@ const handleCollector = async (channel: TextBasedChannel) => {
 
 const assignRole = async (interaction: ButtonInteraction) => {
 	const member = interaction.member as GuildMember;
-	if (member.user.bot) return;
+	if (member.user.bot || !interaction.guild?.available) return;
 
-	const role = member.guild.roles.cache.find(({ name }) => name === interaction.customId)!;
+	const role = member.guild.roles.cache.find(({ name }) => name === interaction.customId);
+	if (!role) return;
+
 	const restrictionsRole = member.guild.roles.cache.find(({ name }) => name === 'Restrictions');
-
 	if (restrictionsRole && member.roles.cache.has(restrictionsRole.id) && role.name === 'NSFW') {
 		await interaction.reply({
 			content: "Users with role `Restrictions` can't be granted the NSFW role.",
@@ -103,15 +104,14 @@ const assignRole = async (interaction: ButtonInteraction) => {
 	if (!hasRole) member.roles.add(role);
 	else member.roles.remove(role);
 
-	const status = hasRole ? 'revoked' : 'granted';
+	const action = hasRole ? 'revoked' : 'granted';
+	const preposition = hasRole ? 'from' : 'to';
 
-	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been ${status}!`).setColor('Random');
+	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been ${action}.`).setColor('Random');
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 
 	logger.info(
-		`Roles collector _*${status}*_ role _*${role.name}*_ ${hasRole ? 'from' : 'to'} _*${
-			member.user.tag
-		}*_ in guild _*${interaction.guild?.name}*_.`,
+		`Roles collector **${action}** role **${role.name}** ${preposition} **${member.user.tag}** **${interaction.guild.name}**`,
 	);
 };

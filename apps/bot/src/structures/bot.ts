@@ -3,18 +3,17 @@ import type { CommandName, EventName, JobName, WebhookName } from '../types/enum
 import type { ClientOptions } from 'discord.js';
 import { Client, Collection } from 'discord.js';
 import { CronJob } from 'cron';
-import { SleepUtil } from '@luferro/shared-utils';
-import * as Database from '../database/database';
-import * as JobsHandler from '../handlers/jobs';
-import * as EventsHandler from '../handlers/events';
-import * as CommandsHandler from '../handlers/commands';
-import { stateModel } from '../database/models/state';
-import { logger } from '../utils/logger';
 import { TenorApi } from '@luferro/tenor-api';
 import { SteamApi } from '@luferro/games-api';
 import { TheMovieDbApi } from '@luferro/the-movie-db-api';
 import { YoutubeApi } from '@luferro/google-api';
 import { NewsDataApi } from '@luferro/news-data-api';
+import { logger, SleepUtil } from '@luferro/shared-utils';
+import * as Database from '../database/database';
+import * as JobsHandler from '../handlers/jobs';
+import * as EventsHandler from '../handlers/events';
+import * as CommandsHandler from '../handlers/commands';
+import { stateModel } from '../database/models/state';
 import { config } from '../config/environment';
 
 export class Bot extends Client {
@@ -63,7 +62,7 @@ export class Bot extends Client {
 		for (const [name, event] of Bot.events.entries()) {
 			this[event.data.type](name, (...args: unknown[]) => event.execute(this, ...args).catch(this.errorHandler));
 
-			logger.info(`Event listener is listening ${event.data.type} _*${name}*_.`);
+			logger.info(`Event listener is listening ${event.data.type} **${name}**.`);
 		}
 	};
 
@@ -72,7 +71,7 @@ export class Bot extends Client {
 			const cronjob = new CronJob(job.data.schedule, () => job.execute(this).catch(this.errorHandler));
 			cronjob.start();
 
-			logger.info(`Job _*${name}*_ is running. Schedule expression: _*${job.data.schedule}*_.`);
+			logger.info(`Job **${name}** is set to run. Schedule: **${job.data.schedule}**.`);
 		}
 	};
 

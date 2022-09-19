@@ -1,12 +1,12 @@
 import type { Bot } from '../structures/bot';
+import type { Alert } from '../types/bot';
+import type { AlertCategory } from '../types/category';
 import { EmbedBuilder } from 'discord.js';
 import { SteamApi } from '@luferro/games-api';
+import { logger } from '@luferro/shared-utils';
 import { steamModel } from '../database/models/steam';
-import { logger } from '../utils/logger';
 import { JobName } from '../types/enums';
 import * as Subscriptions from '../services/subscriptions';
-import type { AlertCategory } from '../types/category';
-import type { Alert } from '../types/bot';
 
 export const data = {
 	name: JobName.Wishlists,
@@ -104,7 +104,7 @@ export const execute = async (client: Bot) => {
 			await user.send({ embeds: [embed] });
 
 			logger.info(
-				`Wishlists job sent a message to _*${user.tag}*_ about _*${totalItems}*_ update(s) in _*${category}*_ category.`,
+				`Wishlists job sent a private message to **${user.tag}**. **${totalItems}** update(s) in **${category}** category.`,
 			);
 		}
 	}

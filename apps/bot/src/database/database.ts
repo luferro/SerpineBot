@@ -1,6 +1,6 @@
 import type { ConnectOptions } from 'mongoose';
 import mongoose from 'mongoose';
-import { logger } from '../utils/logger';
+import { logger } from '@luferro/shared-utils';
 import { config } from '../config/environment';
 
 export const connect = async () => {

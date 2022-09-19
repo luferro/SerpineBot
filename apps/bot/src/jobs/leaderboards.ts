@@ -1,13 +1,12 @@
 import type { Bot } from '../structures/bot';
 import type { IntegrationCategory } from '../types/category';
 import { EmbedBuilder } from 'discord.js';
-import { SleepUtil } from '@luferro/shared-utils';
+import { logger, SleepUtil } from '@luferro/shared-utils';
 import { XboxApi } from '@luferro/games-api';
 import * as Leaderboards from '../services/leaderboards';
 import { settingsModel } from '../database/models/settings';
 import { steamModel } from '../database/models/steam';
 import { xboxModel } from '../database/models/xbox';
-import { logger } from '../utils/logger';
 import { JobName } from '../types/enums';
 
 export const data = {
@@ -49,7 +48,7 @@ export const execute = async (client: Bot) => {
 
 			await channel.send({ embeds: [embed] });
 
-			logger.info(`Leaderboards job sent a message to channel _*${channelId}*_ in guild _*${guild.name}*_.`);
+			logger.info(`Leaderboards job sent a message to channel **${channelId}** in guild **${guild.name}**.`);
 		}
 	}
 

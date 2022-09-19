@@ -1,8 +1,8 @@
 import type { Guild } from 'discord.js';
 import type { Bot } from '../structures/bot';
+import { logger } from '@luferro/shared-utils';
 import * as CommandsHandler from '../handlers/commands';
 import { settingsModel } from '../database/models/settings';
-import { logger } from '../utils/logger';
 import { EventName } from '../types/enums';
 
 export const data = {
@@ -35,5 +35,5 @@ export const execute = async (client: Bot, guild: Guild) => {
 
 	await settingsModel.updateOne({ guildId: guild.id }, { $set: guildInfo }, { upsert: true });
 
-	logger.info(`SerpineBot has joined guild _*${guild.name}*_.`);
+	logger.info(`SerpineBot has joined guild **${guild.name}**.`);
 };

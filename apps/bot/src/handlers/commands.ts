@@ -2,8 +2,7 @@ import type { Command } from '../types/bot';
 import type { ApplicationCommandDataResolvable } from 'discord.js';
 import path from 'path';
 import { Bot } from '../structures/bot';
-import { FileUtil } from '@luferro/shared-utils';
-import { logger } from '../utils/logger';
+import { FileUtil, logger } from '@luferro/shared-utils';
 
 export const register = async () => {
 	const files = FileUtil.getFiles(path.resolve(__dirname, '../commands'));
@@ -12,7 +11,7 @@ export const register = async () => {
 		Bot.commands.set(command.data.name, command);
 	}
 
-	logger.info(`Commands handler registered _*${files.length}*_ command(s).`);
+	logger.info(`Commands handler registered **${files.length}** command(s).`);
 };
 
 export const deploy = async (client: Bot) => {
@@ -23,6 +22,6 @@ export const deploy = async (client: Bot) => {
 
 		const guildCommands = await guild.commands.set(slashCommands);
 
-		logger.info(`Commands handler deployed _*${guildCommands.size}*_ slash command(s) to guild _*${guild.name}*_.`);
+		logger.info(`Commands handler deployed **${guildCommands.size}** slash command(s) to guild **${guild.name}**.`);
 	}
 };

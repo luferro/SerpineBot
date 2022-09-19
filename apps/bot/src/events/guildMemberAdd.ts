@@ -1,8 +1,8 @@
 import type { GuildMember } from 'discord.js';
 import type { Bot } from '../structures/bot';
+import { logger } from '@luferro/shared-utils';
 import * as Roles from '../services/roles';
 import { EventName } from '../types/enums';
-import { logger } from '../utils/logger';
 
 export const data = {
 	name: EventName.GuildMemberAdd,
@@ -15,5 +15,5 @@ export const execute = async (_client: Bot, member: GuildMember) => {
 
 	await member.roles.add(role);
 
-	logger.info(`User _*${member.user.tag}*_ has joined guild _*${member.guild.name}*_.`);
+	logger.info(`User **${member.user.tag}** has joined guild **${member.guild.name}**.`);
 };
