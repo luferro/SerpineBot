@@ -6,7 +6,7 @@ import { JobName } from '../types/enums';
 
 export const data = {
 	name: JobName.Subscriptions,
-	schedule: new Date(Date.now() + 1000 * 60),
+	schedule: '0 0 15 * * *',
 };
 
 export const execute = async () => {
