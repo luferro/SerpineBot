@@ -127,7 +127,7 @@ const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategor
 	return { category, catalog: [...new Set(catalog)] };
 };
 
-export const getUbisoftPlusCatalog = async (context: BrowserContext) => {
+const getUbisoftPlusCatalog = async (context: BrowserContext) => {
 	const page = await context.newPage();
 	await abortUnnecessaryResources(page);
 
