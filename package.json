@@ -2,7 +2,6 @@
 	"name": "serpine-bot",
 	"version": "1.0.0",
 	"description": "Multipurpose bot for my private discord server.",
-	"main": "index.js",
 	"scripts": {
 		"start": "turbo run start",
 		"build": "turbo run build",
