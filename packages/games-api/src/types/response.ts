@@ -90,6 +90,24 @@ export interface HowLongToBeatResponse {
 	};
 }
 
+export interface NintendoResponse {
+	props: {
+		pageProps: {
+			initialApolloState: {
+				[key: string]: {
+					'__typename': string;
+					'title': string;
+					'media': {
+						publicId: string;
+					};
+					'publishDate': string;
+					'url({"relative":true})': string;
+				};
+			};
+		};
+	};
+}
+
 interface SubscriptionCatalogEntry {
 	name: string;
 	slug: string;
