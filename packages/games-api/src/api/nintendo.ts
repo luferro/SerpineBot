@@ -17,7 +17,7 @@ export const getLatestNintendoNews = async () => {
 		.filter(({ __typename }) => __typename === 'NewsArticle')
 		.map(({ title, media, 'url({"relative":true})': url }) => ({
 			title,
-			url,
+			url: `https://www.nintendo.com/${url}`,
 			image: media
 				? `https://assets.nintendo.com/image/upload/q_auto/f_auto/c_fill,w_1200/${media.publicId}`
 				: null,
