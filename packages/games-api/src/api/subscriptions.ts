@@ -1,24 +1,50 @@
 import type { BrowserContext, Page, Route } from 'playwright-chromium';
 import type { CatalogCategory, EaPlayCategory, GamePassCategory } from '../types/category';
-import type { SubscriptionCatalogResponse } from '../types/response';
-import { StringUtil } from '@luferro/shared-utils';
+import type { SubscriptionCatalogEntry } from '../types/response';
+import { logger, StringUtil } from '@luferro/shared-utils';
 import { chromium } from 'playwright-chromium';
 
-export const getCatalog = async (category: CatalogCategory) => {
+const cache = new Map<CatalogCategory, SubscriptionCatalogEntry[]>();
+
+export const getCatalogs = async (forceRefresh = false) => {
+	if (forceRefresh) await refreshCatalogs();
+
+	return [...cache.entries()].map(([category, catalog]) => ({ category, catalog }));
+};
+
+export const getCatalog = async (category: CatalogCategory, forceRefresh = false) => {
+	if (forceRefresh || !cache.has(category)) await refreshCatalogs();
+	if (!cache.has(category)) throw new Error(`Couldn't fetch **${category}** catalog.`);
+
+	return cache.get(category);
+};
+
+const refreshCatalogs = async () => {
 	const browser = await chromium.launch({ chromiumSandbox: false });
 	const context = await browser.newContext();
 
 	try {
-		const catalogs: Record<typeof category, () => Promise<SubscriptionCatalogResponse>> = {
-			'PC Game Pass': () => getGamePassCatalog(context, 'PC Game Pass'),
-			'Xbox Game Pass': () => getGamePassCatalog(context, 'Xbox Game Pass'),
-			'EA Play': () => getEaPlayCatalog(context, 'EA Play'),
-			'EA Play Pro': () => getEaPlayCatalog(context, 'EA Play Pro'),
-			'Ubisoft Plus': () => getUbisoftPlusCatalog(context),
-		};
+		const results = await Promise.allSettled([
+			getGamePassCatalog(context, 'PC Game Pass'),
+			getGamePassCatalog(context, 'Xbox Game Pass'),
+			getEaPlayCatalog(context, 'EA Play'),
+			getEaPlayCatalog(context, 'EA Play Pro'),
+			getUbisoftPlusCatalog(context),
+		]);
 
-		return await catalogs[category]();
+		for (const result of results) {
+			if (result.status === 'rejected') {
+				logger.warn(`Subscriptions catalog refresh failed for one of the catalogs. Reason: ${result.reason}`);
+				continue;
+			}
+
+			const { category, catalog } = result.value;
+			cache.set(category, catalog);
+
+			logger.info(`**${category}** catalog cache has been refreshed.`);
+		}
 	} finally {
+		await context.close();
 		await browser.close();
 	}
 };
