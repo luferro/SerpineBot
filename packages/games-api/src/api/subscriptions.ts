@@ -62,6 +62,7 @@ const getGamePassCatalog = async (context: BrowserContext, category: GamePassCat
 
 	await page.goto('https://www.xbox.com/pt-PT/xbox-game-pass/games');
 	await page.waitForLoadState('networkidle');
+	await page.waitForTimeout(5000);
 
 	if (category === 'PC Game Pass') {
 		const switchCatalogButton = page.locator('[data-theplat="pc"]');
@@ -119,6 +120,7 @@ const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategor
 			'https://www.origin.com/irl/en-us/store/browse?fq=gameType:basegame,subscriptionGroup:premium-vault-games',
 		);
 	await page.waitForLoadState('networkidle');
+	await page.waitForTimeout(5000);
 
 	const regionMenu = page.locator('.otkmodal-content .otkmodal-footer > button');
 	await regionMenu.waitFor();
@@ -159,6 +161,7 @@ const getUbisoftPlusCatalog = async (context: BrowserContext) => {
 
 	await page.goto('https://store.ubi.com/ie/ubisoftplus/games');
 	await page.waitForLoadState('networkidle');
+	await page.waitForTimeout(5000);
 
 	const privacyDialog = page.locator('.privacy__modal__accept');
 	const hasPrivacyDialog = (await privacyDialog.count()) > 0;
