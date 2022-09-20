@@ -28,7 +28,7 @@ export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<
 
 	if (res.statusCode >= 400) {
 		await res.body.dump();
-		throw new Error(`_*${method}*_ request to _*${url}*_ failed. Status code: _*${res.statusCode}*_.`);
+		throw new Error(`**${method}** request to **${url}** failed. Status code: **${res.statusCode}**.`);
 	}
 
 	return res.headers['content-type']?.includes('application/json') ? await res.body.json() : await res.body.text();
