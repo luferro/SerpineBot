@@ -71,7 +71,7 @@ export class Bot extends Client {
 			const cronjob = new CronJob(job.data.schedule, () => job.execute(this).catch(this.errorHandler));
 			cronjob.start();
 
-			logger.info(`Job **${name}** is set to run. Schedule: **${job.data.schedule}**.`);
+			logger.info(`Job **${name}** is set to run. Schedule: **(${job.data.schedule})**.`);
 		}
 	};
 
