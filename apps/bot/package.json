@@ -5,7 +5,7 @@
 	"description": "Discord client.",
 	"main": "dist/index.js",
 	"scripts": {
-		"start": "tsc && node dist/server.js",
+		"start": "node dist/server.js",
 		"build": "tsc"
 	},
 	"keywords": [],
