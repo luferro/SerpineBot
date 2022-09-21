@@ -1,16 +1,10 @@
 import type { BrowserContext, Page, Route } from 'playwright-chromium';
 import type { CatalogCategory, EaPlayCategory, GamePassCategory } from '../types/category';
-import type { SubscriptionCatalogEntry } from '../types/response';
+import type { SubscriptionCatalogEntry, SubscriptionCatalogResponse } from '../types/response';
 import { logger, StringUtil } from '@luferro/shared-utils';
 import { chromium } from 'playwright-chromium';
 
 const cache = new Map<CatalogCategory, SubscriptionCatalogEntry[]>();
-
-export const getCatalogs = async (forceRefresh = false) => {
-	if (forceRefresh) await refreshCatalogs();
-
-	return [...cache.entries()].map(([category, catalog]) => ({ category, catalog }));
-};
 
 export const getCatalog = async (category: CatalogCategory, forceRefresh = false) => {
 	if (forceRefresh || !cache.has(category)) await refreshCatalogs();
@@ -19,34 +13,38 @@ export const getCatalog = async (category: CatalogCategory, forceRefresh = false
 	return cache.get(category);
 };
 
+export const getCatalogs = async (forceRefresh = false) => {
+	if (forceRefresh) await refreshCatalogs();
+
+	return [...cache.entries()].map(([category, catalog]) => ({ category, catalog }));
+};
+
 const refreshCatalogs = async () => {
 	const browser = await chromium.launch({ chromiumSandbox: false });
 	const context = await browser.newContext();
 
-	try {
-		const results = await Promise.allSettled([
-			getGamePassCatalog(context, 'PC Game Pass'),
-			getGamePassCatalog(context, 'Xbox Game Pass'),
-			getEaPlayCatalog(context, 'EA Play'),
-			getEaPlayCatalog(context, 'EA Play Pro'),
-			getUbisoftPlusCatalog(context),
-		]);
+	const catalogs: Record<CatalogCategory, () => Promise<SubscriptionCatalogResponse>> = {
+		'PC Game Pass': () => getGamePassCatalog(context, 'PC Game Pass'),
+		'Xbox Game Pass': () => getGamePassCatalog(context, 'Xbox Game Pass'),
+		'EA Play': () => getEaPlayCatalog(context, 'EA Play'),
+		'EA Play Pro': () => getEaPlayCatalog(context, 'EA Play Pro'),
+		'Ubisoft Plus': () => getUbisoftPlusCatalog(context),
+	};
 
-		for (const result of results) {
-			if (result.status === 'rejected') {
-				logger.warn(`Subscriptions catalog refresh failed for one of the catalogs. Reason: ${result.reason}`);
-				continue;
-			}
-
-			const { category, catalog } = result.value;
+	const categories: CatalogCategory[] = ['PC Game Pass', 'Xbox Game Pass', 'EA Play', 'EA Play Pro', 'Ubisoft Plus'];
+	for (const category of categories) {
+		try {
+			const { catalog } = await catalogs[category]();
 			cache.set(category, catalog);
 
 			logger.info(`**${category}** catalog cache has been refreshed.`);
+		} catch (error) {
+			logger.warn(`**${category}** catalog cache failed to refresh. Reason: ${(error as Error).message}`);
 		}
-	} finally {
-		await context.close();
-		await browser.close();
 	}
+
+	await context.close();
+	await browser.close();
 };
 
 const abortUnnecessaryResources = async (page: Page) => {
@@ -57,19 +55,21 @@ const abortUnnecessaryResources = async (page: Page) => {
 };
 
 const getGamePassCatalog = async (context: BrowserContext, category: GamePassCategory) => {
+	await context.clearCookies();
 	const page = await context.newPage();
 	await abortUnnecessaryResources(page);
 
 	await page.goto('https://www.xbox.com/pt-PT/xbox-game-pass/games');
 	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(5000);
 
 	if (category === 'PC Game Pass') {
 		const switchCatalogButton = page.locator('[data-theplat="pc"]');
 		await switchCatalogButton.waitFor();
 		await switchCatalogButton.click();
 
-		const isSelected = (await page.locator('[data-platselected="pc"]').count()) > 0;
+		const selectedCatalog = page.locator('[data-platselected="pc"]');
+		await selectedCatalog.waitFor();
+		const isSelected = (await selectedCatalog.count()) > 0;
 		if (!isSelected) throw new Error("Couldn't switch catalogs. Skipping PC Game Pass catalog.");
 	}
 
@@ -108,6 +108,7 @@ const getGamePassCatalog = async (context: BrowserContext, category: GamePassCat
 };
 
 const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategory) => {
+	await context.clearCookies();
 	const page = await context.newPage();
 	await abortUnnecessaryResources(page);
 
@@ -120,7 +121,6 @@ const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategor
 			'https://www.origin.com/irl/en-us/store/browse?fq=gameType:basegame,subscriptionGroup:premium-vault-games',
 		);
 	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(5000);
 
 	const regionMenu = page.locator('.otkmodal-content .otkmodal-footer > button');
 	await regionMenu.waitFor();
@@ -128,14 +128,16 @@ const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategor
 	await page.waitForTimeout(500);
 	await regionMenu.click();
 
-	let previousHeight = await page.evaluate('document.body.scrollHeight');
+	await page.waitForSelector('section.origin-gdp-tilelist > ul li[origin-postrepeat]');
+	await page.waitForTimeout(5000);
+
+	let previousHeight = 0;
 	while (true) {
-		await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
-		await page.waitForTimeout(500);
+		const currentHeight = await page.evaluate<number>('document.body.scrollHeight');
+		await page.mouse.wheel(0, currentHeight);
+		await page.waitForTimeout(750);
 
-		const currentHeight = await page.evaluate('document.body.scrollHeight');
 		if (currentHeight === previousHeight) break;
-
 		previousHeight = currentHeight;
 	}
 
@@ -156,12 +158,12 @@ const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategor
 };
 
 const getUbisoftPlusCatalog = async (context: BrowserContext) => {
+	await context.clearCookies();
 	const page = await context.newPage();
 	await abortUnnecessaryResources(page);
 
 	await page.goto('https://store.ubi.com/ie/ubisoftplus/games');
 	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(5000);
 
 	const privacyDialog = page.locator('.privacy__modal__accept');
 	const hasPrivacyDialog = (await privacyDialog.count()) > 0;
