@@ -114,11 +114,11 @@ const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategor
 
 	if (category === 'EA Play')
 		await page.goto(
-			'https://www.origin.com/irl/en-us/store/browse?fq=gameType:basegame,subscriptionGroup:vault-games',
+			'https://www.origin.com/irl/pt-pt/store/browse?fq=gameType:basegame,subscriptionGroup:vault-games',
 		);
 	else
 		await page.goto(
-			'https://www.origin.com/irl/en-us/store/browse?fq=gameType:basegame,subscriptionGroup:premium-vault-games',
+			'https://www.origin.com/irl/pt-pt/store/browse?fq=gameType:basegame,subscriptionGroup:premium-vault-games',
 		);
 	await page.waitForLoadState('networkidle');
 
@@ -148,7 +148,8 @@ const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategor
 		if (!name) continue;
 
 		const slug = StringUtil.slug(name);
-		const url = (await (await container.$('a'))?.getAttribute('href')) ?? null;
+		const href = await (await container.$('a'))?.getAttribute('href');
+		const url = href ? `https://www.origin.com${href}` : null;
 
 		catalog.push({ name, slug, url });
 	}
@@ -166,12 +167,12 @@ const getUbisoftPlusCatalog = async (context: BrowserContext) => {
 	await page.waitForLoadState('networkidle');
 
 	const privacyDialog = page.locator('.privacy__modal__accept');
-	const hasPrivacyDialog = (await privacyDialog.count()) > 0;
-	if (hasPrivacyDialog) await privacyDialog.click();
+	await privacyDialog.waitFor();
+	await privacyDialog.click();
 
 	const regionDialog = page.locator('.stay-on-country-store');
-	const hasRegionDialog = (await regionDialog.count()) > 0;
-	if (hasRegionDialog) await regionDialog.click();
+	await regionDialog.waitFor();
+	await regionDialog.click();
 
 	while (true) {
 		await page.waitForTimeout(1000);
