@@ -108,6 +108,6 @@ export interface Subscriptions {
 }
 
 export interface SubscriptionsAggregate {
-	name: string;
+	_id: string;
 	entry: CatalogItem;
 }

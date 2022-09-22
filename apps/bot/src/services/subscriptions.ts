@@ -13,8 +13,8 @@ export const getGamingSubscriptions = async (title: string) => {
 		{ $group: { _id: '$name', entry: { $last: '$catalog' } } },
 	])) as unknown as SubscriptionsAggregate[];
 
-	return results.map(({ name, entry }) => ({
-		name,
+	return results.map(({ _id, entry }) => ({
+		name: _id,
 		entry: {
 			name: entry.name,
 			url: entry.url,
