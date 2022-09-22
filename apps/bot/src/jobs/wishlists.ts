@@ -121,7 +121,7 @@ const getTitle = (category: AlertCategory, totalItems: number) => {
 };
 
 const getDescription = (category: AlertCategory, items: Alert[]) => {
-	const array = items.slice(10);
+	const array = items.slice(0, 10);
 	const options: Record<typeof category, string[]> = {
 		'Added To Subscription': array.map(
 			({ name, url, addedTo }) => `> **[${name}](${url})** added to:\n${addedTo.join('\n')}`,
