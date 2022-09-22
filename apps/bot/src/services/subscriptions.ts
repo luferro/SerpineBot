@@ -5,18 +5,19 @@ import { StringUtil } from '@luferro/shared-utils';
 import { subscriptionsModel } from '../database/models/subscriptions';
 
 export const getGamingSubscriptions = async (title: string) => {
-	const regex = new RegExp(`^${StringUtil.slug(title).replace(/-/g, '.*-')}`);
+	const regex = new RegExp(`${StringUtil.slug(title).replace(/-/g, '(.*?)')}`);
 
-	const subscriptions = (await subscriptionsModel.aggregate([
+	const results = (await subscriptionsModel.aggregate([
 		{ $unwind: { path: '$catalog' } },
 		{ $match: { 'catalog.slug': { $regex: regex } } },
+		{ $group: { _id: '$name', entry: { $last: '$catalog' } } },
 	])) as unknown as SubscriptionsAggregate[];
 
-	return subscriptions.map(({ name, catalog }) => ({
+	return results.map(({ name, entry }) => ({
 		name,
 		entry: {
-			name: catalog.name,
-			url: catalog.url,
+			name: entry.name,
+			url: entry.url,
 		},
 	}));
 };

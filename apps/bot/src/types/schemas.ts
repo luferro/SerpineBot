@@ -109,5 +109,5 @@ export interface Subscriptions {
 
 export interface SubscriptionsAggregate {
 	name: string;
-	catalog: CatalogItem;
+	entry: CatalogItem;
 }
