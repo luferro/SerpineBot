@@ -11,13 +11,19 @@ A multipurpose Discord bot.
 -   Typescript
 -   Mongoose
 
-## Installation
+## Install dependencies
 
 ```
 pnpm install
 ```
 
-## Usage
+## Build
+
+```
+pnpm run build
+```
+
+## Start
 
 ```
 pnpm start
