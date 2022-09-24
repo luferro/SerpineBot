@@ -6,7 +6,9 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"start": "tsc && node dist/server.js",
-		"build": "tsc"
+		"build": "tsc",
+		"eslint": "eslint . --ext .ts",
+		"prettier": "prettier --write ."
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
