@@ -13,13 +13,15 @@ export const getGamingSubscriptions = async (title: string) => {
 		{ $group: { _id: '$name', entry: { $last: '$catalog' } } },
 	])) as unknown as SubscriptionsAggregate[];
 
-	return results.map(({ _id, entry }) => ({
-		name: _id,
-		entry: {
-			name: entry.name,
-			url: entry.url,
-		},
-	}));
+	return results
+		.sort((a, b) => a._id.localeCompare(b._id))
+		.map(({ _id, entry }) => ({
+			name: _id,
+			entry: {
+				name: entry.name,
+				url: entry.url,
+			},
+		}));
 };
 
 export const getStreamingSubscriptions = async (title: string, category: TheMovieDbCategory) => {
@@ -27,5 +29,5 @@ export const getStreamingSubscriptions = async (title: string, category: TheMovi
 	if (!id) return [];
 
 	const { stream } = await TheMovieDbApi.getProviders(id, category);
-	return stream.map(({ name, entry }) => ({ name, entry }));
+	return stream.sort((a, b) => a.name.localeCompare(b.name)).map(({ name, entry }) => ({ name, entry }));
 };
