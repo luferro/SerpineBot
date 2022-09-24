@@ -8,7 +8,7 @@ import { SteamApi } from '@luferro/games-api';
 import { TheMovieDbApi } from '@luferro/the-movie-db-api';
 import { YoutubeApi } from '@luferro/google-api';
 import { NewsDataApi } from '@luferro/news-data-api';
-import { logger, SleepUtil } from '@luferro/shared-utils';
+import { FetchError, logger, SleepUtil } from '@luferro/shared-utils';
 import * as Database from '../database/database';
 import * as JobsHandler from '../handlers/jobs';
 import * as EventsHandler from '../handlers/events';
@@ -95,6 +95,11 @@ export class Bot extends Client {
 	};
 
 	private errorHandler = (error: unknown) => {
+		if (error instanceof FetchError) {
+			logger.warn(error.message);
+			return;
+		}
+
 		logger.error(error);
 	};
 
