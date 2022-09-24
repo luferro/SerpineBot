@@ -16,15 +16,15 @@ export const data = {
 export const execute = async (client: Bot) => {
 	const integrations = await steamModel.find({ notifications: true });
 	for (const integration of integrations) {
-		const wishlist = await SteamApi.getWishlist(integration.profile.id);
-		if (!wishlist) continue;
-
 		const alerts = new Map<AlertCategory, Alert[]>([
 			['Sale', []],
 			['Released', []],
 			['Added To Subscription', []],
 			['Removed From Subscription', []],
 		]);
+
+		const wishlist = await SteamApi.getWishlist(integration.profile.id);
+		if (!wishlist) continue;
 
 		const updatedWishlist = [];
 		for (const game of wishlist) {
