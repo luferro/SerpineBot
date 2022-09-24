@@ -36,10 +36,10 @@ importers:
       '@luferro/tenor-api': workspace:^
       '@luferro/the-movie-db-api': workspace:^
       '@types/cron': ^2.0.0
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       cheerio: ^1.0.0-rc.12
       cron: ^2.1.0
-      discord.js: ^14.3.0
+      discord.js: ^14.4.0
       dotenv: ^16.0.2
       ffmpeg-static: ^5.1.0
       mongoose: ^6.6.1
@@ -61,50 +61,50 @@ importers:
       '@luferro/the-movie-db-api': link:../../packages/the-movie-db-api
       cheerio: 1.0.0-rc.12
       cron: 2.1.0
-      discord.js: 14.3.0
+      discord.js: 14.4.0
       dotenv: 16.0.2
       ffmpeg-static: 5.1.0
       mongoose: 6.6.1
       tweetnacl: 1.0.3
     devDependencies:
       '@types/cron': 2.0.0
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/games-api:
     specifiers:
       '@luferro/google-api': workspace:^
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       cheerio: ^1.0.0-rc.12
-      playwright-chromium: ^1.25.1
+      playwright-chromium: ^1.26.0
       typescript: ^4.8.2
     dependencies:
       '@luferro/google-api': link:../google-api
       '@luferro/shared-utils': link:../shared-utils
       cheerio: 1.0.0-rc.12
-      playwright-chromium: 1.25.2
+      playwright-chromium: 1.26.0
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/go-comics-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       cheerio: ^1.0.0-rc.12
       typescript: ^4.8.2
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
       cheerio: 1.0.0-rc.12
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/google-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       cheerio: ^1.0.0-rc.12
       play-dl: ^1.9.5
       typescript: ^4.8.2
@@ -113,103 +113,103 @@ importers:
       cheerio: 1.0.0-rc.12
       play-dl: 1.9.5
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/jikan-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       typescript: ^4.8.2
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/jokes-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       typescript: ^4.8.2
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/mangadex-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       typescript: ^4.8.2
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/news-data-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       typescript: ^4.8.2
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/reddit-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       typescript: ^4.8.2
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/shared-utils:
     specifiers:
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       '@types/user-agents': ^1.0.2
       typescript: ^4.8.2
       undici: ^5.10.0
-      user-agents: ^1.0.1126
+      user-agents: ^1.0.1148
       winston: ^3.8.1
     dependencies:
       undici: 5.10.0
-      user-agents: 1.0.1134
+      user-agents: 1.0.1148
       winston: 3.8.2
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       '@types/user-agents': 1.0.2
       typescript: 4.8.3
 
   packages/tenor-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       typescript: ^4.8.2
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
   packages/the-movie-db-api:
     specifiers:
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^18.7.16
+      '@types/node': ^18.7.20
       cheerio: ^1.0.0-rc.12
       typescript: ^4.8.2
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
       cheerio: 1.0.0-rc.12
     devDependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       typescript: 4.8.3
 
 packages:
@@ -402,7 +402,7 @@ packages:
     resolution: {integrity: sha512-xZM08fqvwIXgghtPVkSPKNgC+JoMQ2OHazEvyTKnNf7aWu1aB6/4lBbQFrb03Td2cUGG7ITzMv3mFYnMu6xRaQ==}
     dependencies:
       '@types/luxon': 3.0.1
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
     dev: true
 
   /@types/json-schema/7.0.11:
@@ -417,8 +417,8 @@ packages:
     resolution: {integrity: sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==}
     dev: false
 
-  /@types/node/18.7.16:
-    resolution: {integrity: sha512-EQHhixfu+mkqHMZl1R2Ovuvn47PUw18azMJOTwSZr9/fhzHNGXAJ0ma0dayRVchprpCj0Kc1K1xKoWaATWF1qg==}
+  /@types/node/18.7.20:
+    resolution: {integrity: sha512-adzY4vLLr5Uivmx8+zfSJ5fbdgKxX8UMtjtl+17n0B1q1Nz8JEmE151vefMdpD+1gyh+77weN4qEhej/O7budQ==}
 
   /@types/user-agents/1.0.2:
     resolution: {integrity: sha512-WOoL2UJTI6RxV8RB2kS3ZhxjjijI5G1i7mgU7mtlm4LsC1XGCfiV56h+GV4VZnAUkkkLQ4gbFGR/dggT01n0RA==}
@@ -431,14 +431,14 @@ packages:
   /@types/whatwg-url/8.2.2:
     resolution: {integrity: sha512-FtQu10RWgn3D9U4aazdwIE2yzphmTJREDqNdODHrbrZmmMqI0vMheC/6NE/J1Yveaj8H+ela+YwWTjq5PGmuhA==}
     dependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
       '@types/webidl-conversions': 7.0.0
     dev: false
 
   /@types/ws/8.5.3:
     resolution: {integrity: sha512-6YOoWjruKj1uLf3INHH7D3qTXwFfEsg1kf3c0uDdSBJwfa/llkwIjrAGV7j7mVgGNbzTQ3HiHKKDXl6bJPD97w==}
     dependencies:
-      '@types/node': 18.7.16
+      '@types/node': 18.7.20
     dev: false
 
   /@typescript-eslint/eslint-plugin/5.38.0_4gkcvl6qsi23tqqawfqgcwtp54:
@@ -869,8 +869,8 @@ packages:
     resolution: {integrity: sha512-NvDh2Puc3wZQzQt2zLavlI5ewBnLFjI46/NJmvWIs6OC0JOkq7KcmH4s80X2+22mSQ3wUyge2mxq3cGYRT2noQ==}
     dev: false
 
-  /discord.js/14.3.0:
-    resolution: {integrity: sha512-CpIwoAAuELiHSgVKRMzsCADS6ZlJwAZ9RlvcJYdEgS00aW36dSvXyBgE+S3pigkc7G+jU6BEalMUWIJFveqrBQ==}
+  /discord.js/14.4.0:
+    resolution: {integrity: sha512-U2CTmVOep2qgMhbSDzmjd1qFUiuKNQqnnwvEYEh18vyU0looj66+wgcMOXQRq72BUCJM5fi+Hir8gfKZ35J88g==}
     engines: {node: '>=16.9.0'}
     dependencies:
       '@discordjs/builders': 1.2.0
@@ -1697,17 +1697,17 @@ packages:
       play-audio: 0.5.2
     dev: false
 
-  /playwright-chromium/1.25.2:
-    resolution: {integrity: sha512-FqksO/sLuppuwz4rbLMhBx3AadBzsYn2xG6jAewjNchwqzMYeGP1CyL2AQSYcT7ILyF5pQj3nwKqal13pbkEcA==}
+  /playwright-chromium/1.26.0:
+    resolution: {integrity: sha512-4hDiVmMKmtuHW5ne11S1HCQTdL+wytprQMhWYecEjMSIKBR1DJ3JLrcUDgqA0L5Jzi/CBKYQQk6TOVlTjXybXQ==}
     engines: {node: '>=14'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      playwright-core: 1.25.2
+      playwright-core: 1.26.0
     dev: false
 
-  /playwright-core/1.25.2:
-    resolution: {integrity: sha512-0yTbUE9lIddkEpLHL3u8PoCL+pWiZtj5A/j3U7YoNjcmKKDGBnCrgHJMzwd2J5vy6l28q4ki3JIuz7McLHhl1A==}
+  /playwright-core/1.26.0:
+    resolution: {integrity: sha512-p8huU8eU4gD3VkJd3DA1nA7R3XA6rFvFL+1RYS96cSljCF2yJE9CWEHTPF4LqX8KN9MoWCrAfVKP5381X3CZqg==}
     engines: {node: '>=14'}
     hasBin: true
     dev: false
@@ -2110,8 +2110,8 @@ packages:
       punycode: 2.1.1
     dev: true
 
-  /user-agents/1.0.1134:
-    resolution: {integrity: sha512-fN9yRuTE/JuVLKbk0tRFQe85kxkqzxY+2WjgBF6kWJXfPd2UlJhsezX9cGCHhnbMaeof8U+bjTCBfGrDEX1Izw==}
+  /user-agents/1.0.1148:
+    resolution: {integrity: sha512-LcMdZAK1MJsDkwF2MQywfYj94HJ+wFq6LO/IvDo0m4p2Vhp+maDoTrC2rFhJHKm9wKXnD/LvBpdSOlmXMLOmsg==}
     dependencies:
       dot-json: 1.2.2
       lodash.clonedeep: 4.5.0
