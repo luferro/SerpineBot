@@ -8,7 +8,7 @@
 			"dependsOn": ["^build"],
 			"outputs": ["dist/**"]
 		},
-		"eslint": {
+		"lint": {
 			"outputs": []
 		},
 		"prettier": {

@@ -7,7 +7,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
-		"eslint": "eslint . --ext .ts",
+		"lint": "eslint . --ext .ts",
 		"prettier": "prettier --write ."
 	},
 	"keywords": [],

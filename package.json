@@ -5,7 +5,7 @@
 	"scripts": {
 		"start": "turbo run start",
 		"build": "turbo run build",
-		"eslint": "turbo run eslint",
+		"lint": "turbo run lint",
 		"prettier": "turbo run prettier"
 	},
 	"keywords": [],
