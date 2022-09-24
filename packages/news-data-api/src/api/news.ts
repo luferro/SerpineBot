@@ -80,17 +80,14 @@ export const getNewsByCountry = async (country: Country) => {
 		url: `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=${countryCode} `,
 	});
 
-	return results
-		.map(({ source_id, title, link, content, description, image_url, pubDate }) => ({
-			title: StringUtil.truncate(title),
-			url: link,
-			publisher: source_id,
-			publishedAt: new Date(pubDate),
-			description: content ? StringUtil.truncate(content, 512) : description,
-			image: image_url?.startsWith('http') ? image_url : null,
-		}))
-		.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
-		.slice(0, 10);
+	return results.map(({ source_id, title, link, content, description, image_url, pubDate }) => ({
+		title: StringUtil.truncate(title),
+		url: link,
+		publisher: source_id,
+		publishedAt: new Date(pubDate),
+		description: content ? StringUtil.truncate(content, 512) : description,
+		image: image_url?.startsWith('http') ? image_url : null,
+	}));
 };
 
 export const getWorldNews = async () => {
@@ -98,15 +95,12 @@ export const getWorldNews = async () => {
 		url: `https://newsdata.io/api/1/news?apikey=${API_KEY}&language=en&category=world `,
 	});
 
-	return results
-		.map(({ source_id, title, link, content, description, image_url, pubDate }) => ({
-			title: StringUtil.truncate(title),
-			url: link,
-			publisher: source_id,
-			publishedAt: new Date(pubDate),
-			description: content ? StringUtil.truncate(content, 512) : description,
-			image: image_url?.startsWith('http') ? image_url : null,
-		}))
-		.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
-		.slice(0, 10);
+	return results.map(({ source_id, title, link, content, description, image_url, pubDate }) => ({
+		title: StringUtil.truncate(title),
+		url: link,
+		publisher: source_id,
+		publishedAt: new Date(pubDate),
+		description: content ? StringUtil.truncate(content, 512) : description,
+		image: image_url?.startsWith('http') ? image_url : null,
+	}));
 };
