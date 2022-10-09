@@ -7,10 +7,6 @@ const getEnvConfig = () => ({
 		value: process.env.MONGO_URI ?? null,
 		isRequired: true,
 	},
-	YOUTUBE_API_KEY: {
-		value: process.env.YOUTUBE_API_KEY ?? null,
-		isRequired: true,
-	},
 	THE_MOVIE_DB_API_KEY: {
 		value: process.env.THE_MOVIE_DB_API_KEY ?? null,
 		isRequired: true,
@@ -51,7 +47,6 @@ const getSanitizedEnvConfig = () => {
 	return {
 		BOT_TOKEN: envConfig.BOT_TOKEN.value as string,
 		MONGO_URI: envConfig.MONGO_URI.value as string,
-		YOUTUBE_API_KEY: envConfig.YOUTUBE_API_KEY.value as string,
 		THE_MOVIE_DB_API_KEY: envConfig.THE_MOVIE_DB_API_KEY.value as string,
 		STEAM_API_KEY: envConfig.STEAM_API_KEY.value as string,
 		TENOR_API_KEY: envConfig.TENOR_API_KEY.value as string,
