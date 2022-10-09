@@ -1,12 +1,16 @@
+import type { Command } from '../types/response';
 import { Text } from '@mantine/core';
 import { Client, GatewayIntentBits } from 'discord.js';
 import Head from 'next/head';
 import Image from 'next/image';
 import Accordion from '../components/accordion';
 import styles from '../styles/Home.module.css';
-import type { Command } from '../types/response';
 
-export const getServerSideProps = async () => {
+interface Props {
+	commands: Command[];
+}
+
+export const getStaticProps = async () => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 	await client.login(process.env.BOT_TOKEN);
 
@@ -34,10 +38,10 @@ export const getServerSideProps = async () => {
 		}),
 	);
 
-	return { props: { commands: serializedCommands } };
+	return { props: { commands: serializedCommands }, revalidate: 60 * 60 * 24 };
 };
 
-const Home = ({ commands }: { commands: Command[] }) => {
+const Home = ({ commands }: Props) => {
 	return (
 		<div className={styles.container}>
 			<Head>
