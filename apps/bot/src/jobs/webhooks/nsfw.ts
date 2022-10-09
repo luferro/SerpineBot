@@ -19,7 +19,7 @@ export const execute = async (client: Bot) => {
 
 		const isRedGifsEmbed = embedType === 'redgifs.com';
 		const redditFallbackUrl = fallback?.reddit_video_preview?.fallback_url;
-		if (isRedGifsEmbed && !redditFallbackUrl) continue;
+		if ((isRedGifsEmbed && !redditFallbackUrl) || !title) continue;
 
 		const galleryMediaId = gallery?.items[0].media_id;
 		const nsfwUrl = getUrl(url, galleryMediaId, redditFallbackUrl);
