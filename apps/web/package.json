@@ -1,0 +1,38 @@
+{
+	"name": "web",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Web client for the bot.",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint . --ext .ts,.tsx",
+		"prettier": "prettier --write ."
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/marked": "^4.0.7",
+		"@types/node": "^18.7.20",
+		"@types/react": "18.0.21",
+		"@types/react-dom": "18.0.6",
+		"eslint": "^8.24.0",
+		"eslint-config-next": "12.3.1",
+		"typescript": "^4.8.2"
+	},
+	"dependencies": {
+		"@babel/core": "^7.19.1",
+		"@emotion/react": "^11.10.4",
+		"@mantine/core": "^5.4.1",
+		"@mantine/hooks": "^5.4.1",
+		"discord.js": "^14.4.0",
+		"dotenv": "^16.0.2",
+		"html-react-parser": "^3.0.4",
+		"marked": "^4.1.0",
+		"next": "12.3.1",
+		"react": "18.2.0",
+		"react-dom": "18.2.0"
+	}
+}

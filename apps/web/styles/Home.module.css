@@ -1,0 +1,232 @@
+.container {
+	width: 100%;
+}
+
+.navbar {
+	position: relative;
+	width: 100%;
+	height: 50px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #5865f2;
+	padding: 0 10%;
+}
+
+.link {
+	display: flex;
+	align-items: center;
+	color: inherit;
+}
+
+.main {
+	margin: 0 auto;
+	padding: 0 2rem;
+	width: 80%;
+	min-height: 100vh;
+	padding: 2rem 0;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.footer {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	padding: 2rem 0;
+	background-color: #5865f2;
+	border-top: 1px solid #5865f2;
+	justify-content: center;
+	align-items: center;
+}
+
+.footer div {
+	display: flex;
+	align-items: center;
+}
+
+.footer a {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-grow: 1;
+	color: inherit;
+}
+
+.footer a:hover {
+	text-decoration: underline;
+}
+
+.panel-wrapper {
+	width: 100%;
+	display: flex;
+}
+
+.panel-1,
+.panel-2 {
+	width: 50%;
+}
+
+.embed-author,
+.embed-title a,
+.embed-description,
+.embed-field,
+.embed-field-inline,
+.embed-thumbnail,
+.command,
+.sample,
+.embed-sample,
+.options-description {
+	margin-top: 8px;
+}
+
+.options {
+	margin-top: 32px;
+}
+
+.pill {
+	padding: 3px 8px;
+	border-radius: 4px;
+	border: 1px solid transparent;
+	background-color: #18191c;
+}
+
+.embed {
+	box-shadow: 0 1px 1px hsl(0deg 0% 0% / 0.075), 0 2px 2px hsl(0deg 0% 0% / 0.075), 0 4px 4px hsl(0deg 0% 0% / 0.075),
+		0 8px 8px hsl(0deg 0% 0% / 0.075), 0 16px 16px hsl(0deg 0% 0% / 0.075);
+	max-width: 516px;
+	background-color: #2f3136;
+	padding: 0.5rem 1rem 1rem 0.75rem;
+	border-radius: 4px;
+}
+
+.embed a {
+	font-size: 1rem;
+	font-weight: 600;
+	text-decoration: none;
+	color: #00aff4;
+}
+
+.embed p {
+	white-space: pre-wrap;
+	padding: 0;
+	margin: 0;
+}
+
+.embed code {
+	width: auto;
+	height: auto;
+	padding: 0.2em;
+	margin: -0.2em 0;
+	border-radius: 3px;
+	font-size: 85%;
+	font-family: Consolas, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono,
+		Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Monaco, Courier New, Courier, monospace;
+	background-color: #202225;
+	text-indent: 0;
+	white-space: pre-wrap;
+}
+
+.embed blockquote {
+	margin: 0;
+	border-left: 4px solid #4f545c;
+	padding: 0 8px 0 12px;
+	text-indent: 0;
+}
+
+.embed-content {
+	width: 100%;
+	display: flex;
+}
+
+.embed-content-inner {
+	width: inherit;
+	margin-right: 8px;
+}
+
+.embed-author {
+	display: flex;
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+.embed-author img {
+	width: 24px;
+	height: 24px;
+	object-fit: contain;
+	border-radius: 50%;
+	margin-right: 8px;
+	margin-bottom: 8px;
+}
+
+.embed-fields {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: column;
+}
+
+.embed-fields:has(.embed-field-inline) {
+	flex-direction: row;
+}
+
+.embed-field,
+.embed-field-inline {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	font-size: 0.875rem;
+	line-height: 1.125rem;
+	font-weight: 400;
+	width: 100%;
+}
+
+.embed-field-key {
+	margin-bottom: 2px;
+}
+
+.embed-field-inline {
+	flex-basis: 33.33%;
+}
+
+.embed-thumbnail img {
+	max-width: 80px;
+	max-height: 80px;
+}
+
+.embed-image {
+	margin-top: 16px;
+}
+
+.embed-image img {
+	max-width: 200px;
+	max-height: 300px;
+	width: 100%;
+	display: block;
+	aspect-ratio: 200 / 300;
+}
+
+@media (max-width: 600px) {
+	.navbar {
+		padding: 0 10px;
+	}
+	.repository {
+		display: none;
+	}
+	.main {
+		padding: 20px 5px;
+	}
+	.main,
+	.grid,
+	.panel-1,
+	.panel-2 {
+		width: 100%;
+	}
+	.grid,
+	.panel-wrapper,
+	.embed-fields:has(.embed-field-inline) {
+		flex-direction: column;
+	}
+}
