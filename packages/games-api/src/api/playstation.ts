@@ -15,9 +15,9 @@ export const getLatestPlaystationBlogNews = async (category: PlayStationBlogCate
 	return $('.main-content article')
 		.get()
 		.map((element) => {
-			const title = $(element).find('.post-card__content .post-card__title a').text();
+			const title = $(element).find('.post-card__content .post-card__title a').text().trim();
 			const url = $(element).find('.post-card__content .post-card__title a').attr('href')!;
-			const image = $(element).find('.post-card__image-link img').attr('src') ?? null;
+			const image = $(element).find('.post-card__image-link img').attr('data-src') ?? null;
 
 			return { title, image, url };
 		});
