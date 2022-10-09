@@ -108,7 +108,8 @@ const add = async (interaction: ChatInputCommandInteraction) => {
 
 	const query = interaction.options.getString('query', true);
 
-	if (YoutubeApi.isPlaylist(query)) {
+	const isPlaylist = await YoutubeApi.isPlaylist(query);
+	if (isPlaylist) {
 		const { title, url, channel, count, videos } = await YoutubeApi.getPlaylist(query);
 		for (const video of videos) {
 			const music = {
@@ -145,12 +146,13 @@ const add = async (interaction: ChatInputCommandInteraction) => {
 		return;
 	}
 
-	const video = (await YoutubeApi.search(query)).shift();
-	if (!video) throw new Error(`No matches for ${query}.`);
+	const isVideo = YoutubeApi.isVideo(query);
+	const data = isVideo ? await YoutubeApi.getVideoDetails(query) : (await YoutubeApi.search(query)).shift();
+	if (!data) throw new Error(`No matches for ${query}.`);
 
 	const music = {
 		requested: interaction.user.tag,
-		...video,
+		...data,
 	};
 
 	const { position } = await Music.addToQueue(guild.id, music);
