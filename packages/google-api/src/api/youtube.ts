@@ -1,93 +1,101 @@
-import type { ChannelResponse, VideoResponse } from '../types/response';
-import { FetchUtil } from '@luferro/shared-utils';
-import * as ytdl from 'play-dl';
-
-let API_KEY: string;
-
-export const setApiKey = (apiKey: string) => {
-	API_KEY = apiKey;
-};
+import type { Video } from 'ytsr';
+import { ConverterUtil } from '@luferro/shared-utils';
+import * as playdl from 'play-dl';
+import ytdl from 'ytdl-core';
+import ytsr from 'ytsr';
+import ytpl from 'ytpl';
 
 export const isVideo = (url: string) => {
-	return url.startsWith('https') && ytdl.yt_validate(url) === 'video';
+	try {
+		const videoId = getVideoId(url);
+		return ytdl.validateID(videoId);
+	} catch (error) {
+		return false;
+	}
 };
 
-export const isPlaylist = (url: string) => {
-	return url.startsWith('https') && ytdl.yt_validate(url) === 'playlist';
+export const isPlaylist = async (url: string) => {
+	try {
+		const playlistId = await getPlaylistId(url);
+		return ytpl.validateID(playlistId);
+	} catch (error) {
+		return false;
+	}
 };
 
-export const stream = async (url: string) => {
-	return await ytdl.stream(url);
-};
-
-export const seek = async (url: string, seek: number) => {
-	return await ytdl.stream(url, { seek });
+export const stream = async (url: string, seek = 0) => {
+	return await playdl.stream(url, { seek: seek === 0 ? seek : seek / 1000 });
 };
 
 export const search = async (query: string, limit = 1) => {
-	const data = await ytdl.search(query, { source: { youtube: 'video' }, limit });
+	const { items } = await ytsr(query, { limit });
+	const videos = items.filter(({ type }) => type === 'video') as Video[];
 
-	return data.map(({ title, channel, url, thumbnails, durationRaw, live }) => ({
+	return videos.map(({ url, title, author, thumbnails, duration, isLive }) => ({
 		url,
 		title: title ?? null,
-		channel: channel?.name ?? null,
+		channel: author?.name ?? null,
 		thumbnail: thumbnails[0]?.url ?? null,
-		duration: durationRaw,
-		isLivestream: live,
+		duration: duration ?? 'N/A',
+		isLivestream: isLive,
 	}));
 };
 
-export const getPlaylist = async (url: string) => {
-	const playlist = await ytdl.playlist_info(url);
-	const videos = await playlist.all_videos();
-
-	const { title, channel, videoCount } = playlist;
+export const getVideoDetails = async (url: string) => {
+	const {
+		videoDetails: { title, author, thumbnails, lengthSeconds, isLiveContent },
+	} = await ytdl.getBasicInfo(url);
 
 	return {
 		url,
 		title: title ?? null,
-		channel: channel?.name ?? null,
-		count: videoCount ?? null,
-		videos: videos.map(({ title, channel, url, thumbnails, durationRaw, live }) => ({
+		channel: author?.name ?? null,
+		thumbnail: thumbnails[0]?.url ?? null,
+		duration: ConverterUtil.toMinutes(Number(lengthSeconds) * 1000, true) as string,
+		isLivestream: isLiveContent,
+	};
+};
+
+export const getPlaylist = async (url: string) => {
+	const playlist = await ytpl(url);
+	const { title, author, estimatedItemCount, items } = playlist;
+
+	return {
+		url,
+		title: title ?? null,
+		channel: author?.name ?? null,
+		count: estimatedItemCount ?? null,
+		videos: items.map(({ url, title, author, thumbnails, duration, isLive }) => ({
 			url,
 			title: title ?? null,
-			channel: channel?.name ?? null,
+			channel: author?.name ?? null,
 			thumbnail: thumbnails[0]?.url ?? null,
-			duration: durationRaw,
-			isLivestream: live,
+			duration: duration ?? 'N/A',
+			isLivestream: isLive,
 		})),
 	};
 };
 
 export const getVideoId = (url: string) => {
-	const splitUrl = url.includes('embed') ? url.split('/')[4] : url.split('/')[3];
-	return splitUrl.match(/([A-z0-9_.\-~]{11})/g)![0];
+	return ytdl.getVideoID(url);
+};
+
+export const getPlaylistId = async (url: string) => {
+	return await ytpl.getPlaylistID(url);
 };
 
 export const getChannelId = async (url: string) => {
-	if (!API_KEY) throw new Error('Missing api key.');
+	const {
+		videoDetails: { author },
+	} = await ytdl.getBasicInfo(url);
 
-	const videoId = getVideoId(url);
-
-	const { items } = await FetchUtil.fetch<VideoResponse>({
-		url: `https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${API_KEY}`,
-	});
-
-	return items[0]?.snippet.channelId;
+	return author.id;
 };
 
 export const getSubscribers = async (url: string) => {
-	if (!API_KEY) throw new Error('Missing api key.');
+	const {
+		videoDetails: { author },
+	} = await ytdl.getBasicInfo(url);
 
-	const isCustom = ['channel', 'user'].every((item) => !url.includes(item));
-	const isIdType = isCustom || url.includes('channel');
-
-	const queryOption = isIdType ? 'id' : 'forUsername';
-	const channelId = await getChannelId(url);
-
-	const { items } = await FetchUtil.fetch<ChannelResponse>({
-		url: `https://youtube.googleapis.com/youtube/v3/channels?part=statistics&${queryOption}=${channelId}&key=${API_KEY}`,
-	});
-
-	return Number(items?.[0].statistics?.subscriberCount ?? 0);
+	return author.subscriber_count ?? 0;
 };
