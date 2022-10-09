@@ -11,9 +11,8 @@ export const data = {
 };
 
 export const execute = async (interaction: ChatInputCommandInteraction) => {
-	const {
-		0: { title, url, selfurl },
-	} = await RedditApi.getPosts('Memes');
+	const posts = await RedditApi.getPosts('Memes');
+	const { title, url, selfurl } = posts[Math.floor(Math.random() * posts.length)];
 
 	const hasVideoExtension = ['.gif', '.gifv', '.mp4'].some((extension) => url.includes(extension));
 	if (hasVideoExtension) {
