@@ -1,6 +1,7 @@
 import { marked } from 'marked';
 import parse from 'html-react-parser';
 import styles from '../styles/Home.module.css';
+import { useEffect, useState } from 'react';
 
 interface Props {
 	author: {
@@ -20,17 +21,21 @@ interface Props {
 }
 
 const Embed = ({ author, title, url, description, fields, thumbnail, image }: Props) => {
+	const [color, setColor] = useState('#fff');
+
+	useEffect(() => setColor(`#${Math.floor(Math.random() * 16777215).toString(16)}`), []);
+
 	return (
-		<div
-			className={styles.embed}
-			style={{ borderLeft: `4px solid #${Math.floor(Math.random() * 16777215).toString(16)}` }}
-		>
+		<div className={styles.embed} style={{ borderLeft: `4px solid ${color}` }}>
 			<div className={styles['embed-content']}>
 				<div className={styles['embed-content-inner']}>
 					<div className={styles['embed-author']}>
-						{author ? (
+						{author && author.icon ? (
 							<>
-								<img src={author.icon} alt="Author icon" />
+								<picture>
+									<source srcSet={author.icon} type="image/webp" />
+									<img src={author.icon} alt="Embed author icon" />
+								</picture>
 								<span>{author.name}</span>
 							</>
 						) : (
@@ -63,7 +68,10 @@ const Embed = ({ author, title, url, description, fields, thumbnail, image }: Pr
 
 				{thumbnail ? (
 					<div className={styles['embed-thumbnail']}>
-						<img alt="Thumbnail" src={thumbnail} />{' '}
+						<picture>
+							<source srcSet={thumbnail} type="image/webp" />
+							<img src={thumbnail} alt="Embed thumbnail" />
+						</picture>
 					</div>
 				) : (
 					''
@@ -71,7 +79,10 @@ const Embed = ({ author, title, url, description, fields, thumbnail, image }: Pr
 			</div>
 			{image ? (
 				<div className={styles['embed-image']}>
-					<img alt="Image" src={image ?? ''} />
+					<picture>
+						<source srcSet={image} type="image/webp" />
+						<img src={image} alt="Embed image" />
+					</picture>
 				</div>
 			) : (
 				''
