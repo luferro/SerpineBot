@@ -24,7 +24,7 @@ export const data = {
 				),
 		)
 		.addSubcommand((subcommand) => subcommand.setName('list').setDescription('Returns a list of birthdays.'))
-		.addSubcommand((subcommand) => subcommand.setName('delete').setDescription('Delete your birthday.')),
+		.addSubcommand((subcommand) => subcommand.setName('delete').setDescription('Delete your birthday entry.')),
 };
 
 export const execute = async (interaction: ChatInputCommandInteraction) => {
@@ -77,7 +77,7 @@ const getBirthdays = async (interaction: ChatInputCommandInteraction) => {
 const deleteBirthday = async (interaction: ChatInputCommandInteraction) => {
 	await Birthdays.remove(interaction.user.id);
 
-	const embed = new EmbedBuilder().setTitle(`Your birthday has been deleted.`).setColor('Random');
+	const embed = new EmbedBuilder().setTitle('Your birthday has been deleted.').setColor('Random');
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
