@@ -6,7 +6,6 @@ import { CronJob } from 'cron';
 import { TenorApi } from '@luferro/tenor-api';
 import { SteamApi } from '@luferro/games-api';
 import { TheMovieDbApi } from '@luferro/the-movie-db-api';
-import { YoutubeApi } from '@luferro/google-api';
 import { NewsDataApi } from '@luferro/news-data-api';
 import { FetchError, logger, SleepUtil } from '@luferro/shared-utils';
 import * as Database from '../database/database';
@@ -27,35 +26,17 @@ export class Bot extends Client {
 		this.setApiTokens();
 	}
 
-	public start = async () => {
-		logger.info('Starting SerpineBot.');
-
-		try {
-			await this.login(config.BOT_TOKEN);
-			await Database.connect();
-			await this.register();
-
-			this.startListeners();
-			this.startJobs();
-
-			if (this.isReady()) this.emit('ready', this as Client<boolean>);
-		} catch (error) {
-			this.errorHandler(error);
-		}
+	private setApiTokens = () => {
+		TenorApi.setApiKey(config.TENOR_API_KEY);
+		SteamApi.setApiKey(config.STEAM_API_KEY);
+		NewsDataApi.setApiKey(config.NEWS_DATA_API_KEY);
+		TheMovieDbApi.setApiKey(config.THE_MOVIE_DB_API_KEY);
 	};
 
 	private register = async () => {
 		await JobsHandler.register();
 		await EventsHandler.register();
 		await CommandsHandler.register();
-	};
-
-	private setApiTokens = () => {
-		TenorApi.setApiKey(config.TENOR_API_KEY);
-		SteamApi.setApiKey(config.STEAM_API_KEY);
-		YoutubeApi.setApiKey(config.YOUTUBE_API_KEY);
-		NewsDataApi.setApiKey(config.NEWS_DATA_API_KEY);
-		TheMovieDbApi.setApiKey(config.THE_MOVIE_DB_API_KEY);
 	};
 
 	private startListeners = () => {
@@ -72,6 +53,32 @@ export class Bot extends Client {
 			cronjob.start();
 
 			logger.info(`Job **${name}** is set to run. Schedule: **(${job.data.schedule})**.`);
+		}
+	};
+
+	private errorHandler = (error: unknown) => {
+		if (error instanceof FetchError) {
+			logger.warn(error.message);
+			return;
+		}
+
+		logger.error(error);
+	};
+
+	public start = async () => {
+		logger.info('Starting SerpineBot.');
+
+		try {
+			await this.login(config.BOT_TOKEN);
+			await Database.connect();
+			await this.register();
+
+			this.startListeners();
+			this.startJobs();
+
+			if (this.isReady()) this.emit('ready', this as Client<boolean>);
+		} catch (error) {
+			this.errorHandler(error);
 		}
 	};
 
@@ -92,15 +99,6 @@ export class Bot extends Client {
 			);
 
 		return hasEntry || stateEntries.length === 0;
-	};
-
-	private errorHandler = (error: unknown) => {
-		if (error instanceof FetchError) {
-			logger.warn(error.message);
-			return;
-		}
-
-		logger.error(error);
 	};
 
 	public stop = () => {
