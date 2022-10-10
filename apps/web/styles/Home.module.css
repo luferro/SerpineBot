@@ -60,6 +60,29 @@
 	text-decoration: underline;
 }
 
+.accordion-main[data-active='true'] {
+	background-color: #5865f2;
+}
+
+.accordion-main[data-active='true'] .accordion-description {
+	color: #dddddd;
+}
+
+.accordion-item {
+	border: none;
+}
+
+.accordion-control {
+	color: #fff;
+	background-color: #202225;
+}
+.accordion-panel {
+	background-color: #292b2f;
+}
+.accordion-chevron {
+	color: #fff;
+}
+
 .panel-wrapper {
 	width: 100%;
 	display: flex;

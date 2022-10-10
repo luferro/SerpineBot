@@ -1,5 +1,7 @@
 html,
 body {
+	color: #fff !important;
+	background: #36393f !important;
 	white-space: prewrap;
 	padding: 0;
 	margin: 0;
@@ -14,22 +16,4 @@ body {
 
 a {
 	text-decoration: none;
-}
-
-.accordion-main[data-active='true'] {
-	background-color: #5865f2;
-}
-
-.accordion-main[data-active='true'] .description {
-	color: #dddddd;
-}
-
-@media (prefers-color-scheme: dark) {
-	html {
-		color-scheme: dark;
-	}
-	body {
-		color: #fff;
-		background: #36393f;
-	}
 }

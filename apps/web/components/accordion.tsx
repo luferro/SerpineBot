@@ -190,19 +190,19 @@ const Accordion = ({ commands }: Props) => {
 			value={value}
 			onChange={setValue}
 			className={classes.root}
-			styles={{
-				item: { border: 'none' },
-				panel: { backgroundColor: '#292B2F' },
-				control: { color: '#fff', backgroundColor: '#202225' },
-				chevron: { color: '#fff' },
+			classNames={{
+				item: styles['accordion-item'],
+				panel: styles['accordion-panel'],
+				control: styles['accordion-control'],
+				chevron: styles['accordion-chevron'],
 			}}
 		>
 			{commands.map(({ name: commandName, description: commandDescription, options: commandOptions }) => (
 				<MantineAccordion.Item value={commandDescription} key={commandDescription}>
-					<MantineAccordion.Control className="accordion-main">
+					<MantineAccordion.Control className={styles['accordion-main']}>
 						<Group noWrap>
 							<Text>/{commandName}</Text>
-							<Text size="sm" color="dimmed" weight={400} className="description">
+							<Text size="sm" color="dimmed" weight={400} className={styles['accordion-description']}>
 								{commandDescription}
 							</Text>
 						</Group>
