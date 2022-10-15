@@ -3,12 +3,16 @@ import { Text } from '@mantine/core';
 import { Client, GatewayIntentBits } from 'discord.js';
 import Head from 'next/head';
 import Image from 'next/image';
-import Accordion from '../components/accordion';
+import dynamic from 'next/dynamic';
 import styles from '../styles/Home.module.css';
 
 interface Props {
 	commands: Command[];
 }
+
+const Accordion = dynamic(() => import('../components/accordion'), {
+	suspense: true,
+});
 
 export const getStaticProps = async () => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
