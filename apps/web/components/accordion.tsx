@@ -1,6 +1,6 @@
 import { Accordion as MantineAccordion, createStyles, Group, Popover, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import type { Choice, Command, CommandOptions, SubcommandOptions } from '../types/response';
 import styles from '../styles/Home.module.css';
 import samples from '../samples.json';
@@ -11,12 +11,12 @@ interface Props {
 }
 
 interface NestedProps {
-	command: string;
-	options: CommandOptions[];
+	commandName: string;
+	commandOptions: CommandOptions[];
 }
 
 interface PanelProps {
-	command: string;
+	commandName: string;
 	description: string;
 	commandOptions?: CommandOptions[];
 	subcommandOptions?: SubcommandOptions[];
@@ -27,9 +27,7 @@ interface PopoverProps {
 	choices: Choice[];
 }
 
-const useStyles = createStyles(() => ({
-	root: { width: '100%' },
-}));
+const useStyles = createStyles(() => ({ root: { width: '100%' } }));
 
 const getEmbedSample = (name: string) => {
 	const sample = Object.entries(samples).find(([key]) => key === name.replace(' ', '.'));
@@ -76,13 +74,13 @@ const ChoicesPopover = ({ name, choices }: PopoverProps) => {
 	);
 };
 
-const Panel = ({ command, description, commandOptions, subcommandOptions }: PanelProps) => {
+const Panel = ({ commandName, description, commandOptions, subcommandOptions }: PanelProps) => {
 	return (
 		<div className={styles['panel-wrapper']}>
 			<div className={styles['panel-1']}>
 				<div className={styles.command}>
 					<Text weight={700}>
-						/{command}{' '}
+						/{commandName}{' '}
 						{(commandOptions ?? subcommandOptions)?.map(({ name }, index) => (
 							<span key={index}>
 								<span className={styles.pill}>{name}</span>
@@ -144,57 +142,53 @@ const Panel = ({ command, description, commandOptions, subcommandOptions }: Pane
 					<Text weight={700}>Embed sample</Text>
 				</div>
 				<div className={styles['embed-sample']}>
-					{getEmbedSample(command) ?? <Text italic>Embed sample is not available.</Text>}
+					{getEmbedSample(commandName) ?? <Text italic>Embed sample is not available.</Text>}
 				</div>
 			</div>
 		</div>
 	);
 };
 
-const NestedAccordion = ({ command, options }: NestedProps) => {
+const NestedAccordion = ({ commandName, commandOptions }: NestedProps) => {
 	return (
 		<>
-			{options
+			{commandOptions
 				.filter(({ type }) => type === 1)
-				.map(
-					(
-						{ name: subcommandName, description: subcommandDescription, options: subcommandOptions },
-						index,
-					) => (
-						<MantineAccordion.Item value={subcommandDescription} key={index}>
-							<MantineAccordion.Control>
-								<Group noWrap>
-									<Text>{subcommandName}</Text>
-									<Text
-										size="sm"
-										color="dimmed"
-										weight={400}
-										className={styles['accordion-description']}
-									>
-										{subcommandDescription}
-									</Text>
-								</Group>
-							</MantineAccordion.Control>
-							<MantineAccordion.Panel>
-								<Panel
-									command={`${command} ${subcommandName}`}
-									description={subcommandDescription}
-									subcommandOptions={subcommandOptions}
-								/>
-							</MantineAccordion.Panel>
-						</MantineAccordion.Item>
-					),
-				)}
+				.map(({ name, description, options }, index) => (
+					<MantineAccordion.Item value={`${commandName} ${name}`} key={index}>
+						<MantineAccordion.Control>
+							<Group noWrap>
+								<Text>{name}</Text>
+								<Text size="sm" color="dimmed" weight={400} className={styles['accordion-description']}>
+									{description}
+								</Text>
+							</Group>
+						</MantineAccordion.Control>
+						<MantineAccordion.Panel>
+							<Panel
+								commandName={`${commandName} ${name}`}
+								description={description}
+								subcommandOptions={options}
+							/>
+						</MantineAccordion.Panel>
+					</MantineAccordion.Item>
+				))}
 		</>
 	);
 };
 
 const Accordion = ({ commands }: Props) => {
-	const [state, setState] = useState<string[]>([]);
 	const { classes } = useStyles();
 
-	const setAccordionState = (accordionState: string[]) => {
-		setState(accordionState);
+	const [state, setState] = useState<string[]>([]);
+
+	const getAccordionChildren = (commandName: string, description: string, options: CommandOptions[]) => {
+		if (!state.includes(commandName)) return 'Loading...';
+
+		const hasSubcommands = options.filter(({ type }) => type === 1).length > 0;
+		if (hasSubcommands) return <NestedAccordion commandName={commandName} commandOptions={options} />;
+
+		return <Panel commandName={commandName} description={description} commandOptions={options} />;
 	};
 
 	return (
@@ -202,7 +196,7 @@ const Accordion = ({ commands }: Props) => {
 			variant="separated"
 			multiple
 			value={state}
-			onChange={setAccordionState}
+			onChange={setState}
 			className={classes.root}
 			classNames={{
 				item: styles['accordion-item'],
@@ -211,27 +205,17 @@ const Accordion = ({ commands }: Props) => {
 				chevron: styles['accordion-chevron'],
 			}}
 		>
-			{commands.map(({ name: commandName, description: commandDescription, options: commandOptions }, index) => (
-				<MantineAccordion.Item value={commandDescription} key={index}>
+			{commands.map(({ name, description, options }, index) => (
+				<MantineAccordion.Item value={name} key={index}>
 					<MantineAccordion.Control className={styles['accordion-main']}>
 						<Group noWrap>
-							<Text>/{commandName}</Text>
+							<Text>/{name}</Text>
 							<Text size="sm" color="dimmed" weight={400} className={styles['accordion-description']}>
-								{commandDescription}
+								{description}
 							</Text>
 						</Group>
 					</MantineAccordion.Control>
-					<MantineAccordion.Panel>
-						{commandOptions.filter(({ type }) => type === 1).length > 0 ? (
-							<NestedAccordion command={commandName} options={commandOptions} />
-						) : (
-							<Panel
-								command={commandName}
-								description={commandDescription}
-								commandOptions={commandOptions}
-							/>
-						)}
-					</MantineAccordion.Panel>
+					<MantineAccordion.Panel>{getAccordionChildren(name, description, options)}</MantineAccordion.Panel>
 				</MantineAccordion.Item>
 			))}
 		</MantineAccordion>

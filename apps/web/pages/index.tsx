@@ -1,18 +1,18 @@
 import type { Command } from '../types/response';
-import { Text } from '@mantine/core';
+import { Skeleton, Text } from '@mantine/core';
+import { useEffect, useState } from 'react';
 import { Client, GatewayIntentBits } from 'discord.js';
 import Head from 'next/head';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import styles from '../styles/Home.module.css';
+import Details from '../components/details';
 
 interface Props {
 	commands: Command[];
 }
 
-const Accordion = dynamic(() => import('../components/accordion'), {
-	suspense: true,
-});
+const Accordion = dynamic(() => import('../components/accordion'), { loading: () => <div>Loading...</div> });
 
 export const getStaticProps = async () => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -46,34 +46,33 @@ export const getStaticProps = async () => {
 };
 
 const Home = ({ commands }: Props) => {
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		setLoading(false);
+	}, []);
+
 	return (
 		<div className={styles.container}>
 			<Head>
-				<title>SerpineBot</title>
+				<title>SerpineBot Documentation</title>
+				<meta name="author" content="Luís Ferro" />
 				<meta name="description" content="Overview of all SerpineBot commands" />
+				<meta name="keywords" content="serpinebot,bot,discordjs,multipurpose"></meta>
+				<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 
-			<nav className={styles.navbar}>
-				<div className={styles.logo}>
-					<Text size="xl">SerpineBot</Text>
-				</div>
-				<a
-					href="https://github.com/luferro/SerpineBot"
-					target="_blank"
-					rel="noopener noreferrer"
-					className={styles.link}
-				>
-					<Text size="lg" className={styles.repository}>
-						Github Repository
-					</Text>
-					&nbsp;
-					<Image src={'/svg/github.svg'} alt="Github icon" width={32} height={32} />
-				</a>
-			</nav>
-
 			<main className={styles.main}>
-				<Accordion commands={commands} />
+				<Skeleton visible={loading}>
+					<Details
+						title="SerpineBot, a multipurpose discord bot for my private discord server"
+						description={`This page is an overview of all available slash commands.<br/>
+						Does not include webhooks or jobs documentation.<br/>
+						You can look into the repository at [https://github.com/luferro/SerpineBot](https://github.com/luferro/SerpineBot)`}
+					/>
+					<Accordion commands={commands} />
+				</Skeleton>
 			</main>
 
 			<footer className={styles.footer}>
