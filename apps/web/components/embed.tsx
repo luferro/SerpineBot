@@ -34,7 +34,7 @@ const Embed = ({ author, title, url, description, fields, thumbnail, image }: Pr
 							<>
 								<picture>
 									<source srcSet={author.icon} type="image/webp" />
-									<img src={author.icon} alt="Embed author icon" />
+									<img src={author.icon} alt="Embed author icon" loading="lazy" />
 								</picture>
 								<span>{author.name}</span>
 							</>
@@ -70,7 +70,7 @@ const Embed = ({ author, title, url, description, fields, thumbnail, image }: Pr
 					<div className={styles['embed-thumbnail']}>
 						<picture>
 							<source srcSet={thumbnail} type="image/webp" />
-							<img src={thumbnail} alt="Embed thumbnail" />
+							<img src={thumbnail} alt="Embed thumbnail" loading="lazy" />
 						</picture>
 					</div>
 				) : (
@@ -81,7 +81,7 @@ const Embed = ({ author, title, url, description, fields, thumbnail, image }: Pr
 				<div className={styles['embed-image']}>
 					<picture>
 						<source srcSet={image} type="image/webp" />
-						<img src={image} alt="Embed image" />
+						<img src={image} alt="Embed image" loading="lazy" />
 					</picture>
 				</div>
 			) : (
