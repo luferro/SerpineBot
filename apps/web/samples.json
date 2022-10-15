@@ -33,7 +33,7 @@
 		"description": null,
 		"fields": [],
 		"thumbnail": null,
-		"image": "https://images-ext-1.discordapp.net/external/twbnMvZvpyBDvVZIH5VGXBOl7dAHzIngCHYKMXL8Haw/https/assets.amuniversal.com/a89a839055e3013a91d1005056a9545d?width=640&height=905"
+		"image": "/images/comics-image-sample.jpg"
 	},
 	"deals": {
 		"author": null,
@@ -67,7 +67,7 @@
 				"inline": false
 			}
 		],
-		"thumbnail": "https://images-ext-2.discordapp.net/external/b4PBN0fPVXXEdzhqYi9-CQ_mU-wEUdo-chRXlvOa_W4/https/img.gg.deals/8b/c6/355d97c5d0cd4a1710a52f8264a47a21b329_616xt353.jpg",
+		"thumbnail": "/images/deals-thumbnail-sample.jpg",
 		"image": null
 	},
 	"hltb": {
@@ -92,7 +92,7 @@
 				"inline": true
 			}
 		],
-		"thumbnail": "https://images-ext-1.discordapp.net/external/Z6UAmmB7dU4uh2s2tRVFOqo714AKOOVGg0SNG3WkyOU/https/howlongtobeat.com/games/57415_Sekiro_Shadows_Die_Twice.jpg",
+		"thumbnail": "/images/hltb-thumbnail-sample.jpg",
 		"image": null
 	},
 	"jokes": {
@@ -111,7 +111,7 @@
 		"description": null,
 		"fields": [],
 		"thumbnail": null,
-		"image": "https://images-ext-1.discordapp.net/external/VbNbZHcaqFlLMpLNvD2LA0jOiUiJilOC7ksV68_xAnM/https/i.redd.it/4ld0om5xwjs91.jpg?width=521&height=905"
+		"image": "/images/memes-image-sample.jpg"
 	},
 	"movies": {
 		"author": null,
@@ -155,7 +155,7 @@
 				"inline": true
 			}
 		],
-		"thumbnail": "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/tuFaWiqX0TXoWu7DGNcmX3UW7sT.jpg",
+		"thumbnail": "/images/movies-thumbnail-sample.jpg",
 		"image": null
 	},
 	"poll": {
@@ -199,8 +199,8 @@
 				"inline": true
 			}
 		],
-		"thumbnail": "https://images-ext-2.discordapp.net/external/bJEyaUwIcI-UT51XjvA5c5liwN0OuBXq5QTHK57hq7g/https/img.opencritic.com/mighty-man/mighty-man.png",
-		"image": "https://images-ext-2.discordapp.net/external/sCch9liBmvD0gURidIR04ZEJvS3xdPIp-jnQQHOcrTc/https/img.opencritic.com/game/8785/o/BvYjSQnX.jpg"
+		"thumbnail": "/images/reviews-thumbnail-sample.png",
+		"image": "/images/reviews-image-sample.jpg"
 	},
 	"series": {
 		"author": null,
@@ -249,7 +249,7 @@
 				"inline": false
 			}
 		],
-		"thumbnail": "https://images-ext-2.discordapp.net/external/XDy6C0_2AlPWAgrjgeoWO_qQdgzm4HzzZmvGDZ2qEXE/https/www.themoviedb.org/t/p/w600_and_h900_bestv2/IGbeFv5Ji4W0x530JcSHiQpamY.jpg",
+		"thumbnail": "/images/series-thumbnail-sample.jpg",
 		"image": null
 	},
 	"steam.hot": {
@@ -306,7 +306,7 @@
 				"inline": true
 			}
 		],
-		"thumbnail": "https://images-ext-2.discordapp.net/external/5Y2AXdzd9xkxtgBSg5wvUnLzJmkPAUY8rYIyhSu4Sig/https/avatars.akamai.steamstatic.com/d9ad2102848033fe9a6c7c20b1250e61185000a8_full.jpg",
+		"thumbnail": "/images/steam-profile-thumbnail-sample.jpg",
 		"image": null
 	},
 	"steam.sale": {
@@ -374,7 +374,7 @@
 				"inline": false
 			}
 		],
-		"thumbnail": "https://images-ext-2.discordapp.net/external/5Y2AXdzd9xkxtgBSg5wvUnLzJmkPAUY8rYIyhSu4Sig/https/avatars.akamai.steamstatic.com/d9ad2102848033fe9a6c7c20b1250e61185000a8_full.jpg",
+		"thumbnail": "/images/xbox-profile-thumbnail-sample.jpg",
 		"image": null
 	}
 }
