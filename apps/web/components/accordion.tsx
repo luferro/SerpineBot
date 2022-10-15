@@ -66,8 +66,8 @@ const ChoicesPopover = ({ name, choices }: PopoverProps) => {
 				<Text size="lg" italic>
 					Available choices
 				</Text>
-				{choices.map(({ name }) => (
-					<Text size="sm" key={name}>
+				{choices.map(({ name }, index) => (
+					<Text size="sm" key={index}>
 						{name}
 					</Text>
 				))}
@@ -83,8 +83,8 @@ const Panel = ({ command, description, commandOptions, subcommandOptions }: Pane
 				<div className={styles.command}>
 					<Text weight={700}>
 						/{command}{' '}
-						{(commandOptions ?? subcommandOptions)?.map(({ name }) => (
-							<span key={name}>
+						{(commandOptions ?? subcommandOptions)?.map(({ name }, index) => (
+							<span key={index}>
 								<span className={styles.pill}>{name}</span>
 								&nbsp;
 							</span>
@@ -98,8 +98,8 @@ const Panel = ({ command, description, commandOptions, subcommandOptions }: Pane
 				{commandOptions && commandOptions.length > 0 ? (
 					<div className={styles.options}>
 						<Text weight={700}>Command options</Text>
-						{commandOptions.map(({ name, description, choices, required }) => (
-							<div className={styles['options-description']} key={description}>
+						{commandOptions.map(({ name, description, choices, required }, index) => (
+							<div className={styles['options-description']} key={index}>
 								{choices?.length > 0 ? (
 									<ChoicesPopover name={name} choices={choices} />
 								) : (
@@ -120,8 +120,8 @@ const Panel = ({ command, description, commandOptions, subcommandOptions }: Pane
 				{subcommandOptions && subcommandOptions.length > 0 ? (
 					<div className={styles.options}>
 						<Text weight={700}>Command options</Text>
-						{subcommandOptions.map(({ name, description, choices, required }) => (
-							<div className={styles['options-description']} key={description}>
+						{subcommandOptions.map(({ name, description, choices, required }, index) => (
+							<div className={styles['options-description']} key={index}>
 								{choices?.length > 0 ? (
 									<ChoicesPopover name={name} choices={choices} />
 								) : (
@@ -156,39 +156,53 @@ const NestedAccordion = ({ command, options }: NestedProps) => {
 		<>
 			{options
 				.filter(({ type }) => type === 1)
-				.map(({ name: subcommandName, description: subcommandDescription, options: subcommandOptions }) => (
-					<MantineAccordion.Item value={subcommandDescription} key={subcommandDescription}>
-						<MantineAccordion.Control>
-							<Group noWrap>
-								<Text>{subcommandName}</Text>
-								<Text size="sm" color="dimmed" weight={400} className="description">
-									{subcommandDescription}
-								</Text>
-							</Group>
-						</MantineAccordion.Control>
-						<MantineAccordion.Panel>
-							<Panel
-								command={`${command} ${subcommandName}`}
-								description={subcommandDescription}
-								subcommandOptions={subcommandOptions}
-							/>
-						</MantineAccordion.Panel>
-					</MantineAccordion.Item>
-				))}
+				.map(
+					(
+						{ name: subcommandName, description: subcommandDescription, options: subcommandOptions },
+						index,
+					) => (
+						<MantineAccordion.Item value={subcommandDescription} key={index}>
+							<MantineAccordion.Control>
+								<Group noWrap>
+									<Text>{subcommandName}</Text>
+									<Text
+										size="sm"
+										color="dimmed"
+										weight={400}
+										className={styles['accordion-description']}
+									>
+										{subcommandDescription}
+									</Text>
+								</Group>
+							</MantineAccordion.Control>
+							<MantineAccordion.Panel>
+								<Panel
+									command={`${command} ${subcommandName}`}
+									description={subcommandDescription}
+									subcommandOptions={subcommandOptions}
+								/>
+							</MantineAccordion.Panel>
+						</MantineAccordion.Item>
+					),
+				)}
 		</>
 	);
 };
 
 const Accordion = ({ commands }: Props) => {
-	const [value, setValue] = useState<string[]>([]);
+	const [state, setState] = useState<string[]>([]);
 	const { classes } = useStyles();
+
+	const setAccordionState = (accordionState: string[]) => {
+		setState(accordionState);
+	};
 
 	return (
 		<MantineAccordion
 			variant="separated"
 			multiple
-			value={value}
-			onChange={setValue}
+			value={state}
+			onChange={setAccordionState}
 			className={classes.root}
 			classNames={{
 				item: styles['accordion-item'],
@@ -197,8 +211,8 @@ const Accordion = ({ commands }: Props) => {
 				chevron: styles['accordion-chevron'],
 			}}
 		>
-			{commands.map(({ name: commandName, description: commandDescription, options: commandOptions }) => (
-				<MantineAccordion.Item value={commandDescription} key={commandDescription}>
+			{commands.map(({ name: commandName, description: commandDescription, options: commandOptions }, index) => (
+				<MantineAccordion.Item value={commandDescription} key={index}>
 					<MantineAccordion.Control className={styles['accordion-main']}>
 						<Group noWrap>
 							<Text>/{commandName}</Text>
