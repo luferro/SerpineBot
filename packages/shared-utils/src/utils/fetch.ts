@@ -1,5 +1,5 @@
 import type { HttpMethod } from '../types/fetch';
-import { Agent, request, setGlobalDispatcher } from 'undici';
+import { request } from 'undici';
 import UserAgent from 'user-agents';
 import { FetchError } from '../errors/FetchError';
 
@@ -8,14 +8,6 @@ interface Request {
 	method?: HttpMethod;
 	body?: string | URLSearchParams;
 }
-
-setGlobalDispatcher(
-	new Agent({
-		connect: { timeout: 60_000 },
-		headersTimeout: 60_000,
-		bodyTimeout: 60_000,
-	}),
-);
 
 export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<T> => {
 	try {
