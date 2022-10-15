@@ -3,6 +3,8 @@ import type { RedditPost } from '../types/response';
 import { FetchUtil } from '@luferro/shared-utils';
 
 const extractRelevantDataFromPost = async (post: RedditPost) => {
+	if (!post?.data?.children) throw new Error('Failed to retrieve reddit post.');
+
 	return (post.data.children ?? [])
 		.filter(
 			({ data: { stickied, is_video, removed_by_category } }) => !stickied && !is_video && !removed_by_category,
