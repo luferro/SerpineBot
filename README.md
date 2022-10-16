@@ -1,6 +1,6 @@
-## SerpineBot
-
 [![CodeFactor](https://www.codefactor.io/repository/github/luferro/serpinebot/badge/master)](https://www.codefactor.io/repository/github/luferro/serpinebot/overview/master)
+
+## SerpineBot
 
 SerpineBot is a monorepo that consists in two applications: **bot** and **web**.
 -   **Bot**: A multipurpose Discord bot for my private discord server.
