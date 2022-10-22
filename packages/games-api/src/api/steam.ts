@@ -135,18 +135,20 @@ export const getNextSale = async () => {
 };
 
 export const getTopPlayed = async () => {
-	const data = await FetchUtil.fetch<string>({ url: 'https://store.steampowered.com/stats/' });
+	const data = await FetchUtil.fetch<string>({ url: 'https://steamcharts.com/' });
 	const $ = load(data);
 
-	return $('.player_count_row')
+	return $('table#top-games tbody tr')
 		.get()
 		.map((element, index) => {
-			const url = $(element).find('a').first().attr('href');
-			const name = $(element).find('a').first().text();
+			const name = $(element).find('.game-name a').text().trim();
+			const href = $(element).find('.game-name a').attr('href');
+			const count = $(element).find('.num').first().text();
 
-			return `\`${index + 1}.\` **[${name}](${url})**`;
-		})
-		.slice(0, 10);
+			const url = `https://store.steampowered.com${href}`;
+
+			return `\`${index + 1}.\` **[${name}](${url})** **${count} current players**`;
+		});
 };
 
 export const getTopSellers = async () => {
