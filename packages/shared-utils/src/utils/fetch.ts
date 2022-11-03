@@ -23,14 +23,13 @@ export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<
 
 		if (res.statusCode >= 400) {
 			await res.body.dump();
-			throw new FetchError(`**${method}** request to **${url}** failed. Status code: **${res.statusCode}**.`);
+			throw new Error(res.statusCode.toString());
 		}
 
 		return res.headers['content-type']?.includes('application/json')
 			? await res.body.json()
 			: await res.body.text();
 	} catch (error) {
-		if (error instanceof FetchError) throw error;
-		throw new FetchError(`**${method}** request to **${url}** failed. Reason: ${(error as Error).message}`);
+		throw new FetchError(`**${method}** request to **${url}** failed. Reason: **${(error as Error).message}**.`);
 	}
 };
