@@ -147,7 +147,7 @@ export const getTopPlayed = async () => {
 
 			const url = `https://store.steampowered.com${href}`;
 
-			return `\`${index + 1}.\` **[${name}](${url})** **${count} current players**`;
+			return `\`${index + 1}.\` **[${name}](${url})** **(${count} current players)**`;
 		});
 };
 
