@@ -5,21 +5,21 @@ import { load } from 'cheerio';
 
 const getSlugFromId = async (id: string) => {
 	const results = await GoogleSearchApi.search(`${id} site:https://opencritic.com/game`);
-	const slug = results[0]?.url.split('/').at(-1) ?? null;
+	const slug = results[0]?.url.split('/').at(5) ?? null;
 
 	return { slug };
 };
 
 export const search = async (title: string) => {
 	const results = await GoogleSearchApi.search(`${title} site:https://opencritic.com/game`);
-	const id = results[0]?.url.match(/\d+/g)?.[0] ?? null;
+	const id = results[0]?.url.split('/').at(4) ?? null;
 
 	return { id };
 };
 
 export const getReviewById = async (id: string) => {
 	const { slug } = await getSlugFromId(id);
-	if (!slug) throw new Error(`Couldn't fetch reviews for game with Id ${id}`);
+	if (!slug) throw new Error(`Couldn't fetch reviews for game with id ${id}`);
 
 	const data = await FetchUtil.fetch<string>({ url: `https://opencritic.com/game/${id}/${slug}` });
 	const $ = load(data);
