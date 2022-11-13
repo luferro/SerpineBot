@@ -18,12 +18,12 @@
 	},
 	"devDependencies": {
 		"@types/cron": "^2.0.0",
-		"@types/node": "^18.7.20",
-		"typescript": "^4.8.2"
+		"@types/node": "^18.11.9",
+		"typescript": "^4.8.4"
 	},
 	"dependencies": {
-		"@discordjs/opus": "^0.8.0",
-		"@discordjs/voice": "^0.11.0",
+		"@discordjs/opus": "^0.9.0",
+		"@discordjs/voice": "^0.13.0",
 		"@luferro/games-api": "workspace:^",
 		"@luferro/go-comics-api": "workspace:^",
 		"@luferro/google-api": "workspace:^",
@@ -37,10 +37,10 @@
 		"@luferro/the-movie-db-api": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
 		"cron": "^2.1.0",
-		"discord.js": "^14.4.0",
-		"dotenv": "^16.0.2",
+		"discord.js": "^14.6.0",
+		"dotenv": "^16.0.3",
 		"ffmpeg-static": "^5.1.0",
-		"mongoose": "^6.6.1",
+		"mongoose": "^6.7.2",
 		"tweetnacl": "^1.0.3"
 	}
 }
