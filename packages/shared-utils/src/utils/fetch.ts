@@ -21,8 +21,6 @@ export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<
 			body: body ?? null,
 		});
 
-		console.log(`Fetching ${url}...`);
-
 		if (!res.ok) {
 			throw new Error(`${res.status} ${res.statusText}`);
 		}
