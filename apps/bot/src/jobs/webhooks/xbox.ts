@@ -3,13 +3,12 @@ import type { XboxWireCategory } from '@luferro/games-api';
 import { EmbedBuilder } from 'discord.js';
 import { XboxApi } from '@luferro/games-api';
 import { YoutubeApi } from '@luferro/google-api';
-import { StringUtil } from '@luferro/shared-utils';
-import * as Webhooks from '../../services/webhooks';
+import { SleepUtil, StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 export const data = {
 	name: WebhookName.Xbox,
-	schedule: '0 */3 * * * *',
+	schedule: '0 */5 * * * *',
 };
 
 export const execute = async (client: Bot) => {
@@ -17,29 +16,22 @@ export const execute = async (client: Bot) => {
 
 	for (const category of categories) {
 		const articles = await XboxApi.getLatestXboxWireNews(category);
-		if (articles.length === 0) continue;
 
-		const {
-			0: { title, url, image },
-		} = articles;
+		for (const { title, url, image } of articles) {
+			await SleepUtil.sleep(1000);
 
-		const hasEntry = await client.manageState('Xbox', category, title, url);
-		if (hasEntry) continue;
+			const { isDuplicated } = await client.manageState('Xbox', category, title, url);
+			if (isDuplicated) continue;
 
-		for (const { 0: guildId } of client.guilds.cache) {
-			const webhook = await Webhooks.getWebhook(client, guildId, 'Xbox');
-			if (!webhook) continue;
+			const message = YoutubeApi.isVideo(url)
+				? `**${StringUtil.truncate(title)}**\n${url}`
+				: new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
 
-			if (YoutubeApi.isVideo(url)) {
-				await webhook.send({ content: `**${StringUtil.truncate(title)}**\n${url}` });
-				continue;
+			if (message instanceof EmbedBuilder) {
+				message[category === 'Game Pass' && /Game(.*?)Pass/gi.test(title) ? 'setImage' : 'setThumbnail'](image);
 			}
 
-			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
-			if (category === 'Game Pass' && /Game(.*?)Pass/gi.test(title)) embed.setImage(image);
-			else embed.setThumbnail(image);
-
-			await webhook.send({ embeds: [embed] });
+			await client.sendWebhookMessageToGuilds('Xbox', message);
 		}
 	}
 };

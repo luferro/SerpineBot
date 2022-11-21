@@ -3,7 +3,6 @@ import type { DealsCategory } from '@luferro/games-api';
 import { EmbedBuilder } from 'discord.js';
 import { DealsApi } from '@luferro/games-api';
 import { StringUtil, SleepUtil } from '@luferro/shared-utils';
-import * as Webhooks from '../../services/webhooks';
 import { WebhookName } from '../../types/enums';
 
 export const data = {
@@ -16,60 +15,60 @@ export const execute = async (client: Bot) => {
 
 	for (const category of categories) {
 		if (category === 'Free Games' || category === 'Paid Games') {
-			const deals = await DealsApi.getLatestDeals(category);
-			for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
-				const hasEntry = await client.manageState('Deals', category, title, url);
-				if (hasEntry) continue;
-
-				const description = `${
-					discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''
-				} **${discounted}** @ **${store}**`;
-
-				const embed = new EmbedBuilder()
-					.setTitle(title)
-					.setURL(url)
-					.setThumbnail(image)
-					.setDescription(description)
-					.setColor('Random');
-
-				if (category === 'Paid Games' && coupon)
-					embed.addFields([{ name: 'Store coupon', value: `*${coupon}*` }]);
-
-				await sendMessage(client, category, embed);
-				await SleepUtil.sleep(5000);
-			}
+			await handleDiscountedDeals(client, category);
 			continue;
 		}
 
-		const { title, url, lead, image } = await DealsApi.getLatestBlogNews(category);
-		if (!title || !url) continue;
+		await handleBlogPosts(client, category);
+	}
+};
 
-		const hasEntry = await client.manageState('Deals', category, title, url);
-		if (hasEntry) continue;
+const getWebhookCategory = (category: DealsCategory) =>
+	category === 'Prime Gaming' || category === 'Free Games' ? 'Free Games' : 'Deals';
+
+const handleDiscountedDeals = async (client: Bot, category: Extract<DealsCategory, 'Paid Games' | 'Free Games'>) => {
+	const deals = await DealsApi.getLatestDeals(category);
+
+	for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
+		await SleepUtil.sleep(1000);
+
+		const { isDuplicated } = await client.manageState('Deals', category, title, url);
+		if (isDuplicated) continue;
+
+		const webhookCategory = getWebhookCategory(category);
+
+		const description = `${
+			discount && regular ? `**${discount}** off! ~~${regular}~~ |` : ''
+		} **${discounted}** @ **${store}**`;
 
 		const embed = new EmbedBuilder()
-			.setTitle(StringUtil.truncate(title))
+			.setTitle(title)
 			.setURL(url)
 			.setThumbnail(image)
-			.setDescription(lead ?? 'N/A')
+			.setDescription(description)
 			.setColor('Random');
 
-		await sendMessage(client, category, embed);
+		if (category === 'Paid Games' && coupon) embed.addFields([{ name: 'Store coupon', value: `*${coupon}*` }]);
+
+		await client.sendWebhookMessageToGuilds(webhookCategory, embed);
 	}
 };
 
-const getWebhook = async (client: Bot, guildId: string, category: DealsCategory) => {
-	if (category === 'Free Games' || category === 'Prime Gaming')
-		return await Webhooks.getWebhook(client, guildId, 'Free Games');
+const handleBlogPosts = async (client: Bot, category: Extract<DealsCategory, 'Bundles' | 'Prime Gaming' | 'Sales'>) => {
+	const { title, url, lead, image } = await DealsApi.getLatestBlogNews(category);
+	if (!title || !url) return;
 
-	return await Webhooks.getWebhook(client, guildId, 'Deals');
-};
+	const { isDuplicated } = await client.manageState('Deals', category, title, url);
+	if (isDuplicated) return;
 
-const sendMessage = async (client: Bot, category: DealsCategory, embed: EmbedBuilder) => {
-	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await getWebhook(client, guildId, category);
-		if (!webhook) continue;
+	const webhookCategory = getWebhookCategory(category);
 
-		await webhook.send({ embeds: [embed] });
-	}
+	const embed = new EmbedBuilder()
+		.setTitle(StringUtil.truncate(title))
+		.setURL(url)
+		.setThumbnail(image)
+		.setDescription(lead ?? 'N/A')
+		.setColor('Random');
+
+	await client.sendWebhookMessageToGuilds(webhookCategory, embed);
 };

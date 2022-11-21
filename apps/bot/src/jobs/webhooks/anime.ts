@@ -2,23 +2,17 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { JikanApi } from '@luferro/jikan-api';
 import { RedditApi } from '@luferro/reddit-api';
-import { StringUtil } from '@luferro/shared-utils';
-import * as Webhooks from '../../services/webhooks';
+import { SleepUtil, StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
-export const data = {
-	name: WebhookName.Anime,
-	schedule: '0 */15 * * * *',
-};
-
-enum AnimeAggregator {
+enum Aggregator {
 	Kitsu = 'kitsu.io',
 	AniList = 'anilist.co',
 	MyAnimeList = 'myanimelist.net',
 	AnimePlanet = 'www.anime-planet.com',
 }
 
-enum AnimeStream {
+enum Stream {
 	Vrv = 'vrv.co',
 	HiDive = 'www.hidive.com',
 	Netflix = 'www.netflix.com',
@@ -26,41 +20,27 @@ enum AnimeStream {
 	Crunchyroll = 'crunchyroll.com',
 }
 
+export const data = {
+	name: WebhookName.Anime,
+	schedule: '0 */20 * * * *',
+};
+
 export const execute = async (client: Bot) => {
-	const {
-		0: { title, url, selftext },
-	} = await RedditApi.getPostsByFlair('Anime', 'new', ['Episode']);
+	const posts = await RedditApi.getPostsByFlair('Anime', 'new', ['Episode'], 10);
 
-	const hasEntry = await client.manageState('Anime', 'Episodes', title, url);
-	if (hasEntry) return;
+	for (const { title, url, selftext } of posts) {
+		await SleepUtil.sleep(1000);
 
-	const streams = Object.entries(AnimeStream)
-		.map(([name, url]) => {
-			const stream = selftext?.split('\n').find((text) => text.includes(url));
-			if (!stream) return;
+		const { isDuplicated } = await client.manageState('Anime', 'Episodes', title, url);
+		if (isDuplicated) continue;
 
-			return `> **[${name}](${stream.match(/(?<=\()(.*)(?=\))/g)![0]})**`;
-		})
-		.filter((stream): stream is NonNullable<typeof stream> => !!stream);
+		const streams = findSelftextMatches(selftext, Object.entries(Stream));
+		const aggregators = findSelftextMatches(selftext, Object.entries(Aggregator));
 
-	const aggregators = Object.entries(AnimeAggregator)
-		.map(([name, url]) => {
-			const aggregator = selftext?.split('\n').find((text) => text.includes(url));
-			if (!aggregator) return;
+		const id = getIdFromAggregator(aggregators, Aggregator.MyAnimeList);
+		if (!id) continue;
 
-			return `> **[${name}](${aggregator.match(/(?<=\()(.*)(?=\))/g)![0]})**`;
-		})
-		.filter((aggregator): aggregator is NonNullable<typeof aggregator> => !!aggregator);
-
-	const myAnimeList = aggregators.find((aggregator) => aggregator.includes(AnimeAggregator.MyAnimeList));
-	const id = myAnimeList?.match(/\((.*?)\)/g)?.[0].match(/\d+/g)?.[0];
-	if (!id) return;
-
-	const { episodes, score, image, duration } = await JikanApi.getAnimeById(id);
-
-	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await Webhooks.getWebhook(client, guildId, 'Anime');
-		if (!webhook) continue;
+		const { episodes, score, image, duration } = await JikanApi.getAnimeById(id);
 
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title.replace(/Discussion|discussion/, '')))
@@ -92,6 +72,24 @@ export const execute = async (client: Bot) => {
 			])
 			.setColor('Random');
 
-		await webhook.send({ embeds: [embed] });
+		await client.sendWebhookMessageToGuilds('Anime', embed);
 	}
+};
+
+const getIdFromAggregator = (aggregatorsList: string[], selectedAggregator: Aggregator) => {
+	const myAnimeList = aggregatorsList.find((aggregator) => aggregator.includes(selectedAggregator));
+	return myAnimeList?.match(/\((.*?)\)/g)?.[0].match(/\d+/g)?.[0] ?? null;
+};
+
+const findSelftextMatches = (selftext: string | null, array: [string, Aggregator | Stream][]) => {
+	if (!selftext) return [];
+
+	return array
+		.map(([key, value]) => {
+			const stream = selftext.split('\n').find((text) => text.includes(value));
+			if (!stream) return;
+
+			return `> **[${key}](${stream.match(/(?<=\()(.*)(?=\))/g)![0]})**`;
+		})
+		.filter((entry): entry is NonNullable<typeof entry> => !!entry);
 };

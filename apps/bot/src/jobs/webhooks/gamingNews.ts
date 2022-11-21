@@ -2,44 +2,38 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
 import { YoutubeApi } from '@luferro/google-api';
-import { StringUtil } from '@luferro/shared-utils';
-import * as Webhooks from '../../services/webhooks';
+import { SleepUtil, StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 export const data = {
 	name: WebhookName.GamingNews,
-	schedule: '0 */3 * * * *',
+	schedule: '0 */5 * * * *',
 };
 
 export const execute = async (client: Bot) => {
-	const {
-		0: { title, url, hasEmbeddedMedia, embedType, isSelf, isCrosspost },
-	} = await RedditApi.getPosts('Games', 'new');
+	const posts = await RedditApi.getPosts('Games', 'new', 25);
 
-	const isYoutubeEmbed = embedType === 'youtube.com';
-	const isTwitterEmbed = embedType === 'twitter.com';
-	const newsUrl = getUrl(url, isYoutubeEmbed, isTwitterEmbed);
+	for (const { title, url, hasEmbeddedMedia, embedType, isSelf, isCrosspost } of posts) {
+		await SleepUtil.sleep(1000);
+		if (isCrosspost || isSelf) continue;
 
-	if (!isYoutubeEmbed && YoutubeApi.isVideo(url)) return;
+		const isTwitterEmbed = embedType === 'twitter.com';
+		const isYoutubeEmbed = embedType === 'youtube.com';
+		if (!isYoutubeEmbed && YoutubeApi.isVideo(url)) continue;
 
-	const hasEntry = await client.manageState('Gaming News', 'News', title, newsUrl);
-	if (hasEntry || isCrosspost || isSelf) return;
+		const newsUrl = getUrl(url, isYoutubeEmbed, isTwitterEmbed);
 
-	const subscribers = isYoutubeEmbed && (await YoutubeApi.getSubscribers(newsUrl));
-	if (typeof subscribers === 'number' && subscribers < 50_000) return;
+		const { isDuplicated } = await client.manageState('Gaming News', 'News', title, newsUrl);
+		if (isDuplicated) continue;
 
-	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await Webhooks.getWebhook(client, guildId, 'Gaming News');
-		if (!webhook) continue;
+		const subscribers = isYoutubeEmbed ? await YoutubeApi.getSubscribers(newsUrl) : -1;
+		if (subscribers < 50_000) continue;
 
-		if (hasEmbeddedMedia) {
-			await webhook.send({ content: `**${StringUtil.truncate(title)}**\n${newsUrl}` });
-			continue;
-		}
+		const message = hasEmbeddedMedia
+			? `**${StringUtil.truncate(title)}**\n${newsUrl}`
+			: new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(newsUrl).setColor('Random');
 
-		const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(newsUrl).setColor('Random');
-
-		await webhook.send({ embeds: [embed] });
+		await client.sendWebhookMessageToGuilds('Gaming News', message);
 	}
 };
 

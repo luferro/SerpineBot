@@ -1,6 +1,6 @@
 import type { Command, Event, Job, Music } from '../types/bot';
 import type { CommandName, EventName, JobName, WebhookName } from '../types/enums';
-import type { ClientOptions } from 'discord.js';
+import { ClientOptions, EmbedBuilder } from 'discord.js';
 import { Client, Collection } from 'discord.js';
 import { CronJob } from 'cron';
 import { TenorApi } from '@luferro/tenor-api';
@@ -12,8 +12,10 @@ import * as Database from '../database/database';
 import * as JobsHandler from '../handlers/jobs';
 import * as EventsHandler from '../handlers/events';
 import * as CommandsHandler from '../handlers/commands';
+import * as Webhooks from '../services/webhooks';
 import { stateModel } from '../database/models/state';
 import { config } from '../config/environment';
+import type { WebhookCategory } from '../types/category';
 
 export class Bot extends Client {
 	public static music: Collection<string, Music> = new Collection();
@@ -25,6 +27,56 @@ export class Bot extends Client {
 		super(options);
 		this.setApiTokens();
 	}
+
+	public start = async () => {
+		logger.info('Starting SerpineBot.');
+
+		try {
+			await this.login(config.BOT_TOKEN);
+			await Database.connect();
+			await this.register();
+
+			this.startListeners();
+			this.startJobs();
+
+			if (this.isReady()) this.emit('ready', this as Client<boolean>);
+		} catch (error) {
+			this.errorHandler(error);
+		}
+	};
+
+	public manageState = async (category: string, subcategory: string, title: string, url: string) => {
+		await SleepUtil.sleep(5000);
+
+		const state = await stateModel.findOne({ category });
+		const entries = state?.entries.get(subcategory) ?? [{ title, url }];
+
+		const hasEntry = entries.some((entry) => entry.title === title || entry.url === url);
+		if (!hasEntry) {
+			await stateModel.updateOne(
+				{ category },
+				{ $set: { [`entries.${subcategory}`]: entries.concat({ title, url }).slice(-100) } },
+				{ upsert: true },
+			);
+		}
+
+		return { isDuplicated: hasEntry };
+	};
+
+	public sendWebhookMessageToGuilds = async (category: WebhookCategory, message: EmbedBuilder | string) => {
+		for (const { 0: guildId } of this.guilds.cache) {
+			const webhook = await Webhooks.getWebhook(this, guildId, category);
+			if (!webhook) continue;
+
+			await webhook.send(message instanceof EmbedBuilder ? { embeds: [message] } : { content: message });
+		}
+	};
+
+	public stop = () => {
+		logger.info('Stopping SerpineBot.');
+		Database.disconnect();
+		process.exit(1);
+	};
 
 	private setApiTokens = () => {
 		TenorApi.setApiKey(config.TENOR_API_KEY);
@@ -63,47 +115,5 @@ export class Bot extends Client {
 		}
 
 		logger.error(error);
-	};
-
-	public start = async () => {
-		logger.info('Starting SerpineBot.');
-
-		try {
-			await this.login(config.BOT_TOKEN);
-			await Database.connect();
-			await this.register();
-
-			this.startListeners();
-			this.startJobs();
-
-			if (this.isReady()) this.emit('ready', this as Client<boolean>);
-		} catch (error) {
-			this.errorHandler(error);
-		}
-	};
-
-	public manageState = async (category: string, subcategory: string, title: string, url: string) => {
-		await SleepUtil.sleep(5000);
-
-		const categoryState = await stateModel.findOne({ category });
-		const stateEntries = categoryState?.entries.get(subcategory) ?? [];
-		const hasEntry = stateEntries.some(
-			({ title: stateTitle, url: stateUrl }) => stateTitle === title || stateUrl === url,
-		);
-
-		if (!hasEntry)
-			await stateModel.updateOne(
-				{ category },
-				{ $set: { [`entries.${subcategory}`]: stateEntries.concat({ title, url }).slice(-100) } },
-				{ upsert: true },
-			);
-
-		return hasEntry || stateEntries.length === 0;
-	};
-
-	public stop = () => {
-		logger.info('Stopping SerpineBot.');
-		Database.disconnect();
-		process.exit(1);
 	};
 }

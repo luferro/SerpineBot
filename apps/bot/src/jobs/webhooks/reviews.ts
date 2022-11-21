@@ -2,7 +2,6 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
 import { OpenCriticApi } from '@luferro/games-api';
-import * as Webhooks from '../../services/webhooks';
 import { WebhookName } from '../../types/enums';
 
 export const data = {
@@ -11,32 +10,27 @@ export const data = {
 };
 
 export const execute = async (client: Bot) => {
-	const {
-		0: { selftext },
-	} = await RedditApi.getPostsByFlair('Games', 'new', ['Review Thread']);
+	const posts = await RedditApi.getPostsByFlair('Games', 'new', ['Review Thread'], 10);
 
-	const selftextArray = selftext?.split('\n') ?? [];
+	for (const { selftext } of posts) {
+		const selftextArray = selftext?.split('\n') ?? [];
 
-	const opencriticMatch = selftextArray.find((text) => text.includes('https://opencritic.com/game/'));
-	const opencriticUrl = opencriticMatch?.match(/(?<=\()(.*)(?=\))/g)?.[0];
-	const opencriticId = opencriticUrl?.match(/\d+/g)?.[0];
+		const opencriticMatch = selftextArray.find((text) => text.includes('https://opencritic.com/game/'));
+		const opencriticUrl = opencriticMatch?.match(/(?<=\()(.*)(?=\))/g)?.[0];
+		const opencriticId = opencriticUrl?.match(/\d+/g)?.[0];
 
-	const metacriticMatch = selftextArray.find((text) => text.includes('https://www.metacritic.com/game/'));
-	const metacriticSlug = metacriticMatch?.split('/')[5];
+		const metacriticMatch = selftextArray.find((text) => text.includes('https://www.metacritic.com/game/'));
+		const metacriticSlug = metacriticMatch?.split('/')[5];
 
-	const id = opencriticId ?? (metacriticSlug && (await OpenCriticApi.search(metacriticSlug)).id);
-	if (!id) return;
+		const id = opencriticId ?? (metacriticSlug && (await OpenCriticApi.search(metacriticSlug)).id);
+		if (!id) return;
 
-	const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
-		await OpenCriticApi.getReviewById(id);
-	if (!tier && !score) return;
+		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
+			await OpenCriticApi.getReviewById(id);
+		if (!tier && !score) return;
 
-	const hasEntry = await client.manageState('Reviews', 'Opencritic', name, url);
-	if (hasEntry) return;
-
-	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await Webhooks.getWebhook(client, guildId, 'Reviews');
-		if (!webhook) continue;
+		const { isDuplicated } = await client.manageState('Reviews', 'Opencritic', name, url);
+		if (isDuplicated) return;
 
 		const embed = new EmbedBuilder()
 			.setTitle(name)
@@ -70,6 +64,6 @@ export const execute = async (client: Bot) => {
 			])
 			.setColor('Random');
 
-		await webhook.send({ embeds: [embed] });
+		await client.sendWebhookMessageToGuilds('Reviews', embed);
 	}
 };

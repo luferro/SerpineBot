@@ -3,12 +3,11 @@ import type { Bot } from '../../structures/bot';
 import type { PlayStationBlogCategory } from '@luferro/games-api';
 import { PlayStationApi } from '@luferro/games-api';
 import { StringUtil } from '@luferro/shared-utils';
-import * as Webhooks from '../../services/webhooks';
 import { WebhookName } from '../../types/enums';
 
 export const data = {
 	name: WebhookName.PlayStation,
-	schedule: '0 */3 * * * *',
+	schedule: '0 */5 * * * *',
 };
 
 export const execute = async (client: Bot) => {
@@ -22,18 +21,12 @@ export const execute = async (client: Bot) => {
 			0: { title, url, image },
 		} = articles;
 
-		const hasEntry = await client.manageState('PlayStation', category, title, url);
-		if (hasEntry) continue;
+		const { isDuplicated } = await client.manageState('PlayStation', category, title, url);
+		if (isDuplicated) continue;
 
-		for (const { 0: guildId } of client.guilds.cache) {
-			const webhook = await Webhooks.getWebhook(client, guildId, 'PlayStation');
-			if (!webhook) continue;
+		const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
+		embed[category === 'PlayStation Plus' ? 'setImage' : 'setThumbnail'](image);
 
-			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
-			if (category === 'PlayStation Plus') embed.setImage(image);
-			else embed.setThumbnail(image);
-
-			await webhook.send({ embeds: [embed] });
-		}
+		await client.sendWebhookMessageToGuilds('PlayStation', embed);
 	}
 };

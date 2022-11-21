@@ -1,29 +1,22 @@
 import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { NintendoApi } from '@luferro/games-api';
-import { StringUtil } from '@luferro/shared-utils';
-import * as Webhooks from '../../services/webhooks';
+import { SleepUtil, StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 export const data = {
 	name: WebhookName.Nintendo,
-	schedule: '0 */3 * * * *',
+	schedule: '0 */5 * * * *',
 };
 
 export const execute = async (client: Bot) => {
 	const articles = await NintendoApi.getLatestNintendoNews();
-	if (articles.length === 0) return;
 
-	const {
-		0: { title, url, image },
-	} = articles;
+	for (const { title, url, image } of articles) {
+		await SleepUtil.sleep(1000);
 
-	const hasEntry = await client.manageState('Nintendo', 'News', title, url);
-	if (hasEntry) return;
-
-	for (const { 0: guildId } of client.guilds.cache) {
-		const webhook = await Webhooks.getWebhook(client, guildId, 'Nintendo');
-		if (!webhook) continue;
+		const { isDuplicated } = await client.manageState('Nintendo', 'News', title, url);
+		if (isDuplicated) return;
 
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title))
@@ -31,6 +24,6 @@ export const execute = async (client: Bot) => {
 			.setThumbnail(image)
 			.setColor('Random');
 
-		await webhook.send({ embeds: [embed] });
+		await client.sendWebhookMessageToGuilds('Nintendo', embed);
 	}
 };
