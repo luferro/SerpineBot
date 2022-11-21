@@ -16,11 +16,11 @@
 	"devDependencies": {
 		"@types/node": "^18.11.9",
 		"@types/user-agents": "^1.0.2",
-		"typescript": "^4.8.4"
+		"typescript": "^4.9.3"
 	},
 	"dependencies": {
 		"undici": "^5.12.0",
-		"user-agents": "^1.0.1198",
+		"user-agents": "^1.0.1206",
 		"winston": "^3.8.1"
 	}
 }
