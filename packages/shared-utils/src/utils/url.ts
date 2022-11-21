@@ -1,4 +1,4 @@
-import { request } from 'undici';
+import { fetch as _fetch } from 'undici';
 
 export const isValid = (string: string) => {
 	try {
@@ -12,8 +12,8 @@ export const isValid = (string: string) => {
 };
 
 export const getRedirectLocation = async (url: string | URL): Promise<string> => {
-	const res = await request(url);
-	const location = res.headers.location ?? url.toString();
+	const res = await _fetch(url);
+	const location = res.headers.get('location') ?? url.toString();
 
 	const params = new URL(location).searchParams;
 	const urlSearchParam = [...params.values()].find(isValid);
