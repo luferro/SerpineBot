@@ -20,8 +20,8 @@ const createSteamIntegration = async (userId: string, url: string) => {
 	const profileUrl = url.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
 	if (!profileUrl) throw new Error('Invalid Steam profile url.');
 
-	const { 2: customId } = profileUrl;
-	const steamId = await SteamApi.getSteamId64(customId);
+	const { 1: type, 2: id } = profileUrl;
+	const steamId = type === 'id' ? await SteamApi.getSteamId64(id) : id;
 	if (!steamId) throw new Error('No SteamId64 was found.');
 
 	const steamWishlist = await SteamApi.getWishlist(steamId);
