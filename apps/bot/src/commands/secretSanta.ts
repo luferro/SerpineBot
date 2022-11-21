@@ -32,6 +32,10 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 	const uniqueMentions = new Set(mentions);
 	if (uniqueMentions.size !== mentions.length) throw new Error('Duplicated participant detected.');
 
+	const currentYear = new Date().getFullYear();
+	const isEventForCurrentYear = new Date(currentYear, 11, 25).getTime() >= Date.now();
+	const yearOfEvent = isEventForCurrentYear ? currentYear : currentYear + 1;
+
 	const users = await Promise.all(
 		mentions.map(async (id) => {
 			if (!interaction.client.users.cache.has(id)) return;
@@ -50,11 +54,11 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
 		const embed = new EmbedBuilder()
-			.setTitle(`Secret Santa ${new Date().getFullYear()}`)
+			.setTitle(`Secret Santa ${yearOfEvent}`)
 			.addFields([
 				{
 					name: '**Gifts exchange**',
-					value: `**25/12/${new Date().getFullYear()}**`,
+					value: `**25/12/${yearOfEvent}**`,
 				},
 				{
 					name: '**Value**',
@@ -82,5 +86,6 @@ const shuffle = (array: User[]) => {
 
 		[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
 	}
+
 	return array;
 };
