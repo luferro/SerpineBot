@@ -1,5 +1,5 @@
 import type { HttpMethod } from '../types/fetch';
-import { fetch as _fetch } from 'undici';
+import undici from 'undici';
 import { HeaderGenerator } from 'header-generator';
 import { FetchError } from '../errors/FetchError';
 
@@ -15,7 +15,7 @@ const generateHeaders = () => {
 
 export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<T> => {
 	try {
-		const res = await _fetch(url, {
+		const res = await undici.fetch(url, {
 			method,
 			headers: {
 				...generateHeaders(),
@@ -37,4 +37,9 @@ export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<
 	} catch (error) {
 		throw new FetchError(`**${method}** request to **${url}** failed. Reason: **${(error as Error).message}**.`);
 	}
+};
+
+export const fetchRedirectLocation = async ({ method = 'GET', url }: Pick<Request, 'url' | 'method'>) => {
+	const res = await undici.fetch(url, { method, headers: generateHeaders() });
+	return res.headers.get('location');
 };
