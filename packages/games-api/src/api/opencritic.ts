@@ -1,5 +1,5 @@
 import type { OpenCriticReview } from '../types/response';
-import { FetchUtil } from '@luferro/shared-utils';
+import { FetchUtil, logger } from '@luferro/shared-utils';
 import { GoogleSearchApi } from '@luferro/google-api';
 import { load } from 'cheerio';
 
@@ -12,6 +12,7 @@ const getSlugFromId = async (id: string) => {
 
 export const search = async (title: string) => {
 	const results = await GoogleSearchApi.search(`${title} site:https://opencritic.com/game`);
+	logger.debug(results);
 	const id = results[0]?.url.split('/').at(4) ?? null;
 
 	return { id };

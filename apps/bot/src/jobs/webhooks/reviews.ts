@@ -23,14 +23,14 @@ export const execute = async (client: Bot) => {
 		const metacriticSlug = metacriticMatch?.split('/')[5];
 
 		const id = opencriticId ?? (metacriticSlug && (await OpenCriticApi.search(metacriticSlug)).id);
-		if (!id) return;
+		if (!id) continue;
 
 		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
 			await OpenCriticApi.getReviewById(id);
-		if (!tier && !score) return;
+		if (!tier && !score) continue;
 
 		const { isDuplicated } = await client.manageState('Reviews', 'Opencritic', name, url);
-		if (isDuplicated) return;
+		if (isDuplicated) continue;
 
 		const embed = new EmbedBuilder()
 			.setTitle(name)
