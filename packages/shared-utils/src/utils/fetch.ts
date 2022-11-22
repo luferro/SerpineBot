@@ -40,6 +40,7 @@ export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<
 };
 
 export const fetchRedirectLocation = async ({ method = 'GET', url }: Pick<Request, 'url' | 'method'>) => {
-	const res = await undici.fetch(url, { method, headers: generateHeaders() });
-	return res.headers.get('location');
+	const res = await undici.request(url, { method, headers: generateHeaders() });
+	res.body.destroy();
+	return res.headers['location'] ?? null;
 };
