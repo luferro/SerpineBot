@@ -92,8 +92,8 @@ const getSourceFromId = async (id: string) => {
 };
 
 export const getNews = async (country?: Country) => {
-	const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}`;
-	url.concat(country ? `&country=${CountryCodes[country]}` : '&language=en&category=world');
+	const baseUrl = `https://newsdata.io/api/1/news?apikey=${API_KEY}`;
+	const url = baseUrl.concat(country ? `&country=${CountryCodes[country]}` : '&language=en&category=world');
 
 	const { results } = await FetchUtil.fetch<NewsResponse<Article>>({ url });
 
