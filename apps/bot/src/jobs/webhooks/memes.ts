@@ -14,7 +14,7 @@ export const execute = async (client: Bot) => {
 	for (const subreddit of config.MEMES_SUBREDDITS) {
 		const posts = await RedditApi.getPosts(subreddit, 'hot', 25);
 
-		for (const { title, url, selfurl, hasEmbeddedMedia, isSelf } of posts) {
+		for (const { title, url, selfurl, hasEmbeddedMedia, isSelf } of posts.reverse()) {
 			await SleepUtil.sleep(1000);
 			if (isSelf) continue;
 

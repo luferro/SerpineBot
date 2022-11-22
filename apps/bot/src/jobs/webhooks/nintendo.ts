@@ -12,11 +12,11 @@ export const data = {
 export const execute = async (client: Bot) => {
 	const articles = await NintendoApi.getLatestNintendoNews();
 
-	for (const { title, url, image } of articles) {
+	for (const { title, url, image } of articles.reverse()) {
 		await SleepUtil.sleep(1000);
 
 		const { isDuplicated } = await client.manageState('Nintendo', 'News', title, url);
-		if (isDuplicated) return;
+		if (isDuplicated) continue;
 
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title))

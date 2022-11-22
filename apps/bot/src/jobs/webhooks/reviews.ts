@@ -10,9 +10,9 @@ export const data = {
 };
 
 export const execute = async (client: Bot) => {
-	const posts = await RedditApi.getPostsByFlair('Games', 'new', ['Review Thread'], 10);
+	const posts = await RedditApi.getPostsByFlair('Games', 'new', ['Review Thread'], 20);
 
-	for (const { selftext } of posts) {
+	for (const { selftext } of posts.reverse()) {
 		const selftextArray = selftext?.split('\n') ?? [];
 
 		const opencriticMatch = selftextArray.find((text) => text.includes('https://opencritic.com/game/'));

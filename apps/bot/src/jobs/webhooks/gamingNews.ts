@@ -13,7 +13,7 @@ export const data = {
 export const execute = async (client: Bot) => {
 	const posts = await RedditApi.getPosts('Games', 'new', 25);
 
-	for (const { title, url, hasEmbeddedMedia, embedType, isSelf, isCrosspost } of posts) {
+	for (const { title, url, hasEmbeddedMedia, embedType, isSelf, isCrosspost } of posts.reverse()) {
 		await SleepUtil.sleep(1000);
 		if (isCrosspost || isSelf) continue;
 

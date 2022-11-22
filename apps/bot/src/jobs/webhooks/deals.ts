@@ -14,12 +14,8 @@ export const execute = async (client: Bot) => {
 	const categories: DealsCategory[] = ['Bundles', 'Free Games', 'Paid Games', 'Prime Gaming', 'Sales'];
 
 	for (const category of categories) {
-		if (category === 'Free Games' || category === 'Paid Games') {
-			await handleDiscountedDeals(client, category);
-			continue;
-		}
-
-		await handleBlogPosts(client, category);
+		if (category === 'Free Games' || category === 'Paid Games') await handleDiscountedDeals(client, category);
+		else await handleBlogPosts(client, category);
 	}
 };
 

@@ -14,7 +14,7 @@ export const execute = async (client: Bot) => {
 	for (const subreddit of config.NSFW_SUBREDDITS) {
 		const posts = await RedditApi.getPosts(subreddit, 'hot', 25);
 
-		for (const { title, url, selfurl, gallery, fallback, embedType, hasEmbeddedMedia } of posts) {
+		for (const { title, url, selfurl, gallery, fallback, embedType, hasEmbeddedMedia } of posts.reverse()) {
 			await SleepUtil.sleep(1000);
 
 			const isRedGifsEmbed = embedType === 'redgifs.com';

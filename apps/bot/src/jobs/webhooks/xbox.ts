@@ -17,7 +17,7 @@ export const execute = async (client: Bot) => {
 	for (const category of categories) {
 		const articles = await XboxApi.getLatestXboxWireNews(category);
 
-		for (const { title, url, image } of articles) {
+		for (const { title, url, image } of articles.reverse()) {
 			await SleepUtil.sleep(1000);
 
 			const { isDuplicated } = await client.manageState('Xbox', category, title, url);
