@@ -1,6 +1,6 @@
 import type { HttpMethod } from '../types/fetch';
 import { fetch as _fetch } from 'undici';
-import UserAgent from 'user-agents';
+import { HeaderGenerator } from 'header-generator';
 import { FetchError } from '../errors/FetchError';
 
 interface Request {
@@ -9,12 +9,16 @@ interface Request {
 	body?: string | URLSearchParams;
 }
 
+const generateHeaders = () => {
+	return new HeaderGenerator({ browserListQuery: 'last 5 versions' }).getHeaders();
+};
+
 export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<T> => {
 	try {
 		const res = await _fetch(url, {
 			method,
 			headers: {
-				'User-Agent': new UserAgent().toString(),
+				...generateHeaders(),
 				'content-type':
 					body instanceof URLSearchParams ? 'application/x-www-form-urlencoded' : 'application/json',
 			},
