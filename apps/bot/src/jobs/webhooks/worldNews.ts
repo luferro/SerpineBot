@@ -10,7 +10,9 @@ export const data = {
 };
 
 export const execute = async (client: Bot) => {
-	const articles = [...(await NewsDataApi.getNewsByCountry('Portugal')), ...(await NewsDataApi.getWorldNews())]
+	const worldNews = await NewsDataApi.getNews();
+	const localNews = await NewsDataApi.getNews('Portugal');
+	const articles = [...worldNews, ...localNews]
 		.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
 		.slice(0, 20);
 
@@ -21,13 +23,14 @@ export const execute = async (client: Bot) => {
 		if (isDuplicated) continue;
 
 		const embed = new EmbedBuilder()
-			.setAuthor({ name: publisher })
 			.setTitle(title)
 			.setURL(url)
 			.setDescription(description)
 			.setThumbnail(image)
 			.setTimestamp(publishedAt)
 			.setColor('Random');
+
+		if (publisher.name && publisher.url) embed.setAuthor({ name: publisher.name, url: publisher.url });
 
 		await client.sendWebhookMessageToGuilds('World News', embed);
 	}

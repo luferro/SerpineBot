@@ -1,5 +1,5 @@
 import type { Country } from '../types/news';
-import type { Article, NewsResponse } from '../types/response';
+import type { Article, NewsResponse, Source } from '../types/response';
 import { FetchUtil, StringUtil } from '@luferro/shared-utils';
 
 const CountryCodes = Object.freeze<Record<Country, string>>({
@@ -70,37 +70,48 @@ const CountryCodes = Object.freeze<Record<Country, string>>({
 
 let API_KEY: string;
 
+const sourceCache = new Map<string, Pick<Source, 'name' | 'url'>>();
+
 export const setApiKey = (apiKey: string) => {
 	API_KEY = apiKey;
 };
 
-export const getNewsByCountry = async (country: Country) => {
-	const countryCode = CountryCodes[country];
-	const { results } = await FetchUtil.fetch<NewsResponse<Article>>({
-		url: `https://newsdata.io/api/1/news?apikey=${API_KEY}&country=${countryCode} `,
+const loadSources = async () => {
+	const { results } = await FetchUtil.fetch<NewsResponse<Source>>({
+		url: `https://newsdata.io/api/1/sources?apikey=${API_KEY}`,
 	});
 
-	return results.map(({ source_id, title, link, content, description, image_url, pubDate }) => ({
-		title: StringUtil.truncate(title),
-		url: link,
-		publisher: source_id,
-		publishedAt: new Date(pubDate),
-		description: content ? StringUtil.truncate(content, 512) : description,
-		image: image_url?.startsWith('http') ? image_url : null,
-	}));
+	for (const { id, name, url } of results) {
+		sourceCache.set(id, { name, url });
+	}
 };
 
-export const getWorldNews = async () => {
-	const { results } = await FetchUtil.fetch<NewsResponse<Article>>({
-		url: `https://newsdata.io/api/1/news?apikey=${API_KEY}&language=en&category=world `,
-	});
+const getSourceFromId = async (id: string) => {
+	if (sourceCache.size === 0) await loadSources();
+	return sourceCache.get(id);
+};
 
-	return results.map(({ source_id, title, link, content, description, image_url, pubDate }) => ({
-		title: StringUtil.truncate(title),
-		url: link,
-		publisher: source_id,
-		publishedAt: new Date(pubDate),
-		description: content ? StringUtil.truncate(content, 512) : description,
-		image: image_url?.startsWith('http') ? image_url : null,
-	}));
+export const getNews = async (country?: Country) => {
+	const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}`;
+	url.concat(country ? `&country=${CountryCodes[country]}` : '&language=en&category=world');
+
+	const { results } = await FetchUtil.fetch<NewsResponse<Article>>({ url });
+
+	return await Promise.all(
+		results.map(async (article) => {
+			const source = await getSourceFromId(article.source_id);
+
+			return {
+				title: StringUtil.truncate(article.title),
+				url: article.link,
+				publishedAt: new Date(article.pubDate),
+				description: article.content ? StringUtil.truncate(article.content, 512) : article.description,
+				image: article.image_url?.startsWith('http') ? article.image_url : null,
+				publisher: {
+					name: source?.name ?? null,
+					url: source?.url ?? null,
+				},
+			};
+		}),
+	);
 };
