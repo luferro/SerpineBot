@@ -26,8 +26,8 @@ export const execute = async (client: Bot) => {
 		const { isDuplicated } = await client.manageState('Gaming News', 'News', title, newsUrl);
 		if (isDuplicated) continue;
 
-		const subscribers = isYoutubeEmbed ? await YoutubeApi.getSubscribers(newsUrl) : -1;
-		if (subscribers < 50_000) continue;
+		const subscribers = isYoutubeEmbed ? await YoutubeApi.getSubscribers(newsUrl) : null;
+		if (typeof subscribers === 'number' && subscribers < 50_000) continue;
 
 		const message = hasEmbeddedMedia
 			? `**${StringUtil.truncate(title)}**\n${newsUrl}`
