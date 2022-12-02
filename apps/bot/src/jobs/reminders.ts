@@ -1,10 +1,11 @@
+import type { JobData } from '../types/bot';
 import type { Bot } from '../structures/bot';
 import * as Reminders from '../services/reminders';
 import { remindersModel } from '../database/models/reminders';
 import { JobName } from '../types/enums';
 import { logger } from '@luferro/shared-utils';
 
-export const data = {
+export const data: JobData = {
 	name: JobName.Reminders,
 	schedule: '*/10 * * * * *',
 };
@@ -22,9 +23,9 @@ export const execute = async (client: Bot) => {
 	try {
 		await Reminders.send(client, reminderId);
 		const user = await client.users.fetch(userId);
-		logger.info(`Reminders job notified **${user.tag}** regarding reminder **${reminderId}**.`);
+		logger.info(`Job **${data.name}** notified **${user.tag}** regarding reminderId **${reminderId}**.`);
 	} catch (error) {
-		logger.warn(`Reminders job failed. Reason: ${(error as Error).message}.`);
-		return;
+		const { message } = error as Error;
+		logger.warn(`Job **${data.name}** failed for reminderId **${reminderId}**. Reason: **${message}**`);
 	}
 };

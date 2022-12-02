@@ -1,7 +1,8 @@
 import type { Command, Event, Job, Music } from '../types/bot';
 import type { CommandName, EventName, JobName, WebhookName } from '../types/enums';
-import { ClientOptions, EmbedBuilder } from 'discord.js';
-import { Client, Collection } from 'discord.js';
+import type { WebhookCategory } from '../types/category';
+import { ClientOptions, DiscordAPIError } from 'discord.js';
+import { Client, Collection, EmbedBuilder } from 'discord.js';
 import { CronJob } from 'cron';
 import { TenorApi } from '@luferro/tenor-api';
 import { SteamApi } from '@luferro/games-api';
@@ -15,7 +16,6 @@ import * as CommandsHandler from '../handlers/commands';
 import * as Webhooks from '../services/webhooks';
 import { stateModel } from '../database/models/state';
 import { config } from '../config/environment';
-import type { WebhookCategory } from '../types/category';
 
 export class Bot extends Client {
 	public static music: Collection<string, Music> = new Collection();
@@ -33,15 +33,20 @@ export class Bot extends Client {
 
 		try {
 			await this.login(config.BOT_TOKEN);
+
 			await Database.connect();
-			await this.register();
+			await JobsHandler.register();
+			await EventsHandler.register();
+			await CommandsHandler.register();
 
-			this.startListeners();
-			this.startJobs();
+			this.initializeListeners();
+			this.initializeSchedulers();
 
-			if (this.isReady()) this.emit('ready', this as Client<boolean>);
+			this.emit('ready', this as Client);
 		} catch (error) {
-			this.errorHandler(error);
+			const { message } = error as Error;
+			logger.error(`Fatal error during application start. Reason: ${message}`);
+			this.stop();
 		}
 	};
 
@@ -85,35 +90,30 @@ export class Bot extends Client {
 		TheMovieDbApi.setApiKey(config.THE_MOVIE_DB_API_KEY);
 	};
 
-	private register = async () => {
-		await JobsHandler.register();
-		await EventsHandler.register();
-		await CommandsHandler.register();
-	};
-
-	private startListeners = () => {
+	private initializeListeners = () => {
 		for (const [name, event] of Bot.events.entries()) {
-			this[event.data.type](name, (...args: unknown[]) => event.execute(this, ...args).catch(this.errorHandler));
+			this[event.data.type](name, (...args: unknown[]) => event.execute(this, ...args).catch(this.handleError));
 
 			logger.info(`Event listener is listening ${event.data.type} **${name}**.`);
 		}
 	};
 
-	private startJobs = () => {
+	private initializeSchedulers = () => {
 		for (const [name, job] of Bot.jobs.entries()) {
-			const cronjob = new CronJob(job.data.schedule, () => job.execute(this).catch(this.errorHandler));
+			const cronjob = new CronJob(job.data.schedule, () =>
+				job.execute(this).catch((error) => {
+					error.message = `Job **${name}** failed.\nReason: **${error.message}**`;
+					this.handleError(error);
+				}),
+			);
 			cronjob.start();
 
 			logger.info(`Job **${name}** is set to run. Schedule: **(${job.data.schedule})**.`);
 		}
 	};
 
-	private errorHandler = (error: unknown) => {
-		if (error instanceof FetchError) {
-			logger.warn(error.message);
-			return;
-		}
-
-		logger.error(error);
+	private handleError = (error: Error) => {
+		if (error instanceof DiscordAPIError || error instanceof FetchError) logger.warn(error.message);
+		else logger.error(error);
 	};
 }

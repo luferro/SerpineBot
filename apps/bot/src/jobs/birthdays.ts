@@ -1,3 +1,4 @@
+import type { JobData } from '../types/bot';
 import type { Bot } from '../structures/bot';
 import { logger } from '@luferro/shared-utils';
 import * as Birthdays from '../services/birthdays';
@@ -5,7 +6,7 @@ import { birthdaysModel } from '../database/models/birthdays';
 import { settingsModel } from '../database/models/settings';
 import { JobName } from '../types/enums';
 
-export const data = {
+export const data: JobData = {
 	name: JobName.Birthdays,
 	schedule: '0 0 0 * * *',
 };
@@ -29,10 +30,10 @@ export const execute = async (client: Bot) => {
 
 			try {
 				await Birthdays.send(guild, channelId, birthday.userId, birthday.date);
-				logger.info(`Birthdays job sent a message to **${channelId}** in guild **${guild.name}**.`);
+				logger.info(`Job **${data.name}** notified channelId **${channelId}** in guild **${guild.name}**.`);
 			} catch (error) {
-				logger.warn(`Birthdays job failed. Reason: ${(error as Error).message}`);
-				continue;
+				const { message } = error as Error;
+				logger.warn(`Job **${data.name}** failed for userId **${birthday.userId}**. Reason: **${message}**`);
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 import type { Bot } from '../structures/bot';
-import type { Alert } from '../types/bot';
+import type { Alert, JobData } from '../types/bot';
 import type { AlertCategory } from '../types/category';
 import { EmbedBuilder } from 'discord.js';
 import { SteamApi } from '@luferro/games-api';
@@ -8,7 +8,7 @@ import { steamModel } from '../database/models/steam';
 import { JobName } from '../types/enums';
 import * as Subscriptions from '../services/subscriptions';
 
-export const data = {
+export const data: JobData = {
 	name: JobName.Wishlists,
 	schedule: '0 */15 7-23 * * *',
 };
@@ -103,9 +103,9 @@ export const execute = async (client: Bot) => {
 			const user = await client.users.fetch(integration.userId);
 			await user.send({ embeds: [embed] });
 
-			logger.info(
-				`Wishlists job sent a private message to **${user.tag}**. **${totalItems}** update(s) in **${category}** category.`,
-			);
+			const message = `Job **${data.name}** notified **${user.tag}** about **${totalItems}** update(s) in **${category}** category.`;
+			logger.info(message);
+			logger.debug(JSON.stringify(categoryAlerts));
 		}
 	}
 };

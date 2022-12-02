@@ -1,31 +1,49 @@
-import type { ChatInputCommandInteraction } from 'discord.js';
-import { logger } from '@luferro/shared-utils';
+import type { EventData } from '../types/bot';
+import type { ExtendedButtonInteraction, ExtendedChatInputCommandInteraction, Interaction } from '../types/interaction';
+import { Client, DiscordAPIError, EmbedBuilder } from 'discord.js';
+import { FetchError, logger } from '@luferro/shared-utils';
 import { Bot } from '../structures/bot';
 import { CommandName, EventName } from '../types/enums';
+import * as RolesJob from '../jobs/roles';
 
-export const data = {
+export const data: EventData = {
 	name: EventName.InteractionCreate,
 	type: 'on',
 };
 
-export const execute = async (client: Bot, interaction: ChatInputCommandInteraction) => {
-	const isCommand = interaction.isChatInputCommand();
-	const isGuildAvailable = interaction.guild?.available;
-	if (!isCommand || !isGuildAvailable) return;
+export const execute = async (_client: Client, interaction: Interaction) => {
+	if (interaction.isButton()) await handleButtonInteraction(interaction);
+	if (interaction.isChatInputCommand()) await handleChatInputCommandInteraction(interaction);
+};
 
-	const command = Bot.commands.get(interaction.commandName as CommandName);
-	if (!command) return;
-
-	const userTag = interaction.user.tag;
-	const guildName = interaction.guild.name;
+const handleChatInputCommandInteraction = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const interactionName = `/${interaction.commandName} ${interaction.options.getSubcommand(false) ?? ''}`.trim();
-	logger.info(`User **${userTag}** used interaction **${interactionName}** in guild **${guildName}**.`);
+	const guildName = interaction.guild.name;
+	logger.info(`**${interactionName}** used by **${interaction.user.tag}** in guild **${guildName}**.`);
 
 	try {
-		if (command.data.isClientRequired) return await command.execute(client, interaction);
+		if (!interaction.guild.available) throw new Error('Guild is currently unavailable.');
+
+		const command = Bot.commands.get(interaction.commandName as CommandName);
+		if (!command) throw new Error('Command does not exist.');
+
 		await command.execute(interaction);
 	} catch (error) {
-		if (interaction.replied) throw error;
-		await interaction.reply({ content: (error as Error).message, ephemeral: true });
+		if (error instanceof DiscordAPIError || error instanceof FetchError) {
+			error.message = `Interaction **${interactionName}** in guild ${guildName} failed. Reason: **${error.message}**`;
+			throw error;
+		}
+
+		const embed = new EmbedBuilder()
+			.setTitle('Something went wrong.')
+			.setDescription((error as Error).message)
+			.setColor('Random');
+
+		await interaction.reply({ embeds: [embed], ephemeral: true });
 	}
+};
+
+const handleButtonInteraction = async (interaction: ExtendedButtonInteraction) => {
+	const isRoleClaimButton = interaction.guild.roles.cache.some(({ name }) => name === interaction.customId);
+	if (isRoleClaimButton) RolesJob.assignRole(interaction);
 };
