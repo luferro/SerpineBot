@@ -23,8 +23,8 @@ export const isPlaylist = async (url: string) => {
 	}
 };
 
-export const stream = async (url: string, seek = 0) => {
-	return await playdl.stream(url, { seek: seek === 0 ? seek : seek / 1000 });
+export const stream = async (url: string, seek?: number) => {
+	return await playdl.stream(url, { seek: seek ? seek / 1000 : 0 });
 };
 
 export const search = async (query: string, limit = 1) => {
