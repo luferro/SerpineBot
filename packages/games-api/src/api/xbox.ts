@@ -50,7 +50,7 @@ export const getLatestXboxWireNews = async (category: XboxWireCategory) => {
 
 			return {
 				title: podcastUrl ? `Xbox Podcast | ${title}` : title,
-				image: image.split('?')[0],
+				image: image ? image.split('?')[0] : null,
 				isVideo: Boolean(videoUrl ?? podcastUrl),
 				url: videoUrl ?? podcastUrl ?? url,
 			};
