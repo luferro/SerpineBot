@@ -1,6 +1,7 @@
 import type { XboxWireCategory } from '../types/category';
 import { FetchUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
+import { YoutubeApi } from '@luferro/google-api';
 
 const BlogCategories = Object.freeze<Record<XboxWireCategory, string>>({
 	'Game Pass': 'https://news.xbox.com/en-us/?s=Xbox+Game+Pass&search-category=news-stories',
@@ -45,8 +46,16 @@ export const getLatestXboxWireNews = async (category: XboxWireCategory) => {
 			const title = $(element).find('.media-body .feed__title a').text();
 			const url = $(element).find('.media-body .feed__title a').attr('href')!;
 			const image = $(element).find('.media-image a img').attr('src')!;
-			const videoUrl = $(element).find('.media-image .video-wrapper').first().attr('data-src');
-			const podcastUrl = $(element).find('.media-body .feed__podcast-player iframe').first().attr('src');
+			const videoEmbedUrl = $(element).find('.media-image .video-wrapper').first().attr('data-src');
+			const podcastEmbedUrl = $(element).find('.media-body .feed__podcast-player iframe').first().attr('src');
+
+			const videoUrl = videoEmbedUrl
+				? `https://www.youtube.com/watch?v=${YoutubeApi.getVideoId(videoEmbedUrl)}`
+				: null;
+
+			const podcastUrl = podcastEmbedUrl
+				? `https://www.youtube.com/watch?v=${YoutubeApi.getVideoId(podcastEmbedUrl)}`
+				: null;
 
 			return {
 				title: podcastUrl ? `Xbox Podcast | ${title}` : title,
