@@ -49,8 +49,8 @@ export const getLatestXboxWireNews = async (category: XboxWireCategory) => {
 			const podcastUrl = $(element).find('.media-body .feed__podcast-player iframe').first().attr('src');
 
 			return {
-				title,
-				image,
+				title: podcastUrl ? `Xbox Podcast | ${title}` : title,
+				image: image.split('?')[0],
 				isVideo: Boolean(videoUrl ?? podcastUrl),
 				url: videoUrl ?? podcastUrl ?? url,
 			};
