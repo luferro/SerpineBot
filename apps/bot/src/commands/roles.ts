@@ -1,11 +1,12 @@
-import type { ChatInputCommandInteraction, Guild, Role } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { Role } from 'discord.js';
 import { EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import * as Roles from '../services/roles';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Roles,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Roles)
 		.setDescription('Roles related commands.')
@@ -66,10 +67,10 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (arg0: ChatInputCommandInteraction) => Promise<void>> = {
+	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {
 		create: createRole,
 		update: updateRole,
 		delete: deleteRole,
@@ -80,23 +81,21 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const createRole = async (interaction: ChatInputCommandInteraction) => {
+const createRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const name = interaction.options.getString('name', true);
 	const color = interaction.options.getString('color') as `#${string}` | null;
 	const hoist = interaction.options.getBoolean('hoist');
 	const mentionable = interaction.options.getBoolean('mentionable');
 
-	if (color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color)) throw new Error('Invalid hexadecimal color.');
+	const isValidHexColor = color && /^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color);
+	if (!isValidHexColor) throw new Error('Invalid hexadecimal color.');
 
-	const guild = interaction.guild as Guild;
-	await Roles.create(guild, name, color ?? 'Default', Boolean(hoist), Boolean(mentionable));
-
+	await Roles.create(interaction.guild, name, color ?? 'Default', Boolean(hoist), Boolean(mentionable));
 	const embed = new EmbedBuilder().setTitle(`Role ${name} has been created.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const updateRole = async (interaction: ChatInputCommandInteraction) => {
+const updateRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const role = interaction.options.getRole('role', true) as Role;
 	const name = interaction.options.getString('name');
 	const color = interaction.options.getString('color') as `#${string}` | null;
@@ -104,44 +103,36 @@ const updateRole = async (interaction: ChatInputCommandInteraction) => {
 	const mentionable = interaction.options.getBoolean('mentionable');
 	const position = interaction.options.getInteger('position');
 
-	if (color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color)) throw new Error('Invalid hexadecimal color.');
+	const isValidHexColor = color && /^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color);
+	if (!isValidHexColor) throw new Error('Invalid hexadecimal color.');
 
-	const guild = interaction.guild as Guild;
-	await Roles.update(guild, role, name, color, hoist, mentionable, position);
-
+	await Roles.update(interaction.guild, role, name, color, hoist, mentionable, position);
 	const embed = new EmbedBuilder().setTitle(`Role ${name} has been updated.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const deleteRole = async (interaction: ChatInputCommandInteraction) => {
+const deleteRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const role = interaction.options.getRole('role', true) as Role;
 
 	await Roles.remove(role);
-
 	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been deleted.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const assignRole = async (interaction: ChatInputCommandInteraction) => {
+const assignRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const user = interaction.options.getUser('user', true);
 	const role = interaction.options.getRole('role', true) as Role;
 
-	const guild = interaction.guild as Guild;
-	await Roles.assign(guild, user.id, role);
-
+	await Roles.assign(interaction.guild, user.id, role);
 	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been added to ${user.tag}.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const dissociateRole = async (interaction: ChatInputCommandInteraction) => {
+const dissociateRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const user = interaction.options.getUser('user', true);
 	const role = interaction.options.getRole('role', true) as Role;
 
-	const guild = interaction.guild as Guild;
-	await Roles.dissociate(guild, user.id, role);
+	await Roles.dissociate(interaction.guild, user.id, role);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Role ${role.name} has been removed from ${user.tag}.`)

@@ -1,11 +1,11 @@
-import type { ChatInputCommandInteraction } from 'discord.js';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { CommandData } from '../types/bot';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as Birthdays from '../services/birthdays';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Birthdays,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Birthdays)
 		.setDescription('Birthday related commands.')
@@ -27,10 +27,10 @@ export const data = {
 		.addSubcommand((subcommand) => subcommand.setName('delete').setDescription('Delete your birthday entry.')),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (arg0: ChatInputCommandInteraction) => Promise<void>> = {
+	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {
 		create: createBirthday,
 		list: getBirthdays,
 		delete: deleteBirthday,
@@ -39,21 +39,17 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const createBirthday = async (interaction: ChatInputCommandInteraction) => {
+const createBirthday = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const day = interaction.options.getInteger('day', true);
 	const month = interaction.options.getInteger('month', true);
 	const year = interaction.options.getInteger('year', true);
 
-	const date = `${year}-${month}-${day}`;
-
-	await Birthdays.create(interaction.user.id, date);
-
+	await Birthdays.create(interaction.user.id, `${year}-${month}-${day}`);
 	const embed = new EmbedBuilder().setTitle(`Your birthday has been registered.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const getBirthdays = async (interaction: ChatInputCommandInteraction) => {
+const getBirthdays = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const birthdays = await Birthdays.getBirthdays(interaction.client);
 	if (birthdays.length === 0) throw new Error('No birthdays have been registered.');
 
@@ -70,14 +66,11 @@ const getBirthdays = async (interaction: ChatInputCommandInteraction) => {
 	const formattedBirthday = sortedBirthdays.map(({ birthday, user }) => `> **${birthday}** ${user.tag}`).join('\n');
 
 	const embed = new EmbedBuilder().setTitle('Birthdays').setDescription(formattedBirthday).setColor('Random');
-
 	await interaction.reply({ embeds: [embed] });
 };
 
-const deleteBirthday = async (interaction: ChatInputCommandInteraction) => {
+const deleteBirthday = async (interaction: ExtendedChatInputCommandInteraction) => {
 	await Birthdays.remove(interaction.user.id);
-
 	const embed = new EmbedBuilder().setTitle('Your birthday has been deleted.').setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

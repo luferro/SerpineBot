@@ -1,11 +1,11 @@
-import type { ChatInputCommandInteraction } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { JokeCategory, JokesApi } from '@luferro/jokes-api';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Jokes,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Jokes)
 		.setDescription('Random joke from the available options.')
@@ -22,12 +22,10 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const category = interaction.options.getString('category', true) as JokeCategory;
 
 	const { joke } = await JokesApi.getRandomJokeByCategory(category);
-
 	const embed = new EmbedBuilder().setTitle(`${category} joke`).setDescription(joke).setColor('Random');
-
 	await interaction.reply({ embeds: [embed] });
 };

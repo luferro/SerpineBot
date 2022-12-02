@@ -1,12 +1,12 @@
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { CommandData } from '../types/bot';
 import type { ComicSelection } from '@luferro/go-comics-api';
-import type { ChatInputCommandInteraction } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { GoComicsApi } from '@luferro/go-comics-api';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Comics,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Comics)
 		.setDescription('Random comic page from the available selection.')
@@ -28,13 +28,12 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const selection = interaction.options.getString('selection', true) as ComicSelection;
 
 	const { title, url, image } = await GoComicsApi.getRandomComicPage(selection);
 	if (!title || !url || !image) throw new Error('No comic was found.');
 
 	const embed = new EmbedBuilder().setTitle(title).setURL(url).setImage(image).setColor('Random');
-
 	await interaction.reply({ embeds: [embed] });
 };

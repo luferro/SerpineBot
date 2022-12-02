@@ -1,31 +1,37 @@
 import type { AudioPlayer, AudioResource, VoiceConnection } from '@discordjs/voice';
-import type { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
-import type { Bot } from '../structures/bot';
+import type { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js';
 import type { CommandName, EventName, JobName, WebhookName } from './enums';
+import type { ExtendedChatInputCommandInteraction } from './interaction';
+
+export interface CommandData {
+	name: CommandName;
+	slashCommand:
+		| Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>
+		| SlashCommandSubcommandsOnlyBuilder;
+}
 
 export interface Command {
-	data: {
-		name: CommandName;
-		slashCommand: SlashCommandBuilder | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
-		isClientRequired: boolean;
-	};
-	execute(integration: ChatInputCommandInteraction): Promise<void>;
-	execute(client: Bot, interaction: ChatInputCommandInteraction): Promise<void>;
+	data: CommandData;
+	execute(integration: ExtendedChatInputCommandInteraction): Promise<void>;
+}
+
+export interface EventData {
+	name: EventName;
+	type: 'on' | 'once';
 }
 
 export interface Event {
-	data: {
-		name: EventName;
-		type: 'on' | 'once';
-	};
+	data: EventData;
 	execute(...args: unknown[]): Promise<void>;
 }
 
+export interface JobData {
+	name: JobName | WebhookName;
+	schedule: string | Date;
+}
+
 export interface Job {
-	data: {
-		name: JobName | WebhookName;
-		schedule: string | Date;
-	};
+	data: JobData;
 	execute(...args: unknown[]): Promise<void>;
 }
 

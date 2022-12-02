@@ -65,16 +65,12 @@ export const getXboxLeaderboard = async (client: Bot | Client) => {
 		const data = await XboxApi.getProfile(integration.profile.gamertag);
 		if (!data) continue;
 
-		const weeklyGamerscore = data.gamerscore - integration.profile.gamerscore;
-
 		await steamModel.updateOne({ userId: integration.userId }, { $set: { 'profile.gamerscore': data.gamerscore } });
 
 		const user = await client.users.fetch(integration.userId);
+		const weeklyGamerscore = data.gamerscore - integration.profile.gamerscore;
 
-		leaderboard.push({
-			user,
-			gamerscore: weeklyGamerscore,
-		});
+		leaderboard.push({ user, gamerscore: weeklyGamerscore });
 	}
 
 	return leaderboard

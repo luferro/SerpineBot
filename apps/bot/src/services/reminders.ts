@@ -37,7 +37,7 @@ export const send = async (client: Bot, reminderId: string) => {
 	const { userId, timeStart, message } = reminder!;
 
 	const target = await client.users.fetch(userId);
-	if (!target) throw new Error(`Couldn't find a target with userId ${userId}.`);
+	if (!target) throw new Error(`Cannot find a target with userId ${userId}.`);
 
 	const reminderDate = new Date(timeStart).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' });
 

@@ -1,20 +1,23 @@
-import type { ChatInputCommandInteraction } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { DealsApi } from '@luferro/games-api';
 import * as Subscriptions from '../services/subscriptions';
 import { CommandName } from '../types/enums';
+import { SleepUtil } from '@luferro/shared-utils';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Deals,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Deals)
 		.setDescription('Best PC deals in official stores and keyshops for a given game.')
 		.addStringOption((option) => option.setName('game').setDescription('Game title').setRequired(true)),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const game = interaction.options.getString('game', true);
+
+	await SleepUtil.sleep(5000);
 
 	const { id } = await DealsApi.search(game);
 	if (!id) throw new Error(`No matches for ${game}.`);

@@ -1,12 +1,12 @@
-import type { ChatInputCommandInteraction } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { IntegrationCategory } from '../types/category';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as Integrations from '../services/integrations';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Integrations,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Integrations)
 		.setDescription('Integrations related commands.')
@@ -66,10 +66,10 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (arg0: ChatInputCommandInteraction) => Promise<void>> = {
+	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {
 		sync: syncIntegration,
 		import: addIntegration,
 		delete: deleteIntegration,
@@ -79,28 +79,24 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const addIntegration = async (interaction: ChatInputCommandInteraction) => {
+const addIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const category = interaction.options.getString('category', true) as IntegrationCategory;
 	const account = interaction.options.getString('account', true);
 
 	await Integrations.create(category, interaction.user.id, account);
-
 	const embed = new EmbedBuilder().setTitle(`${category} account imported successfully.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const syncIntegration = async (interaction: ChatInputCommandInteraction) => {
+const syncIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const category = interaction.options.getString('category', true) as Exclude<IntegrationCategory, 'Xbox'>;
 
 	await Integrations.sync(category, interaction.user.id);
-
 	const embed = new EmbedBuilder().setTitle(`${category} integration synced successfully.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const integrationNotifications = async (interaction: ChatInputCommandInteraction) => {
+const integrationNotifications = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const category = interaction.options.getString('category', true) as Exclude<IntegrationCategory, 'Xbox'>;
 	const option = interaction.options.getBoolean('option', true);
 
@@ -113,12 +109,10 @@ const integrationNotifications = async (interaction: ChatInputCommandInteraction
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const deleteIntegration = async (interaction: ChatInputCommandInteraction) => {
+const deleteIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const category = interaction.options.getString('category', true) as IntegrationCategory;
 
 	await Integrations.remove(category, interaction.user.id);
-
 	const embed = new EmbedBuilder().setTitle(`${category} integration deleted successfully.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

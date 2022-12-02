@@ -1,13 +1,14 @@
-import type { ChatInputCommandInteraction, GuildMember } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { GuildMember } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { SteamApi } from '@luferro/games-api';
 import * as Leaderboards from '../services/leaderboards';
 import { steamModel } from '../database/models/steam';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Steam,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Steam)
 		.setDescription('Steam related commands.')
@@ -32,10 +33,10 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (arg0: ChatInputCommandInteraction) => Promise<void>> = {
+	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {
 		new: getUpcoming,
 		top: getTopPlayed,
 		hot: getTopSellers,
@@ -48,7 +49,7 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const getNextSale = async (interaction: ChatInputCommandInteraction) => {
+const getNextSale = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const { sale, status, upcoming } = await SteamApi.getNextSale();
 	if (!sale) throw new Error('No dates were found for the next steam sale.');
 
@@ -66,7 +67,7 @@ const getNextSale = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getTopPlayed = async (interaction: ChatInputCommandInteraction) => {
+const getTopPlayed = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const topPlayed = await SteamApi.getTopPlayed();
 	if (topPlayed.length === 0) throw new Error("No games were found in Steam's top played list.");
 
@@ -78,7 +79,7 @@ const getTopPlayed = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getTopSellers = async (interaction: ChatInputCommandInteraction) => {
+const getTopSellers = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const topSellers = await SteamApi.getTopSellers();
 	if (topSellers.length === 0) throw new Error("No games were found in Steam's top sellers list.");
 
@@ -90,7 +91,7 @@ const getTopSellers = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getUpcoming = async (interaction: ChatInputCommandInteraction) => {
+const getUpcoming = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const upcoming = await SteamApi.getUpcoming();
 	if (upcoming.length === 0) throw new Error("No games were found in Steam's upcoming list.");
 
@@ -102,7 +103,7 @@ const getUpcoming = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getLeaderboard = async (interaction: ChatInputCommandInteraction) => {
+const getLeaderboard = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const leaderboard = await Leaderboards.getSteamLeaderboard(interaction.client);
 	if (leaderboard.length === 0) throw new Error('No Steam leaderboard is available.');
 
@@ -115,7 +116,7 @@ const getLeaderboard = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getProfile = async (interaction: ChatInputCommandInteraction) => {
+const getProfile = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 	const userId = mention?.user.id ?? interaction.user.id;
 
@@ -153,7 +154,7 @@ const getProfile = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getWishlist = async (interaction: ChatInputCommandInteraction) => {
+const getWishlist = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 	const user = mention?.user ?? interaction.user;
 

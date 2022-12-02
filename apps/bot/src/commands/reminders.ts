@@ -1,11 +1,12 @@
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { TimeUnit } from '@luferro/shared-utils';
-import type { ChatInputCommandInteraction } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as Reminders from '../services/reminders';
 import { CommandName } from '../types/enums';
-export const data = {
+
+export const data: CommandData = {
 	name: CommandName.Reminders,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Reminders)
 		.setDescription('Reminder related commands.')
@@ -48,10 +49,10 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (arg0: ChatInputCommandInteraction) => Promise<void>> = {
+	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {
 		create: createReminder,
 		delete: deleteReminder,
 	};
@@ -59,7 +60,7 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const createReminder = async (interaction: ChatInputCommandInteraction) => {
+const createReminder = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const time = interaction.options.getInteger('time', true);
 	const unit = interaction.options.getString('unit', true) as TimeUnit;
 	const message = interaction.options.getString('message', true);
@@ -74,12 +75,10 @@ const createReminder = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const deleteReminder = async (interaction: ChatInputCommandInteraction) => {
+const deleteReminder = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const reminderId = interaction.options.getString('reminder', true);
 
 	await Reminders.remove(reminderId);
-
 	const embed = new EmbedBuilder().setTitle(`Reminder ${reminderId} has been deleted.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

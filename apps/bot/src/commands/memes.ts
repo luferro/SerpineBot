@@ -1,23 +1,21 @@
-import type { ChatInputCommandInteraction } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Memes,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder().setName(CommandName.Memes).setDescription('Random meme.'),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const posts = await RedditApi.getPosts('Memes');
-	const { title, url, selfurl } = posts[Math.floor(Math.random() * posts.length)];
+	const { title, url, selfurl, hasEmbeddedMedia } = posts[Math.floor(Math.random() * posts.length)];
 
-	const hasVideoExtension = ['.gif', '.gifv', '.mp4'].some((extension) => url.includes(extension));
-	if (hasVideoExtension) {
-		const formattedTitle = `[${StringUtil.truncate(title)}](<${selfurl}>)`;
-		await interaction.reply({ content: `**${formattedTitle}**\n${url}` });
+	if (hasEmbeddedMedia) {
+		await interaction.reply({ content: `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}` });
 		return;
 	}
 

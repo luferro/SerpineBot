@@ -9,11 +9,12 @@ export const connect = async () => {
 		useNewUrlParser: true,
 	} as ConnectOptions;
 
-	await mongoose.connect(config.MONGO_URI, options).catch(() => {
+	try {
+		await mongoose.connect(config.MONGO_URI, options);
+		logger.info('Connected to database successfully.');
+	} catch (error) {
 		throw new Error('Failed to connect to database.');
-	});
-
-	logger.info('Connected to database successfully.');
+	}
 };
 
 export const disconnect = () => {
@@ -21,6 +22,5 @@ export const disconnect = () => {
 	if (state === 'disconnected') return;
 
 	mongoose.connection.close();
-
 	logger.info('Disconnected from database successfully.');
 };

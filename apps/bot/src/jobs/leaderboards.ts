@@ -1,3 +1,4 @@
+import type { JobData } from '../types/bot';
 import type { Bot } from '../structures/bot';
 import type { IntegrationCategory } from '../types/category';
 import { EmbedBuilder } from 'discord.js';
@@ -9,7 +10,7 @@ import { steamModel } from '../database/models/steam';
 import { xboxModel } from '../database/models/xbox';
 import { JobName } from '../types/enums';
 
-export const data = {
+export const data: JobData = {
 	name: JobName.Leaderboards,
 	schedule: '0 0 0 * * 0',
 };

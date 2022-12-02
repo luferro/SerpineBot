@@ -1,10 +1,11 @@
+import type { JobData } from '../../types/bot';
 import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { NewsDataApi } from '@luferro/news-data-api';
 import { SleepUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
-export const data = {
+export const data: JobData = {
 	name: WebhookName.WorldNews,
 	schedule: '0 */30 * * * *',
 };

@@ -1,10 +1,11 @@
+import type { JobData } from '../../types/bot';
 import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { NintendoApi } from '@luferro/games-api';
 import { SleepUtil, StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
-export const data = {
+export const data: JobData = {
 	name: WebhookName.Nintendo,
 	schedule: '0 */5 * * * *',
 };

@@ -1,3 +1,4 @@
+import type { JobData } from '../../types/bot';
 import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { JikanApi } from '@luferro/jikan-api';
@@ -20,7 +21,7 @@ enum Stream {
 	Crunchyroll = 'crunchyroll.com',
 }
 
-export const data = {
+export const data: JobData = {
 	name: WebhookName.Anime,
 	schedule: '0 */20 * * * *',
 };

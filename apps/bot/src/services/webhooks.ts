@@ -1,5 +1,4 @@
-import type { Bot } from '../structures/bot';
-import type { TextChannel } from 'discord.js';
+import type { Client, TextChannel } from 'discord.js';
 import { settingsModel } from '../database/models/settings';
 import type { WebhookCategory } from '../types/category';
 
@@ -40,7 +39,7 @@ export const create = async (guildId: string, channel: TextChannel, category: We
 	await settingsModel.updateOne({ guildId }, { $set: { webhooks } }, { upsert: true });
 };
 
-export const getWebhook = async (client: Bot, guildId: string, category: WebhookCategory) => {
+export const getWebhook = async (client: Client, guildId: string, category: WebhookCategory) => {
 	const guild = await client.guilds.fetch(guildId);
 	const settings = await settingsModel.findOne({ guildId });
 
@@ -57,13 +56,13 @@ export const getWebhook = async (client: Bot, guildId: string, category: Webhook
 		webhooks.splice(webhookIndex, 1);
 
 		await settingsModel.updateOne({ guild: guild.id }, { $set: { webhooks } });
-		return;
+		return null;
 	}
 
 	return await client.fetchWebhook(guildWebhook.id, guildWebhook.token);
 };
 
-export const remove = async (client: Bot, guildId: string, category: WebhookCategory) => {
+export const remove = async (client: Client, guildId: string, category: WebhookCategory) => {
 	const settings = await settingsModel.findOne({ guildId });
 	const webhooks = settings?.webhooks ?? [];
 

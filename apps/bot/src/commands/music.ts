@@ -1,13 +1,15 @@
-import type { ChatInputCommandInteraction, Guild, GuildMember, SelectMenuInteraction } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { Guild, GuildMember, SelectMenuInteraction } from 'discord.js';
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SelectMenuBuilder, SlashCommandBuilder } from 'discord.js';
 import { YoutubeApi } from '@luferro/google-api';
 import { Bot } from '../structures/bot';
 import * as Music from '../services/music';
 import { CommandName } from '../types/enums';
+import { randomUUID } from 'crypto';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Music,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Music)
 		.setDescription('Music related commands.')
@@ -58,53 +60,33 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
-	const member = interaction.member as GuildMember;
-	if (!member.voice.channel) throw new Error('You must be in a voice channel to use music related commands.');
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const isMemberInVoiceChannel = interaction.member.voice.channel;
+	if (!isMemberInVoiceChannel) throw new Error('Music related commands require you to be in a voice channel.');
 
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (arg0: ChatInputCommandInteraction) => Promise<void>> = {
-		join: join,
-		leave: leave,
+	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {
 		play: add,
-		remove: remove,
-		clear: clear,
-		search: search,
-		pause: pause,
-		resume: resume,
-		seek: seek,
-		skip: skip,
-		loop: loop,
-		queue: queue,
+		join,
+		leave,
+		remove,
+		clear,
+		search,
+		pause,
+		resume,
+		seek,
+		skip,
+		loop,
+		queue,
 	};
 
 	await select[subcommand](interaction);
 };
 
-const join = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	const member = interaction.member as GuildMember;
-	if (Bot.music.has(guild.id)) throw new Error('SerpineBot is already connect to a voice channel.');
-
-	Music.join(guild.id, member);
-
-	await interaction.reply({ content: 'SerpineBot has joined your voice channel. ', ephemeral: true });
-};
-
-const leave = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
-
-	Music.leave(guild.id);
-
-	await interaction.reply({ content: 'SerpineBot has left your voice channel.', ephemeral: true });
-};
-
-const add = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	const member = interaction.member as GuildMember;
-	if (!Bot.music.has(guild.id)) Music.join(guild.id, member);
+const add = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const guildId = interaction.guild.id;
+	if (!Bot.music.has(guildId)) Music.join(guildId, interaction.member);
 
 	const query = interaction.options.getString('query', true);
 
@@ -113,15 +95,12 @@ const add = async (interaction: ChatInputCommandInteraction) => {
 		const { title, url, channel, count, videos } = await YoutubeApi.getPlaylist(query);
 		for (const video of videos) {
 			const music = {
-				playlist: {
-					title,
-					url,
-				},
-				requested: interaction.user.tag,
 				...video,
+				playlist: { title, url },
+				requested: interaction.user.tag,
 			};
 
-			await Music.addToQueue(guild.id, music).catch((error: Error) => error);
+			await Music.addToQueue(guildId, music).catch((error: Error) => error);
 		}
 
 		const embed = new EmbedBuilder()
@@ -151,11 +130,11 @@ const add = async (interaction: ChatInputCommandInteraction) => {
 	if (!data) throw new Error(`No matches for ${query}.`);
 
 	const music = {
-		requested: interaction.user.tag,
 		...data,
+		requested: interaction.user.tag,
 	};
 
-	const { position } = await Music.addToQueue(guild.id, music);
+	const { position } = await Music.addToQueue(guildId, music);
 
 	const embed = new EmbedBuilder()
 		.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
@@ -184,172 +163,140 @@ const add = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const remove = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
+const join = async (interaction: ExtendedChatInputCommandInteraction) => {
+	Music.join(interaction.guild.id, interaction.member);
+	await interaction.reply({ content: 'SerpineBot has joined your voice channel. ', ephemeral: true });
+};
 
+const leave = async (interaction: ExtendedChatInputCommandInteraction) => {
+	Music.leave(interaction.guild.id);
+	await interaction.reply({ content: 'SerpineBot has left your voice channel.', ephemeral: true });
+};
+
+const remove = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const position = interaction.options.getInteger('position', true);
-	await Music.removeFromQueue(guild.id, position);
 
+	await Music.removeFromQueue(interaction.guild.id, position);
 	await queue(interaction);
 };
 
-const clear = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
-
-	await Music.clearQueue(guild.id);
-
+const clear = async (interaction: ExtendedChatInputCommandInteraction) => {
+	await Music.clearQueue(interaction.guild.id);
 	await queue(interaction);
 };
 
-const search = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	const member = interaction.member as GuildMember;
-	if (!Bot.music.has(guild.id)) Music.join(guild.id, member);
+const search = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const guildId = interaction.guild.id;
+	if (!Bot.music.has(guildId)) Music.join(guildId, interaction.member);
 
 	const query = interaction.options.getString('query', true);
 	const results = await YoutubeApi.search(query, 10);
+
+	const options = [
+		...results.map(({ title, duration, url }, index) => ({
+			label: `${index + 1}. ${title}`,
+			description: duration,
+			value: url,
+		})),
+		{ label: 'Cancel', description: `Stop searching for ${query}`, value: 'CANCEL' },
+	];
+
+	const uuid = randomUUID();
+
+	const component = new ActionRowBuilder().addComponents(
+		new SelectMenuBuilder().setCustomId(uuid).setPlaceholder('Nothing selected.').addOptions(options),
+	) as ActionRowBuilder<SelectMenuBuilder>;
 
 	const formattedResults = results
 		.map(({ title, url, duration }, index) => `\`${index + 1}.\` **[${title}](${url})** | \`${duration}\``)
 		.join('\n');
 
-	const selectOptions = results.map(({ title, duration, url }, index) => ({
-		label: `${index + 1}. ${title}`,
-		description: duration,
-		value: url,
-	}));
-	selectOptions.push({ label: 'Cancel', description: `Stop searching for ${query}`, value: 'CANCEL' });
-
-	const selectMenu = new SelectMenuBuilder()
-		.setCustomId('musicSearchSelectMenu')
-		.setPlaceholder('Nothing selected.')
-		.addOptions(selectOptions);
-
-	const actionRow = new ActionRowBuilder().addComponents(selectMenu) as ActionRowBuilder<SelectMenuBuilder>;
-
-	const embed = new EmbedBuilder()
+	const initialEmbed = new EmbedBuilder()
 		.setTitle(`Search results for \`${query}\``)
 		.setDescription(formattedResults)
 		.setFooter({ text: "Select 'Cancel' from the selection menu to stop searching." })
 		.setColor('Random');
 
-	await interaction.reply({ embeds: [embed], components: [actionRow], ephemeral: true });
+	await interaction.reply({ embeds: [initialEmbed], components: [component], ephemeral: true });
 
-	const filter = (filterInteraction: SelectMenuInteraction) =>
-		filterInteraction.customId === 'musicSearchSelectMenu' && filterInteraction.user.id === interaction.user.id;
-
-	const collector = interaction.channel?.createMessageComponentCollector({
-		filter,
-		componentType: ComponentType.SelectMenu,
-		max: 1,
+	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
 		time: 60 * 1000,
+		componentType: ComponentType.StringSelect,
+		filter: ({ customId, user }: SelectMenuInteraction) => customId === uuid && user.id === interaction.user.id,
 	});
-	collector?.on('end', async (collected) => {
-		try {
-			const collectedInteraction = collected.first();
-			if (!collectedInteraction) throw new Error('Search timeout.');
+	if (!selectMenuInteraction) throw new Error('Search timeout.');
 
-			const collectedMember = collectedInteraction.member as GuildMember;
-			if (!collectedMember.voice.channel)
-				throw new Error('You must be in a voice channel to select an item from the search menu.');
+	const isMemberInVoiceChannel = (selectMenuInteraction.member as GuildMember).voice.channel;
+	if (!isMemberInVoiceChannel) throw new Error('You must be in a voice channel to use the search menu.');
 
-			const collectedGuild = collectedInteraction.guild as Guild;
-			if (!Bot.music.has(collectedGuild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
+	const isGuildRegistered = Bot.music.has((selectMenuInteraction.guild as Guild).id);
+	if (!isGuildRegistered) throw new Error("SerpineBot isn't connected to a voice channel.");
 
-			const { values } = collectedInteraction;
-			if (values.length === 0 || values[0] === 'CANCEL') {
-				const embed = new EmbedBuilder().setTitle('Search has been canceled.').setColor('Random');
+	const { values } = selectMenuInteraction;
 
-				await collectedInteraction.update({ embeds: [embed], components: [] });
-				return;
-			}
+	const isSearchInvalidOrCancelled = values.length === 0 || values[0] === 'CANCEL';
+	if (isSearchInvalidOrCancelled) {
+		const cancelledEmbed = new EmbedBuilder().setTitle('Search has been canceled.').setColor('Random');
+		await selectMenuInteraction.update({ embeds: [cancelledEmbed], components: [] });
+		return;
+	}
 
-			const results = await YoutubeApi.search(query, 20);
-			const selectedMusic = results.find(({ url }) => url === values[0])!;
+	const music = {
+		...(await YoutubeApi.search(query, 20)).find(({ url }) => url === values[0])!,
+		requested: selectMenuInteraction.user.tag,
+	};
 
-			const music = {
-				requested: collectedInteraction.user.tag,
-				...selectedMusic,
-			};
+	const { position } = await Music.addToQueue(guildId, music);
 
-			const { position } = await Music.addToQueue(guild.id, music);
+	const finalEmbed = new EmbedBuilder()
+		.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
+		.setTitle(music.title)
+		.setURL(music.url)
+		.setThumbnail(music.thumbnail)
+		.addFields([
+			{
+				name: '**Position in queue**',
+				value: position === 0 ? 'Currently playing' : position.toString(),
+				inline: true,
+			},
+			{
+				name: '**Channel**',
+				value: music.channel ?? 'N/A',
+				inline: true,
+			},
+			{
+				name: '**Duration**',
+				value: music.duration,
+				inline: true,
+			},
+		])
+		.setColor('Random');
 
-			const embed = new EmbedBuilder()
-				.setAuthor({ name: 'Added to queue', iconURL: interaction.user.avatarURL() ?? '' })
-				.setTitle(music.title)
-				.setURL(music.url)
-				.setThumbnail(music.thumbnail)
-				.addFields([
-					{
-						name: '**Position in queue**',
-						value: position === 0 ? 'Currently playing' : position.toString(),
-						inline: true,
-					},
-					{
-						name: '**Channel**',
-						value: music.channel ?? 'N/A',
-						inline: true,
-					},
-					{
-						name: '**Duration**',
-						value: music.duration,
-						inline: true,
-					},
-				])
-				.setColor('Random');
-
-			await collectedInteraction.update({ embeds: [embed], components: [] });
-		} catch (error) {
-			await interaction[interaction.replied ? 'editReply' : 'reply']({
-				content: (error as Error).message,
-				embeds: [],
-				components: [],
-			});
-		}
-	});
+	await selectMenuInteraction.update({ embeds: [finalEmbed], components: [] });
 };
 
-const pause = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
-
-	const { pausedItem } = await Music.pause(guild.id);
-
+const pause = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const { pausedItem } = await Music.pause(interaction.guild.id);
 	const embed = new EmbedBuilder().setTitle(`Pausing \`${pausedItem}\`.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed] });
 };
 
-const resume = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
-
-	const { resumedItem } = await Music.resume(guild.id);
-
+const resume = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const { resumedItem } = await Music.resume(interaction.guild.id);
 	const embed = new EmbedBuilder().setTitle(`Pausing \`${resumedItem}\`.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed] });
 };
 
-const seek = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
-
+const seek = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const timestamp = interaction.options.getString('timestamp', true);
-	await Music.seek(guild.id, timestamp);
 
-	const embed = new EmbedBuilder().setTitle(`Started playing from minute \`${timestamp}\`.`).setColor('Random');
-
+	await Music.seek(interaction.guild.id, timestamp);
+	const embed = new EmbedBuilder().setTitle(`Started playing from \`${timestamp}\`.`).setColor('Random');
 	await interaction.reply({ embeds: [embed] });
 };
 
-const skip = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
-
-	const { playing, skippedItem } = await Music.skip(guild.id);
+const skip = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const { playing, skippedItem } = await Music.skip(interaction.guild.id);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Skipped \`${skippedItem}\`.`)
@@ -359,22 +306,15 @@ const skip = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const loop = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
-
-	const { looping } = await Music.loop(guild.id);
-
+const loop = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const { looping } = await Music.loop(interaction.guild.id);
 	const embed = new EmbedBuilder().setTitle(`Loop has been ${looping ? 'enabled' : 'disabled'}.`).setColor('Random');
-
 	await interaction.reply({ embeds: [embed] });
 };
 
-const queue = async (interaction: ChatInputCommandInteraction) => {
-	const guild = interaction.guild as Guild;
-	if (!Bot.music.has(guild.id)) throw new Error("SerpineBot isn't connected to a voice channel.");
+const queue = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const { playing, queue } = Music.queue(interaction.guild.id);
 
-	const { playing, queue } = Music.queue(guild.id);
 	const formattedQueue = queue
 		.slice(0, 10)
 		.map(
@@ -384,14 +324,16 @@ const queue = async (interaction: ChatInputCommandInteraction) => {
 		.join('\n');
 
 	const embed = new EmbedBuilder()
-		.setTitle(`Queue for ${guild.name}`)
-		.setDescription(
-			`**Now playing**\n${
-				playing
+		.setTitle(`Queue for ${interaction.guild.name}`)
+		.addFields([
+			{
+				name: '**Now playing**',
+				value: playing
 					? `**[${playing.title}](${playing.url})** | **${playing.duration}**\nRequest by \`${playing.requested}\``
-					: 'Nothing is playing.'
-			}\n\n**Queue**\n${formattedQueue || 'Queue is empty.'}`,
-		)
+					: 'Nothing is playing.',
+			},
+			{ name: '**Queue**', value: formattedQueue || 'Queue is empty.' },
+		])
 		.setFooter({ text: `${queue.length} total items in queue.` })
 		.setColor('Random');
 

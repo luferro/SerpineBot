@@ -49,9 +49,16 @@ const play = async (guildId: string) => {
 	subscription.player.play(subscription.resource);
 };
 
-export const join = (guildId: string, member: GuildMember) => {
-	const voiceChannel = member.voice.channel as VoiceBasedChannel;
+const verifyClientConnection = (guildId: string, shouldBeConnected: boolean) => {
+	const isConnected = Bot.music.has(guildId);
+	if (!isConnected && shouldBeConnected) throw new Error('SerpineBot is not connected to a voice channel.');
+	if (isConnected && !shouldBeConnected) throw new Error('SerpineBot is already connect to a voice channel.');
+};
 
+export const join = (guildId: string, member: GuildMember) => {
+	verifyClientConnection(guildId, false);
+
+	const voiceChannel = member.voice.channel as VoiceBasedChannel;
 	const subscription = {
 		player: createAudioPlayer(),
 		resource: null,
@@ -64,23 +71,26 @@ export const join = (guildId: string, member: GuildMember) => {
 		looping: false,
 		queue: [] as QueueItem[],
 	};
-
 	subscription.connection.subscribe(subscription.player);
 	subscription.player.on(AudioPlayerStatus.Idle, async () => await playerOnIdle(guildId));
+
 	Bot.music.set(guildId, subscription);
 };
 
 export const leave = (guildId: string) => {
-	const subscription = getGuildSubscription(guildId);
+	verifyClientConnection(guildId, true);
 
+	const subscription = getGuildSubscription(guildId);
 	subscription.player.stop();
 	subscription.connection.destroy();
+
 	Bot.music.delete(guildId);
 };
 
 export const addToQueue = async (guildId: string, queueItem: QueueItem) => {
-	const subscription = getGuildSubscription(guildId);
+	verifyClientConnection(guildId, true);
 
+	const subscription = getGuildSubscription(guildId);
 	if (subscription.queue.length === 0) {
 		subscription.playing = true;
 		subscription.queue = [queueItem];
@@ -88,7 +98,7 @@ export const addToQueue = async (guildId: string, queueItem: QueueItem) => {
 		await play(guildId);
 	} else {
 		const hasEntry = subscription.queue.some((item) => JSON.stringify(item) === JSON.stringify(queueItem));
-		if (hasEntry) throw new Error('Entry already exists in the queue.');
+		if (hasEntry) throw new Error('Duplicated entry detected.');
 
 		subscription.queue.push(queueItem);
 	}
@@ -99,6 +109,8 @@ export const addToQueue = async (guildId: string, queueItem: QueueItem) => {
 };
 
 export const removeFromQueue = async (guildId: string, position: number) => {
+	verifyClientConnection(guildId, true);
+
 	const subscription = getGuildSubscription(guildId);
 	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
 	if (position < 1 || position > subscription.queue.length) throw new Error('Invalid queue position.');
@@ -107,6 +119,8 @@ export const removeFromQueue = async (guildId: string, position: number) => {
 };
 
 export const clearQueue = async (guildId: string) => {
+	verifyClientConnection(guildId, true);
+
 	const subscription = getGuildSubscription(guildId);
 	if (subscription.queue.length <= 1) throw new Error('Queue is already empty.');
 
@@ -114,8 +128,10 @@ export const clearQueue = async (guildId: string) => {
 };
 
 export const seek = async (guildId: string, timestamp: string) => {
-	if (!/([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?/g.test(timestamp))
-		throw new Error('Invalid timestamp format. Use the following format hh?:mm:ss where ? is optional.');
+	verifyClientConnection(guildId, true);
+
+	const isValidTimestamp = /([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?/g.test(timestamp);
+	if (!isValidTimestamp) throw new Error('Invalid timestamp format.');
 
 	const subscription = getGuildSubscription(guildId);
 	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
@@ -147,8 +163,10 @@ export const seek = async (guildId: string, timestamp: string) => {
 };
 
 export const loop = async (guildId: string) => {
+	verifyClientConnection(guildId, true);
+
 	const subscription = getGuildSubscription(guildId);
-	if (!subscription.playing) throw new Error("Can't enable loop. Nothing is playing.");
+	if (!subscription.playing) throw new Error('Cannot enable loop. Nothing is currently playing.');
 
 	subscription.looping = !subscription.looping;
 	const looping = subscription.looping;
@@ -157,8 +175,10 @@ export const loop = async (guildId: string) => {
 };
 
 export const skip = async (guildId: string) => {
+	verifyClientConnection(guildId, true);
+
 	const subscription = getGuildSubscription(guildId);
-	if (subscription.queue.length === 1) throw new Error('There are no more items to skip.');
+	if (subscription.queue.length === 1) throw new Error('Cannot skip. Queue is empty.');
 
 	const skippedItem = subscription.queue[0].title;
 
@@ -173,6 +193,8 @@ export const skip = async (guildId: string) => {
 };
 
 export const pause = async (guildId: string) => {
+	verifyClientConnection(guildId, true);
+
 	const subscription = getGuildSubscription(guildId);
 	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
 
@@ -183,6 +205,8 @@ export const pause = async (guildId: string) => {
 };
 
 export const resume = async (guildId: string) => {
+	verifyClientConnection(guildId, true);
+
 	const subscription = getGuildSubscription(guildId);
 	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
 
@@ -193,6 +217,8 @@ export const resume = async (guildId: string) => {
 };
 
 export const queue = (guildId: string) => {
+	verifyClientConnection(guildId, true);
+
 	const subscription = getGuildSubscription(guildId);
 
 	const queue = [...subscription.queue];

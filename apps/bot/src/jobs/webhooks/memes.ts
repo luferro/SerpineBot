@@ -1,3 +1,4 @@
+import type { JobData } from '../../types/bot';
 import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
@@ -5,7 +6,7 @@ import { SleepUtil, StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 import { config } from '../../config/environment';
 
-export const data = {
+export const data: JobData = {
 	name: WebhookName.Memes,
 	schedule: '0 */10 * * * *',
 };

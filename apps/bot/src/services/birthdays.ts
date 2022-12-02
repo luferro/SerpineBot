@@ -31,11 +31,10 @@ export const getBirthdays = async (client: Client) => {
 
 export const send = async (guild: Guild, channelId: string, userId: string, birthday: string) => {
 	const target = await guild.members.fetch(userId);
-	if (!target) throw new Error(`Couldn't find a user with userId ${userId} in guild ${guild.name}.`);
+	if (!target) throw new Error(`Cannot find userId ${userId} in guild ${guild.name}.`);
 
 	const channel = await guild.channels.fetch(channelId);
-	if (!channel?.isTextBased())
-		throw new Error(`Couldn't find a channel with channelId ${channelId} in guild ${guild.name}.`);
+	if (!channel?.isTextBased()) throw new Error(`Cannot find channelId ${channelId} in guild ${guild.name}.`);
 
 	const { 0: year } = birthday.split('-').map(Number);
 	const age = new Date().getFullYear() - year;

@@ -1,18 +1,18 @@
-import type { ChatInputCommandInteraction } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { TheMovieDbApi } from '@luferro/the-movie-db-api';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Series,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Series)
 		.setDescription('Overview for a given series.')
 		.addStringOption((option) => option.setName('series').setDescription('Series title.').setRequired(true)),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const series = interaction.options.getString('series', true);
 
 	const { id } = await TheMovieDbApi.search(series, 'Series');

@@ -1,3 +1,4 @@
+import type { JobData } from '../../types/bot';
 import type { Bot } from '../../structures/bot';
 import type { DealsCategory } from '@luferro/games-api';
 import { EmbedBuilder } from 'discord.js';
@@ -5,7 +6,7 @@ import { DealsApi } from '@luferro/games-api';
 import { StringUtil, SleepUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
-export const data = {
+export const data: JobData = {
 	name: WebhookName.Deals,
 	schedule: '0 */5 * * * *',
 };

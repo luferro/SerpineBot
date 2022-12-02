@@ -1,5 +1,5 @@
 import type { Command } from '../types/bot';
-import type { ApplicationCommandDataResolvable } from 'discord.js';
+import type { ApplicationCommandDataResolvable, Client } from 'discord.js';
 import path from 'path';
 import { Bot } from '../structures/bot';
 import { FileUtil, logger } from '@luferro/shared-utils';
@@ -14,13 +14,13 @@ export const register = async () => {
 	logger.info(`Commands handler registered **${files.length}** command(s).`);
 };
 
-export const deploy = async (client: Bot) => {
+export const deploy = async (client: Client) => {
 	for (const { 1: guild } of client.guilds.cache) {
-		const slashCommands = Bot.commands.map((command) =>
+		const commands = Bot.commands.map((command) =>
 			command.data.slashCommand.toJSON(),
 		) as ApplicationCommandDataResolvable[];
 
-		const guildCommands = await guild.commands.set(slashCommands);
+		const guildCommands = await guild.commands.set(commands);
 
 		logger.info(`Commands handler deployed **${guildCommands.size}** slash command(s) to guild **${guild.name}**.`);
 	}

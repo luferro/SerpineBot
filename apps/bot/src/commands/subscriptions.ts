@@ -1,13 +1,13 @@
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { TheMovieDbCategory } from '@luferro/the-movie-db-api';
-import type { ChatInputCommandInteraction } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { StringUtil } from '@luferro/shared-utils';
 import * as Subscriptions from '../services/subscriptions';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Subscriptions,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Subscriptions)
 		.setDescription('Subscription services related commands.')
@@ -25,7 +25,7 @@ export const data = {
 		.addStringOption((option) => option.setName('item').setDescription('Item title').setRequired(true)),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const category = interaction.options.getString('category', true) as TheMovieDbCategory | 'Games';
 	const item = interaction.options.getString('item', true);
 

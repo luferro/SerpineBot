@@ -1,21 +1,9 @@
-import type { ChatInputCommandInteraction, Message } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { Message } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { StringUtil } from '@luferro/shared-utils';
 import { CommandName } from '../types/enums';
-
-export const data = {
-	name: CommandName.Poll,
-	isClientRequired: false,
-	slashCommand: new SlashCommandBuilder()
-		.setName(CommandName.Poll)
-		.setDescription('Creates a poll with reactions.')
-		.addStringOption((option) => option.setName('question').setDescription('Poll question.').setRequired(true))
-		.addStringOption((option) =>
-			option
-				.setName('options')
-				.setDescription('Poll options must be separated by a comma, semi-colon or the "or" keyword.'),
-		),
-};
 
 enum PollOptions {
 	'1️⃣' = 1,
@@ -30,32 +18,28 @@ enum PollOptions {
 	'🔟',
 }
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const data: CommandData = {
+	name: CommandName.Poll,
+	slashCommand: new SlashCommandBuilder()
+		.setName(CommandName.Poll)
+		.setDescription('Creates a poll with reactions.')
+		.addStringOption((option) => option.setName('question').setDescription('Poll question.').setRequired(true))
+		.addStringOption((option) =>
+			option
+				.setName('options')
+				.setDescription('Poll options must be separated by a comma, semi-colon or the "or" keyword.'),
+		),
+};
+
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const question = interaction.options.getString('question', true);
 	const options = interaction.options.getString('options');
 
-	if (options) {
-		const choices = options.split(/or|,|;/);
-		if (choices.length < 2 || choices.length > 10)
-			throw new Error('Invalid quantity. Choose between 2 and 10 options.');
+	if (options) await handlePollWithOptions(interaction, question, options);
+	else await handlePollWithoutOptions(interaction, question);
+};
 
-		const reactions: string[] = [];
-		const formattedChoices = choices
-			.map((choice, index) => {
-				reactions.push(PollOptions[index + 1]);
-				return `> ${PollOptions[index + 1]} **${choice.split(' ').map(StringUtil.capitalize).join(' ')}**`;
-			})
-			.join('\n');
-
-		const embed = new EmbedBuilder()
-			.setTitle(StringUtil.capitalize(question))
-			.setDescription(formattedChoices)
-			.setColor('Random');
-
-		const message = await interaction.reply({ embeds: [embed], fetchReply: true });
-		return addReactions(message, reactions);
-	}
-
+const handlePollWithoutOptions = async (interaction: ExtendedChatInputCommandInteraction, question: string) => {
 	const embed = new EmbedBuilder()
 		.setTitle(StringUtil.capitalize(question))
 		.setDescription('Vote with 👍🏻 or 👎🏻')
@@ -63,6 +47,31 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 
 	const message = await interaction.reply({ embeds: [embed], fetchReply: true });
 	addReactions(message, ['👍🏻', '👎🏻']);
+};
+
+const handlePollWithOptions = async (
+	interaction: ExtendedChatInputCommandInteraction,
+	question: string,
+	options: string,
+) => {
+	const choices = options.split(/or|,|;/);
+	if (choices.length < 2 || choices.length > 10) throw new Error('Invalid poll. Choose between 2 and 10 options.');
+
+	const reactions: string[] = [];
+	const formattedChoices = choices
+		.map((choice, index) => {
+			reactions.push(PollOptions[index + 1]);
+			return `> ${PollOptions[index + 1]} **${choice.split(' ').map(StringUtil.capitalize).join(' ')}**`;
+		})
+		.join('\n');
+
+	const embed = new EmbedBuilder()
+		.setTitle(StringUtil.capitalize(question))
+		.setDescription(formattedChoices)
+		.setColor('Random');
+
+	const message = await interaction.reply({ embeds: [embed], fetchReply: true });
+	addReactions(message, reactions);
 };
 
 const addReactions = (message: Message, reactions: string[]) => {

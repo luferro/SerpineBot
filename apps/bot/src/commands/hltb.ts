@@ -1,18 +1,18 @@
-import type { ChatInputCommandInteraction } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { HowLongToBeatApi } from '@luferro/games-api';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.HowLongToBeat,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.HowLongToBeat)
 		.setDescription('Average playtime required to beat a given game.')
 		.addStringOption((option) => option.setName('game').setDescription('Game title.').setRequired(true)),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const game = interaction.options.getString('game', true);
 
 	const { id } = await HowLongToBeatApi.search(game);

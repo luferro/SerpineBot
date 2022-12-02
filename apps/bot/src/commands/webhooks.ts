@@ -1,13 +1,13 @@
-import type { Bot } from '../structures/bot';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { WebhookCategory } from '../types/category';
-import type { ChatInputCommandInteraction, Guild, GuildBasedChannel } from 'discord.js';
+import type { GuildBasedChannel } from 'discord.js';
 import { ChannelType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import * as Webhooks from '../services/webhooks';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Webhooks,
-	isClientRequired: true,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Webhooks)
 		.setDescription('Webhooks related commands.')
@@ -70,27 +70,24 @@ export const data = {
 		),
 };
 
-export const execute = async (client: Bot, interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select = (category: string) => {
-		const options: Record<string, (arg0: Bot, arg1: ChatInputCommandInteraction) => Promise<void>> = {
-			create: createWebhook,
-			delete: deleteWebhook,
-		};
-		return options[category](client, interaction);
+	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {
+		create: createWebhook,
+		delete: deleteWebhook,
 	};
-	await select(subcommand);
+
+	await select[subcommand](interaction);
 };
 
-const createWebhook = async (_client: Bot, interaction: ChatInputCommandInteraction) => {
+const createWebhook = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const category = interaction.options.getString('category', true) as WebhookCategory;
 	const channel = interaction.options.getChannel('channel', true) as GuildBasedChannel;
 
 	if (channel.type !== ChannelType.GuildText) throw new Error('Webhooks can only be assigned to text channels.');
 
-	const guild = interaction.guild as Guild;
-	await Webhooks.create(guild.id, channel, category);
+	await Webhooks.create(interaction.guild.id, channel, category);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`${Webhooks.getWebhookNameFromCategory(category)} webhook has been assigned to ${channel.name}.`)
@@ -99,11 +96,10 @@ const createWebhook = async (_client: Bot, interaction: ChatInputCommandInteract
 	await interaction.reply({ embeds: [embed] });
 };
 
-const deleteWebhook = async (client: Bot, interaction: ChatInputCommandInteraction) => {
+const deleteWebhook = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const category = interaction.options.getString('category', true) as WebhookCategory;
-	const guild = interaction.guild as Guild;
 
-	await Webhooks.remove(client, guild.id, category);
+	await Webhooks.remove(interaction.client, interaction.guild.id, category);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`${Webhooks.getWebhookNameFromCategory(category)} webhook has been deleted.`)

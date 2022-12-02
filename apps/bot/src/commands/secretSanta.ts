@@ -1,10 +1,11 @@
-import type { ChatInputCommandInteraction, User } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { User } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { CommandName } from '../types/enums';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.SecretSanta,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.SecretSanta.toLowerCase())
 		.setDescription('Organizes a secret santa.')
@@ -22,7 +23,7 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mentions = interaction.options.getString('mentions', true).match(/\d+/g);
 	const value = interaction.options.getInteger('value', true);
 
@@ -69,7 +70,7 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 					value: `**${receiver.tag}**`,
 				},
 			])
-			.setFooter({ text: 'Remember to update your wishlist. ' })
+			.setFooter({ text: 'Remember to update your wishlist.' })
 			.setColor('Random');
 
 		gifter.send({ embeds: [embed] });

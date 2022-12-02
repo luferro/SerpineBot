@@ -25,12 +25,12 @@ export const update = async (channel: TextChannel | VoiceChannel, name?: string,
 };
 
 export const assign = async (guildId: string, channel: TextChannel, category: MessageCategory, values: string[]) => {
-	const options: Record<typeof category, () => Promise<void>> = {
+	const select: Record<typeof category, () => Promise<void>> = {
 		Roles: () => assignRolesMessage(guildId, channel, values),
 		Birthdays: () => assignBirthdaysMessage(guildId, channel),
 		Leaderboards: () => assignLeaderboardsMessage(guildId, channel, values),
 	};
-	await options[category]();
+	await select[category]();
 };
 
 const assignRolesMessage = async (guildId: string, channel: TextChannel, values: string[]) => {
@@ -44,6 +44,7 @@ const assignBirthdaysMessage = async (guildId: string, channel: TextChannel) => 
 const assignLeaderboardsMessage = async (guildId: string, channel: TextChannel, values: string[]) => {
 	const isSteamLeaderboard = values.includes('Steam');
 	const isXboxLeaderboard = values.includes('Xbox');
+
 	if (isSteamLeaderboard && isXboxLeaderboard) {
 		await settingsModel.updateOne(
 			{ guildId },
@@ -66,12 +67,12 @@ export const dissociate = async (
 	category: MessageCategory,
 	values: string[],
 ) => {
-	const options: Record<typeof category, () => Promise<void>> = {
+	const select: Record<typeof category, () => Promise<void>> = {
 		Roles: () => dissociateRolesMessage(guildId, channel),
 		Birthdays: () => dissociateBirthdaysMessage(guildId, channel),
 		Leaderboards: () => dissociateLeaderboardsMessage(guildId, channel, values),
 	};
-	await options[category]();
+	await select[category]();
 };
 
 const dissociateRolesMessage = async (guildId: string, channel: TextChannel) => {
@@ -95,12 +96,13 @@ const dissociateLeaderboardsMessage = async (guildId: string, channel: TextChann
 
 	const isSteamLeaderboard = values.includes('Steam');
 	const isXboxLeaderboard = values.includes('Xbox');
+
 	if (isSteamLeaderboard && isXboxLeaderboard) {
 		if (
 			settings?.leaderboards.steam.channelId !== channel.id ||
 			settings?.leaderboards.xbox.channelId !== channel.id
 		)
-			throw new Error(`Leaderboards message for either Steam or Xbox is not assigned to channel ${channel.name}`);
+			throw new Error(`Leaderboard message for either Steam or Xbox is not assigned to channel ${channel.name}.`);
 
 		await settingsModel.updateOne(
 			{ guildId },

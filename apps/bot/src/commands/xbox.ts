@@ -1,13 +1,14 @@
-import type { ChatInputCommandInteraction, GuildMember } from 'discord.js';
+import type { CommandData } from '../types/bot';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { GuildMember } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { XboxApi } from '@luferro/games-api';
 import * as Leaderboards from '../services/leaderboards';
 import { CommandName } from '../types/enums';
 import { xboxModel } from '../database/models/xbox';
 
-export const data = {
+export const data: CommandData = {
 	name: CommandName.Xbox,
-	isClientRequired: false,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Xbox)
 		.setDescription('Xbox related commands.')
@@ -25,10 +26,10 @@ export const data = {
 		),
 };
 
-export const execute = async (interaction: ChatInputCommandInteraction) => {
+export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const subcommand = interaction.options.getSubcommand();
 
-	const select: Record<string, (arg0: ChatInputCommandInteraction) => Promise<void>> = {
+	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {
 		new: getUpcoming,
 		top: getTopPlayed,
 		hot: getTopSellers,
@@ -39,7 +40,7 @@ export const execute = async (interaction: ChatInputCommandInteraction) => {
 	await select[subcommand](interaction);
 };
 
-const getTopPlayed = async (interaction: ChatInputCommandInteraction) => {
+const getTopPlayed = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const topPlayed = await XboxApi.getTopPlayed();
 	if (topPlayed.length === 0) throw new Error("No games were found in Xbox's top played list.");
 
@@ -51,7 +52,7 @@ const getTopPlayed = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getTopSellers = async (interaction: ChatInputCommandInteraction) => {
+const getTopSellers = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const topSellers = await XboxApi.getTopSellers();
 	if (topSellers.length === 0) throw new Error("No games were found in Xbox's top sellers list.");
 
@@ -63,7 +64,7 @@ const getTopSellers = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getUpcoming = async (interaction: ChatInputCommandInteraction) => {
+const getUpcoming = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const upcoming = await XboxApi.getUpcoming();
 	if (upcoming.length === 0) throw new Error("No games were found in Xbox's upcoming list.");
 
@@ -75,7 +76,7 @@ const getUpcoming = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getLeaderboard = async (interaction: ChatInputCommandInteraction) => {
+const getLeaderboard = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const leaderboard = await Leaderboards.getXboxLeaderboard(interaction.client);
 	if (leaderboard.length === 0) throw new Error('No Xbox leaderboard is available.');
 
@@ -88,7 +89,7 @@ const getLeaderboard = async (interaction: ChatInputCommandInteraction) => {
 	await interaction.reply({ embeds: [embed] });
 };
 
-const getProfile = async (interaction: ChatInputCommandInteraction) => {
+const getProfile = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 	const userId = mention?.user.id ?? interaction.user.id;
 

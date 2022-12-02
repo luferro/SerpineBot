@@ -5,17 +5,17 @@ import { steamModel } from '../database/models/steam';
 import { xboxModel } from '../database/models/xbox';
 
 export const create = async (category: IntegrationCategory, userId: string, account: string) => {
-	const integrations: Record<typeof category, (arg0: string, arg1: string) => Promise<void>> = {
+	const select: Record<typeof category, (arg0: string, arg1: string) => Promise<void>> = {
 		Steam: createSteamIntegration,
 		Xbox: createXboxIntegration,
 	};
 
-	await integrations[category](userId, account);
+	await select[category](userId, account);
 };
 
 const createSteamIntegration = async (userId: string, url: string) => {
 	const integration = await steamModel.findOne({ userId });
-	if (integration) throw new Error('A Steam integration is already in place.');
+	if (integration) throw new Error('Steam integration is already in place.');
 
 	const profileUrl = url.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
 	if (!profileUrl) throw new Error('Invalid Steam profile url.');
@@ -63,7 +63,7 @@ const createSteamIntegration = async (userId: string, url: string) => {
 
 const createXboxIntegration = async (userId: string, gamertag: string) => {
 	const integration = await xboxModel.findOne({ userId });
-	if (integration) throw new Error('A Xbox integration is already in place.');
+	if (integration) throw new Error('Xbox integration is already in place.');
 
 	const isGamertagValid = await XboxApi.isGamertagValid(gamertag);
 	if (!isGamertagValid) throw new Error('Invalid Xbox gamertag.');
