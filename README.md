@@ -29,13 +29,13 @@ pnpm install
 
 ## Build
 
-### Build **Bot** application
+### Build bot application
 
 ```
 pnpm build --filter bot
 ```
 
-### Build **Web** application
+### Build web application
 
 ```
 pnpm build --filter web
@@ -43,13 +43,13 @@ pnpm build --filter web
 
 ## Start
 
-### Build **Bot** application
+### Start bot application
 
 ```
 pnpm start --filter bot
 ```
 
-### Build **Web** application
+### Start web application
 
 ```
 pnpm start --filter web
