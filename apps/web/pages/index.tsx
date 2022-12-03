@@ -48,9 +48,7 @@ export const getStaticProps = async () => {
 const Home = ({ commands }: Props) => {
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		setLoading(false);
-	}, []);
+	useEffect(() => setLoading(false), []);
 
 	return (
 		<div className={styles.container}>
@@ -59,18 +57,21 @@ const Home = ({ commands }: Props) => {
 				<meta name="author" content="Luís Ferro" />
 				<meta name="description" content="Overview of all SerpineBot commands" />
 				<meta name="keywords" content="serpinebot,bot,discordjs,multipurpose"></meta>
-				<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+				<meta httpEquiv="Content-Type" content="text/html; charset=utf-8"></meta>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 
 			<main className={styles.main}>
-				<Skeleton visible={loading}>
+				<Skeleton visible={loading} className={styles.skeleton}>
 					<Details
 						title="SerpineBot, a multipurpose discord bot for my private discord server"
 						description={`This page is an overview of all available slash commands.<br/>
 						Does not include webhooks or jobs documentation.<br/>
 						You can look into the repository at [https://github.com/luferro/SerpineBot](https://github.com/luferro/SerpineBot)`}
 					/>
+				</Skeleton>
+				<br />
+				<Skeleton visible={loading} className={styles.skeleton}>
 					<Accordion commands={commands} />
 				</Skeleton>
 			</main>

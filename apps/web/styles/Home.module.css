@@ -6,7 +6,6 @@
 	width: 100%;
 	background: #202225;
 	border-bottom: 5px solid #5865f2;
-	margin-bottom: 20px;
 	padding: 16px;
 }
 
@@ -222,6 +221,14 @@
 	width: 100%;
 	display: block;
 	aspect-ratio: 200 / 300;
+}
+
+.skeleton::before {
+	background-color: #18191c;
+}
+
+.skeleton::after {
+	background-color: #36393f;
 }
 
 @media (max-width: 600px) {
