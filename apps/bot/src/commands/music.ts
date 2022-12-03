@@ -1,7 +1,7 @@
 import type { CommandData } from '../types/bot';
 import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
-import type { Guild, GuildMember, SelectMenuInteraction } from 'discord.js';
-import { ActionRowBuilder, ComponentType, EmbedBuilder, SelectMenuBuilder, SlashCommandBuilder } from 'discord.js';
+import { Guild, GuildMember, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js';
+import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { YoutubeApi } from '@luferro/google-api';
 import { Bot } from '../structures/bot';
 import * as Music from '../services/music';
@@ -204,8 +204,8 @@ const search = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const uuid = randomUUID();
 
 	const component = new ActionRowBuilder().addComponents(
-		new SelectMenuBuilder().setCustomId(uuid).setPlaceholder('Nothing selected.').addOptions(options),
-	) as ActionRowBuilder<SelectMenuBuilder>;
+		new StringSelectMenuBuilder().setCustomId(uuid).setPlaceholder('Nothing selected.').addOptions(options),
+	) as ActionRowBuilder<StringSelectMenuBuilder>;
 
 	const formattedResults = results
 		.map(({ title, url, duration }, index) => `\`${index + 1}.\` **[${title}](${url})** | \`${duration}\``)
@@ -222,7 +222,8 @@ const search = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
 		time: 60 * 1000,
 		componentType: ComponentType.StringSelect,
-		filter: ({ customId, user }: SelectMenuInteraction) => customId === uuid && user.id === interaction.user.id,
+		filter: ({ customId, user }: StringSelectMenuInteraction) =>
+			customId === uuid && user.id === interaction.user.id,
 	});
 	if (!selectMenuInteraction) throw new Error('Search timeout.');
 

@@ -1,15 +1,15 @@
 import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { CommandData } from '../types/bot';
 import type { MessageCategory } from '../types/category';
-import type { Guild, SelectMenuInteraction, GuildBasedChannel, TextChannel } from 'discord.js';
+import type { Guild, GuildBasedChannel, TextChannel, StringSelectMenuInteraction } from 'discord.js';
 import {
 	ActionRowBuilder,
-	SelectMenuBuilder,
 	EmbedBuilder,
 	ChannelType,
 	ComponentType,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
+	StringSelectMenuBuilder,
 } from 'discord.js';
 import * as RolesJob from '../jobs/roles';
 import * as Channels from '../services/channels';
@@ -196,19 +196,20 @@ const assignChannelWithOptions = async (
 		.setColor('Random');
 
 	const component = new ActionRowBuilder().addComponents(
-		new SelectMenuBuilder()
+		new StringSelectMenuBuilder()
 			.setCustomId(uuid)
 			.setPlaceholder('Nothing selected.')
 			.setMaxValues(options.length)
 			.addOptions(options),
-	) as ActionRowBuilder<SelectMenuBuilder>;
+	) as ActionRowBuilder<StringSelectMenuBuilder>;
 
 	await interaction.reply({ embeds: [initialEmbed], components: [component], ephemeral: true });
 
 	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
 		time: 60 * 1000 * 5,
 		componentType: ComponentType.StringSelect,
-		filter: ({ customId, user }: SelectMenuInteraction) => customId === uuid && user.id === interaction.user.id,
+		filter: ({ customId, user }: StringSelectMenuInteraction) =>
+			customId === uuid && user.id === interaction.user.id,
 	});
 	if (!selectMenuInteraction) throw new Error('Channel assign timeout.');
 
@@ -258,12 +259,12 @@ const dissociateChannelWithOptions = async (
 	const uuid = randomUUID();
 
 	const component = new ActionRowBuilder().addComponents(
-		new SelectMenuBuilder()
+		new StringSelectMenuBuilder()
 			.setCustomId(uuid)
 			.setPlaceholder('Nothing selected.')
 			.setMaxValues(options.length)
 			.addOptions(options),
-	) as ActionRowBuilder<SelectMenuBuilder>;
+	) as ActionRowBuilder<StringSelectMenuBuilder>;
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Select which options should be excluded from the ${category} message in channel ${channel.name}.`)
@@ -274,7 +275,8 @@ const dissociateChannelWithOptions = async (
 	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
 		time: 60 * 1000 * 5,
 		componentType: ComponentType.StringSelect,
-		filter: ({ customId, user }: SelectMenuInteraction) => customId === uuid && user.id === interaction.user.id,
+		filter: ({ customId, user }: StringSelectMenuInteraction) =>
+			customId === uuid && user.id === interaction.user.id,
 	});
 	if (!selectMenuInteraction) throw new Error('Channel dissociate timeout.');
 
