@@ -27,7 +27,7 @@ export const stream = async (url: string, seek?: number) => {
 	return await playdl.stream(url, { seek: seek ? seek / 1000 : 0 });
 };
 
-export const search = async (query: string, limit = 1) => {
+export const search = async (query: string, limit = 10) => {
 	const { items } = await ytsr(query, { limit });
 	const videos = items.filter(({ type }) => type === 'video') as Video[];
 
