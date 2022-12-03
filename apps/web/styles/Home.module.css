@@ -224,7 +224,7 @@
 }
 
 .skeleton::before {
-	background-color: #18191c;
+	background-color: #18191c !important;
 }
 
 .skeleton::after {
