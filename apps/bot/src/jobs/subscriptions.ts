@@ -12,7 +12,7 @@ export const data: JobData = {
 export const execute = async () => {
 	const catalogs = await SubscriptionsApi.getCatalogs(true);
 	for (const { category, catalog } of catalogs) {
-		logger.info(`Job **${data.name}** found **${catalog.length}** items in **${category}** catalog.`);
+		logger.debug(`Job **${data.name}** found **${catalog.length}** items in **${category}** catalog.`);
 
 		const subscription = await subscriptionsModel.findOne({ name: category });
 		if (catalog.length < Math.round((subscription?.count ?? 0) * 0.6)) continue;
