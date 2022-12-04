@@ -2,6 +2,7 @@ import type { AudioPlayer, AudioResource, VoiceConnection } from '@discordjs/voi
 import type { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js';
 import type { CommandName, EventName, JobName, WebhookName } from './enums';
 import type { ExtendedChatInputCommandInteraction } from './interaction';
+import type { SteamWishlistItem } from './schemas';
 
 export interface CommandData {
 	name: CommandName;
@@ -35,14 +36,9 @@ export interface Job {
 	execute(...args: unknown[]): Promise<void>;
 }
 
-export interface Alert {
-	name: string;
-	url: string;
-	discount: number | null;
-	regular: string | null;
-	discounted: string | null;
-	addedTo: string[];
-	removedFrom: string[];
+export interface SteamAlert extends SteamWishlistItem {
+	addedTo?: string[];
+	removedFrom?: string[];
 }
 
 export interface QueueItem {

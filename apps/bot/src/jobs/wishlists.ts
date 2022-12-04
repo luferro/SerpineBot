@@ -1,6 +1,7 @@
 import type { Bot } from '../structures/bot';
-import type { Alert, JobData } from '../types/bot';
+import type { SteamAlert, JobData } from '../types/bot';
 import type { AlertCategory } from '../types/category';
+import type { SteamWishlistItem } from '../types/schemas';
 import { EmbedBuilder } from 'discord.js';
 import { SteamApi } from '@luferro/games-api';
 import { logger } from '@luferro/shared-utils';
@@ -8,132 +9,132 @@ import { steamModel } from '../database/models/steam';
 import { JobName } from '../types/enums';
 import * as Subscriptions from '../services/subscriptions';
 
+type Entries<T> = {
+	[K in keyof T]: [K, T[K]];
+}[keyof T][];
+
 export const data: JobData = {
 	name: JobName.Wishlists,
 	schedule: '0 */15 7-23 * * *',
 };
 
 export const execute = async (client: Bot) => {
-	const integrations = await steamModel.find({ notifications: true });
-	for (const integration of integrations) {
-		const alerts = new Map<AlertCategory, Alert[]>([
-			['Sale', []],
-			['Released', []],
-			['Added To Subscription', []],
-			['Removed From Subscription', []],
-		]);
-
-		const wishlist = await SteamApi.getWishlist(integration.profile.id);
-		if (!wishlist) continue;
-
-		const updatedWishlist = [];
-		for (const game of wishlist) {
-			const { name, sale, released } = game;
-
-			const gamingSubscriptions = await Subscriptions.getGamingSubscriptions(name);
-			const subscriptions = {
-				xbox_game_pass: gamingSubscriptions.some(({ name }) => name === 'Xbox Game Pass'),
-				pc_game_pass: gamingSubscriptions.some(({ name }) => name === 'PC Game Pass'),
-				ubisoft_plus: gamingSubscriptions.some(({ name }) => name === 'Ubisoft Plus'),
-				ea_play_pro: gamingSubscriptions.some(({ name }) => name === 'EA Play Pro'),
-				ea_play: gamingSubscriptions.some(({ name }) => name === 'EA Play'),
-			};
-
-			const storedItem = integration.wishlist.find(({ name: storedItemName }) => storedItemName === name);
-			let notified = storedItem?.notified ?? false;
-
-			const addedTo = [];
-			const removedFrom = [];
-			if (storedItem) {
-				for (const [subscription, isInCatalog] of Object.entries(subscriptions)) {
-					const storedSubscription = Object.entries(storedItem.subscriptions).find(
-						([key]) => key === subscription,
-					);
-					if (!storedSubscription) continue;
-
-					const { 1: storedItemIsInCatalog } = storedSubscription;
-					const formmattedSubscription = `> • **${subscription.replace(/_/g, ' ').toUpperCase()}**`;
-
-					const addedToSubscription = !storedItemIsInCatalog && isInCatalog;
-					if (addedToSubscription) addedTo.push(formmattedSubscription);
-
-					const removedFromSubscription = storedItemIsInCatalog && !isInCatalog;
-					if (removedFromSubscription) removedFrom.push(formmattedSubscription);
-				}
-			}
-
-			const alert = { ...game, addedTo, removedFrom };
-
-			const isRelease = !(storedItem?.released ?? released) && released;
-			if (isRelease) {
-				alerts.get('Released')?.push(alert);
-				if (sale) notified = true;
-			}
-
-			const isSale = !(storedItem?.sale ?? sale) && sale && released;
-			if (isSale && !notified) {
-				alerts.get('Sale')?.push(alert);
-				notified = true;
-			}
-
-			const isAddedToSubscription = alert.addedTo.length > 0;
-			if (isAddedToSubscription) alerts.get('Added To Subscription')?.push(alert);
-
-			const isRemovedFromSubscription = alert.removedFrom.length > 0;
-			if (isRemovedFromSubscription) alerts.get('Removed From Subscription')?.push(alert);
-
-			updatedWishlist.push({
-				...game,
-				subscriptions,
-				notified,
-				released: storedItem?.released || game.released,
-			});
-		}
-
-		await steamModel.updateOne({ userId: integration.userId }, { $set: { wishlist: updatedWishlist } });
-
-		for (const [category, categoryAlerts] of alerts.entries()) {
-			const totalItems = categoryAlerts.length;
-			if (totalItems === 0) continue;
-
-			const title = getTitle(category, totalItems);
-			const description = getDescription(category, categoryAlerts).join('\n');
-			const embed = new EmbedBuilder().setTitle(title).setDescription(description).setColor('Random');
-
-			const user = await client.users.fetch(integration.userId);
-			await user.send({ embeds: [embed] });
-
-			const message = `Job **${data.name}** notified **${user.tag}** about **${totalItems}** update(s) in **${category}** category.`;
-			logger.info(message);
-			logger.debug(JSON.stringify(categoryAlerts));
-		}
-	}
+	await updateSteamWishlist(client);
 };
 
 const getTitle = (category: AlertCategory, totalItems: number) => {
-	const options: Record<typeof category, string> = {
+	const select: Record<typeof category, string> = {
 		'Added To Subscription': `**${totalItems}** item(s) from your wishlist now included with a subscription service.`,
 		'Removed From Subscription': `**${totalItems}** item(s) from your wishlist removed from a subscription service.`,
 		'Released': `**${totalItems}** item(s) from your wishlist now available for purchase.`,
 		'Sale': `**${totalItems}** items from your wishlist on sale.`,
 	};
-	return options[category];
+	return select[category];
 };
 
-const getDescription = (category: AlertCategory, items: Alert[]) => {
-	const array = items.slice(0, 10);
-	const options: Record<typeof category, string[]> = {
-		'Added To Subscription': array.map(
-			({ name, url, addedTo }) => `> **[${name}](${url})** added to:\n${addedTo.join('\n')}`,
-		),
-		'Removed From Subscription': array.map(
-			({ name, url, removedFrom }) => `> **[${name}](${url})** removed from:\n${removedFrom.join('\n')}`,
-		),
-		'Released': array.map(({ name, url, discounted }) => `> **[${name}](${url})** available for **${discounted}**`),
-		'Sale': array.map(
+const getDescription = (category: AlertCategory, items: SteamAlert[]) => {
+	const select: Record<typeof category, string[]> = {
+		'Sale': items.map(
 			({ name, url, discount, regular, discounted }) =>
 				`> **[${name}](${url})** is ***${discount}%*** off! ~~${regular}~~ | **${discounted}**`,
 		),
+		'Released': items.map(({ name, url, discounted }) => `> **[${name}](${url})** available for **${discounted}**`),
+		'Added To Subscription': items.map(
+			({ name, url, addedTo }) => `> **[${name}](${url})** added to:\n${(addedTo ?? []).join('\n')}`,
+		),
+		'Removed From Subscription': items.map(
+			({ name, url, removedFrom }) => `> **[${name}](${url})** removed from:\n${(removedFrom ?? []).join('\n')}`,
+		),
 	};
-	return options[category];
+	return select[category];
+};
+
+const getGameSubscriptionChanges = (newGame: SteamWishlistItem, oldGame?: SteamWishlistItem) => {
+	const addedTo = [];
+	const removedFrom = [];
+	for (const [name, isIncluded] of Object.entries(newGame.subscriptions)) {
+		if (!oldGame) break;
+
+		const storedSubscription = Object.entries(newGame.subscriptions).find(([key]) => key === name);
+		if (!storedSubscription) continue;
+
+		const subscription = name.replace(/_/g, ' ').toUpperCase();
+		const { 1: storedItemIsIncluded } = storedSubscription;
+		if (!storedItemIsIncluded && isIncluded) addedTo.push(`> • **${subscription}**`);
+		if (storedItemIsIncluded && !isIncluded) removedFrom.push(`> • **${subscription}**`);
+	}
+
+	return { addedTo, removedFrom };
+};
+
+const updateSteamWishlist = async (client: Bot) => {
+	const integrations = await steamModel.find({ notifications: true });
+	for (const integration of integrations) {
+		const alerts: Record<AlertCategory, SteamAlert[]> = {
+			'Sale': [],
+			'Released': [],
+			'Added To Subscription': [],
+			'Removed From Subscription': [],
+		};
+
+		const wishlist = await SteamApi.getWishlist(integration.profile.id);
+		if (!wishlist) continue;
+
+		const updatedWishlist = await Promise.all(
+			wishlist.map(async (game) => {
+				const storedGame = integration.wishlist.find(({ name }) => name === game.name);
+				const rawSubscriptions = await Subscriptions.getGamingSubscriptions(game.name);
+
+				const updatedEntry = {
+					...game,
+					notified: storedGame?.notified ?? false,
+					released: storedGame?.released || game.released,
+					subscriptions: {
+						xbox_game_pass: rawSubscriptions.some(({ name }) => name === 'Xbox Game Pass'),
+						pc_game_pass: rawSubscriptions.some(({ name }) => name === 'PC Game Pass'),
+						ubisoft_plus: rawSubscriptions.some(({ name }) => name === 'Ubisoft Plus'),
+						ea_play_pro: rawSubscriptions.some(({ name }) => name === 'EA Play Pro'),
+						ea_play: rawSubscriptions.some(({ name }) => name === 'EA Play'),
+					},
+				};
+
+				if (!storedGame?.released && game.released) {
+					updatedEntry.notified = game.sale || updatedEntry.notified;
+					alerts['Released'].push(updatedEntry);
+				}
+
+				if (!storedGame?.sale && game.released && game.sale && !updatedEntry.notified) {
+					updatedEntry.notified = true;
+					alerts['Sale'].push(updatedEntry);
+				}
+
+				const { addedTo, removedFrom } = getGameSubscriptionChanges(updatedEntry, storedGame);
+				if (addedTo.length > 0) alerts['Added To Subscription'].push({ ...updatedEntry, addedTo });
+				if (removedFrom.length > 0) alerts['Removed From Subscription'].push({ ...updatedEntry, removedFrom });
+
+				return updatedEntry;
+			}),
+		);
+		await steamModel.updateOne({ userId: integration.userId }, { $set: { wishlist: updatedWishlist } });
+
+		await notifyUser(client, integration.userId, alerts);
+	}
+};
+
+const notifyUser = async (client: Bot, userId: string, alertsPerCategory: Record<AlertCategory, SteamAlert[]>) => {
+	for (const [category, alerts] of Object.entries(alertsPerCategory) as Entries<typeof alertsPerCategory>) {
+		if (alerts.length === 0) continue;
+
+		const embed = new EmbedBuilder()
+			.setTitle(getTitle(category, alerts.length))
+			.setDescription(getDescription(category, alerts.slice(0, 10)).join('\n'))
+			.setColor('Random');
+
+		const user = await client.users.fetch(userId);
+		await user.send({ embeds: [embed] });
+
+		const message = `Job **${data.name}** notified **${user.tag}** about **${alerts.length}** update(s) in **${category}** category.`;
+		logger.info(message);
+		logger.debug(JSON.stringify(alerts));
+	}
 };

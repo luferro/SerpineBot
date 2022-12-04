@@ -47,14 +47,14 @@ export interface State {
 	entries: Map<string, Entry[]>;
 }
 
-interface SteamWishlistItem {
+export interface SteamWishlistItem {
 	id: string;
 	name: string;
 	url: string;
 	priority: number;
-	discount: number;
-	regular: string;
-	discounted: string;
+	discount: number | null;
+	regular: string | null;
+	discounted: string | null;
 	free: boolean;
 	released: boolean;
 	sale: boolean;
