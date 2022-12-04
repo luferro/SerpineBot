@@ -1,8 +1,9 @@
 import type { CommandData } from '../types/bot';
 import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
-import type { User } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { CommandName } from '../types/enums';
+import { randomUUID } from 'crypto';
+import { logger } from '@luferro/shared-utils';
 
 export const data: CommandData = {
 	name: CommandName.SecretSanta,
@@ -33,24 +34,22 @@ export const execute = async (interaction: ExtendedChatInputCommandInteraction) 
 	const uniqueMentions = new Set(mentions);
 	if (uniqueMentions.size !== mentions.length) throw new Error('Duplicated participant detected.');
 
-	const currentYear = new Date().getFullYear();
-	const isEventForCurrentYear = new Date(currentYear, 11, 25).getTime() >= Date.now();
-	const yearOfEvent = isEventForCurrentYear ? currentYear : currentYear + 1;
-
 	const users = await Promise.all(
-		mentions.map(async (id) => {
-			if (!interaction.client.users.cache.has(id)) return;
+		mentions
+			.filter((id) => interaction.client.users.cache.has(id))
+			.map(async (id) => {
+				const user = await interaction.client.users.fetch(id);
+				if (user.bot) throw new Error('Bots cannot participate in a Secret Santa.');
 
-			const user = await interaction.client.users.fetch(id);
-			if (user.bot) return;
-
-			return user;
-		}),
+				return { randomId: randomUUID(), user };
+			}),
 	);
-	const filteredUsers = users.filter((item): item is NonNullable<typeof item> => !!item);
-	if (filteredUsers.length < 3) throw new Error('Minimum of 3 participants required.');
+	if (users.length < 3) throw new Error('Minimum of 3 participants required.');
 
-	const shuffledUsers = shuffle(filteredUsers);
+	const currentYear = new Date().getFullYear();
+	const yearOfEvent = new Date(currentYear, 11, 25).getTime() >= Date.now() ? currentYear : currentYear + 1;
+
+	const shuffledUsers = shuffle(users) as typeof users;
 	for (const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
@@ -67,19 +66,20 @@ export const execute = async (interaction: ExtendedChatInputCommandInteraction) 
 				},
 				{
 					name: '**Prepare a gift for**',
-					value: `**${receiver.tag}**`,
+					value: `**${receiver.user.tag}**`,
 				},
 			])
 			.setFooter({ text: 'Remember to update your wishlist.' })
 			.setColor('Random');
 
-		gifter.send({ embeds: [embed] });
+		gifter.user.send({ embeds: [embed] });
+		logger.debug(JSON.stringify({ gifterId: gifter.randomId, receiverId: receiver.randomId }));
 	}
 
 	await interaction.reply({ content: 'A DM has been sent to each participant with more details.' });
 };
 
-const shuffle = (array: User[]) => {
+const shuffle = (array: unknown[]) => {
 	let currentIndex = array.length;
 	while (currentIndex != 0) {
 		const randomIndex = Math.floor(Math.random() * currentIndex);
