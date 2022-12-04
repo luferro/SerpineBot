@@ -36,7 +36,7 @@ export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<
 		return data as unknown as Promise<T>;
 	} catch (error) {
 		const { message } = error as Error;
-		throw new FetchError(`**${method}** request to **${url}** failed. Reason: **${message}**.`);
+		throw new FetchError(`**${method}** request to **${url}** failed. **${message}**.`);
 	}
 };
 

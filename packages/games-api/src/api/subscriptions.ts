@@ -40,7 +40,7 @@ const refreshCatalogs = async () => {
 			logger.info(`**${category}** catalog cache has been refreshed.`);
 		} catch (error) {
 			const { message } = error as Error;
-			logger.warn(`**${category}** catalog cache failed to refresh. Reason: **${message}**`);
+			logger.warn(`**${category}** catalog cache failed to refresh. ${message}`);
 		}
 	}
 

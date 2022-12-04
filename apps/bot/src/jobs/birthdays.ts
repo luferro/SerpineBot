@@ -33,7 +33,7 @@ export const execute = async (client: Bot) => {
 				logger.info(`Job **${data.name}** notified channelId **${channelId}** in guild **${guild.name}**.`);
 			} catch (error) {
 				const { message } = error as Error;
-				logger.warn(`Job **${data.name}** failed for userId **${birthday.userId}**. Reason: **${message}**`);
+				logger.warn(`Job **${data.name}** failed for userId **${birthday.userId}**. **${message}**`);
 			}
 		}
 	}

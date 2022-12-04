@@ -26,6 +26,6 @@ export const execute = async (client: Bot) => {
 		logger.info(`Job **${data.name}** notified **${user.tag}** regarding reminderId **${reminderId}**.`);
 	} catch (error) {
 		const { message } = error as Error;
-		logger.warn(`Job **${data.name}** failed for reminderId **${reminderId}**. Reason: **${message}**`);
+		logger.warn(`Job **${data.name}** failed for reminderId **${reminderId}**. **${message}**.`);
 	}
 };

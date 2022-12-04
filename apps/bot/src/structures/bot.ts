@@ -102,7 +102,7 @@ export class Bot extends Client {
 		for (const [name, job] of Bot.jobs.entries()) {
 			const cronjob = new CronJob(job.data.schedule, () =>
 				job.execute(this).catch((error) => {
-					error.message = `Job **${name}** failed.\nReason: **${error.message}**`;
+					error.message = `Job **${name}** failed. Reason: ${error.message}`;
 					this.handleError(error);
 				}),
 			);

@@ -30,7 +30,7 @@ const handleChatInputCommandInteraction = async (interaction: ExtendedChatInputC
 		await command.execute(interaction);
 	} catch (error) {
 		if (error instanceof DiscordAPIError || error instanceof FetchError) {
-			error.message = `Interaction **${interactionName}** in guild ${guildName} failed. Reason: **${error.message}**`;
+			error.message = `Interaction **${interactionName}** in guild ${guildName} failed. Reason: ${error.message}`;
 			throw error;
 		}
 
