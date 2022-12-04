@@ -76,30 +76,33 @@ export const setApiKey = (apiKey: string) => {
 	API_KEY = apiKey;
 };
 
-const loadSources = async () => {
-	const { results } = await FetchUtil.fetch<NewsResponse<Source>>({
-		url: `https://newsdata.io/api/1/sources?apikey=${API_KEY}`,
-	});
+const loadSources = async (country?: Country) => {
+	const baseUrl = `https://newsdata.io/api/1/sources?apikey=${API_KEY}`;
+	const url = baseUrl.concat(country ? `&country=${CountryCodes[country]}` : '&language=en&category=world');
+
+	const { results } = await FetchUtil.fetch<NewsResponse<Source>>({ url });
 
 	for (const { id, name, url } of results) {
 		sourceCache.set(id, { name, url });
 	}
 };
 
-const getSourceFromId = async (id: string) => {
-	if (sourceCache.size === 0) await loadSources();
+const getSourceFromId = async (id: string, country?: Country) => {
+	if (sourceCache.size === 0) await loadSources(country);
 	return sourceCache.get(id);
 };
 
 export const getNews = async (country?: Country) => {
 	const baseUrl = `https://newsdata.io/api/1/news?apikey=${API_KEY}`;
-	const url = baseUrl.concat(country ? `&country=${CountryCodes[country]}` : '&language=en&category=world');
+	const url = baseUrl.concat(
+		country ? `&country=${CountryCodes[country]}&category=top` : '&language=en&category=world',
+	);
 
 	const { results } = await FetchUtil.fetch<NewsResponse<Article>>({ url });
 
 	return await Promise.all(
 		results.map(async (article) => {
-			const source = await getSourceFromId(article.source_id);
+			const source = await getSourceFromId(article.source_id, country);
 
 			return {
 				title: StringUtil.truncate(article.title),
