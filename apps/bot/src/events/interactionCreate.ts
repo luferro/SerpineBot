@@ -39,7 +39,8 @@ const handleChatInputCommandInteraction = async (interaction: ExtendedChatInputC
 			.setDescription((error as Error).message)
 			.setColor('Random');
 
-		await interaction.reply({ embeds: [embed], ephemeral: true });
+		if (interaction.deferred) await interaction.editReply({ content: null, embeds: [embed], components: [] });
+		else await interaction.reply({ embeds: [embed], ephemeral: true });
 	}
 };
 
