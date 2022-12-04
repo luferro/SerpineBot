@@ -8,8 +8,8 @@ import { logger } from '@luferro/shared-utils';
 export const data: CommandData = {
 	name: CommandName.SecretSanta,
 	slashCommand: new SlashCommandBuilder()
-		.setName(CommandName.SecretSanta.toLowerCase())
-		.setDescription('Organizes a secret santa.')
+		.setName(CommandName.SecretSanta)
+		.setDescription('Organizes a Secret Santa.')
 		.addStringOption((option) =>
 			option
 				.setName('mentions')

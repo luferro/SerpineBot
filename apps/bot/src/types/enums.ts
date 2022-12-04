@@ -14,7 +14,7 @@ export enum CommandName {
 	Reminders = 'reminders',
 	Reviews = 'reviews',
 	Roles = 'roles',
-	SecretSanta = 'secretSanta',
+	SecretSanta = 'secret-santa',
 	Series = 'series',
 	Steam = 'steam',
 	Subscriptions = 'subscriptions',
