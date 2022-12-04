@@ -70,7 +70,10 @@ const CountryCodes = Object.freeze<Record<Country, string>>({
 
 let API_KEY: string;
 
-const sourceCache = new Map<string, Pick<Source, 'name' | 'url'>>();
+const sources = {
+	LOCAL: new Map<string, Pick<Source, 'name' | 'url'>>(),
+	WORLD: new Map<string, Pick<Source, 'name' | 'url'>>(),
+};
 
 export const setApiKey = (apiKey: string) => {
 	API_KEY = apiKey;
@@ -83,13 +86,15 @@ const loadSources = async (country?: Country) => {
 	const { results } = await FetchUtil.fetch<NewsResponse<Source>>({ url });
 
 	for (const { id, name, url } of results) {
-		sourceCache.set(id, { name, url });
+		sources[country ? 'LOCAL' : 'WORLD'].set(id, { name, url });
 	}
 };
 
 const getSourceFromId = async (id: string, country?: Country) => {
-	if (sourceCache.size === 0) await loadSources(country);
-	return sourceCache.get(id);
+	if (!country && sources.WORLD.size === 0) await loadSources();
+	if (country && sources.LOCAL.size === 0) await loadSources(country);
+
+	return sources[country ? 'LOCAL' : 'WORLD'].get(id);
 };
 
 export const getNews = async (country?: Country) => {
