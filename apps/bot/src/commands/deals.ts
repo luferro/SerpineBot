@@ -4,7 +4,6 @@ import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { DealsApi } from '@luferro/games-api';
 import * as Subscriptions from '../services/subscriptions';
 import { CommandName } from '../types/enums';
-import { SleepUtil } from '@luferro/shared-utils';
 
 export const data: CommandData = {
 	name: CommandName.Deals,
@@ -16,8 +15,6 @@ export const data: CommandData = {
 
 export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const game = interaction.options.getString('game', true);
-
-	await SleepUtil.sleep(5000);
 
 	const { id } = await DealsApi.search(game);
 	if (!id) throw new Error(`No matches for ${game}.`);
