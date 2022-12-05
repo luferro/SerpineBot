@@ -27,6 +27,11 @@ SerpineBot is a monorepo that consists in two applications: **bot** and **web**.
 pnpm install
 ```
 
+## Configuration
+
+Each application package uses a .env file for configuration. 
+Please follow the .env.example file within each application package.
+
 ## Build
 
 ### Build bot application
