@@ -75,11 +75,11 @@ export const getWishlist = async (steamId: string) => {
 			wishlist.push({
 				id,
 				name,
-				url: `https://store.steampowered.com/app/${id}`,
 				priority,
 				discount,
-				regular,
 				discounted,
+				regular,
+				url: `https://store.steampowered.com/app/${id}`,
 				free: is_free_game,
 				released: typeof release_date === 'string',
 				sale: Boolean(discount && discounted),
