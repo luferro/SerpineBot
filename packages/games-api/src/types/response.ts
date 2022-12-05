@@ -21,6 +21,8 @@ export interface SteamPlayers {
 }
 
 interface SteamPackage {
+	id: number;
+	discount_block: string;
 	price: number;
 	discount_pct: number;
 }
