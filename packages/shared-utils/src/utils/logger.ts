@@ -17,5 +17,5 @@ const stringFormatter = combine(
 
 export const logger = createLogger({
 	format: errors({ stack: true }),
-	transports: [new transports.Console({ format: stringFormatter })],
+	transports: [new transports.Console({ level: 'debug', format: stringFormatter })],
 });
