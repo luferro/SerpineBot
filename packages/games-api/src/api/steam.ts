@@ -63,12 +63,13 @@ export const getWishlist = async (steamId: string) => {
 		if (!hasMore) break;
 
 		for (const [id, { name, release_date, priority, is_free_game, subs }] of Object.entries(data)) {
-			const discount = subs.length > 0 ? subs[0].discount_pct : null;
-			const discounted = subs.length > 0 ? ConverterUtil.centsToEuros(subs[0].price) : null;
-			const regular =
-				subs.length > 0
-					? ConverterUtil.centsToEuros(Math.round((100 * subs[0].price) / (100 - subs[0].discount_pct)))
-					: null;
+			const isPriced = !is_free_game && subs.length > 0;
+
+			const discount = isPriced ? subs[0].discount_pct : null;
+			const discounted = isPriced ? ConverterUtil.centsToEuros(subs[0].price) : null;
+			const regular = isPriced
+				? ConverterUtil.centsToEuros(Math.round((100 * subs[0].price) / (100 - subs[0].discount_pct)))
+				: null;
 
 			wishlist.push({
 				id,
