@@ -1,4 +1,4 @@
-import type { BrowserContext, Page, Route } from 'playwright-chromium';
+import type { BrowserContext, Route } from 'playwright-chromium';
 import type { CatalogCategory, EaPlayCategory, GamePassCategory } from '../types/category';
 import type { SubscriptionCatalogEntry, SubscriptionCatalogResponse } from '../types/response';
 import { logger, StringUtil } from '@luferro/shared-utils';
@@ -9,13 +9,11 @@ const cache = new Map<CatalogCategory, SubscriptionCatalogEntry[]>();
 export const getCatalog = async (category: CatalogCategory, forceRefresh = false) => {
 	if (forceRefresh || !cache.has(category)) await refreshCatalogs();
 	if (!cache.has(category)) throw new Error(`Couldn't fetch **${category}** catalog.`);
-
 	return cache.get(category);
 };
 
 export const getCatalogs = async (forceRefresh = false) => {
 	if (forceRefresh) await refreshCatalogs();
-
 	return [...cache.entries()].map(([category, catalog]) => ({ category, catalog }));
 };
 
@@ -48,30 +46,40 @@ const refreshCatalogs = async () => {
 	await browser.close();
 };
 
-const abortUnnecessaryResources = async (page: Page) => {
+const setupPage = async (context: BrowserContext) => {
+	await context.clearCookies();
+	const page = await context.newPage();
+
 	await page.route('**/*', (route: Route) => {
 		const hasResource = ['font', 'image'].some((resource) => resource === route.request().resourceType());
 		return hasResource ? route.abort() : route.continue();
 	});
+
+	return { page };
 };
 
 const getGamePassCatalog = async (context: BrowserContext, category: GamePassCategory) => {
-	await context.clearCookies();
-	const page = await context.newPage();
-	await abortUnnecessaryResources(page);
+	const { page } = await setupPage(context);
 
-	await page.goto('https://www.xbox.com/pt-PT/xbox-game-pass/games');
+	await page.goto('https://www.xbox.com/pt-PT/xbox-game-pass/games#');
 	await page.waitForLoadState('networkidle');
 
 	if (category === 'PC Game Pass') {
-		const switchCatalogButton = page.locator('[data-theplat="pc"]');
-		await switchCatalogButton.waitFor();
-		await switchCatalogButton.click();
+		const catalogIndicator = page.locator('[data-platselected]');
+		await catalogIndicator.waitFor();
 
-		const selectedCatalog = page.locator('[data-platselected="pc"]');
-		await selectedCatalog.waitFor();
-		const isSelected = (await selectedCatalog.count()) > 0;
-		if (!isSelected) throw new Error("Couldn't switch catalogs. Skipping PC Game Pass catalog.");
+		let retryCounter = 0;
+		let selectedCatalog = await catalogIndicator.getAttribute('data-platselected');
+		while (selectedCatalog !== 'pc') {
+			if (retryCounter === 10) throw new Error('Cannot switch catalogs. Skipping PC Game Pass catalog.');
+
+			const switchCatalogButton = page.locator('[data-theplat="pc"]');
+			await switchCatalogButton.waitFor();
+			await switchCatalogButton.click();
+
+			selectedCatalog = await catalogIndicator.getAttribute('data-platselected');
+			retryCounter++;
+		}
 	}
 
 	const switchPageCountButton = page.locator('.paginateControl button');
@@ -109,50 +117,37 @@ const getGamePassCatalog = async (context: BrowserContext, category: GamePassCat
 };
 
 const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategory) => {
-	await context.clearCookies();
-	const page = await context.newPage();
-	await abortUnnecessaryResources(page);
+	const { page } = await setupPage(context);
 
-	if (category === 'EA Play')
-		await page.goto(
-			'https://www.origin.com/irl/pt-pt/store/browse?fq=gameType:basegame,subscriptionGroup:vault-games',
-		);
-	else
-		await page.goto(
-			'https://www.origin.com/irl/pt-pt/store/browse?fq=gameType:basegame,subscriptionGroup:premium-vault-games',
-		);
+	const baseUrl = 'https://gg.deals/games/';
+	const url = baseUrl.concat(category === 'EA Play' ? 'ea-play-pc-games-list' : 'ea-play-pro-pc-games-list');
+
+	await page.goto(url);
 	await page.waitForLoadState('networkidle');
 
-	const regionMenu = page.locator('.otkmodal-content .otkmodal-footer > button');
-	await regionMenu.waitFor();
-	await regionMenu.click();
-	await page.waitForTimeout(500);
-	await regionMenu.click();
-
-	await page.waitForSelector('section.origin-gdp-tilelist > ul li[origin-postrepeat]');
-	await page.waitForTimeout(5000);
-
-	let previousHeight = 0;
-	while (true) {
-		const currentHeight = await page.evaluate<number>('document.body.scrollHeight');
-		await page.mouse.wheel(0, currentHeight);
-		await page.waitForTimeout(750);
-
-		if (currentHeight === previousHeight) break;
-		previousHeight = currentHeight;
-	}
-
 	const catalog = [];
-	const containers = await page.locator('section.origin-gdp-tilelist > ul li[origin-postrepeat]').elementHandles();
-	for (const container of containers) {
-		const name = await (await container.$('h1.home-tile-header'))?.textContent();
-		if (!name) continue;
+	while (true) {
+		await page.waitForTimeout(1000);
 
-		const slug = StringUtil.slug(name);
-		const href = await (await container.$('a'))?.getAttribute('href');
-		const url = href ? `https://www.origin.com${href}` : null;
+		const containers = await page.locator('.game-section [data-container-game-id]').elementHandles();
+		for (const container of containers) {
+			const name = await (await container.$('.game-info-wrapper a.game-info-title'))?.textContent();
+			if (!name) continue;
 
-		catalog.push({ name, slug, url });
+			const slug = StringUtil.slug(name);
+			const href = await (await container.$('a.full-link'))?.getAttribute('href');
+			if (href && href.includes('dlc')) continue;
+
+			const url = href ? `https://gg.deals${href}` : null;
+
+			catalog.push({ name, slug, url });
+		}
+
+		const nextPageButton = page.locator('li.next-page:not(li.next-page.disabled) a');
+		const hasMore = (await nextPageButton.count()) > 0;
+		if (!hasMore) break;
+
+		await nextPageButton.click();
 	}
 	await page.close();
 
@@ -160,9 +155,7 @@ const getEaPlayCatalog = async (context: BrowserContext, category: EaPlayCategor
 };
 
 const getUbisoftPlusCatalog = async (context: BrowserContext) => {
-	await context.clearCookies();
-	const page = await context.newPage();
-	await abortUnnecessaryResources(page);
+	const { page } = await setupPage(context);
 
 	await page.goto('https://store.ubi.com/ie/ubisoftplus/games');
 	await page.waitForLoadState('networkidle');
