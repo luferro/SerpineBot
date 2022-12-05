@@ -30,6 +30,7 @@ pnpm install
 ## Configuration
 
 Each application package uses a .env file for configuration. 
+
 Please follow the .env.example file within each application package.
 
 ## Build
