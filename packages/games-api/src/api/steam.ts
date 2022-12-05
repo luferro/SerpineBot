@@ -1,5 +1,5 @@
 import type { SteamId64, SteamPlayers, SteamRecentlyPlayed, SteamResponse, SteamWishlist } from '../types/response';
-import { FetchUtil, ConverterUtil, logger } from '@luferro/shared-utils';
+import { FetchUtil, ConverterUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
 
 enum Status {
@@ -64,7 +64,6 @@ export const getWishlist = async (steamId: string) => {
 
 		for (const [id, { name, release_date, priority, is_free_game, subs }] of Object.entries(data)) {
 			const isPriced = !is_free_game && subs.length > 0;
-			if (isPriced) logger.debug(subs[0].discount_block);
 
 			const discount = isPriced ? subs[0].discount_pct : null;
 			const discounted = isPriced ? ConverterUtil.centsToEuros(subs[0].price) : null;
