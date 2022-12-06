@@ -9,18 +9,17 @@ import { WebhookName } from '../../types/enums';
 
 export const data: JobData = {
 	name: WebhookName.Xbox,
-	schedule: '0 */5 * * * *',
+	schedule: '0 */10 * * * *',
 };
 
 export const execute = async (client: Bot) => {
 	const categories: XboxWireCategory[] = ['Deals With Gold', 'Game Pass', 'Games With Gold', 'Podcast'];
 
 	for (const category of categories) {
+		await SleepUtil.sleep(1000);
+
 		const articles = await XboxApi.getLatestXboxWireNews(category);
-
 		for (const { title, url, image } of articles.reverse()) {
-			await SleepUtil.sleep(1000);
-
 			const { isDuplicated } = await client.manageState('Xbox', category, title, url);
 			if (isDuplicated) continue;
 
