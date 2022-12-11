@@ -6,10 +6,11 @@ import { randomUUID } from 'crypto';
 import { remindersModel } from '../database/models/reminders';
 
 export const create = async (userId: string, time: number, unit: TimeUnit, message: string) => {
-	if (unit === 'Seconds' && time < 300) throw new Error('Time has to be greater or equal than 300 seconds.');
-	if (unit === 'Minutes' && time < 5) throw new Error('Time has to be greater or equal than 5 minutes.');
+	if (unit === 'Milliseconds' && time < 300_000) throw new Error('Minimum of 300000 milliseconds required.');
+	if (unit === 'Seconds' && time < 300) throw new Error('Minimum of 300 seconds required.');
+	if (unit === 'Minutes' && time < 5) throw new Error('Minimum of 5 minutes required.');
 
-	const ms = ConverterUtil.toMilliseconds(time, unit);
+	const ms = unit !== 'Milliseconds' ? ConverterUtil.toMilliseconds(time, unit) : time;
 
 	const reminderId = randomUUID();
 	const timeStart = Date.now();
@@ -43,7 +44,12 @@ export const send = async (client: Bot, reminderId: string) => {
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Reminder set on ${reminderDate}`)
-		.setDescription(`**Message**:\n${message.trim()}`)
+		.addFields([
+			{
+				name: '**Message**',
+				value: message.trim(),
+			},
+		])
 		.setColor('Random');
 
 	await target.send({ embeds: [embed] });

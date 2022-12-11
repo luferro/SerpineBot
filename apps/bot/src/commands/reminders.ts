@@ -62,7 +62,7 @@ export const execute = async (interaction: ExtendedChatInputCommandInteraction) 
 
 const createReminder = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const time = interaction.options.getInteger('time', true);
-	const unit = interaction.options.getString('unit', true) as TimeUnit;
+	const unit = interaction.options.getString('unit', true) as Exclude<TimeUnit, 'Milliseconds'>;
 	const message = interaction.options.getString('message', true);
 
 	const { reminderId } = await Reminders.create(interaction.user.id, time, unit, message);

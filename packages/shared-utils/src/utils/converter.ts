@@ -6,8 +6,8 @@ export const centsToEuros = (cents: number) => {
 		.replace(String.fromCharCode(160), ' ');
 };
 
-export const toMilliseconds = (time: number, unit: TimeUnit) => {
-	const options: Record<TimeUnit, number> = {
+export const toMilliseconds = (time: number, unit: Exclude<TimeUnit, 'Milliseconds'>) => {
+	const options: Record<typeof unit, number> = {
 		Seconds: time * 1000,
 		Minutes: time * 1000 * 60,
 		Hours: time * 1000 * 60 * 60,
