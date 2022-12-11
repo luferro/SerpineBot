@@ -88,7 +88,7 @@ const updateSteamWishlist = async (client: Bot) => {
 				const updatedEntry = {
 					...game,
 					notified: storedGame?.notified ?? false,
-					released: storedGame?.released || game.released,
+					released: storedGame?.released ?? game.released,
 					subscriptions: {
 						xbox_game_pass: rawSubscriptions.some(({ name }) => name === 'Xbox Game Pass'),
 						pc_game_pass: rawSubscriptions.some(({ name }) => name === 'PC Game Pass'),
@@ -98,14 +98,16 @@ const updateSteamWishlist = async (client: Bot) => {
 					},
 				};
 
-				if (!storedGame?.released && game.released) {
-					updatedEntry.notified = game.sale || updatedEntry.notified;
-					alerts['Released'].push(updatedEntry);
-				}
-
-				if (!storedGame?.sale && game.released && game.sale && !updatedEntry.notified) {
+				const wasSale = storedGame?.sale ?? game.sale;
+				if (!wasSale && game.sale && !updatedEntry.notified) {
 					updatedEntry.notified = true;
 					alerts['Sale'].push(updatedEntry);
+				}
+
+				const wasReleased = storedGame?.released ?? game.released;
+				if (!wasReleased && game.released) {
+					updatedEntry.notified = game.sale || updatedEntry.notified;
+					alerts['Released'].push(updatedEntry);
 				}
 
 				const { addedTo, removedFrom } = getGameSubscriptionChanges(updatedEntry, storedGame);
