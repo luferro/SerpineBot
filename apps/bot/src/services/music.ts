@@ -14,7 +14,6 @@ const getGuildSubscription = (guildId: string) => {
 
 const playerOnIdle = async (guildId: string) => {
 	const subscription = getGuildSubscription(guildId);
-
 	subscription.player.stop();
 	subscription.playing = false;
 
@@ -31,14 +30,13 @@ const playerOnIdle = async (guildId: string) => {
 
 const play = async (guildId: string) => {
 	const subscription = getGuildSubscription(guildId);
-
 	const firstQueueItem = subscription.queue[0].url;
 
-	const { searchParams } = new URL(firstQueueItem);
-	const timestamp = searchParams.get('t');
-	if (timestamp) {
+	const param = new URL(firstQueueItem).searchParams.get('t');
+	if (param) {
 		subscription.playing = true;
-		await seek(guildId, ConverterUtil.toMinutes(Number(timestamp) * 1000, true) as string);
+		const timestamp = Number(param.match(/\d+/)?.[0] ?? 0) * 1000;
+		await seek(guildId, ConverterUtil.toMinutes(timestamp, true) as string);
 		return;
 	}
 
@@ -103,9 +101,9 @@ export const addToQueue = async (guildId: string, queueItem: QueueItem) => {
 		subscription.queue.push(queueItem);
 	}
 
-	const position = subscription.queue.findIndex((item) => JSON.stringify(item) === JSON.stringify(queueItem));
-
-	return { position };
+	return {
+		position: subscription.queue.findIndex((item) => JSON.stringify(item) === JSON.stringify(queueItem)),
+	};
 };
 
 export const removeFromQueue = async (guildId: string, position: number) => {
@@ -169,9 +167,10 @@ export const loop = async (guildId: string) => {
 	if (!subscription.playing) throw new Error('Cannot enable loop. Nothing is currently playing.');
 
 	subscription.looping = !subscription.looping;
-	const looping = subscription.looping;
 
-	return { looping };
+	return {
+		looping: subscription.looping,
+	};
 };
 
 export const skip = async (guildId: string) => {
@@ -180,16 +179,17 @@ export const skip = async (guildId: string) => {
 	const subscription = getGuildSubscription(guildId);
 	if (subscription.queue.length === 1) throw new Error('Cannot skip. Queue is empty.');
 
-	const skippedItem = subscription.queue[0].title;
-
 	if (subscription.looping) subscription.looping = false;
 	if (subscription.player.state.status === AudioPlayerStatus.Paused) subscription.player.unpause();
 
+	const skippedItem = subscription.queue[0].title;
 	subscription.player.stop();
 	await play(guildId);
-	const playing = subscription.queue[0].title;
 
-	return { skippedItem, playing };
+	return {
+		skippedItem,
+		playing: subscription.queue[0].title,
+	};
 };
 
 export const pause = async (guildId: string) => {
@@ -199,9 +199,10 @@ export const pause = async (guildId: string) => {
 	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
 
 	subscription.player.pause();
-	const pausedItem = subscription.queue[0].title;
 
-	return { pausedItem };
+	return {
+		pausedItem: subscription.queue[0].title,
+	};
 };
 
 export const resume = async (guildId: string) => {
@@ -211,18 +212,20 @@ export const resume = async (guildId: string) => {
 	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
 
 	subscription.player.unpause();
-	const resumedItem = subscription.queue[0].title;
 
-	return { resumedItem };
+	return {
+		resumedItem: subscription.queue[0].title,
+	};
 };
 
 export const queue = (guildId: string) => {
 	verifyClientConnection(guildId, true);
 
 	const subscription = getGuildSubscription(guildId);
-
 	const queue = [...subscription.queue];
-	const playing = queue.shift();
 
-	return { playing, queue };
+	return {
+		queue,
+		playing: queue.shift(),
+	};
 };
