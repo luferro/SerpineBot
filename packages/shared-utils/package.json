@@ -14,12 +14,12 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^18.11.10",
-		"typescript": "^4.9.3"
+		"@types/node": "^18.11.15",
+		"typescript": "^4.9.4"
 	},
 	"dependencies": {
-		"header-generator": "^2.1.6",
-		"undici": "^5.13.0",
+		"header-generator": "^2.1.7",
+		"undici": "^5.14.0",
 		"winston": "^3.8.1"
 	}
 }
