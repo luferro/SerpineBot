@@ -305,7 +305,7 @@ const pause = async (client: Bot, interaction: ExtendedChatInputCommandInteracti
 
 const resume = async (client: Bot, interaction: ExtendedChatInputCommandInteraction) => {
 	const { resumedTrack } = Music.resume(client, interaction.guild.id);
-	const embed = new EmbedBuilder().setTitle(`Pausing \`${resumedTrack}\`.`).setColor('Random');
+	const embed = new EmbedBuilder().setTitle(`Resuming \`${resumedTrack}\`.`).setColor('Random');
 	await interaction.reply({ embeds: [embed] });
 };
 
