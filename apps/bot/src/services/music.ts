@@ -6,9 +6,6 @@ import { ConverterUtil, logger } from '@luferro/shared-utils';
 const getQueue = (client: Bot, guildId: string) => {
 	const queue = client.player.getQueue(guildId);
 
-	client.player.on('error', (_queue, error) => logger.error(error));
-	client.player.on('debug', (_queue, message) => logger.debug(message));
-
 	if (!queue) throw new Error("I'm not connected to a voice channel.");
 	return queue;
 };
@@ -41,10 +38,14 @@ export const search = async (client: Bot, query: string, requestedBy: User, limi
 export const join = async (client: Bot, guildId: string, member: GuildMember) => {
 	if (isConnectedToVoiceChannel(client, guildId)) throw new Error("I'm already connected to a voice channel.");
 
+	client.player.on('error', (_queue, error) => logger.error(error));
+	client.player.on('debug', (_queue, message) => logger.debug(message));
+
 	const queue = client.player.createQueue(guildId, {
 		leaveOnEmptyCooldown: 1000 * 60 * 5,
-		ytdlOptions: { filter: 'audioonly' },
+		ytdlOptions: { filter: 'audioonly', highWaterMark: 1 << 25, dlChunkSize: 0 },
 	});
+
 	await queue.connect(member.voice.channel as VoiceBasedChannel);
 };
 
