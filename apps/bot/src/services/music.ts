@@ -38,7 +38,7 @@ export const join = async (client: Bot, guildId: string, member: GuildMember) =>
 	if (isConnectedToVoiceChannel(client, guildId)) throw new Error("I'm already connected to a voice channel.");
 
 	const queue = client.player.createQueue(guildId, {
-		ytdlOptions: { filter: 'audioonly', highWaterMark: 1 << 30, dlChunkSize: 0 },
+		ytdlOptions: { filter: 'audioonly', dlChunkSize: 0 },
 	});
 	await queue.connect(member.voice.channel as VoiceBasedChannel);
 };
