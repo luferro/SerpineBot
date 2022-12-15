@@ -1,6 +1,5 @@
 import type { Video } from 'ytsr';
 import { ConverterUtil } from '@luferro/shared-utils';
-import * as playdl from 'play-dl';
 import ytdl from 'ytdl-core';
 import ytsr from 'ytsr';
 import ytpl from 'ytpl';
@@ -23,8 +22,20 @@ export const isPlaylist = async (url: string) => {
 	}
 };
 
-export const stream = async (url: string, seek?: number) => {
-	return await playdl.stream(url, { seek: seek ? seek / 1000 : 0 });
+export const getVideoId = (url: string) => {
+	return ytdl.getVideoID(url);
+};
+
+export const getPlaylistId = async (url: string) => {
+	return await ytpl.getPlaylistID(url);
+};
+
+export const getChannelId = async (url: string) => {
+	const {
+		videoDetails: { author },
+	} = await ytdl.getBasicInfo(url);
+
+	return author.id;
 };
 
 export const search = async (query: string, limit = 10) => {
@@ -74,22 +85,6 @@ export const getPlaylist = async (url: string) => {
 			isLivestream: isLive,
 		})),
 	};
-};
-
-export const getVideoId = (url: string) => {
-	return ytdl.getVideoID(url);
-};
-
-export const getPlaylistId = async (url: string) => {
-	return await ytpl.getPlaylistID(url);
-};
-
-export const getChannelId = async (url: string) => {
-	const {
-		videoDetails: { author },
-	} = await ytdl.getBasicInfo(url);
-
-	return author.id;
 };
 
 export const getSubscribers = async (url: string) => {
