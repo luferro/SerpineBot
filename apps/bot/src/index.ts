@@ -1,10 +1,6 @@
 import 'dotenv/config';
 import { GatewayIntentBits } from 'discord.js';
 import { Bot } from './structures/bot';
-import { path } from '@ffmpeg-installer/ffmpeg';
-import ffmpeg from 'fluent-ffmpeg';
-
-ffmpeg.setFfmpegPath(path);
 
 (async () => {
 	const client = new Bot({
