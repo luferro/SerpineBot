@@ -43,6 +43,7 @@ export const join = async (client: Bot, guildId: string, member: GuildMember) =>
 
 	const queue = client.player.createQueue(guildId, {
 		leaveOnEmptyCooldown: 1000 * 60 * 5,
+		bufferingTimeout: 3000,
 		ytdlOptions: { filter: 'audioonly', highWaterMark: 1 << 25, dlChunkSize: 0 },
 	});
 
