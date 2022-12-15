@@ -1,10 +1,14 @@
 import type { Bot } from '../structures/bot';
 import type { GuildMember, User, VoiceBasedChannel } from 'discord.js';
 import { QueryType, QueueRepeatMode, Track } from 'discord-player';
-import { ConverterUtil } from '@luferro/shared-utils';
+import { ConverterUtil, logger } from '@luferro/shared-utils';
 
 const getQueue = (client: Bot, guildId: string) => {
 	const queue = client.player.getQueue(guildId);
+
+	client.player.on('error', (_queue, error) => logger.error(error));
+	client.player.on('debug', (_queue, message) => logger.debug(message));
+
 	if (!queue) throw new Error("I'm not connected to a voice channel.");
 	return queue;
 };
