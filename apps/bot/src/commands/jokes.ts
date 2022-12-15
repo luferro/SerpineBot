@@ -1,5 +1,4 @@
-import type { CommandData } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { JokeCategory, JokesApi } from '@luferro/jokes-api';
 import { CommandName } from '../types/enums';
@@ -22,7 +21,7 @@ export const data: CommandData = {
 		),
 };
 
-export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const category = interaction.options.getString('category', true) as JokeCategory;
 
 	const { joke } = await JokesApi.getRandomJokeByCategory(category);

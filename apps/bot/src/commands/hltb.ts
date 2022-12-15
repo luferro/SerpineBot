@@ -1,5 +1,4 @@
-import type { CommandData } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { HowLongToBeatApi } from '@luferro/games-api';
 import { CommandName } from '../types/enums';
@@ -12,7 +11,7 @@ export const data: CommandData = {
 		.addStringOption((option) => option.setName('game').setDescription('Game title.').setRequired(true)),
 };
 
-export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const game = interaction.options.getString('game', true);
 
 	const { id } = await HowLongToBeatApi.search(game);

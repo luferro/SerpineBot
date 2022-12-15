@@ -1,6 +1,6 @@
 import type { EventData } from '../types/bot';
-import type { Client, VoiceState } from 'discord.js';
-import { Bot } from '../structures/bot';
+import type { Bot } from '../structures/bot';
+import type { VoiceState } from 'discord.js';
 import { EventName } from '../types/enums';
 
 export const data: EventData = {
@@ -8,8 +8,8 @@ export const data: EventData = {
 	type: 'on',
 };
 
-export const execute = async (_client: Client, oldState: VoiceState, newState: VoiceState) => {
+export const execute = async (client: Bot, oldState: VoiceState, newState: VoiceState) => {
 	const isSelf = oldState.guild.members.me?.user.id === oldState.member?.user.id;
 	const isStillInVoiceChannel = newState.channel?.isVoiceBased();
-	if (isSelf && !isStillInVoiceChannel) Bot.music.delete(newState.guild.id);
+	if (isSelf && !isStillInVoiceChannel) client.player.deleteQueue(newState.guild.id);
 };

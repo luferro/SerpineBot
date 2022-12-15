@@ -1,5 +1,4 @@
-import type { CommandData } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { CommandData, CommandExecute } from '../types/bot';
 import type { TheMovieDbCategory } from '@luferro/the-movie-db-api';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { StringUtil } from '@luferro/shared-utils';
@@ -25,7 +24,7 @@ export const data: CommandData = {
 		.addStringOption((option) => option.setName('item').setDescription('Item title').setRequired(true)),
 };
 
-export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const category = interaction.options.getString('category', true) as TheMovieDbCategory | 'Games';
 	const item = interaction.options.getString('item', true);
 

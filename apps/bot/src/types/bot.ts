@@ -1,5 +1,5 @@
-import type { AudioPlayer, AudioResource, VoiceConnection } from '@discordjs/voice';
 import type { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js';
+import type { Bot } from '../structures/bot';
 import type { CommandName, EventName, JobName, WebhookName } from './enums';
 import type { ExtendedChatInputCommandInteraction } from './interaction';
 import type { SteamWishlistItem } from './schemas';
@@ -11,9 +11,13 @@ export interface CommandData {
 		| SlashCommandSubcommandsOnlyBuilder;
 }
 
+export interface CommandExecute {
+	(args: { client: Bot; interaction: ExtendedChatInputCommandInteraction }): Promise<void>;
+}
+
 export interface Command {
 	data: CommandData;
-	execute(integration: ExtendedChatInputCommandInteraction): Promise<void>;
+	execute: CommandExecute;
 }
 
 export interface EventData {
@@ -21,9 +25,13 @@ export interface EventData {
 	type: 'on' | 'once';
 }
 
+export interface EventExecute {
+	(...args: unknown[]): Promise<void>;
+}
+
 export interface Event {
 	data: EventData;
-	execute(...args: unknown[]): Promise<void>;
+	execute: EventExecute;
 }
 
 export interface JobData {
@@ -31,35 +39,16 @@ export interface JobData {
 	schedule: string | Date;
 }
 
+export interface JobExecute {
+	(...args: unknown[]): Promise<void>;
+}
+
 export interface Job {
 	data: JobData;
-	execute(...args: unknown[]): Promise<void>;
+	execute: JobExecute;
 }
 
 export interface SteamAlert extends SteamWishlistItem {
 	addedTo?: string[];
 	removedFrom?: string[];
-}
-
-export interface QueueItem {
-	title: string | null;
-	channel: string | null;
-	thumbnail: string | null;
-	url: string;
-	duration: string;
-	isLivestream: boolean;
-	playlist?: {
-		title: string | null;
-		url: string;
-	};
-	requested: string;
-}
-
-export interface Music {
-	player: AudioPlayer;
-	resource: AudioResource<null> | null;
-	connection: VoiceConnection;
-	playing: boolean;
-	looping: boolean;
-	queue: QueueItem[];
 }

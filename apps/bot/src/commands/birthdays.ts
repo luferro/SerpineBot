@@ -1,5 +1,5 @@
 import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
-import type { CommandData } from '../types/bot';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import * as Birthdays from '../services/birthdays';
 import { CommandName } from '../types/enums';
@@ -27,7 +27,7 @@ export const data: CommandData = {
 		.addSubcommand((subcommand) => subcommand.setName('delete').setDescription('Delete your birthday entry.')),
 };
 
-export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const subcommand = interaction.options.getSubcommand();
 
 	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {

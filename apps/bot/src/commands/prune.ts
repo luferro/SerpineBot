@@ -1,5 +1,4 @@
-import type { CommandData } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { ChannelType } from 'discord.js';
 import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import { CommandName } from '../types/enums';
@@ -15,7 +14,7 @@ export const data: CommandData = {
 		),
 };
 
-export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const quantity = interaction.options.getInteger('quantity', true);
 	if (quantity < 2 || quantity > 100) throw new Error('Cannot prune. Quantity must be between 2 and 100 messages.');
 

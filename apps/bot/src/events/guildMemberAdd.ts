@@ -1,5 +1,6 @@
+import type { Bot } from '../structures/bot';
 import type { EventData } from '../types/bot';
-import type { Client, GuildMember } from 'discord.js';
+import type { GuildMember } from 'discord.js';
 import { logger } from '@luferro/shared-utils';
 import * as Roles from '../services/roles';
 import { EventName } from '../types/enums';
@@ -9,7 +10,7 @@ export const data: EventData = {
 	type: 'on',
 };
 
-export const execute = async (_client: Client, member: GuildMember) => {
+export const execute = async (_client: Bot, member: GuildMember) => {
 	let role = member.guild.roles.cache.find((role) => role.name === 'Restrictions');
 	if (!role) role = await Roles.create(member.guild, 'Restrictions', 'Default', false, false);
 

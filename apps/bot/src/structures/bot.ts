@@ -1,8 +1,9 @@
-import type { Command, Event, Job, Music } from '../types/bot';
+import type { Command, Event, Job } from '../types/bot';
 import type { CommandName, EventName, JobName, WebhookName } from '../types/enums';
 import type { WebhookCategory } from '../types/category';
 import { ClientOptions, DiscordAPIError } from 'discord.js';
 import { Client, Collection, EmbedBuilder } from 'discord.js';
+import { Player } from 'discord-player';
 import { CronJob } from 'cron';
 import { TenorApi } from '@luferro/tenor-api';
 import { SteamApi } from '@luferro/games-api';
@@ -18,7 +19,8 @@ import { stateModel } from '../database/models/state';
 import { config } from '../config/environment';
 
 export class Bot extends Client {
-	public static music: Collection<string, Music> = new Collection();
+	public player: Player = new Player(this);
+
 	public static events: Collection<EventName, Event> = new Collection();
 	public static commands: Collection<CommandName, Command> = new Collection();
 	public static jobs: Collection<JobName | WebhookName, Job> = new Collection();

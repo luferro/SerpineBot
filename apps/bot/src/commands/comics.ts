@@ -1,5 +1,4 @@
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
-import type { CommandData } from '../types/bot';
+import type { CommandData, CommandExecute } from '../types/bot';
 import type { ComicSelection } from '@luferro/go-comics-api';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { GoComicsApi } from '@luferro/go-comics-api';
@@ -28,7 +27,7 @@ export const data: CommandData = {
 		),
 };
 
-export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const selection = interaction.options.getString('selection', true) as ComicSelection;
 
 	const { title, url, image } = await GoComicsApi.getRandomComicPage(selection);

@@ -1,5 +1,4 @@
-import type { CommandData } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { CommandName } from '../types/enums';
 import { randomUUID } from 'crypto';
@@ -25,7 +24,7 @@ export const data: CommandData = {
 		),
 };
 
-export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const mentions = interaction.options.getString('mentions', true).match(/\d+/g);
 	const value = interaction.options.getInteger('value', true);
 

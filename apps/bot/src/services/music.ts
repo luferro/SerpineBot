@@ -1,138 +1,87 @@
-import type { GuildMember, VoiceBasedChannel } from 'discord.js';
-import type { DiscordGatewayAdapterCreator } from '@discordjs/voice';
-import type { QueueItem } from '../types/bot';
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, joinVoiceChannel } from '@discordjs/voice';
-import { YoutubeApi } from '@luferro/google-api';
-import { ConverterUtil, SleepUtil } from '@luferro/shared-utils';
-import { Bot } from '../structures/bot';
+import type { Bot } from '../structures/bot';
+import type { GuildMember, User, VoiceBasedChannel } from 'discord.js';
+import { QueryType, QueueRepeatMode, Track } from 'discord-player';
+import { ConverterUtil } from '@luferro/shared-utils';
 
-const getGuildSubscription = (guildId: string) => {
-	const subscription = Bot.music.get(guildId);
-	if (!subscription) throw new Error(`Guild ${guildId} isn't subscribed.`);
-	return subscription;
+const getQueue = (client: Bot, guildId: string) => {
+	const queue = client.player.getQueue(guildId);
+	if (!queue) throw new Error("I'm not connected to a voice channel.");
+	return queue;
 };
 
-const playerOnIdle = async (guildId: string) => {
-	const subscription = getGuildSubscription(guildId);
-	subscription.player.stop();
-	subscription.playing = false;
-
-	if (!subscription.looping) subscription.queue.shift();
-
-	if (subscription.queue.length > 0) {
-		await SleepUtil.sleep(500);
-		return await play(guildId);
+export const isConnectedToVoiceChannel = (client: Bot, guildId: string) => {
+	try {
+		getQueue(client, guildId);
+		return true;
+	} catch (error) {
+		return false;
 	}
-
-	await SleepUtil.sleep(1000 * 60 * 10);
-	leave(guildId);
 };
 
-const play = async (guildId: string) => {
-	const subscription = getGuildSubscription(guildId);
-	const firstQueueItem = subscription.queue[0].url;
+export const search = async (client: Bot, query: string, requestedBy: User, limit?: number) => {
+	const data = await client.player.search(query, {
+		requestedBy,
+		searchEngine: QueryType.AUTO,
+	});
+	if (!data || !data.tracks.length) throw new Error(`No matches for ${query}.`);
 
-	const param = new URL(firstQueueItem).searchParams.get('t');
-	if (param) {
-		subscription.playing = true;
-		const timestamp = Number(param.match(/\d+/)?.[0] ?? 0) * 1000;
-		await seek(guildId, ConverterUtil.toMinutes(timestamp, true) as string);
-		return;
-	}
-
-	const { stream, type } = await YoutubeApi.stream(firstQueueItem);
-	subscription.resource = createAudioResource(stream, { inputType: type });
-
-	subscription.playing = true;
-	subscription.player.play(subscription.resource);
-};
-
-const verifyClientConnection = (guildId: string, shouldBeConnected: boolean) => {
-	const isConnected = Bot.music.has(guildId);
-	if (!isConnected && shouldBeConnected) throw new Error('SerpineBot is not connected to a voice channel.');
-	if (isConnected && !shouldBeConnected) throw new Error('SerpineBot is already connect to a voice channel.');
-};
-
-export const join = (guildId: string, member: GuildMember) => {
-	verifyClientConnection(guildId, false);
-
-	const voiceChannel = member.voice.channel as VoiceBasedChannel;
-	const subscription = {
-		player: createAudioPlayer(),
-		resource: null,
-		connection: joinVoiceChannel({
-			channelId: voiceChannel.id,
-			guildId: voiceChannel.guild.id,
-			adapterCreator: voiceChannel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator,
-		}),
-		playing: false,
-		looping: false,
-		queue: [] as QueueItem[],
-	};
-	subscription.connection.subscribe(subscription.player);
-	subscription.player.on(AudioPlayerStatus.Idle, async () => await playerOnIdle(guildId));
-
-	Bot.music.set(guildId, subscription);
-};
-
-export const leave = (guildId: string) => {
-	verifyClientConnection(guildId, true);
-
-	const subscription = getGuildSubscription(guildId);
-	subscription.player.stop();
-	subscription.connection.destroy();
-
-	Bot.music.delete(guildId);
-};
-
-export const addToQueue = async (guildId: string, queueItem: QueueItem) => {
-	verifyClientConnection(guildId, true);
-
-	const subscription = getGuildSubscription(guildId);
-	if (subscription.queue.length === 0) {
-		subscription.playing = true;
-		subscription.queue = [queueItem];
-
-		await play(guildId);
-	} else {
-		const hasEntry = subscription.queue.some((item) => JSON.stringify(item) === JSON.stringify(queueItem));
-		if (hasEntry) throw new Error('Duplicated entry detected.');
-
-		subscription.queue.push(queueItem);
-	}
+	const isLivestream = (duration: string) => /0?0:00/.test(duration);
+	const filteredTracks = data.tracks.filter(({ duration }) => !isLivestream(duration));
 
 	return {
-		position: subscription.queue.findIndex((item) => JSON.stringify(item) === JSON.stringify(queueItem)),
+		playlist: data.playlist,
+		tracks: limit ? filteredTracks.slice(0, limit) : filteredTracks,
 	};
 };
 
-export const removeFromQueue = async (guildId: string, position: number) => {
-	verifyClientConnection(guildId, true);
+export const join = async (client: Bot, guildId: string, member: GuildMember) => {
+	if (isConnectedToVoiceChannel(client, guildId)) throw new Error("I'm already connected to a voice channel.");
 
-	const subscription = getGuildSubscription(guildId);
-	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
-	if (position < 1 || position > subscription.queue.length) throw new Error('Invalid queue position.');
-
-	subscription.queue.splice(position, 1);
+	const queue = client.player.createQueue(guildId, {
+		ytdlOptions: { filter: 'audioonly', highWaterMark: 1 << 30, dlChunkSize: 0 },
+	});
+	await queue.connect(member.voice.channel as VoiceBasedChannel);
 };
 
-export const clearQueue = async (guildId: string) => {
-	verifyClientConnection(guildId, true);
-
-	const subscription = getGuildSubscription(guildId);
-	if (subscription.queue.length <= 1) throw new Error('Queue is already empty.');
-
-	subscription.queue.length = 1;
+export const leave = (client: Bot, guildId: string) => {
+	const queue = getQueue(client, guildId);
+	queue.destroy(true);
 };
 
-export const seek = async (guildId: string, timestamp: string) => {
-	verifyClientConnection(guildId, true);
+export const addTrackToQueue = async (client: Bot, guildId: string, track: Track) => {
+	const queue = getQueue(client, guildId);
+	queue.addTrack(track);
+	if (!queue.playing) await queue.play();
 
+	return {
+		trackPosition: queue.tracks.length,
+	};
+};
+
+export const addPlaylistToQueue = async (client: Bot, guildId: string, playlist: Track[]) => {
+	const queue = getQueue(client, guildId);
+	queue.addTracks(playlist);
+	if (!queue.playing) await queue.play();
+
+	return {
+		playlistPositionStart: queue.tracks.length,
+		playlistPositionEnd: queue.tracks.length + playlist.length,
+	};
+};
+
+export const removeFromQueue = (client: Bot, guildId: string, position: number) => {
+	const queue = getQueue(client, guildId);
+	queue.remove(position);
+};
+
+export const clearQueue = (client: Bot, guildId: string) => {
+	const queue = getQueue(client, guildId);
+	queue.clear();
+};
+
+export const seek = async (client: Bot, guildId: string, timestamp: string) => {
 	const isValidTimestamp = /([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?/g.test(timestamp);
 	if (!isValidTimestamp) throw new Error('Invalid timestamp format.');
-
-	const subscription = getGuildSubscription(guildId);
-	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
 
 	const getMilliseconds = (timestampToConvert: string) => {
 		let totalMilliseconds = 0;
@@ -148,84 +97,78 @@ export const seek = async (guildId: string, timestamp: string) => {
 		return totalMilliseconds;
 	};
 
+	const queue = getQueue(client, guildId);
+	const { duration } = queue.current;
+
 	const seekMilliseconds = getMilliseconds(timestamp);
-	const musicMilliseconds = getMilliseconds(subscription.queue[0].duration);
+	const durationMilliseconds = getMilliseconds(duration);
 
-	if (seekMilliseconds < 0 || seekMilliseconds > musicMilliseconds)
-		throw new Error(`Seeking beyond limit. [0 - ${subscription.queue[0].duration}]`);
+	const isSeekValid = seekMilliseconds > 0 && seekMilliseconds < durationMilliseconds;
+	if (!isSeekValid) throw new Error(`Seeking beyond limit. [0 - ${duration}]`);
 
-	const { stream, type } = await YoutubeApi.stream(subscription.queue[0].url, seekMilliseconds);
-	subscription.resource = createAudioResource(stream, { inputType: type });
-
-	subscription.player.play(subscription.resource);
+	await queue.seek(seekMilliseconds);
 };
 
-export const loop = async (guildId: string) => {
-	verifyClientConnection(guildId, true);
+export const loop = (client: Bot, guildId: string, mode: QueueRepeatMode) => {
+	const queue = getQueue(client, guildId);
+	queue.setRepeatMode(mode);
+};
 
-	const subscription = getGuildSubscription(guildId);
-	if (!subscription.playing) throw new Error('Cannot enable loop. Nothing is currently playing.');
-
-	subscription.looping = !subscription.looping;
+export const skip = (client: Bot, guildId: string) => {
+	const queue = getQueue(client, guildId);
+	const isSkipSuccessful = queue.skip();
+	if (!isSkipSuccessful) throw new Error('Cannot skip.');
 
 	return {
-		looping: subscription.looping,
+		skippedTrack: queue.current,
+		currentTrack: queue.tracks[1],
 	};
 };
 
-export const skip = async (guildId: string) => {
-	verifyClientConnection(guildId, true);
-
-	const subscription = getGuildSubscription(guildId);
-	if (subscription.queue.length === 1) throw new Error('Cannot skip. Queue is empty.');
-
-	if (subscription.looping) subscription.looping = false;
-	if (subscription.player.state.status === AudioPlayerStatus.Paused) subscription.player.unpause();
-
-	const skippedItem = subscription.queue[0].title;
-	subscription.player.stop();
-	await play(guildId);
+export const pause = (client: Bot, guildId: string) => {
+	const queue = getQueue(client, guildId);
+	queue.setPaused(true);
 
 	return {
-		skippedItem,
-		playing: subscription.queue[0].title,
+		pausedTrack: queue.current,
 	};
 };
 
-export const pause = async (guildId: string) => {
-	verifyClientConnection(guildId, true);
-
-	const subscription = getGuildSubscription(guildId);
-	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
-
-	subscription.player.pause();
+export const resume = (client: Bot, guildId: string) => {
+	const queue = getQueue(client, guildId);
+	queue.setPaused(false);
 
 	return {
-		pausedItem: subscription.queue[0].title,
+		resumedTrack: queue.current,
 	};
 };
 
-export const resume = async (guildId: string) => {
-	verifyClientConnection(guildId, true);
+export const volume = (client: Bot, guildId: string, volume: number) => {
+	const queue = getQueue(client, guildId);
 
-	const subscription = getGuildSubscription(guildId);
-	if (subscription.queue.length === 0) throw new Error('Queue is empty.');
+	if (volume < 0 || volume > 100) throw new Error('Volume must be between 0 and 100.');
 
-	subscription.player.unpause();
+	queue.setVolume(volume);
+};
+
+export const enableBassBoost = async (client: Bot, guildId: string) => {
+	const queue = getQueue(client, guildId);
+	await queue.setFilters({
+		bassboost: !queue.getFiltersEnabled().includes('bassboost'),
+		normalizer2: !queue.getFiltersEnabled().includes('bassboost'),
+	});
+};
+
+export const queue = (client: Bot, guildId: string) => {
+	const queue = getQueue(client, guildId);
 
 	return {
-		resumedItem: subscription.queue[0].title,
+		currentTrack: queue.current,
+		queue: queue.tracks,
 	};
 };
 
-export const queue = (guildId: string) => {
-	verifyClientConnection(guildId, true);
-
-	const subscription = getGuildSubscription(guildId);
-	const queue = [...subscription.queue];
-
-	return {
-		queue,
-		playing: queue.shift(),
-	};
+export const shuffle = (client: Bot, guildId: string) => {
+	const queue = getQueue(client, guildId);
+	queue.shuffle();
 };

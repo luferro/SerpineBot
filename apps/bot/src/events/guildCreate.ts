@@ -1,5 +1,6 @@
+import type { Bot } from '../structures/bot';
 import type { EventData } from '../types/bot';
-import type { Client, Guild } from 'discord.js';
+import type { Guild } from 'discord.js';
 import { logger } from '@luferro/shared-utils';
 import * as CommandsHandler from '../handlers/commands';
 import { settingsModel } from '../database/models/settings';
@@ -10,7 +11,7 @@ export const data: EventData = {
 	type: 'on',
 };
 
-export const execute = async (client: Client, guild: Guild) => {
+export const execute = async (client: Bot, guild: Guild) => {
 	await CommandsHandler.deploy(client);
 	const settings = await settingsModel.findOne({ guildId: guild.id });
 

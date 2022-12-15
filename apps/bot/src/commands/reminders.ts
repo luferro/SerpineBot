@@ -1,4 +1,4 @@
-import type { CommandData } from '../types/bot';
+import type { CommandData, CommandExecute } from '../types/bot';
 import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { TimeUnit } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
@@ -49,7 +49,7 @@ export const data: CommandData = {
 		),
 };
 
-export const execute = async (interaction: ExtendedChatInputCommandInteraction) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const subcommand = interaction.options.getSubcommand();
 
 	const select: Record<string, (arg0: typeof interaction) => Promise<void>> = {

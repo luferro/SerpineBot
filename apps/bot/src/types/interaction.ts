@@ -1,4 +1,10 @@
-import type { ButtonInteraction, ChatInputCommandInteraction, Guild, GuildMember } from 'discord.js';
+import type {
+	ButtonInteraction,
+	ChatInputCommandInteraction,
+	Guild,
+	GuildMember,
+	StringSelectMenuInteraction,
+} from 'discord.js';
 
 export type Interaction = ExtendedChatInputCommandInteraction | ExtendedButtonInteraction;
 
@@ -8,6 +14,11 @@ export interface ExtendedChatInputCommandInteraction extends ChatInputCommandInt
 }
 
 export interface ExtendedButtonInteraction extends ButtonInteraction {
+	guild: Guild;
+	member: GuildMember;
+}
+
+export interface ExtendedStringSelectMenuInteraction extends StringSelectMenuInteraction {
 	guild: Guild;
 	member: GuildMember;
 }
