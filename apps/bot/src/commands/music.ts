@@ -122,6 +122,7 @@ const add = async (client: Bot, interaction: ExtendedChatInputCommandInteraction
 	if (data.playlist) {
 		const { title, url, author, tracks } = data.playlist;
 		const { playlistPositionStart, playlistPositionEnd } = await Music.addPlaylistToQueue(client, guildId, tracks);
+		const positionStart = playlistPositionStart === 0 ? 'Currently playing' : playlistPositionStart;
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)
@@ -129,7 +130,7 @@ const add = async (client: Bot, interaction: ExtendedChatInputCommandInteraction
 			.addFields([
 				{
 					name: '**Position in queue**',
-					value: `${playlistPositionStart} to ${playlistPositionEnd}`,
+					value: `Playlist start: ${positionStart}\nPlaylist end: ${playlistPositionEnd}`,
 					inline: true,
 				},
 				{
@@ -366,10 +367,9 @@ const queue = async (client: Bot, interaction: ExtendedChatInputCommandInteracti
 	const formattedQueue = queue
 		.slice(0, 10)
 		.map(
-			({ title, url, duration, requestedBy }, index) =>
-				`\`${index + 1}.\` **[${title}](${url})** | **${duration}**\nRequest by \`${requestedBy.tag}\``,
-		)
-		.join('\n');
+			({ title, duration, requestedBy }, index) =>
+				`\`${index + 1}.\` **${title}** | **${duration}**\nRequest by \`${requestedBy.tag}\``,
+		);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Queue for ${interaction.guild.name}`)
@@ -380,7 +380,7 @@ const queue = async (client: Bot, interaction: ExtendedChatInputCommandInteracti
 					? `**[${currentTrack.title}](${currentTrack.url})** | **${currentTrack.duration}**\nRequest by \`${currentTrack.requestedBy.tag}\``
 					: 'Nothing is playing.',
 			},
-			{ name: '**Queue**', value: formattedQueue || 'Queue is empty.' },
+			{ name: '**Queue**', value: formattedQueue.join('\n') || 'Queue is empty.' },
 		])
 		.setFooter({ text: `${queue.length} total items in queue.` })
 		.setColor('Random');
