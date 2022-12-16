@@ -19,7 +19,7 @@ import { stateModel } from '../database/models/state';
 import { config } from '../config/environment';
 
 export class Bot extends Client {
-	public player: Player = new Player(this);
+	public player: Player;
 
 	public static events: Collection<EventName, Event> = new Collection();
 	public static commands: Collection<CommandName, Command> = new Collection();
@@ -27,6 +27,7 @@ export class Bot extends Client {
 
 	constructor(options: ClientOptions) {
 		super(options);
+		this.player = this.initializePlayer();
 		this.setApiTokens();
 	}
 
@@ -90,6 +91,14 @@ export class Bot extends Client {
 		SteamApi.setApiKey(config.STEAM_API_KEY);
 		NewsDataApi.setApiKey(config.NEWS_DATA_API_KEY);
 		TheMovieDbApi.setApiKey(config.THE_MOVIE_DB_API_KEY);
+	};
+
+	private initializePlayer = () => {
+		const player = new Player(this);
+		player.on('connectionError', (_queue, error) => logger.error(error));
+		player.on('error', (_queue, error) => logger.error(error));
+		player.on('debug', (_queue, message) => logger.debug(message));
+		return player;
 	};
 
 	private initializeListeners = () => {

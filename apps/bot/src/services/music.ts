@@ -1,7 +1,7 @@
 import type { Bot } from '../structures/bot';
 import type { GuildMember, User, VoiceBasedChannel } from 'discord.js';
 import { QueryType, QueueRepeatMode, Track } from 'discord-player';
-import { ConverterUtil, logger } from '@luferro/shared-utils';
+import { ConverterUtil } from '@luferro/shared-utils';
 
 const getQueue = (client: Bot, guildId: string) => {
 	const queue = client.player.getQueue(guildId);
@@ -38,12 +38,8 @@ export const search = async (client: Bot, query: string, requestedBy: User, limi
 export const join = async (client: Bot, guildId: string, member: GuildMember) => {
 	if (isConnectedToVoiceChannel(client, guildId)) throw new Error("I'm already connected to a voice channel.");
 
-	client.player.on('error', (_queue, error) => logger.error(error));
-	client.player.on('debug', (_queue, message) => logger.debug(message));
-
 	const queue = client.player.createQueue(guildId, {
 		leaveOnEmptyCooldown: 1000 * 60 * 5,
-		bufferingTimeout: 3000,
 		ytdlOptions: { filter: 'audioonly', highWaterMark: 1 << 25, dlChunkSize: 0 },
 	});
 
@@ -123,8 +119,9 @@ export const loop = (client: Bot, guildId: string, mode: QueueRepeatMode) => {
 
 export const skip = (client: Bot, guildId: string) => {
 	const queue = getQueue(client, guildId);
-	const isSkipSuccessful = queue.skip();
-	if (!isSkipSuccessful) throw new Error('Cannot skip.');
+	if (queue.tracks.length === 1) throw new Error('Cannot skip.');
+
+	queue.skip();
 
 	return {
 		skippedTrack: queue.current,
