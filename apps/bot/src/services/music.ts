@@ -40,7 +40,7 @@ export const join = async (client: Bot, guildId: string, member: GuildMember) =>
 
 	const queue = client.player.createQueue(guildId, {
 		leaveOnEmptyCooldown: 1000 * 60 * 5,
-		ytdlOptions: { filter: 'audioonly', highWaterMark: 1 << 25, dlChunkSize: 0 },
+		ytdlOptions: { filter: 'audioonly', dlChunkSize: 0 },
 	});
 
 	await queue.connect(member.voice.channel as VoiceBasedChannel);
@@ -119,13 +119,13 @@ export const loop = (client: Bot, guildId: string, mode: QueueRepeatMode) => {
 
 export const skip = (client: Bot, guildId: string) => {
 	const queue = getQueue(client, guildId);
-	if (queue.tracks.length === 1) throw new Error('Cannot skip.');
 
-	queue.skip();
+	const isSkipSuccessful = queue.skip();
+	if (!isSkipSuccessful) throw new Error('Cannot skip.');
 
 	return {
 		skippedTrack: queue.current,
-		currentTrack: queue.tracks[1],
+		currentTrack: queue.tracks[0],
 	};
 };
 
