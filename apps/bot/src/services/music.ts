@@ -67,8 +67,8 @@ export const addPlaylistToQueue = async (client: Bot, guildId: string, playlist:
 	if (!queue.playing) await queue.play();
 
 	return {
-		playlistPositionStart: queue.tracks.length,
-		playlistPositionEnd: queue.tracks.length + playlist.length,
+		playlistPositionStart: queue.getTrackPosition(playlist[0]) + 1,
+		playlistPositionEnd: queue.getTrackPosition(playlist[playlist.length - 1]) + 1,
 	};
 };
 
@@ -121,7 +121,7 @@ export const skip = (client: Bot, guildId: string) => {
 	const queue = getQueue(client, guildId);
 
 	const isSkipSuccessful = queue.skip();
-	if (!isSkipSuccessful) throw new Error('Cannot skip.');
+	if (!isSkipSuccessful || queue.tracks.length === 0) throw new Error('Cannot skip.');
 
 	return {
 		skippedTrack: queue.current,
