@@ -97,7 +97,6 @@ export class Bot extends Client {
 		const player = new Player(this);
 		player.on('connectionError', (_queue, error) => logger.error(error));
 		player.on('error', (_queue, error) => logger.error(error));
-		player.on('debug', (_queue, message) => logger.debug(message));
 		return player;
 	};
 
