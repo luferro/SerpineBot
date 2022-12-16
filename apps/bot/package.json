@@ -28,7 +28,6 @@
 		"ytdl-core": "^4.11.2"
 	},
 	"dependencies": {
-		"@discordjs/voice": "^0.14.0",
 		"@luferro/games-api": "workspace:^",
 		"@luferro/go-comics-api": "workspace:^",
 		"@luferro/google-api": "workspace:^",
