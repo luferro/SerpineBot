@@ -17,6 +17,7 @@ export const data: JobData = {
 
 export const execute = async (client: Bot) => {
 	const categories: IntegrationCategory[] = ['Steam', 'Xbox'];
+	const leaderboards = await getLeaderboards(client);
 
 	for (const [guildId, guild] of client.guilds.cache) {
 		const settings = await settingsModel.findOne({ guildId });
@@ -27,8 +28,8 @@ export const execute = async (client: Bot) => {
 		};
 
 		for (const category of categories) {
-			const leaderboard = await getLeaderboard(client, category);
-			if (leaderboard.length === 0) continue;
+			const leaderboard = leaderboards[category];
+			if (!leaderboard || leaderboard.length === 0) continue;
 
 			const channelId = channels[category];
 			if (!channelId) continue;
@@ -51,18 +52,18 @@ export const execute = async (client: Bot) => {
 	await resetLeaderboards();
 };
 
-export const getLeaderboard = async (client: Bot, category: IntegrationCategory) => {
+const getLeaderboards = async (client: Bot) => {
 	const promises = await Promise.allSettled([
 		Leaderboards.getSteamLeaderboard(client),
 		Leaderboards.getXboxLeaderboard(client),
 	]);
 
-	const leaderboards: Record<IntegrationCategory, string[]> = {
-		Steam: promises[0].status === 'fulfilled' ? promises[0].value : [],
-		Xbox: promises[1].status === 'fulfilled' ? promises[1].value : [],
-	};
+	const getResult = <T>(promise: PromiseSettledResult<T>) => (promise.status === 'fulfilled' ? promise.value : null);
 
-	return leaderboards[category];
+	return {
+		Steam: getResult(promises[0]),
+		Xbox: getResult(promises[1]),
+	};
 };
 
 const resetLeaderboards = async () => {
