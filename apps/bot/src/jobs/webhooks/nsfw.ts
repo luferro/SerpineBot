@@ -8,7 +8,7 @@ import { config } from '../../config/environment';
 
 export const data: JobData = {
 	name: WebhookName.Nsfw,
-	schedule: '0 */10 * * * *',
+	schedule: '0 */15 * * * *',
 };
 
 export const execute = async (client: Bot) => {

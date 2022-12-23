@@ -8,7 +8,7 @@ import { WebhookName } from '../../types/enums';
 
 export const data: JobData = {
 	name: WebhookName.Deals,
-	schedule: '0 */10 * * * *',
+	schedule: '0 */8 * * * *',
 };
 
 export const execute = async (client: Bot) => {
