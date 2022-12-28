@@ -37,10 +37,12 @@ export const execute = async (client: Bot) => {
 			const channel = await client.channels.fetch(channelId);
 			if (!channel?.isTextBased()) continue;
 
+			const fromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString();
+			const toDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString();
+
 			const embed = new EmbedBuilder()
-				.setTitle(`Weekly ${category} Leaderboard`)
+				.setTitle(`Weekly ${category} Leaderboard (${fromDate} - ${toDate})`)
 				.setDescription(leaderboard.join('\n'))
-				.setFooter({ text: 'Leaderboard resets every sunday.' })
 				.setColor('Random');
 
 			await channel.send({ embeds: [embed] });
