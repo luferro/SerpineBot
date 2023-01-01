@@ -37,8 +37,8 @@ export const execute = async (client: Bot) => {
 			const channel = await client.channels.fetch(channelId);
 			if (!channel?.isTextBased()) continue;
 
-			const fromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString();
-			const toDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString();
+			const fromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
+			const toDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
 
 			const embed = new EmbedBuilder()
 				.setTitle(`Weekly ${category} Leaderboard (${fromDate} - ${toDate})`)
