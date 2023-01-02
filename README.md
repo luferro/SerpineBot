@@ -70,6 +70,6 @@ pnpm start --filter web
 
 ## License
 
-Copyright © 2022 [Luís Ferro](https://github.com/luferro)
+Copyright © 2023 [Luís Ferro](https://github.com/luferro)
 
 This project is licensed under the [MIT license](LICENSE).
