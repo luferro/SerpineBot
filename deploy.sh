@@ -58,11 +58,12 @@ echo "Step 5: Installing dependencies"
 pnpm install --frozen-lockfile
 
 echo "Step 6: Build"
+pnpm build --filter "./packages/**"
+cd $output
+cd ../
 pnpm build
 
 echo "Step 7: Starting $process in working directory $PWD"
-cd $output
-cd ../
 pm2 start "pnpm start" --name $process
 
 echo "Step 8: Save process"
