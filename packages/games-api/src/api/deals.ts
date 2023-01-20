@@ -28,7 +28,10 @@ export const getDealById = async (id: string) => {
 	const $ = load(data);
 
 	const name = $('.image-game').first().attr('alt')!;
-	const image = $('.image-game').first().attr('src')?.replace('307xt176', '616xt353');
+	const image = $('.image-game')
+		.first()
+		.attr('src')
+		?.replace(/307(.*?)176/, '616xt353');
 
 	const historicalLows = $('#game-lowest-tab-price .game-lowest-price-row')
 		.get()
@@ -108,7 +111,7 @@ export const getLatestBlogNews = async (category: Exclude<DealsCategory, 'Free G
 	const image = $('.news-section .news-list .news-image-wrapper img')
 		.first()
 		.attr('src')
-		?.replace('352cr184', '912cr476');
+		?.replace(/352(.*?)184/, '912cr476');
 
 	return {
 		title,
@@ -128,7 +131,10 @@ export const getLatestDeals = async (category: Extract<DealsCategory, 'Free Game
 			.map(async (element) => {
 				const title = $(element).find(':nth-child(4) .game-info-title-wrapper a').text();
 				const href = $(element).find(':last-child a:last-child').attr('href');
-				const image = $(element).find(':nth-child(3) img').attr('src')?.replace('154x72', '616xt353');
+				const image = $(element)
+					.find(':nth-child(3) img')
+					.attr('src')
+					?.replace(/154(.*?)72/, '616xt353');
 				const store = $(element).find(':last-child .shop-icon img').attr('alt')!;
 				const coupon = $(element).find(':nth-child(4) div.price-widget span.copy-code-action').text();
 				const discount = $(element).find(':nth-child(4) div.price-widget span.discount').text();
