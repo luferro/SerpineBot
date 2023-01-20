@@ -15,13 +15,17 @@ export const register = async () => {
 };
 
 export const deploy = async (client: Client) => {
+	const commands = Bot.commands.map((command) =>
+		command.data.slashCommand.toJSON(),
+	) as ApplicationCommandDataResolvable[];
+
+	if (client.application) {
+		const globalCommands = await client.application.commands.set(commands);
+		logger.info(`Commands handler deployed **${globalCommands.size}** slash command(s) globally.`);
+	}
+
 	for (const { 1: guild } of client.guilds.cache) {
-		const commands = Bot.commands.map((command) =>
-			command.data.slashCommand.toJSON(),
-		) as ApplicationCommandDataResolvable[];
-
 		const guildCommands = await guild.commands.set(commands);
-
 		logger.info(`Commands handler deployed **${guildCommands.size}** slash command(s) to guild **${guild.name}**.`);
 	}
 };
