@@ -1,8 +1,8 @@
 {
-	"name": "@luferro/news-data-api",
+	"name": "@luferro/gnews-api",
 	"private": true,
 	"version": "1.0.0",
-	"description": "NewsData api wrapper",
+	"description": "GNews api wrapper",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {

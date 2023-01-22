@@ -8,7 +8,7 @@ import { CronJob } from 'cron';
 import { TenorApi } from '@luferro/tenor-api';
 import { SteamApi } from '@luferro/games-api';
 import { TheMovieDbApi } from '@luferro/the-movie-db-api';
-import { NewsDataApi } from '@luferro/news-data-api';
+import { GNewsApi } from '@luferro/gnews-api';
 import { FetchError, logger, SleepUtil } from '@luferro/shared-utils';
 import * as Database from '../database/database';
 import * as JobsHandler from '../handlers/jobs';
@@ -89,7 +89,7 @@ export class Bot extends Client {
 	private setApiTokens = () => {
 		TenorApi.setApiKey(config.TENOR_API_KEY);
 		SteamApi.setApiKey(config.STEAM_API_KEY);
-		NewsDataApi.setApiKey(config.NEWS_DATA_API_KEY);
+		GNewsApi.setApiKey(config.GNEWS_API_KEY);
 		TheMovieDbApi.setApiKey(config.THE_MOVIE_DB_API_KEY);
 	};
 

@@ -6,6 +6,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"start": "tsc && node dist/index.js",
+		"dev": "tsc && set NODE_ENV=development && node dist/index.js",
 		"build": "tsc",
 		"lint": "eslint . --ext .ts",
 		"prettier": "prettier --write ."
@@ -34,7 +35,7 @@
 		"@luferro/jikan-api": "workspace:^",
 		"@luferro/jokes-api": "workspace:^",
 		"@luferro/mangadex-api": "workspace:^",
-		"@luferro/news-data-api": "workspace:^",
+		"@luferro/gnews-api": "workspace:^",
 		"@luferro/reddit-api": "workspace:^",
 		"@luferro/shared-utils": "workspace:^",
 		"@luferro/tenor-api": "workspace:^",
