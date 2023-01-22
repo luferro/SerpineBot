@@ -6,7 +6,7 @@ import { WebhookName } from '../../types/enums';
 
 export const data: JobData = {
 	name: WebhookName.WorldNews,
-	schedule: new Date(Date.now() + 1000),
+	schedule: '0 */30 * * * *',
 };
 
 export const execute = async (client: Bot) => {
