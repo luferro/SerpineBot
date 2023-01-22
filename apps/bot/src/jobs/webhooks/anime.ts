@@ -3,7 +3,7 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { JikanApi } from '@luferro/jikan-api';
 import { RedditApi } from '@luferro/reddit-api';
-import { SleepUtil, StringUtil } from '@luferro/shared-utils';
+import { StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 enum Aggregator {
@@ -30,8 +30,6 @@ export const execute = async (client: Bot) => {
 	const posts = await RedditApi.getPostsByFlair('Anime', 'new', ['Episode'], 20);
 
 	for (const { title, url, selftext } of posts.reverse()) {
-		await SleepUtil.sleep(1000);
-
 		const { isDuplicated } = await client.manageState('Anime', 'Episodes', title, url);
 		if (isDuplicated) continue;
 

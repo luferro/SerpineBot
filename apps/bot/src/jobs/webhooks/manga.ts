@@ -2,7 +2,7 @@ import type { JobData } from '../../types/bot';
 import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { MangadexApi } from '@luferro/mangadex-api';
-import { SleepUtil, StringUtil } from '@luferro/shared-utils';
+import { StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 export const data: JobData = {
@@ -21,8 +21,6 @@ export const execute = async (client: Bot) => {
 
 	for (const [mangaId, mangaChapters] of chaptersByManga) {
 		for (const { chapterId, url } of mangaChapters) {
-			await SleepUtil.sleep(1000);
-
 			const { isDuplicated } = await client.manageState('Manga', 'Chapters', `${mangaId}:${chapterId}`, url);
 			if (!isDuplicated) continue;
 

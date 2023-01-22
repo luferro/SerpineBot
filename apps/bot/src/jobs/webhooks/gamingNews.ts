@@ -3,7 +3,7 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
 import { YoutubeApi } from '@luferro/google-api';
-import { SleepUtil, StringUtil } from '@luferro/shared-utils';
+import { StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 export const data: JobData = {
@@ -15,7 +15,6 @@ export const execute = async (client: Bot) => {
 	const posts = await RedditApi.getPosts('Games', 'new', 25);
 
 	for (const { title, url, hasEmbeddedMedia, embedType, isSelf, isCrosspost } of posts.reverse()) {
-		await SleepUtil.sleep(1000);
 		if (isCrosspost || isSelf) continue;
 
 		const isTwitterEmbed = embedType === 'twitter.com';

@@ -4,7 +4,7 @@ import type { XboxWireCategory } from '@luferro/games-api';
 import { EmbedBuilder } from 'discord.js';
 import { XboxApi } from '@luferro/games-api';
 import { YoutubeApi } from '@luferro/google-api';
-import { SleepUtil, StringUtil } from '@luferro/shared-utils';
+import { StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 export const data: JobData = {
@@ -16,9 +16,8 @@ export const execute = async (client: Bot) => {
 	const categories: XboxWireCategory[] = ['Deals With Gold', 'Game Pass', 'Games With Gold', 'Podcast'];
 
 	for (const category of categories) {
-		await SleepUtil.sleep(1000);
-
 		const articles = await XboxApi.getLatestXboxWireNews(category);
+
 		for (const { title, url, image } of articles.reverse()) {
 			const { isDuplicated } = await client.manageState('Xbox', category, title, url);
 			if (isDuplicated) continue;

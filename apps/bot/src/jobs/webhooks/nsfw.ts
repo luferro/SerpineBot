@@ -2,7 +2,7 @@ import type { JobData } from '../../types/bot';
 import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
-import { SleepUtil, StringUtil } from '@luferro/shared-utils';
+import { StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 import { config } from '../../config/environment';
 
@@ -16,8 +16,6 @@ export const execute = async (client: Bot) => {
 		const posts = await RedditApi.getPosts(subreddit, 'hot', 25);
 
 		for (const { title, url, selfurl, gallery, fallback, embedType, hasEmbeddedMedia } of posts.reverse()) {
-			await SleepUtil.sleep(1000);
-
 			const isRedGifsEmbed = embedType === 'redgifs.com';
 			const fallbackUrl = fallback?.reddit_video_preview?.fallback_url;
 			if (isRedGifsEmbed && !fallbackUrl) continue;

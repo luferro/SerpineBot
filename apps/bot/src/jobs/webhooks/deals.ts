@@ -3,7 +3,7 @@ import type { Bot } from '../../structures/bot';
 import type { DealsCategory } from '@luferro/games-api';
 import { EmbedBuilder } from 'discord.js';
 import { DealsApi } from '@luferro/games-api';
-import { StringUtil, SleepUtil } from '@luferro/shared-utils';
+import { StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 export const data: JobData = {
@@ -27,8 +27,6 @@ const handleDiscountedDeals = async (client: Bot, category: Extract<DealsCategor
 	const deals = await DealsApi.getLatestDeals(category);
 
 	for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
-		await SleepUtil.sleep(1000);
-
 		const { isDuplicated } = await client.manageState('Deals', category, title, url);
 		if (isDuplicated) continue;
 

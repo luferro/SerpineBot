@@ -3,7 +3,7 @@ import type { Bot } from '../../structures/bot';
 import type { PlayStationBlogCategory } from '@luferro/games-api';
 import { EmbedBuilder } from 'discord.js';
 import { PlayStationApi } from '@luferro/games-api';
-import { SleepUtil, StringUtil } from '@luferro/shared-utils';
+import { StringUtil } from '@luferro/shared-utils';
 import { WebhookName } from '../../types/enums';
 
 export const data: JobData = {
@@ -15,9 +15,8 @@ export const execute = async (client: Bot) => {
 	const categories: PlayStationBlogCategory[] = ['PlayStation Plus', 'PlayStation Store', 'State Of Play'];
 
 	for (const category of categories) {
-		await SleepUtil.sleep(1000);
-
 		const articles = await PlayStationApi.getLatestPlaystationBlogNews(category);
+
 		for (const { title, url, image } of articles) {
 			const { isDuplicated } = await client.manageState('PlayStation', category, title, url);
 			if (isDuplicated) continue;
