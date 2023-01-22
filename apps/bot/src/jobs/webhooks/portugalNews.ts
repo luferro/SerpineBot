@@ -12,7 +12,6 @@ export const data: JobData = {
 
 export const execute = async (client: Bot) => {
 	const news = await GNewsApi.getNewsByCountry(Country.Portugal);
-	console.log(news);
 
 	for (const { title, url, publisher, description, image, publishedAt } of news.slice(0, 20).reverse()) {
 		await SleepUtil.sleep(1000);
