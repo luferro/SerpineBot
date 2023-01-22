@@ -57,7 +57,7 @@ export class Bot extends Client {
 		await SleepUtil.sleep(5000);
 
 		const state = await stateModel.findOne({ category });
-		const entries = state?.entries.get(subcategory) ?? [{ title, url }];
+		const entries = state?.entries.get(subcategory) ?? [];
 
 		const hasEntry = entries.some((entry) => entry.title === title || entry.url === url);
 		if (!hasEntry) {
