@@ -30,12 +30,12 @@
 	},
 	"dependencies": {
 		"@luferro/games-api": "workspace:^",
+		"@luferro/gnews-api": "workspace:^",
 		"@luferro/go-comics-api": "workspace:^",
 		"@luferro/google-api": "workspace:^",
 		"@luferro/jikan-api": "workspace:^",
 		"@luferro/jokes-api": "workspace:^",
 		"@luferro/mangadex-api": "workspace:^",
-		"@luferro/gnews-api": "workspace:^",
 		"@luferro/reddit-api": "workspace:^",
 		"@luferro/shared-utils": "workspace:^",
 		"@luferro/tenor-api": "workspace:^",
@@ -45,7 +45,7 @@
 		"discord.js": "^14.7.1",
 		"dotenv": "^16.0.3",
 		"ffmpeg-static": "^5.1.0",
-		"mongoose": "^6.8.3",
+		"mongoose": "^6.8.4",
 		"tweetnacl": "^1.0.3"
 	}
 }

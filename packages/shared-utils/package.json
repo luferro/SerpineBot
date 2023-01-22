@@ -18,8 +18,8 @@
 		"typescript": "^4.9.4"
 	},
 	"dependencies": {
-		"header-generator": "^2.1.7",
-		"undici": "^5.15.0",
+		"header-generator": "^2.1.8",
+		"undici": "^5.15.2",
 		"winston": "^3.8.1"
 	}
 }
