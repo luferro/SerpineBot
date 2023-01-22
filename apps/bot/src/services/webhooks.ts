@@ -9,6 +9,7 @@ export const getWebhookNameFromCategory = (category: WebhookCategory) => {
 		'Anime': 'Anime',
 		'Manga': 'Manga',
 		'World News': 'World News',
+		'Portugal News': 'Portugal News',
 		'Gaming News': 'Gaming News',
 		'Reviews': 'Game Reviews',
 		'Deals': 'Game Deals',

@@ -38,6 +38,7 @@ export enum WebhookName {
 	Anime = 'anime',
 	Manga = 'manga',
 	WorldNews = 'worldNews',
+	PortugalNews = 'portugalNews',
 	GamingNews = 'gamingNews',
 	Reviews = 'reviews',
 	Deals = 'deals',

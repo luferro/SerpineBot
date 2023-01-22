@@ -10,6 +10,7 @@ export type WebhookCategory =
 	| 'Anime'
 	| 'Manga'
 	| 'World News'
+	| 'Portugal News'
 	| 'Gaming News'
 	| 'Reviews'
 	| 'Deals'
