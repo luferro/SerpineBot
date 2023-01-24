@@ -88,7 +88,7 @@ const updateSteamWishlist = async (client: Bot) => {
 				const updatedEntry = {
 					...game,
 					notified: storedGame?.notified ?? false,
-					released: storedGame?.released ?? game.released,
+					released: storedGame?.released || game.released,
 					subscriptions: {
 						xbox_game_pass: rawSubscriptions.some(({ name }) => name === 'Xbox Game Pass'),
 						pc_game_pass: rawSubscriptions.some(({ name }) => name === 'PC Game Pass'),
