@@ -8,8 +8,9 @@ export const setApiKey = (apiKey: string) => {
 	API_KEY = apiKey;
 };
 
-const extractRelevantDataFromResults = async (articles: Article[]) => {
+const extractRelevantDataFromResults = async (country: Country | null, articles: Article[]) => {
 	return articles.map(({ title, description, content, url, image, publishedAt, source }) => ({
+		country,
 		url,
 		image,
 		title: StringUtil.truncate(title),
@@ -27,7 +28,7 @@ export const getNewsByCountry = async (country: Country) => {
 		url: `https://gnews.io/api/v4/top-headlines?token=${API_KEY}&topic=breaking-news&country=${country}&max=100`,
 	});
 
-	return extractRelevantDataFromResults(articles);
+	return extractRelevantDataFromResults(country, articles);
 };
 
 export const getBreakingNews = async () => {
@@ -35,5 +36,5 @@ export const getBreakingNews = async () => {
 		url: `https://gnews.io/api/v4/top-headlines?token=${API_KEY}&topic=breaking-news&lang=en&max=100`,
 	});
 
-	return extractRelevantDataFromResults(articles);
+	return extractRelevantDataFromResults(null, articles);
 };
