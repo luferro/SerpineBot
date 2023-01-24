@@ -8,6 +8,8 @@ const BlogCategories = Object.freeze<Record<PlayStationBlogCategory, string>>({
 	'State Of Play': 'https://blog.playstation.com/tag/state-of-play/',
 });
 
+export const getCategories = () => Object.keys(BlogCategories) as PlayStationBlogCategory[];
+
 export const getLatestPlaystationBlogNews = async (category: PlayStationBlogCategory) => {
 	const data = await FetchUtil.fetch<string>({ url: BlogCategories[category] });
 	const $ = load(data);

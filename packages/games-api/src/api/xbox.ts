@@ -10,6 +10,8 @@ const BlogCategories = Object.freeze<Record<XboxWireCategory, string>>({
 	'Podcast': 'https://news.xbox.com/en-us/podcast/',
 });
 
+export const getCategories = () => Object.keys(BlogCategories) as XboxWireCategory[];
+
 export const isGamertagValid = async (gamertag: string) => {
 	try {
 		await FetchUtil.fetch<string>({ url: `https://xboxgamertag.com/search/${gamertag}` });

@@ -13,6 +13,8 @@ const DealsCategories = Object.freeze<Record<Extract<DealsCategory, 'Free Games'
 	'Paid Games': 'https://gg.deals/eu/deals/?maxDiscount=99&minRating=8&sort=date',
 });
 
+export const getCategories = () => [...Object.keys(BlogCategories), ...Object.keys(DealsCategories)] as DealsCategory[];
+
 export const search = async (title: string) => {
 	const data = await FetchUtil.fetch<string>({ url: `https://gg.deals/eu/games/?view=list&title=${title}` });
 	const $ = load(data);
