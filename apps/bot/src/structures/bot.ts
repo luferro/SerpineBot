@@ -56,14 +56,14 @@ export class Bot extends Client {
 	public manageState = async (jobName: JobName, category: string | null, title: string, url: string) => {
 		await SleepUtil.sleep(5000);
 
-		const state = await stateModel.findOne({ jobName });
+		const state = await stateModel.findOne({ jobName: jobName.toUpperCase() });
 		const lookup = category ?? 'default';
 		const entries = state?.entries.get(lookup) ?? [];
 
 		const hasEntry = entries.some((entry) => entry.title === title || entry.url === url);
 		if (!hasEntry) {
 			await stateModel.updateOne(
-				{ category },
+				{ jobName: jobName.toUpperCase() },
 				{ $set: { [`entries.${lookup}`]: entries.concat({ title, url }).slice(-100) } },
 				{ upsert: true },
 			);
