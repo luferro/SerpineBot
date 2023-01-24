@@ -3,11 +3,11 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
-import { WebhookName } from '../../types/enums';
+import { JobName } from '../../types/enums';
 import { config } from '../../config/environment';
 
 export const data: JobData = {
-	name: WebhookName.Memes,
+	name: JobName.Memes,
 	schedule: '0 */10 * * * *',
 };
 
@@ -18,7 +18,7 @@ export const execute = async (client: Bot) => {
 		for (const { title, url, selfurl, hasEmbeddedMedia, isSelf } of posts.reverse()) {
 			if (isSelf) continue;
 
-			const { isDuplicated } = await client.manageState('Memes', subreddit, title, url);
+			const { isDuplicated } = await client.manageState(data.name, subreddit, title, url);
 			if (isDuplicated) continue;
 
 			const message = hasEmbeddedMedia

@@ -43,7 +43,7 @@ interface Entry {
 }
 
 export interface State {
-	category: string;
+	jobName: string;
 	entries: Map<string, Entry[]>;
 }
 

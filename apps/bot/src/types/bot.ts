@@ -1,6 +1,6 @@
 import type { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js';
 import type { Bot } from '../structures/bot';
-import type { CommandName, EventName, JobName, WebhookName } from './enums';
+import type { CommandName, EventName, JobName } from './enums';
 import type { ExtendedChatInputCommandInteraction } from './interaction';
 import type { SteamWishlistItem } from './schemas';
 
@@ -35,7 +35,7 @@ export interface Event {
 }
 
 export interface JobData {
-	name: JobName | WebhookName;
+	name: JobName;
 	schedule: string | Date;
 }
 

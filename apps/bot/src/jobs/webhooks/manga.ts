@@ -3,10 +3,10 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { MangadexApi } from '@luferro/mangadex-api';
 import { StringUtil } from '@luferro/shared-utils';
-import { WebhookName } from '../../types/enums';
+import { JobName } from '../../types/enums';
 
 export const data: JobData = {
-	name: WebhookName.Manga,
+	name: JobName.Manga,
 	schedule: '0 */10 * * * *',
 };
 
@@ -21,7 +21,7 @@ export const execute = async (client: Bot) => {
 
 	for (const [mangaId, mangaChapters] of chaptersByManga) {
 		for (const { chapterId, url } of mangaChapters) {
-			const { isDuplicated } = await client.manageState('Manga', 'Chapters', `${mangaId}:${chapterId}`, url);
+			const { isDuplicated } = await client.manageState(data.name, null, `${mangaId}:${chapterId}`, url);
 			if (!isDuplicated) continue;
 
 			const chapterIndex = mangaChapters.findIndex((currentChapter) => currentChapter.chapterId === chapterId);

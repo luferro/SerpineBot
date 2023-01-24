@@ -1,25 +1,22 @@
 import type { JobData } from '../../types/bot';
 import type { Bot } from '../../structures/bot';
-import type { XboxWireCategory } from '@luferro/games-api';
 import { EmbedBuilder } from 'discord.js';
 import { XboxApi } from '@luferro/games-api';
 import { YoutubeApi } from '@luferro/google-api';
 import { StringUtil } from '@luferro/shared-utils';
-import { WebhookName } from '../../types/enums';
+import { JobName } from '../../types/enums';
 
 export const data: JobData = {
-	name: WebhookName.Xbox,
+	name: JobName.Xbox,
 	schedule: '0 */10 * * * *',
 };
 
 export const execute = async (client: Bot) => {
-	const categories: XboxWireCategory[] = ['Deals With Gold', 'Game Pass', 'Games With Gold', 'Podcast'];
-
-	for (const category of categories) {
+	for (const category of XboxApi.getCategories()) {
 		const articles = await XboxApi.getLatestXboxWireNews(category);
 
 		for (const { title, url, image } of articles.reverse()) {
-			const { isDuplicated } = await client.manageState('Xbox', category, title, url);
+			const { isDuplicated } = await client.manageState(data.name, category, title, url);
 			if (isDuplicated) continue;
 
 			const message = YoutubeApi.isVideo(url)

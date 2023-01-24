@@ -3,11 +3,11 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
-import { WebhookName } from '../../types/enums';
+import { JobName } from '../../types/enums';
 import { config } from '../../config/environment';
 
 export const data: JobData = {
-	name: WebhookName.Nsfw,
+	name: JobName.Nsfw,
 	schedule: '0 */15 * * * *',
 };
 
@@ -23,7 +23,7 @@ export const execute = async (client: Bot) => {
 			const galleryMediaId = gallery?.items[0].media_id;
 			const nsfwUrl = getUrl(url, galleryMediaId, fallbackUrl);
 
-			const { isDuplicated } = await client.manageState('NSFW', subreddit, title, nsfwUrl);
+			const { isDuplicated } = await client.manageState(data.name, subreddit, title, nsfwUrl);
 			if (isDuplicated) continue;
 
 			const message =

@@ -3,7 +3,7 @@ import type { State } from '../../types/schemas';
 
 const schema = new mongoose.Schema<State>(
 	{
-		category: { type: String, required: true },
+		jobName: { type: String, required: true },
 		entries: {
 			type: Map,
 			of: [

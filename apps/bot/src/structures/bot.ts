@@ -1,5 +1,5 @@
 import type { Command, Event, Job } from '../types/bot';
-import type { CommandName, EventName, JobName, WebhookName } from '../types/enums';
+import type { CommandName, EventName, JobName } from '../types/enums';
 import type { WebhookCategory } from '../types/category';
 import { ClientOptions, DiscordAPIError } from 'discord.js';
 import { Client, Collection, EmbedBuilder } from 'discord.js';
@@ -23,7 +23,7 @@ export class Bot extends Client {
 
 	public static events: Collection<EventName, Event> = new Collection();
 	public static commands: Collection<CommandName, Command> = new Collection();
-	public static jobs: Collection<JobName | WebhookName, Job> = new Collection();
+	public static jobs: Collection<JobName, Job> = new Collection();
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -53,17 +53,18 @@ export class Bot extends Client {
 		}
 	};
 
-	public manageState = async (category: string, subcategory: string, title: string, url: string) => {
+	public manageState = async (jobName: JobName, category: string | null, title: string, url: string) => {
 		await SleepUtil.sleep(5000);
 
-		const state = await stateModel.findOne({ category });
-		const entries = state?.entries.get(subcategory) ?? [];
+		const state = await stateModel.findOne({ jobName });
+		const lookup = category ?? 'default';
+		const entries = state?.entries.get(lookup) ?? [];
 
 		const hasEntry = entries.some((entry) => entry.title === title || entry.url === url);
 		if (!hasEntry) {
 			await stateModel.updateOne(
 				{ category },
-				{ $set: { [`entries.${subcategory}`]: entries.concat({ title, url }).slice(-100) } },
+				{ $set: { [`entries.${lookup}`]: entries.concat({ title, url }).slice(-100) } },
 				{ upsert: true },
 			);
 		}

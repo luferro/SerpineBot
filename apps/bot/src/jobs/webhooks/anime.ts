@@ -4,7 +4,7 @@ import { EmbedBuilder } from 'discord.js';
 import { JikanApi } from '@luferro/jikan-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
-import { WebhookName } from '../../types/enums';
+import { JobName } from '../../types/enums';
 
 enum Aggregator {
 	Kitsu = 'kitsu.io',
@@ -22,7 +22,7 @@ enum Stream {
 }
 
 export const data: JobData = {
-	name: WebhookName.Anime,
+	name: JobName.Anime,
 	schedule: '0 */20 * * * *',
 };
 
@@ -30,7 +30,7 @@ export const execute = async (client: Bot) => {
 	const posts = await RedditApi.getPostsByFlair('Anime', 'new', ['Episode'], 20);
 
 	for (const { title, url, selftext } of posts.reverse()) {
-		const { isDuplicated } = await client.manageState('Anime', 'Episodes', title, url);
+		const { isDuplicated } = await client.manageState(data.name, null, title, url);
 		if (isDuplicated) continue;
 
 		const streams = findSelftextMatches(selftext, Object.entries(Stream));

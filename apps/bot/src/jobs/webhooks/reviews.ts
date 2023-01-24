@@ -3,10 +3,10 @@ import type { Bot } from '../../structures/bot';
 import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
 import { OpenCriticApi } from '@luferro/games-api';
-import { WebhookName } from '../../types/enums';
+import { JobName } from '../../types/enums';
 
 export const data: JobData = {
-	name: WebhookName.Reviews,
+	name: JobName.Reviews,
 	schedule: '0 */30 * * * *',
 };
 
@@ -30,7 +30,7 @@ export const execute = async (client: Bot) => {
 			await OpenCriticApi.getReviewById(id);
 		if (!tier && !score) continue;
 
-		const { isDuplicated } = await client.manageState('Reviews', 'Opencritic', name, url);
+		const { isDuplicated } = await client.manageState(data.name, null, name, url);
 		if (isDuplicated) continue;
 
 		const embed = new EmbedBuilder()

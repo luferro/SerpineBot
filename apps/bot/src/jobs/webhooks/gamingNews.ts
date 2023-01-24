@@ -4,10 +4,10 @@ import { EmbedBuilder } from 'discord.js';
 import { RedditApi } from '@luferro/reddit-api';
 import { YoutubeApi } from '@luferro/google-api';
 import { StringUtil } from '@luferro/shared-utils';
-import { WebhookName } from '../../types/enums';
+import { JobName } from '../../types/enums';
 
 export const data: JobData = {
-	name: WebhookName.GamingNews,
+	name: JobName.GamingNews,
 	schedule: '0 */6 * * * *',
 };
 
@@ -21,17 +21,17 @@ export const execute = async (client: Bot) => {
 		const isYoutubeEmbed = embedType === 'youtube.com';
 		if (!isYoutubeEmbed && YoutubeApi.isVideo(url)) continue;
 
-		const newsUrl = getUrl(url, isYoutubeEmbed, isTwitterEmbed);
+		const targetUrl = getUrl(url, isYoutubeEmbed, isTwitterEmbed);
 
-		const { isDuplicated } = await client.manageState('Gaming News', 'News', title, newsUrl);
+		const { isDuplicated } = await client.manageState(data.name, null, title, targetUrl);
 		if (isDuplicated) continue;
 
-		const subscribers = isYoutubeEmbed ? await YoutubeApi.getSubscribers(newsUrl) : null;
+		const subscribers = isYoutubeEmbed ? await YoutubeApi.getSubscribers(targetUrl) : null;
 		if (typeof subscribers === 'number' && subscribers < 50_000) continue;
 
 		const message = hasEmbeddedMedia
-			? `**${StringUtil.truncate(title)}**\n${newsUrl}`
-			: new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(newsUrl).setColor('Random');
+			? `**${StringUtil.truncate(title)}**\n${targetUrl}`
+			: new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(targetUrl).setColor('Random');
 
 		await client.sendWebhookMessageToGuilds('Gaming News', message);
 	}
