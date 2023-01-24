@@ -1,3 +1,12 @@
+export enum EventName {
+	Ready = 'ready',
+	GuildCreate = 'guildCreate',
+	GuildDelete = 'guildDelete',
+	GuildMemberAdd = 'guildMemberAdd',
+	InteractionCreate = 'interactionCreate',
+	VoiceStateUpdate = 'voiceStateUpdate',
+}
+
 export enum CommandName {
 	Birthdays = 'birthdays',
 	Channels = 'channels',
@@ -24,34 +33,21 @@ export enum CommandName {
 }
 
 export enum JobName {
+	Anime = 'anime',
 	Birthdays = 'birthdays',
+	BreakingNews = 'breakingNews',
+	Deals = 'deals',
+	GamingNews = 'gamingNews',
 	Leaderboards = 'leaderboards',
+	Manga = 'manga',
+	Memes = 'memes',
+	Nintendo = 'nintendo',
+	Nsfw = 'nsfw',
+	PlayStation = 'playstation',
 	Reminders = 'reminders',
+	Reviews = 'reviews',
 	Roles = 'roles',
 	Subscriptions = 'subscriptions',
 	Wishlists = 'wishlists',
-}
-
-export enum WebhookName {
-	Nsfw = 'nsfw',
-	Memes = 'memes',
-	Anime = 'anime',
-	Manga = 'manga',
-	WorldNews = 'worldNews',
-	PortugalNews = 'portugalNews',
-	GamingNews = 'gamingNews',
-	Reviews = 'reviews',
-	Deals = 'deals',
 	Xbox = 'xbox',
-	PlayStation = 'playstation',
-	Nintendo = 'nintendo',
-}
-
-export enum EventName {
-	Ready = 'ready',
-	GuildCreate = 'guildCreate',
-	GuildDelete = 'guildDelete',
-	GuildMemberAdd = 'guildMemberAdd',
-	InteractionCreate = 'interactionCreate',
-	VoiceStateUpdate = 'voiceStateUpdate',
 }
