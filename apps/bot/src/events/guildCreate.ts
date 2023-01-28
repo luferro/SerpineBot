@@ -16,11 +16,20 @@ export const execute = async (client: Bot, guild: Guild) => {
 	const settings = await settingsModel.findOne({ guildId: guild.id });
 
 	const guildInfo = {
-		roles: { channelId: settings?.roles.channelId ?? null, options: settings?.roles.options ?? [] },
-		birthdays: { channelId: settings?.birthdays.channelId ?? null },
+		roles: {
+			channelId: settings?.roles.channelId ?? null,
+			options: settings?.roles.options ?? [],
+		},
+		birthdays: {
+			channelId: settings?.birthdays.channelId ?? null,
+		},
 		leaderboards: {
-			steam: { channelId: settings?.leaderboards.steam.channelId ?? null },
-			xbox: { channelId: settings?.leaderboards.xbox.channelId ?? null },
+			steam: {
+				channelId: settings?.leaderboards.steam.channelId ?? null,
+			},
+			xbox: {
+				channelId: settings?.leaderboards.xbox.channelId ?? null,
+			},
 		},
 		webhooks: settings?.webhooks ?? [],
 	};
