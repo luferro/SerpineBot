@@ -19,7 +19,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 
 	const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
 		await OpenCriticApi.getReviewById(id);
-	if (!tier && !score) throw new Error(`${name} doesn't have enough reviews to be displayed.`);
+	if (!tier || !score) throw new Error(`${name} doesn't have enough reviews to be displayed.`);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
@@ -37,7 +37,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 			},
 			{
 				name: '**Score**',
-				value: score ?? 'N/A',
+				value: score,
 				inline: true,
 			},
 			{
