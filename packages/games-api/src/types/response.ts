@@ -52,7 +52,7 @@ export interface OpenCriticReview {
 	datePublished: string;
 	gamePlatform: string[];
 	image: string;
-	aggregateRating: {
+	aggregateRating?: {
 		ratingValue: number;
 		bestRating: number;
 		worstRating: number;
