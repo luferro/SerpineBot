@@ -155,7 +155,7 @@ const deleteChannel = async (interaction: ExtendedChatInputCommandInteraction) =
 const getRoleOptions = (guild: Guild) =>
 	[...guild.roles.cache.values()]
 		.sort((a, b) => a.position - b.position)
-		.filter(({ id, tags }) => id !== guild.roles.everyone.id && tags)
+		.filter(({ id }) => id !== guild.roles.everyone.id)
 		.map(({ id, name }) => ({ label: name, value: id }));
 
 const getLeaderboardOptions = () => ['Steam', 'Xbox'].map((option) => ({ label: option, value: option }));
