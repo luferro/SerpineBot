@@ -1,13 +1,10 @@
 import type { JobData } from '../types/bot';
-import type { ExtendedButtonInteraction } from '../types/interaction';
-import type { Client, Collection, Guild, Message } from 'discord.js';
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
+import type { ExtendedStringSelectMenuInteraction } from '../types/interaction';
+import { Client, Collection, Guild, GuildMember, Message, StringSelectMenuBuilder, TextBasedChannel } from 'discord.js';
+import { ActionRowBuilder, EmbedBuilder } from 'discord.js';
 import { logger } from '@luferro/shared-utils';
 import { settingsModel } from '../database/models/settings';
 import { JobName } from '../types/enums';
-
-const COMPONENTS_LIMIT = 5;
-const ITEMS_PER_ROW = 5;
 
 export const data: JobData = {
 	name: JobName.Roles,
@@ -21,82 +18,123 @@ export const execute = async (client: Client) => {
 		const channelId = settings?.roles.channelId;
 		if (!channelId) continue;
 
-		const embed = new EmbedBuilder()
-			.setTitle('Text channel roles')
-			.setDescription('Use the buttons below to claim or revoke a role.')
-			.setFooter({ text: 'A role grants access to a text channel.' })
-			.setColor('Random');
-
-		const components = getRoleButtons(guild, settings.roles.options);
-
 		const channel = await client.channels.fetch(channelId);
 		if (!channel?.isTextBased()) continue;
 
-		const messages = (await channel.messages.fetch()) as Collection<string, Message>;
-		const message = messages.find((message) => message?.embeds[0]?.title === 'Text channel roles');
-
-		if (!message) await channel.send({ embeds: [embed], components });
-		else await message.edit({ embeds: [embed], components });
+		await createOrUpdateRoleSelectMenuMessage(guild, channel, settings.roles.options);
 
 		logger.info(`Job **${data.name}** sent a message to channelId **${channelId}** in guild **${guild.name}**.`);
 	}
 };
 
-const getRoleButtons = (guild: Guild, options: string[]) => {
+export const getRoleSelectMenuId = () => 'CLAIM_YOUR_ROLES';
+
+const createRoleSelectMenu = (guild: Guild, options: string[]) => {
 	const roles = options
 		.map((id) => {
 			const messageRole = guild.roles.cache.find(({ id: nestedRoleId }) => nestedRoleId === id);
 			if (!messageRole) return;
 
-			return messageRole.name;
+			return { label: messageRole.name, value: messageRole.id };
 		})
 		.filter((item): item is NonNullable<typeof item> => !!item);
 
-	const components: ActionRowBuilder<ButtonBuilder>[] = [];
-	const rows = Math.ceil(roles.length / ITEMS_PER_ROW);
-	for (let index = 0; index < rows; index++) {
-		const actionRow = new ActionRowBuilder() as ActionRowBuilder<ButtonBuilder>;
-		for (const role of roles.splice(0, ITEMS_PER_ROW)) {
-			actionRow.addComponents(
-				new ButtonBuilder()
-					.setCustomId(role)
-					.setLabel(role)
-					.setStyle(role === 'NSFW' ? ButtonStyle.Danger : ButtonStyle.Primary),
-			);
-		}
-		components.push(actionRow);
-	}
-	if (components.length > COMPONENTS_LIMIT) throw new Error('Components limit exceeded.');
+	const selectMenu = new StringSelectMenuBuilder()
+		.setCustomId(getRoleSelectMenuId())
+		.setPlaceholder('Nothing selected.')
+		.setMaxValues(roles.length)
+		.addOptions(roles);
 
-	return components;
+	return new ActionRowBuilder().addComponents(selectMenu) as ActionRowBuilder<StringSelectMenuBuilder>;
 };
 
-export const assignRole = async (interaction: ExtendedButtonInteraction) => {
-	const guild = interaction.guild;
-	const member = interaction.member;
-	if (member.user.bot) return;
-
-	const role = guild.roles.cache.find(({ name }) => name === interaction.customId);
-	if (!role) return;
-
-	const restrictionsRole = guild.roles.cache.find(({ name }) => name === 'Restrictions');
-	if (restrictionsRole && member.roles.cache.has(restrictionsRole.id) && role.name === 'NSFW') {
-		await interaction.reply({
-			content: "Users with role `Restrictions` can't be granted the NSFW role.",
-			ephemeral: true,
-		});
+const createOrUpdateRoleSelectMenuMessage = async (guild: Guild, channel: TextBasedChannel, options: string[]) => {
+	const component = createRoleSelectMenu(guild, options);
+	const messages = (await channel.messages.fetch()) as Collection<string, Message>;
+	const message = messages.find((message) => message.components[0].components[0].customId === getRoleSelectMenuId());
+	if (message) {
+		await message.edit({ components: [component] });
 		return;
 	}
 
-	const hasRole = member.roles.cache.has(role.id);
-	if (!hasRole) member.roles.add(role);
-	else member.roles.remove(role);
+	const embed = new EmbedBuilder()
+		.setTitle('Text channel roles')
+		.setDescription('Use the select menu below to claim or revoke roles.')
+		.setFooter({ text: 'Each role grants access to a different text channel.' })
+		.setColor('Random');
 
-	const action = hasRole ? 'revoked' : 'granted';
-	const preposition = hasRole ? 'from' : 'to';
+	await channel.send({ embeds: [embed], components: [component] });
+};
 
-	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been ${action}.`).setColor('Random');
+const assignRole = (guild: Guild, member: GuildMember, options: string[]) => {
+	const granted: string[] = [];
+	const revoked: string[] = [];
+	const restricted: string[] = [];
+
+	for (const value of options) {
+		const role = guild.roles.cache.find(({ id }) => id === value);
+		if (!role) continue;
+
+		const restrictionsRole = guild.roles.cache.find(({ name }) => name === 'Restrictions');
+		const userHasRestrictionTole = restrictionsRole && member.roles.cache.has(restrictionsRole.id);
+		if (userHasRestrictionTole && role.name === 'NSFW') {
+			restricted.push(role.name);
+			continue;
+		}
+
+		if (!member.roles.cache.has(role.id)) {
+			member.roles.add(role);
+			granted.push(role.name);
+			continue;
+		}
+
+		member.roles.remove(role);
+		revoked.push(role.name);
+	}
+
+	return {
+		granted,
+		revoked,
+		restricted,
+	};
+};
+
+export const handleRolesUpdate = async (interaction: ExtendedStringSelectMenuInteraction) => {
+	const guild = interaction.guild;
+	const channel = interaction.channel;
+	const member = interaction.member;
+	if (member.user.bot || !channel?.isTextBased()) return;
+
+	const { granted, revoked, restricted } = assignRole(guild, member, interaction.values);
+
+	const options = interaction.component.options.map(({ value }) => value);
+	await createOrUpdateRoleSelectMenuMessage(guild, channel, options);
+
+	const embed = new EmbedBuilder()
+		.setTitle(`${granted.length} role(s) granted and ${revoked.length} role(s) revoked`)
+		.addFields([
+			{
+				name: 'Granted',
+				value: granted.join('\n') || 'None',
+				inline: true,
+			},
+			{
+				name: 'Revoked',
+				value: revoked.join('\n') || 'None',
+				inline: true,
+			},
+			{
+				name: 'Restricted',
+				value: restricted.join('\n') || 'None',
+				inline: true,
+			},
+		])
+		.setColor('Random');
+
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 
-	logger.info(`Role **${role.name}** **${action}** ${preposition} **${member.user.tag}** in **${guild.name}**`);
+	logger.info(
+		`Roles updated for **${member.user.tag}** in **${guild.name}**. ${granted.length} granted and ${revoked.length} revoked.`,
+	);
+	logger.debug(JSON.stringify({ granted, revoked, restricted }));
 };

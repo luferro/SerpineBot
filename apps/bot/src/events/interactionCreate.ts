@@ -1,5 +1,9 @@
 import type { EventData } from '../types/bot';
-import type { ExtendedButtonInteraction, ExtendedChatInputCommandInteraction, Interaction } from '../types/interaction';
+import type {
+	ExtendedChatInputCommandInteraction,
+	ExtendedStringSelectMenuInteraction,
+	Interaction,
+} from '../types/interaction';
 import { DiscordAPIError, EmbedBuilder } from 'discord.js';
 import { FetchError, logger } from '@luferro/shared-utils';
 import { Bot } from '../structures/bot';
@@ -12,13 +16,12 @@ export const data: EventData = {
 };
 
 export const execute = async (client: Bot, interaction: Interaction) => {
-	if (interaction.isButton()) await handleButtonInteraction(interaction);
+	if (interaction.isStringSelectMenu()) await handleSelectMenuInteraction(interaction);
 	if (interaction.isChatInputCommand()) await handleChatInputCommandInteraction(client, interaction);
 };
 
-const handleButtonInteraction = async (interaction: ExtendedButtonInteraction) => {
-	const isRoleClaimButton = interaction.guild.roles.cache.some(({ name }) => name === interaction.customId);
-	if (isRoleClaimButton) RolesJob.assignRole(interaction);
+const handleSelectMenuInteraction = async (interaction: ExtendedStringSelectMenuInteraction) => {
+	if (interaction.customId === RolesJob.getRoleSelectMenuId()) RolesJob.handleRolesUpdate(interaction);
 };
 
 const handleChatInputCommandInteraction = async (client: Bot, interaction: ExtendedChatInputCommandInteraction) => {
