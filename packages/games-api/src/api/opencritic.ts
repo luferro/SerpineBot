@@ -12,7 +12,7 @@ const getSlugFromId = async (id: string) => {
 
 export const search = async (title: string) => {
 	const results = await GoogleSearchApi.search(`${title} site:https://opencritic.com/game`);
-	logger.debug(results);
+	logger.debug(JSON.stringify(results));
 	const id = results[0]?.url.split('/').at(4) ?? null;
 
 	return { id };
