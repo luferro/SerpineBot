@@ -28,7 +28,7 @@ export const execute = async (client: Bot) => {
 
 		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
 			await OpenCriticApi.getReviewById(id);
-		if (!tier && !score) continue;
+		if (!tier || !score) continue;
 
 		const { isDuplicated } = await client.manageState(data.name, null, name, url);
 		if (isDuplicated) continue;
