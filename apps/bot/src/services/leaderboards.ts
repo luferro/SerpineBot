@@ -10,6 +10,8 @@ enum Medals {
 	'🥉',
 }
 
+export const getLeaderboardCategories = () => ['Steam', 'Xbox'];
+
 export const getSteamLeaderboard = async (client: Bot | Client) => {
 	const leaderboard = [];
 

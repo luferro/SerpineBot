@@ -6,7 +6,7 @@ import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder } fr
 import * as Music from '../services/music';
 import { CommandName } from '../types/enums';
 import { randomUUID } from 'crypto';
-import { QueueRepeatMode, Track } from 'discord-player';
+import { Playlist, QueueRepeatMode, Track } from 'discord-player';
 
 export const data: CommandData = {
 	name: CommandName.Music,
@@ -111,49 +111,12 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	await select[subcommand](client, interaction);
 };
 
-const add = async (client: Bot, interaction: ExtendedChatInputCommandInteraction) => {
-	const query = interaction.options.getString('query', true);
-
+const addTrack = async (client: Bot, interaction: ExtendedChatInputCommandInteraction, track: Track) => {
 	const guildId = interaction.guild.id;
-	if (!Music.isConnectedToVoiceChannel(client, guildId)) Music.join(client, guildId, interaction.member);
+	const { title, url, thumbnail, author, duration } = track;
+	const { trackPosition } = await Music.addTrackToQueue(client, guildId, track);
 
-	const data = await Music.search(client, query, interaction.user);
-
-	if (data.playlist) {
-		const { title, url, author, tracks } = data.playlist;
-		const { playlistPositionStart, playlistPositionEnd } = await Music.addPlaylistToQueue(client, guildId, tracks);
-		const positionStart = playlistPositionStart === 0 ? 'Currently playing' : playlistPositionStart;
-
-		const embed = new EmbedBuilder()
-			.setTitle(title)
-			.setURL(url)
-			.addFields([
-				{
-					name: '**Position in queue**',
-					value: `Playlist start: ${positionStart}\nPlaylist end: ${playlistPositionEnd}`,
-					inline: true,
-				},
-				{
-					name: '**Channel**',
-					value: author.name,
-					inline: true,
-				},
-				{
-					name: '**Count**',
-					value: tracks.length.toString(),
-					inline: true,
-				},
-			])
-			.setColor('Random');
-
-		await interaction.reply({ embeds: [embed] });
-		return;
-	}
-
-	const { title, url, thumbnail, author, duration } = data.tracks[0];
-	const { trackPosition } = await Music.addTrackToQueue(client, guildId, data.tracks[0]);
-
-	const embed = new EmbedBuilder()
+	return new EmbedBuilder()
 		.setTitle(title)
 		.setURL(url)
 		.setThumbnail(thumbnail)
@@ -175,6 +138,49 @@ const add = async (client: Bot, interaction: ExtendedChatInputCommandInteraction
 			},
 		])
 		.setColor('Random');
+};
+
+const addPlaylist = async (client: Bot, interaction: ExtendedChatInputCommandInteraction, playlist: Playlist) => {
+	const guildId = interaction.guild.id;
+	const { title, url, author, tracks } = playlist;
+	const { playlistPositionStart, playlistPositionEnd } = await Music.addPlaylistToQueue(client, guildId, tracks);
+	const positionStart = playlistPositionStart === 0 ? 'Currently playing' : playlistPositionStart;
+
+	return new EmbedBuilder()
+		.setTitle(title)
+		.setURL(url)
+		.addFields([
+			{
+				name: '**Position in queue**',
+				value: `Playlist start: ${positionStart}\nPlaylist end: ${playlistPositionEnd}`,
+				inline: true,
+			},
+			{
+				name: '**Channel**',
+				value: author.name,
+				inline: true,
+			},
+			{
+				name: '**Count**',
+				value: tracks.length.toString(),
+				inline: true,
+			},
+		])
+		.setColor('Random');
+};
+
+const add = async (client: Bot, interaction: ExtendedChatInputCommandInteraction) => {
+	const query = interaction.options.getString('query', true);
+
+	const guildId = interaction.guild.id;
+	const isConnectedToVoiceChannel = Music.isConnectedToVoiceChannel(client, guildId);
+	if (!isConnectedToVoiceChannel) Music.join(client, guildId, interaction.member);
+
+	const { playlist, tracks } = await Music.search(client, query, interaction.user);
+
+	const embed = playlist
+		? await addPlaylist(client, interaction, playlist)
+		: await addTrack(client, interaction, tracks[0]);
 
 	await interaction.reply({ embeds: [embed] });
 };
@@ -201,11 +207,49 @@ const clear = async (client: Bot, interaction: ExtendedChatInputCommandInteracti
 	await queue(client, interaction);
 };
 
+const handleSearchSelectMenu = async (
+	client: Bot,
+	interaction: ExtendedChatInputCommandInteraction,
+	uuid: string,
+	tracks: Track[],
+) => {
+	const guildId = interaction.guild.id;
+	const textChannel = interaction.channel;
+	const userId = interaction.user.id;
+
+	const selectMenuInteraction = (await textChannel?.awaitMessageComponent({
+		time: 60 * 1000,
+		componentType: ComponentType.StringSelect,
+		filter: ({ customId, user }) => customId === uuid && user.id === userId,
+	})) as ExtendedStringSelectMenuInteraction;
+	if (!selectMenuInteraction) throw new Error('Search timeout.');
+
+	const isMemberInVoiceChannel = selectMenuInteraction.member.voice.channel;
+	if (!isMemberInVoiceChannel) throw new Error('You must be in a voice channel to use the search menu.');
+
+	const isConnectedToVoiceChannel = Music.isConnectedToVoiceChannel(client, guildId);
+	if (!isConnectedToVoiceChannel) throw new Error("I'm not connected to a voice channel.");
+
+	const isSearchValid = selectMenuInteraction.values.length > 0 && selectMenuInteraction.values[0] !== 'CANCEL';
+	if (!isSearchValid) {
+		const embed = new EmbedBuilder().setTitle('Search has been canceled.').setColor('Random');
+		await selectMenuInteraction.update({ embeds: [embed], components: [] });
+		return;
+	}
+
+	const track = tracks.find(({ url }) => url === selectMenuInteraction.values[0]);
+	if (!track) throw new Error('Cannot find track.');
+
+	const embed = await addTrack(client, interaction, track);
+	await selectMenuInteraction.update({ embeds: [embed], components: [] });
+};
+
 const search = async (client: Bot, interaction: ExtendedChatInputCommandInteraction) => {
 	const query = interaction.options.getString('query', true);
 
 	const guildId = interaction.guild.id;
-	if (!Music.isConnectedToVoiceChannel(client, guildId)) Music.join(client, guildId, interaction.member);
+	const isConnectedToVoiceChannel = Music.isConnectedToVoiceChannel(client, guildId);
+	if (!isConnectedToVoiceChannel) Music.join(client, guildId, interaction.member);
 
 	const { tracks } = await Music.search(client, query, interaction.user, 10);
 
@@ -219,9 +263,11 @@ const search = async (client: Bot, interaction: ExtendedChatInputCommandInteract
 	];
 
 	const uuid = randomUUID();
-	const component = new ActionRowBuilder().addComponents(
-		new StringSelectMenuBuilder().setCustomId(uuid).setPlaceholder('Nothing selected.').addOptions(options),
-	) as ActionRowBuilder<StringSelectMenuBuilder>;
+	const searchSelectMenu = new StringSelectMenuBuilder()
+		.setCustomId(uuid)
+		.setPlaceholder('Nothing selected.')
+		.addOptions(options);
+	const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(searchSelectMenu);
 
 	const formattedResults = tracks
 		.map(({ title, url, duration }, index) => `\`${index + 1}.\` **[${title}](${url})** | \`${duration}\``)
@@ -234,68 +280,7 @@ const search = async (client: Bot, interaction: ExtendedChatInputCommandInteract
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed], components: [component], ephemeral: true });
-	await handleSelectionMenu(client, interaction, uuid, tracks);
-};
-
-const handleSelectionMenu = async (
-	client: Bot,
-	interaction: ExtendedChatInputCommandInteraction,
-	uuid: string,
-	tracks: Track[],
-) => {
-	const guildId = interaction.guild.id;
-	const textChannel = interaction.channel;
-	const userId = interaction.user.id;
-
-	const selectMenuInteraction = (await textChannel?.awaitMessageComponent({
-		time: 60 * 1000,
-		componentType: ComponentType.StringSelect,
-		filter: ({ customId, user }: ExtendedStringSelectMenuInteraction) => customId === uuid && user.id === userId,
-	})) as ExtendedStringSelectMenuInteraction;
-	if (!selectMenuInteraction) throw new Error('Search timeout.');
-
-	const isMemberInVoiceChannel = selectMenuInteraction.member.voice.channel;
-	if (!isMemberInVoiceChannel) throw new Error('You must be in a voice channel to use the search menu.');
-	if (!Music.isConnectedToVoiceChannel(client, guildId)) throw new Error("I'm not connected to a voice channel.");
-
-	const { values } = selectMenuInteraction;
-	const isSearchValid = values.length > 0 && values[0] !== 'CANCEL';
-	if (!isSearchValid) {
-		const cancelledEmbed = new EmbedBuilder().setTitle('Search has been canceled.').setColor('Random');
-		await selectMenuInteraction.update({ embeds: [cancelledEmbed], components: [] });
-		return;
-	}
-
-	const selectedTrack = tracks.find(({ url }) => url === values[0]);
-	if (!selectedTrack) throw new Error('Cannot find track.');
-
-	const { title, url, thumbnail, author, duration } = selectedTrack;
-	const { trackPosition } = await Music.addTrackToQueue(client, guildId, selectedTrack);
-
-	const embed = new EmbedBuilder()
-		.setTitle(title)
-		.setURL(url)
-		.setThumbnail(thumbnail)
-		.addFields([
-			{
-				name: '**Position in queue**',
-				value: trackPosition === 0 ? 'Currently playing' : trackPosition.toString(),
-				inline: true,
-			},
-			{
-				name: '**Channel**',
-				value: author,
-				inline: true,
-			},
-			{
-				name: '**Duration**',
-				value: duration,
-				inline: true,
-			},
-		])
-		.setColor('Random');
-
-	await selectMenuInteraction.update({ embeds: [embed], components: [] });
+	await handleSearchSelectMenu(client, interaction, uuid, tracks);
 };
 
 const pause = async (client: Bot, interaction: ExtendedChatInputCommandInteraction) => {

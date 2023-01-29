@@ -1,7 +1,7 @@
 import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { CommandData, CommandExecute } from '../types/bot';
 import type { MessageCategory } from '../types/category';
-import type { Guild, GuildBasedChannel, TextChannel, StringSelectMenuInteraction } from 'discord.js';
+import type { GuildBasedChannel, TextChannel } from 'discord.js';
 import {
 	ActionRowBuilder,
 	EmbedBuilder,
@@ -13,6 +13,8 @@ import {
 } from 'discord.js';
 import * as RolesJob from '../jobs/roles';
 import * as Channels from '../services/channels';
+import * as Roles from '../services/roles';
+import * as Leaderboards from '../services/leaderboards';
 import { CommandName } from '../types/enums';
 import { randomUUID } from 'crypto';
 
@@ -152,13 +154,33 @@ const deleteChannel = async (interaction: ExtendedChatInputCommandInteraction) =
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const getRoleOptions = (guild: Guild) =>
-	[...guild.roles.cache.values()]
-		.sort((a, b) => a.position - b.position)
-		.filter(({ id }) => id !== guild.roles.everyone.id)
-		.map(({ id, name }) => ({ label: name, value: id }));
+const handleChannelSelectMenu = async (
+	interaction: ExtendedChatInputCommandInteraction,
+	uuid: string,
+	action: 'assign' | 'dissociate',
+	channel: TextChannel,
+	category: MessageCategory,
+) => {
+	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
+		time: 60 * 1000 * 5,
+		componentType: ComponentType.StringSelect,
+		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
+	});
+	if (!selectMenuInteraction) throw new Error('Channel selection timeout.');
 
-const getLeaderboardOptions = () => ['Steam', 'Xbox'].map((option) => ({ label: option, value: option }));
+	await Channels[action](interaction.guild.id, channel, category, selectMenuInteraction.values);
+
+	const embed = new EmbedBuilder()
+		.setTitle(
+			action === 'assign'
+				? `${channel.name} will now receive ${category} messages.`
+				: `${channel.name} will no longer receive ${category} messages.`,
+		)
+		.setColor('Random');
+
+	await selectMenuInteraction.update({ embeds: [embed], components: [] });
+	if (category === 'Roles') await RolesJob.execute(selectMenuInteraction.client);
+};
 
 const assignChannel = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const channel = interaction.options.getChannel('channel', true) as GuildBasedChannel;
@@ -166,62 +188,35 @@ const assignChannel = async (interaction: ExtendedChatInputCommandInteraction) =
 
 	if (channel.type !== ChannelType.GuildText) throw new Error('Channel must be a text channel.');
 
-	if (category === 'Birthdays') await assignChannelWithoutOptions(interaction, channel, category);
-	else await assignChannelWithOptions(interaction, channel, category);
-};
+	if (category === 'Birthdays') {
+		await Channels.assign(interaction.guild.id, channel, category, []);
+		const embed = new EmbedBuilder()
+			.setTitle(`${category} has been assigned to ${channel.name}.`)
+			.setColor('Random');
+		await interaction.reply({ embeds: [embed], ephemeral: true });
+		return;
+	}
 
-const assignChannelWithoutOptions = async (
-	interaction: ExtendedChatInputCommandInteraction,
-	channel: TextChannel,
-	category: Extract<MessageCategory, 'Birthdays'>,
-) => {
-	await Channels.assign(interaction.guild.id, channel, category, []);
-	const embed = new EmbedBuilder().setTitle(`${category} has been assigned to ${channel.name}.`).setColor('Random');
-	await interaction.reply({ embeds: [embed], ephemeral: true });
-};
-
-const assignChannelWithOptions = async (
-	interaction: ExtendedChatInputCommandInteraction,
-	channel: TextChannel,
-	category: Extract<MessageCategory, 'Roles' | 'Leaderboards'>,
-) => {
-	const guild = interaction.guild;
-	const options = category === 'Roles' ? getRoleOptions(guild) : getLeaderboardOptions();
+	const options =
+		category === 'Roles'
+			? Roles.getGuildRoles(interaction.guild).map((role) => ({ label: role.name, value: role.id }))
+			: Leaderboards.getLeaderboardCategories().map((option) => ({ label: option, value: option }));
 	if (options.length === 0) throw new Error('Select at least one option from the menu.');
 
-	const uuid = randomUUID();
-
-	const initialEmbed = new EmbedBuilder()
+	const embed = new EmbedBuilder()
 		.setTitle(`Select which options should be included in the ${category} message.`)
 		.setColor('Random');
 
-	const component = new ActionRowBuilder().addComponents(
-		new StringSelectMenuBuilder()
-			.setCustomId(uuid)
-			.setPlaceholder('Nothing selected.')
-			.setMaxValues(options.length)
-			.addOptions(options),
-	) as ActionRowBuilder<StringSelectMenuBuilder>;
+	const uuid = randomUUID();
+	const channelSelectMenu = new StringSelectMenuBuilder()
+		.setCustomId(uuid)
+		.setPlaceholder('Nothing selected.')
+		.setMaxValues(options.length)
+		.addOptions(options);
+	const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(channelSelectMenu);
 
-	await interaction.reply({ embeds: [initialEmbed], components: [component], ephemeral: true });
-
-	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
-		time: 60 * 1000 * 5,
-		componentType: ComponentType.StringSelect,
-		filter: ({ customId, user }: StringSelectMenuInteraction) =>
-			customId === uuid && user.id === interaction.user.id,
-	});
-	if (!selectMenuInteraction) throw new Error('Channel assign timeout.');
-
-	await Channels.assign(guild.id, channel, category, selectMenuInteraction.values);
-
-	const finalEmbed = new EmbedBuilder()
-		.setTitle(`${category} messages has been assigned to ${channel.name}.`)
-		.setColor('Random');
-
-	await selectMenuInteraction.update({ embeds: [finalEmbed], components: [] });
-
-	if (category === 'Roles') await RolesJob.execute(selectMenuInteraction.client);
+	await interaction.reply({ embeds: [embed], components: [component], ephemeral: true });
+	await handleChannelSelectMenu(interaction, uuid, 'assign', channel, category);
 };
 
 const dissociateChannel = async (interaction: ExtendedChatInputCommandInteraction) => {
@@ -230,61 +225,32 @@ const dissociateChannel = async (interaction: ExtendedChatInputCommandInteractio
 
 	if (channel.type !== ChannelType.GuildText) throw new Error('Channel must be a text channel.');
 
-	if (category === 'Leaderboards') await dissociateChannelWithOptions(interaction, channel, category);
-	else await dissociateChannelWithoutOptions(interaction, channel, category);
-};
+	if (category === 'Birthdays' || category === 'Roles') {
+		await Channels.dissociate(interaction.guild.id, channel, category, []);
 
-const dissociateChannelWithoutOptions = async (
-	interaction: ExtendedChatInputCommandInteraction,
-	channel: TextChannel,
-	category: Extract<MessageCategory, 'Birthdays' | 'Roles'>,
-) => {
-	await Channels.dissociate(interaction.guild.id, channel, category, []);
+		const embed = new EmbedBuilder()
+			.setTitle(`${channel.name} will no longer receive ${category} messages.`)
+			.setColor('Random');
 
-	const embed = new EmbedBuilder()
-		.setTitle(`${category} has been dissociated from ${channel.name}.`)
-		.setColor('Random');
+		await interaction.reply({ embeds: [embed], ephemeral: true });
+		return;
+	}
 
-	await interaction.reply({ embeds: [embed], ephemeral: true });
-};
-
-const dissociateChannelWithOptions = async (
-	interaction: ExtendedChatInputCommandInteraction,
-	channel: TextChannel,
-	category: Extract<MessageCategory, 'Leaderboards'>,
-) => {
-	const options = getLeaderboardOptions();
+	const options = Leaderboards.getLeaderboardCategories();
 	if (options.length === 0) throw new Error('Select at least one option from the menu.');
 
 	const uuid = randomUUID();
-
-	const component = new ActionRowBuilder().addComponents(
-		new StringSelectMenuBuilder()
-			.setCustomId(uuid)
-			.setPlaceholder('Nothing selected.')
-			.setMaxValues(options.length)
-			.addOptions(options),
-	) as ActionRowBuilder<StringSelectMenuBuilder>;
+	const channelSelectMenu = new StringSelectMenuBuilder()
+		.setCustomId(uuid)
+		.setPlaceholder('Nothing selected.')
+		.setMaxValues(options.length)
+		.addOptions(options.map((option) => ({ label: option, value: option })));
+	const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(channelSelectMenu);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Select which options should be excluded from the ${category} message in channel ${channel.name}.`)
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed], components: [component], ephemeral: true });
-
-	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
-		time: 60 * 1000 * 5,
-		componentType: ComponentType.StringSelect,
-		filter: ({ customId, user }: StringSelectMenuInteraction) =>
-			customId === uuid && user.id === interaction.user.id,
-	});
-	if (!selectMenuInteraction) throw new Error('Channel dissociate timeout.');
-
-	await Channels.dissociate(interaction.guild.id, channel, category, selectMenuInteraction.values);
-
-	const finalEmbed = new EmbedBuilder()
-		.setTitle(`${category} message has been dissociated from ${channel.name}.`)
-		.setColor('Random');
-
-	await selectMenuInteraction.update({ embeds: [finalEmbed], components: [] });
+	await handleChannelSelectMenu(interaction, uuid, 'dissociate', channel, category);
 };

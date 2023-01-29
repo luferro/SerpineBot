@@ -1,5 +1,10 @@
 import type { ColorResolvable, Guild, Role } from 'discord.js';
 
+export const getGuildRoles = (guild: Guild) =>
+	[...guild.roles.cache.values()]
+		.sort((a, b) => a.position - b.position)
+		.filter(({ id }) => id !== guild.roles.everyone.id);
+
 export const create = async (
 	guild: Guild,
 	name: string,

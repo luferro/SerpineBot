@@ -45,7 +45,7 @@ const createRoleSelectMenu = (guild: Guild, options: string[]) => {
 		.setMaxValues(roles.length)
 		.addOptions(roles);
 
-	return new ActionRowBuilder().addComponents(selectMenu) as ActionRowBuilder<StringSelectMenuBuilder>;
+	return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
 };
 
 const createOrUpdateRoleSelectMenuMessage = async (guild: Guild, channel: TextBasedChannel, options: string[]) => {
