@@ -14,9 +14,8 @@ export const data: CommandData = {
 export const execute: CommandExecute = async ({ interaction }) => {
 	const query = interaction.options.getString('query', true);
 
-	const {
-		0: { url },
-	} = await YoutubeApi.search(query);
+	const results = await YoutubeApi.search(query);
+	if (results.length === 0) throw new Error(`No results found for ${query}.`);
 
-	await interaction.reply({ content: url });
+	await interaction.reply({ content: results[0].url });
 };
