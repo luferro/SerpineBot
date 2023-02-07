@@ -14,13 +14,13 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^18.11.18",
-		"typescript": "^4.9.4"
+		"@types/node": "^18.13.0",
+		"typescript": "^4.9.5"
 	},
 	"dependencies": {
 		"@luferro/google-api": "workspace:^",
 		"@luferro/shared-utils": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
-		"playwright-chromium": "^1.29.2"
+		"playwright-chromium": "^1.30.0"
 	}
 }

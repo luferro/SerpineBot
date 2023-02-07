@@ -4,7 +4,7 @@
 	"description": "Multipurpose bot for my private discord server.",
 	"scripts": {
 		"start": "turbo run start",
-		"build": "turbo run build",
+		"build": "turbo run build --concurrency=1",
 		"lint": "turbo run lint",
 		"prettier": "turbo run prettier"
 	},
@@ -12,12 +12,12 @@
 	"author": "Luís Ferro",
 	"license": "ISC",
 	"devDependencies": {
-		"@typescript-eslint/eslint-plugin": "^5.48.2",
-		"@typescript-eslint/parser": "^5.48.2",
-		"eslint": "^8.32.0",
+		"@typescript-eslint/eslint-plugin": "^5.51.0",
+		"@typescript-eslint/parser": "^5.51.0",
+		"eslint": "^8.33.0",
 		"eslint-config-prettier": "^8.6.0",
 		"prettier": "^2.8.3",
-		"turbo": "^1.7.0",
-		"typescript": "^4.9.4"
+		"turbo": "^1.7.3",
+		"typescript": "^4.9.5"
 	}
 }
