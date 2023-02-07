@@ -1,7 +1,7 @@
 import type { Command } from '../types/response';
 import { Skeleton, Text } from '@mantine/core';
 import { useEffect, useState } from 'react';
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import Head from 'next/head';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -18,21 +18,15 @@ export const getStaticProps = async () => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 	await client.login(process.env.BOT_TOKEN);
 
-	let commands: Command[] = [];
-	for (const { 1: guild } of client.guilds.cache) {
-		const guildCommands = await guild.commands.fetch();
-		if (!guildCommands) continue;
-
-		commands = guildCommands
-			.map((command) => command.toJSON() as Command)
-			.map(({ name, description, options, defaultMemberPermissions }) => ({
-				name,
-				description,
-				options: options.sort((a, b) => a.name.localeCompare(b.name)),
-				defaultMemberPermissions,
-			}))
-			.sort((a, b) => a.name.localeCompare(b.name));
-	}
+	const commands = ((await client.application?.commands.fetch()) ?? new Collection())
+		.map((command) => command.toJSON() as Command)
+		.map(({ name, description, options, defaultMemberPermissions }) => ({
+			name,
+			description,
+			options: options.sort((a, b) => a.name.localeCompare(b.name)),
+			defaultMemberPermissions,
+		}))
+		.sort((a, b) => a.name.localeCompare(b.name));
 
 	const serializedCommands = JSON.parse(
 		JSON.stringify(commands, (_key, value) => {
