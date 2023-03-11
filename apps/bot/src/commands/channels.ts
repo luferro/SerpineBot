@@ -1,7 +1,7 @@
 import { IntegrationCategory, MessageCategory } from '@luferro/database';
 import { EnumUtil } from '@luferro/shared-utils';
 import { randomUUID } from 'crypto';
-import type { GuildBasedChannel, TextChannel } from 'discord.js';
+import type { GuildBasedChannel } from 'discord.js';
 import {
 	ActionRowBuilder,
 	ChannelType,
@@ -183,7 +183,19 @@ const assignChannel = async (interaction: ExtendedChatInputCommandInteraction) =
 	const embed = new EmbedBuilder().setTitle('What should be included in the message?').setColor('Random');
 	await interaction.reply({ embeds: [embed], components: [component], ephemeral: true });
 
-	await handleChannelSelectMenu(interaction, category, uuid, channel, Channels.assignChannel);
+	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
+		time: 60 * 1000 * 5,
+		componentType: ComponentType.StringSelect,
+		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
+	});
+	if (!selectMenuInteraction) throw new Error('Channel selection timeout.');
+
+	await Channels.assignChannel(interaction.guild.id, category, channel, selectMenuInteraction.values);
+
+	const updatedEmbed = new EmbedBuilder().setTitle(`Channel ${channel.name} has been updated.`).setColor('Random');
+	await selectMenuInteraction.update({ embeds: [updatedEmbed], components: [] });
+
+	if (category === MessageCategory.Roles) await RolesJob.execute(selectMenuInteraction.client);
 };
 
 const unassignChannel = async (interaction: ExtendedChatInputCommandInteraction) => {
@@ -192,53 +204,8 @@ const unassignChannel = async (interaction: ExtendedChatInputCommandInteraction)
 
 	if (channel.type !== ChannelType.GuildText) throw new Error('Channel must be a text channel.');
 
-	if (category === MessageCategory.Birthdays || category === MessageCategory.Roles) {
-		await Channels.unassignChannel(interaction.guild.id, category, channel);
+	await Channels.unassignChannel(interaction.guild.id, category, channel);
 
-		const embed = new EmbedBuilder().setTitle(`Message unassigned from ${channel.name}.`).setColor('Random');
-		await interaction.reply({ embeds: [embed], ephemeral: true });
-		return;
-	}
-
-	const options = EnumUtil.enumKeysToArray(IntegrationCategory);
-	if (options.length === 0) throw new Error('Select at least one option from the menu.');
-
-	const uuid = randomUUID();
-	const channelSelectMenu = new StringSelectMenuBuilder()
-		.setCustomId(uuid)
-		.setPlaceholder('Nothing selected.')
-		.setMaxValues(options.length)
-		.addOptions(options.map((option) => ({ label: option, value: option })));
-	const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(channelSelectMenu);
-
-	const embed = new EmbedBuilder().setTitle('What should be excluded from the message?').setColor('Random');
-	await interaction.reply({ embeds: [embed], components: [component], ephemeral: true });
-
-	await handleChannelSelectMenu(interaction, category, uuid, channel, Channels.unassignChannel);
-};
-
-const handleChannelSelectMenu = async (
-	interaction: ExtendedChatInputCommandInteraction,
-	category: MessageCategory,
-	uuid: string,
-	channel: TextChannel,
-	callback: typeof Channels.assignChannel | typeof Channels.unassignChannel,
-) => {
-	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
-		time: 60 * 1000 * 5,
-		componentType: ComponentType.StringSelect,
-		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
-	});
-	if (!selectMenuInteraction) throw new Error('Channel selection timeout.');
-
-	if (callback instanceof Channels.assignChannel) {
-		await callback(interaction.guild.id, category, channel, selectMenuInteraction.values);
-	} else {
-		await callback(interaction.guild.id, category, channel);
-	}
-
-	const embed = new EmbedBuilder().setTitle(`Channel ${channel.name} has been updated.`).setColor('Random');
-	await selectMenuInteraction.update({ embeds: [embed], components: [] });
-
-	if (category === MessageCategory.Roles) await RolesJob.execute(selectMenuInteraction.client);
+	const embed = new EmbedBuilder().setTitle(`Message unassigned from ${channel.name}.`).setColor('Random');
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
