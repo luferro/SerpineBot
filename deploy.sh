@@ -1,13 +1,20 @@
 #! /bin/bash
 
+usage() { echo "Usage: $0 [-r <repository>] [-p <process>] [-o <output>]" 1>&2; exit 1; }
+
 while getopts r:p:o: flag
 do
     case "${flag}" in
         r) repository=${OPTARG};;
         p) process=${OPTARG};;
         o) output=${OPTARG};;
+        *) usage;;
     esac
 done
+
+if [ -z "${repository}" ] || [ -z "${process}" || [ -z "${output}" ] ]; then
+    usage
+fi
 
 if [ "$EUID" -ne 0 ]; then
     echo "root permission required."
