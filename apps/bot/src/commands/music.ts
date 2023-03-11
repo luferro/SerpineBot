@@ -342,8 +342,8 @@ const volume = async (client: Bot, interaction: ExtendedChatInputCommandInteract
 };
 
 const bassboost = async (client: Bot, interaction: ExtendedChatInputCommandInteraction) => {
-	await Music.enableBassBoost(client, interaction.guild.id);
-	const embed = new EmbedBuilder().setTitle('Bass boost filter has been enabled.').setColor('Random');
+	await Music.toggleBassBoost(client, interaction.guild.id);
+	const embed = new EmbedBuilder().setTitle('Bass boost filter has been toggled.').setColor('Random');
 	await interaction.reply({ embeds: [embed] });
 };
 
@@ -351,11 +351,11 @@ const queue = async (client: Bot, interaction: ExtendedChatInputCommandInteracti
 	const { currentTrack, queue } = Music.queue(client, interaction.guild.id);
 
 	const formattedQueue = queue
-		.slice(0, 10)
 		.map(
 			({ title, duration, requestedBy }, index) =>
-				`\`${index + 1}.\` **${title}** | **${duration}**\nRequest by \`${requestedBy.tag}\``,
-		);
+				`\`${index + 1}.\` **${title}** | **${duration}**\nRequest by \`${requestedBy?.tag ?? 'unknown'}\``,
+		)
+		.slice(0, 10);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Queue for ${interaction.guild.name}`)
@@ -363,12 +363,14 @@ const queue = async (client: Bot, interaction: ExtendedChatInputCommandInteracti
 			{
 				name: '**Now playing**',
 				value: currentTrack
-					? `**[${currentTrack.title}](${currentTrack.url})** | **${currentTrack.duration}**\nRequest by \`${currentTrack.requestedBy.tag}\``
+					? `**[${currentTrack.title}](${currentTrack.url})** | **${currentTrack.duration}**\nRequest by \`${
+							currentTrack.requestedBy?.tag ?? 'unknown'
+					  }\``
 					: 'Nothing is playing.',
 			},
 			{ name: '**Queue**', value: formattedQueue.join('\n') || 'Queue is empty.' },
 		])
-		.setFooter({ text: `${queue.length} total items in queue.` })
+		.setFooter({ text: `${queue.size} total items in queue.` })
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });
