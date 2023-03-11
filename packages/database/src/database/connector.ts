@@ -1,16 +1,15 @@
+import { logger } from '@luferro/shared-utils';
 import type { ConnectOptions } from 'mongoose';
 import mongoose from 'mongoose';
-import { logger } from '@luferro/shared-utils';
-import { config } from '../config/environment';
 
-export const connect = async () => {
+export const connect = async (uri: string) => {
 	const options = {
 		useUnifiedTopology: true,
 		useNewUrlParser: true,
 	} as ConnectOptions;
 
 	try {
-		await mongoose.connect(config.MONGO_URI, options);
+		await mongoose.connect(uri, options);
 		logger.info('Connected to database successfully.');
 	} catch (error) {
 		throw new Error('Failed to connect to database.');
