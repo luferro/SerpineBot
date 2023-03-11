@@ -25,7 +25,7 @@ export const execute = async (client: Bot) => {
 			if (currentDate.getTime() !== birthdayDate.getTime()) continue;
 
 			const settings = await SettingsModel.getSettingsByGuildId(guildId);
-			const channelId = settings?.messages[MessageCategory.Birthdays].channelId;
+			const channelId = settings?.messages[MessageCategory.Birthdays]?.channelId;
 			if (!channelId) continue;
 
 			try {

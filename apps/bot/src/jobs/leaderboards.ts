@@ -23,7 +23,7 @@ export const execute = async (client: Bot) => {
 			const leaderboard = leaderboards[category];
 			if (!leaderboard || leaderboard.length === 0) continue;
 
-			const channelId = settings?.messages[MessageCategory.Leaderboards].channelId;
+			const channelId = settings?.messages[MessageCategory.Leaderboards]?.channelId;
 			if (!channelId) continue;
 
 			const channel = await client.channels.fetch(channelId);

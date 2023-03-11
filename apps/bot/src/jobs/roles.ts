@@ -17,13 +17,13 @@ export const execute = async (client: Client) => {
 	for (const [guildId, guild] of client.guilds.cache) {
 		const settings = await SettingsModel.getSettingsByGuildId(guildId);
 
-		const channelId = settings?.messages[MessageCategory.Roles].channelId;
+		const channelId = settings?.messages[MessageCategory.Roles]?.channelId;
 		if (!channelId) continue;
 
 		const channel = await client.channels.fetch(channelId);
 		if (!channel?.isTextBased()) continue;
 
-		const options = settings?.messages[MessageCategory.Roles].options;
+		const options = settings?.messages[MessageCategory.Roles]?.options;
 		await createOrUpdateRoleSelectMenuMessage(guild, channel, options ?? []);
 
 		logger.info(`Job **${data.name}** sent a message to channelId **${channelId}** in guild **${guild.name}**.`);
