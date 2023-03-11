@@ -4,7 +4,7 @@ import type { State, StateEntry } from '../../types/schemas';
 
 interface StateModel extends Model<State> {
 	createOrUpdateState: (jobName: string, category: string, entries: StateEntry[]) => Promise<void>;
-	getStateByJobName: (jobName: string) => Promise<State>;
+	getStateByJobName: (jobName: string) => Promise<State | null>;
 }
 
 const schema = new mongoose.Schema<State>(
@@ -32,7 +32,8 @@ schema.statics.createOrUpdateState = async function (jobName: string, category: 
 };
 
 schema.statics.getStateByJobName = async function (jobName: string) {
-	await this.findOne({ jobName: jobName.toUpperCase() });
+	const state = await this.findOne({ jobName: jobName.toUpperCase() });
+	return state ?? null;
 };
 
 export default mongoose.model<State, StateModel>('state', schema, 'state');
