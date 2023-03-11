@@ -8,6 +8,7 @@ importers:
       '@typescript-eslint/parser': ^5.51.0
       eslint: ^8.33.0
       eslint-config-prettier: ^8.6.0
+      eslint-plugin-simple-import-sort: ^10.0.0
       prettier: ^2.8.3
       turbo: ^1.7.3
       typescript: ^4.9.5
@@ -16,6 +17,7 @@ importers:
       '@typescript-eslint/parser': 5.51.0_4vsywjlpuriuw3tl5oq6zy5a64
       eslint: 8.33.0
       eslint-config-prettier: 8.6.0_eslint@8.33.0
+      eslint-plugin-simple-import-sort: 10.0.0_eslint@8.33.0
       prettier: 2.8.3
       turbo: 1.7.3
       typescript: 4.9.5
@@ -23,6 +25,7 @@ importers:
   apps/bot:
     specifiers:
       '@discordjs/opus': ^0.8.0
+      '@luferro/database': workspace:^
       '@luferro/games-api': workspace:^
       '@luferro/gnews-api': workspace:^
       '@luferro/go-comics-api': workspace:^
@@ -50,6 +53,7 @@ importers:
       youtube-sr: ^4.3.4
       ytdl-core: ^4.11.2
     dependencies:
+      '@luferro/database': link:../../packages/database
       '@luferro/games-api': link:../../packages/games-api
       '@luferro/gnews-api': link:../../packages/gnews-api
       '@luferro/go-comics-api': link:../../packages/go-comics-api
@@ -122,6 +126,19 @@ importers:
       '@types/react-dom': 18.0.10
       eslint: 8.33.0
       eslint-config-next: 13.1.6_4vsywjlpuriuw3tl5oq6zy5a64
+      typescript: 4.9.5
+
+  packages/database:
+    specifiers:
+      '@luferro/shared-utils': workspace:^
+      '@types/node': ^18.13.0
+      mongoose: ^6.9.1
+      typescript: ^4.9.5
+    dependencies:
+      '@luferro/shared-utils': link:../shared-utils
+      mongoose: 6.9.1
+    devDependencies:
+      '@types/node': 18.13.0
       typescript: 4.9.5
 
   packages/games-api:
@@ -3227,6 +3244,14 @@ packages:
       resolve: 2.0.0-next.4
       semver: 6.3.0
       string.prototype.matchall: 4.0.8
+    dev: true
+
+  /eslint-plugin-simple-import-sort/10.0.0_eslint@8.33.0:
+    resolution: {integrity: sha512-AeTvO9UCMSNzIHRkg8S6c3RPy5YEwKWSQPx3DYghLedo2ZQxowPFLGDN1AZ2evfg6r6mjBSZSLxLFsWSu3acsw==}
+    peerDependencies:
+      eslint: '>=5.0.0'
+    dependencies:
+      eslint: 8.33.0
     dev: true
 
   /eslint-scope/5.1.1:

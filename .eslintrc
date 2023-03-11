@@ -4,7 +4,7 @@
 		"ecmaVersion": "latest",
 		"sourceType": "module"
 	},
-	"plugins": ["@typescript-eslint"],
+	"plugins": ["@typescript-eslint", "simple-import-sort"],
 	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
 	"rules": {
 		"no-constant-condition": ["error", { "checkLoops": false }],
@@ -12,6 +12,8 @@
 		"@typescript-eslint/no-unused-vars": [
 			"error",
 			{ "vars": "all", "args": "after-used", "ignoreRestSiblings": false }
-		]
+		],
+		"simple-import-sort/imports": "error",
+		"simple-import-sort/exports": "error"
 	}
 }
