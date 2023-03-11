@@ -26,7 +26,6 @@ export class Bot extends Client {
 
 	constructor(options: ClientOptions) {
 		super(options);
-		this.login(config.BOT_TOKEN);
 		this.setApiTokens();
 		this.player = this.initializePlayer();
 	}
@@ -35,6 +34,7 @@ export class Bot extends Client {
 		logger.info(`Starting SerpineBot in **${config.NODE_ENV}**.`);
 
 		try {
+			await this.login(config.BOT_TOKEN);
 			await Connector.connect(config.MONGO_URI);
 			await JobsHandler.registerJobs();
 			await EventsHandler.registerEvents();
