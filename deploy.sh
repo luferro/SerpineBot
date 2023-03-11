@@ -58,7 +58,7 @@ echo "Step 5: Installing dependencies"
 pnpm install --frozen-lockfile
 
 echo "Step 6: Build"
-pnpm build --filter "./packages/**"
+pnpm build --filter "./packages/**" --concurrency=1
 cd $output
 cd ../
 pnpm build
