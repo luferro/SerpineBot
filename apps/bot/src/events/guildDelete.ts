@@ -1,8 +1,9 @@
+import { SettingsModel } from '@luferro/database';
+import { logger } from '@luferro/shared-utils';
+import type { Guild } from 'discord.js';
+
 import type { Bot } from '../structures/bot';
 import type { EventData } from '../types/bot';
-import type { Guild } from 'discord.js';
-import { logger } from '@luferro/shared-utils';
-import { settingsModel } from '../database/models/settings';
 import { EventName } from '../types/enums';
 
 export const data: EventData = {
@@ -11,7 +12,6 @@ export const data: EventData = {
 };
 
 export const execute = async (_client: Bot, guild: Guild) => {
-	await settingsModel.deleteOne({ guildId: guild.id });
-
-	logger.info(`SerpineBot has left guild **${guild.name}**.`);
+	await SettingsModel.deleteSettingsByGuildId(guild.id);
+	logger.info(`Settings for **${guild.name}** have been deleted.`);
 };

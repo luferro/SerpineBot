@@ -1,9 +1,10 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { CommandName } from '../types/enums';
-import { randomUUID } from 'crypto';
 import { logger } from '@luferro/shared-utils';
+import { randomUUID } from 'crypto';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+
 import * as Reminders from '../services/reminders';
+import type { CommandData, CommandExecute } from '../types/bot';
+import { CommandName } from '../types/enums';
 
 export const data: CommandData = {
 	name: CommandName.SecretSanta,
@@ -54,7 +55,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 	for (const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
-		const reminderId = await Reminders.create(
+		const reminderId = await Reminders.createReminder(
 			gifter.user.id,
 			eventDate.getTime() - Date.now(),
 			'Milliseconds',

@@ -1,8 +1,8 @@
-import type { Video } from 'ytsr';
 import { ConverterUtil } from '@luferro/shared-utils';
 import ytdl from 'ytdl-core';
-import ytsr from 'ytsr';
 import ytpl from 'ytpl';
+import type { Video } from 'ytsr';
+import ytsr from 'ytsr';
 
 export const isVideo = (url: string) => {
 	try {

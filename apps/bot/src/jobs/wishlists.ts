@@ -1,13 +1,13 @@
-import type { Bot } from '../structures/bot';
-import type { SteamAlert, JobData } from '../types/bot';
-import type { AlertCategory } from '../types/category';
-import type { SteamWishlistItem } from '../types/schemas';
-import { EmbedBuilder } from 'discord.js';
+import { IntegrationCategory, IntegrationsModel, SteamWishlistEntry } from '@luferro/database';
 import { SteamApi } from '@luferro/games-api';
 import { logger } from '@luferro/shared-utils';
-import { steamModel } from '../database/models/steam';
-import { JobName } from '../types/enums';
+import { EmbedBuilder } from 'discord.js';
+
 import * as Subscriptions from '../services/subscriptions';
+import type { Bot } from '../structures/bot';
+import type { JobData, SteamAlert } from '../types/bot';
+import type { AlertCategory } from '../types/category';
+import { JobName } from '../types/enums';
 
 type Entries<T> = {
 	[K in keyof T]: [K, T[K]];
@@ -49,7 +49,7 @@ const getDescription = (category: AlertCategory, items: SteamAlert[]) => {
 	return select[category];
 };
 
-const getGameSubscriptionChanges = (newGame: SteamWishlistItem, oldGame?: SteamWishlistItem) => {
+const getGameSubscriptionChanges = (newGame: SteamWishlistEntry, oldGame?: SteamWishlistEntry) => {
 	const addedTo = [];
 	const removedFrom = [];
 	for (const [name, isIncluded] of Object.entries(newGame.subscriptions)) {
@@ -68,7 +68,7 @@ const getGameSubscriptionChanges = (newGame: SteamWishlistItem, oldGame?: SteamW
 };
 
 const updateSteamWishlist = async (client: Bot) => {
-	const integrations = await steamModel.find({ notifications: true });
+	const integrations = await IntegrationsModel.getIntegrations(IntegrationCategory.Steam, true);
 	for (const integration of integrations) {
 		const alerts: Record<AlertCategory, SteamAlert[]> = {
 			'Sale': [],
@@ -105,10 +105,7 @@ const updateSteamWishlist = async (client: Bot) => {
 				}
 
 				const wasReleased = storedGame?.released ?? game.released;
-				if (!wasReleased && game.released) {
-					updatedEntry.notified = game.sale || updatedEntry.notified;
-					alerts['Released'].push(updatedEntry);
-				}
+				if (!wasReleased && game.released) alerts['Released'].push(updatedEntry);
 
 				const { addedTo, removedFrom } = getGameSubscriptionChanges(updatedEntry, storedGame);
 				if (addedTo.length > 0) alerts['Added To Subscription'].push({ ...updatedEntry, addedTo });
@@ -117,7 +114,7 @@ const updateSteamWishlist = async (client: Bot) => {
 				return updatedEntry;
 			}),
 		);
-		await steamModel.updateOne({ userId: integration.userId }, { $set: { wishlist: updatedWishlist } });
+		await IntegrationsModel.updateWishlist(integration.userId, updatedWishlist);
 
 		await notifyUser(client, integration.userId, alerts);
 	}

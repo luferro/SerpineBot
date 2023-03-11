@@ -1,8 +1,10 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookCategory } from '@luferro/database';
 import { MangadexApi } from '@luferro/mangadex-api';
 import { StringUtil } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
+
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -47,6 +49,6 @@ export const execute = async (client: Bot) => {
 			.setDescription(formattedChapters.join('\n'))
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds('Manga', embed);
+		await client.sendWebhookMessageToGuilds(WebhookCategory.Manga, embed);
 	}
 };

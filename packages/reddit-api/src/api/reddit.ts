@@ -1,6 +1,7 @@
+import { FetchUtil, FileUtil } from '@luferro/shared-utils';
+
 import type { RedditSort } from '../types/reddit';
 import type { RedditPost } from '../types/response';
-import { FetchUtil, FileUtil } from '@luferro/shared-utils';
 
 const extractRelevantDataFromPost = async (post: RedditPost) => {
 	if (!post?.data?.children) throw new Error('Failed to retrieve reddit post.');

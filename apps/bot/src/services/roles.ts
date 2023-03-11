@@ -5,7 +5,7 @@ export const getGuildRoles = (guild: Guild) =>
 		.sort((a, b) => a.position - b.position)
 		.filter(({ id }) => id !== guild.roles.everyone.id);
 
-export const create = async (
+export const createRole = async (
 	guild: Guild,
 	name: string,
 	color: ColorResolvable,
@@ -21,7 +21,7 @@ export const create = async (
 	});
 };
 
-export const update = async (
+export const updateRole = async (
 	guild: Guild,
 	role: Role,
 	name: string | null,
@@ -39,18 +39,18 @@ export const update = async (
 	});
 };
 
-export const remove = async (role: Role) => {
+export const deleteRole = async (role: Role) => {
 	return await role.delete();
 };
 
-export const assign = async (guild: Guild, userId: string, role: Role) => {
+export const assignRole = async (guild: Guild, userId: string, role: Role) => {
 	const member = guild.members.cache.find(({ id }) => id === userId)!;
 	if (member.roles.cache.has(role.id)) throw new Error(`${member.user.tag} already has role ${role.name}.`);
 
 	await member.roles.add(role);
 };
 
-export const dissociate = async (guild: Guild, userId: string, role: Role) => {
+export const unassignRole = async (guild: Guild, userId: string, role: Role) => {
 	const member = guild.members.cache.find(({ id }) => id === userId)!;
 	if (!member.roles.cache.has(role.id)) throw new Error(`${member.user.tag} doesn't have role ${role.name}.`);
 

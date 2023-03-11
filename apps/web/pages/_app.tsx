@@ -1,6 +1,7 @@
 import '../styles/globals.css';
-import type { AppProps } from 'next/app';
+
 import { MantineProvider } from '@mantine/core';
+import type { AppProps } from 'next/app';
 
 const App = ({ Component, pageProps }: AppProps) => {
 	return (

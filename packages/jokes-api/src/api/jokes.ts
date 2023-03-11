@@ -1,6 +1,7 @@
+import { FetchUtil } from '@luferro/shared-utils';
+
 import type { JokeCategory } from '../types/category';
 import type { JokesResponse } from '../types/response';
-import { FetchUtil } from '@luferro/shared-utils';
 
 const JokeCategories = Object.freeze<Record<JokeCategory, string>>({
 	Dark: 'dark',

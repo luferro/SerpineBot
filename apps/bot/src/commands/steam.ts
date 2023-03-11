@@ -1,11 +1,12 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import { IntegrationCategory, IntegrationsModel } from '@luferro/database';
+import { SteamApi } from '@luferro/games-api';
 import type { GuildMember } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { SteamApi } from '@luferro/games-api';
+
 import * as Leaderboards from '../services/leaderboards';
-import { steamModel } from '../database/models/steam';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 
 export const data: CommandData = {
 	name: CommandName.Steam,
@@ -118,11 +119,10 @@ const getLeaderboard = async (interaction: ExtendedChatInputCommandInteraction) 
 
 const getProfile = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
+
 	const userId = mention?.user.id ?? interaction.user.id;
-
-	const integration = await steamModel.findOne({ userId });
-	if (!integration) throw new Error('No Steam integration is in place.');
-
+	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, IntegrationCategory.Steam);
+	const integration = await IntegrationsModel.getIntegrationByUserId(userId, IntegrationCategory.Steam);
 	const { name, image, status, logoutAt, createdAt } = await SteamApi.getProfile(integration.profile.id);
 
 	const embed = new EmbedBuilder()
@@ -156,10 +156,10 @@ const getProfile = async (interaction: ExtendedChatInputCommandInteraction) => {
 
 const getWishlist = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
-	const user = mention?.user ?? interaction.user;
 
-	const integration = await steamModel.findOne({ userId: user.id });
-	if (!integration) throw new Error('No Steam integration is in place.');
+	const user = mention?.user ?? interaction.user;
+	await IntegrationsModel.checkIfIntegrationIsInPlace(user.id, IntegrationCategory.Steam);
+	const integration = await IntegrationsModel.getIntegrationByUserId(user.id, IntegrationCategory.Steam);
 
 	const formattedWishlist = integration.wishlist
 		.slice(0, 10)

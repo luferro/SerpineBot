@@ -6,9 +6,10 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"start": "tsc && node dist/index.js",
-		"dev": "tsc && set NODE_ENV=development && node dist/index.js",
+		"dev": "tsc && set NODE_ENV=DEVELOPMENT && node dist/index.js",
 		"build": "tsc",
-		"lint": "eslint . --ext .ts",
+		"lint": "eslint --ext .ts .",
+		"lint:fix": "eslint --fix --ext .ts .",
 		"prettier": "prettier --write ."
 	},
 	"keywords": [],
@@ -29,6 +30,7 @@
 		"ytdl-core": "^4.11.2"
 	},
 	"dependencies": {
+		"@luferro/database": "workspace:^",
 		"@luferro/games-api": "workspace:^",
 		"@luferro/gnews-api": "workspace:^",
 		"@luferro/go-comics-api": "workspace:^",

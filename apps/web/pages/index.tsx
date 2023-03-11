@@ -1,12 +1,13 @@
-import type { Command } from '../types/response';
 import { Skeleton, Text } from '@mantine/core';
-import { useEffect, useState } from 'react';
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
-import styles from '../styles/Home.module.css';
+import { useEffect, useState } from 'react';
+
 import Details from '../components/details';
+import styles from '../styles/Home.module.css';
+import type { Command } from '../types/response';
 
 interface Props {
 	commands: Command[];

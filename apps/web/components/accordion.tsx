@@ -1,9 +1,10 @@
 import { Accordion as MantineAccordion, createStyles, Group, Popover, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import React, { useState } from 'react';
-import type { Choice, Command, CommandOptions, SubcommandOptions } from '../types/response';
-import styles from '../styles/Home.module.css';
+
 import samples from '../samples.json';
+import styles from '../styles/Home.module.css';
+import type { Choice, Command, CommandOptions, SubcommandOptions } from '../types/response';
 import Embed from './embed';
 
 interface Props {

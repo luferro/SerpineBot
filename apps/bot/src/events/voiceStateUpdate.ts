@@ -1,6 +1,7 @@
-import type { EventData } from '../types/bot';
-import type { Bot } from '../structures/bot';
 import type { VoiceState } from 'discord.js';
+
+import type { Bot } from '../structures/bot';
+import type { EventData } from '../types/bot';
 import { EventName } from '../types/enums';
 
 export const data: EventData = {

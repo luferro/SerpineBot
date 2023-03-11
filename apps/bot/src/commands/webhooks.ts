@@ -1,10 +1,11 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
-import type { WebhookCategory } from '../types/category';
+import { WebhookCategory } from '@luferro/database';
 import type { GuildBasedChannel } from 'discord.js';
 import { ChannelType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+
 import * as Webhooks from '../services/webhooks';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 
 export const data: CommandData = {
 	name: CommandName.Webhooks,
@@ -16,25 +17,25 @@ export const data: CommandData = {
 			subcommand
 				.setName('create')
 				.setDescription('Create a webhook and assign it to a text channel.')
-				.addStringOption((option) =>
+				.addIntegerOption((option) =>
 					option
 						.setName('category')
 						.setDescription('Webhook category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'NSFW', value: 'Nsfw' },
-							{ name: 'Memes', value: 'Memes' },
-							{ name: 'Anime', value: 'Anime' },
-							{ name: 'Manga', value: 'Manga' },
-							{ name: 'World News', value: 'World News' },
-							{ name: 'Portugal News', value: 'Portugal News' },
-							{ name: 'Gaming News', value: 'Gaming News' },
-							{ name: 'Game Reviews', value: 'Reviews' },
-							{ name: 'Game Deals', value: 'Deals' },
-							{ name: 'Free Games', value: 'Free Games' },
-							{ name: 'Xbox', value: 'Xbox' },
-							{ name: 'PlayStation', value: 'PlayStation' },
-							{ name: 'Nintendo', value: 'Nintendo' },
+							{ name: 'NSFW', value: WebhookCategory.Nsfw },
+							{ name: 'Memes', value: WebhookCategory.Memes },
+							{ name: 'Anime', value: WebhookCategory.Anime },
+							{ name: 'Manga', value: WebhookCategory.Manga },
+							{ name: 'World News', value: WebhookCategory.WorldNews },
+							{ name: 'Portugal News', value: WebhookCategory.PortugalNews },
+							{ name: 'Gaming News', value: WebhookCategory.GamingNews },
+							{ name: 'Game Reviews', value: WebhookCategory.Reviews },
+							{ name: 'Game Deals', value: WebhookCategory.Deals },
+							{ name: 'Free Games', value: WebhookCategory.FreeGames },
+							{ name: 'Xbox', value: WebhookCategory.Xbox },
+							{ name: 'PlayStation', value: WebhookCategory.PlayStation },
+							{ name: 'Nintendo', value: WebhookCategory.Nintendo },
 						),
 				)
 				.addChannelOption((option) =>
@@ -48,25 +49,25 @@ export const data: CommandData = {
 			subcommand
 				.setName('delete')
 				.setDescription('Delete a webhook.')
-				.addStringOption((option) =>
+				.addIntegerOption((option) =>
 					option
 						.setName('category')
 						.setDescription('Webhook category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'NSFW', value: 'Nsfw' },
-							{ name: 'Memes', value: 'Memes' },
-							{ name: 'Anime', value: 'Anime' },
-							{ name: 'Manga', value: 'Manga' },
-							{ name: 'World News', value: 'World News' },
-							{ name: 'Portugal News', value: 'Portugal News' },
-							{ name: 'Gaming News', value: 'Gaming News' },
-							{ name: 'Game Reviews', value: 'Reviews' },
-							{ name: 'Game Deals', value: 'Deals' },
-							{ name: 'Free Games', value: 'Free Games' },
-							{ name: 'Xbox', value: 'Xbox' },
-							{ name: 'PlayStation', value: 'PlayStation' },
-							{ name: 'Nintendo', value: 'Nintendo' },
+							{ name: 'NSFW', value: WebhookCategory.Nsfw },
+							{ name: 'Memes', value: WebhookCategory.Memes },
+							{ name: 'Anime', value: WebhookCategory.Anime },
+							{ name: 'Manga', value: WebhookCategory.Manga },
+							{ name: 'World News', value: WebhookCategory.WorldNews },
+							{ name: 'Portugal News', value: WebhookCategory.PortugalNews },
+							{ name: 'Gaming News', value: WebhookCategory.GamingNews },
+							{ name: 'Game Reviews', value: WebhookCategory.Reviews },
+							{ name: 'Game Deals', value: WebhookCategory.Deals },
+							{ name: 'Free Games', value: WebhookCategory.FreeGames },
+							{ name: 'Xbox', value: WebhookCategory.Xbox },
+							{ name: 'PlayStation', value: WebhookCategory.PlayStation },
+							{ name: 'Nintendo', value: WebhookCategory.Nintendo },
 						),
 				),
 		),
@@ -84,27 +85,27 @@ export const execute: CommandExecute = async ({ interaction }) => {
 };
 
 const createWebhook = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getString('category', true) as WebhookCategory;
+	const category = interaction.options.getInteger('category', true) as WebhookCategory;
 	const channel = interaction.options.getChannel('channel', true) as GuildBasedChannel;
 
 	if (channel.type !== ChannelType.GuildText) throw new Error('Webhooks can only be assigned to text channels.');
 
-	await Webhooks.create(interaction.guild.id, channel, category);
+	await Webhooks.createWebhook(interaction.guild.id, channel, category);
 
 	const embed = new EmbedBuilder()
-		.setTitle(`${Webhooks.getWebhookNameFromCategory(category)} webhook has been assigned to ${channel.name}.`)
+		.setTitle(`${Webhooks.getWebhookName(category)} webhook has been assigned to ${channel.name}.`)
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });
 };
 
 const deleteWebhook = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getString('category', true) as WebhookCategory;
+	const category = interaction.options.getInteger('category', true) as WebhookCategory;
 
-	await Webhooks.remove(interaction.client, interaction.guild.id, category);
+	await Webhooks.deleteWebhook(interaction.client, interaction.guild.id, category);
 
 	const embed = new EmbedBuilder()
-		.setTitle(`${Webhooks.getWebhookNameFromCategory(category)} webhook has been deleted.`)
+		.setTitle(`${Webhooks.getWebhookName(category)} webhook has been deleted.`)
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });

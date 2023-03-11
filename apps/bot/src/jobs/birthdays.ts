@@ -1,9 +1,9 @@
-import type { JobData } from '../types/bot';
-import type { Bot } from '../structures/bot';
+import { BirthdaysModel, MessageCategory, SettingsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
+
 import * as Birthdays from '../services/birthdays';
-import { birthdaysModel } from '../database/models/birthdays';
-import { settingsModel } from '../database/models/settings';
+import type { Bot } from '../structures/bot';
+import type { JobData } from '../types/bot';
 import { JobName } from '../types/enums';
 
 export const data: JobData = {
@@ -12,7 +12,7 @@ export const data: JobData = {
 };
 
 export const execute = async (client: Bot) => {
-	const birthdays = await birthdaysModel.find();
+	const birthdays = await BirthdaysModel.getBirthdays();
 	for (const [guildId, guild] of client.guilds.cache) {
 		for (const birthday of birthdays) {
 			const currentDate = new Date();
@@ -24,12 +24,12 @@ export const execute = async (client: Bot) => {
 
 			if (currentDate.getTime() !== birthdayDate.getTime()) continue;
 
-			const settings = await settingsModel.findOne({ guildId });
-			const channelId = settings?.birthdays.channelId;
+			const settings = await SettingsModel.getSettingsByGuildId(guildId);
+			const channelId = settings?.messages[MessageCategory.Birthdays].channelId;
 			if (!channelId) continue;
 
 			try {
-				await Birthdays.send(guild, channelId, birthday.userId, birthday.date);
+				await Birthdays.sendBirthdayMessage(guild, channelId, birthday.userId, birthday.date);
 				logger.info(`Job **${data.name}** notified channelId **${channelId}** in guild **${guild.name}**.`);
 			} catch (error) {
 				const { message } = error as Error;

@@ -1,9 +1,11 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
+import { WebhookCategory } from '@luferro/database';
 import type { DealsCategory } from '@luferro/games-api';
-import { EmbedBuilder } from 'discord.js';
 import { DealsApi } from '@luferro/games-api';
 import { StringUtil } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
+
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -37,7 +39,8 @@ const handleDiscountedDeals = async (client: Bot, category: Extract<DealsCategor
 
 		if (category === 'Paid Games' && coupon) embed.addFields([{ name: 'Store coupon', value: `*${coupon}*` }]);
 
-		await client.sendWebhookMessageToGuilds(category === 'Free Games' ? 'Free Games' : 'Deals', embed);
+		const webhookCategory = WebhookCategory[category === 'Free Games' ? 'FreeGames' : 'Deals'];
+		await client.sendWebhookMessageToGuilds(webhookCategory, embed);
 	}
 };
 
@@ -55,5 +58,6 @@ const handleBlogPosts = async (client: Bot, category: Extract<DealsCategory, 'Bu
 		.setDescription(lead ?? 'N/A')
 		.setColor('Random');
 
-	await client.sendWebhookMessageToGuilds(category === 'Prime Gaming' ? 'Free Games' : 'Deals', embed);
+	const webhookCategory = WebhookCategory[category === 'Prime Gaming' ? 'FreeGames' : 'Deals'];
+	await client.sendWebhookMessageToGuilds(webhookCategory, embed);
 };

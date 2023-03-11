@@ -1,6 +1,7 @@
-import type { NintendoResponse } from '../types/response';
 import { FetchUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
+
+import type { NintendoResponse } from '../types/response';
 
 export const getLatestNintendoNews = async () => {
 	const data = await FetchUtil.fetch<string>({ url: 'https://www.nintendo.com/whatsnew/' });

@@ -1,8 +1,9 @@
-import type { CommandData, CommandExecute } from '../types/bot';
+import { StringUtil } from '@luferro/shared-utils';
 import type { TheMovieDbCategory } from '@luferro/the-movie-db-api';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { StringUtil } from '@luferro/shared-utils';
+
 import * as Subscriptions from '../services/subscriptions';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
 
 export const data: CommandData = {

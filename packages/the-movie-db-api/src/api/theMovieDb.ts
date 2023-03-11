@@ -1,7 +1,8 @@
+import { ConverterUtil, FetchUtil, UrlUtil } from '@luferro/shared-utils';
+import { load } from 'cheerio';
+
 import type { ProviderCategory, TheMovieDbCategory } from '../types/category';
 import type { MovieResponse, ProvidersResponse, SearchResponse, SeriesResponse } from '../types/response';
-import { FetchUtil, ConverterUtil, UrlUtil } from '@luferro/shared-utils';
-import { load } from 'cheerio';
 
 let API_KEY: string;
 

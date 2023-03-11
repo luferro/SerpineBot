@@ -1,6 +1,7 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { JokeCategory, JokesApi } from '@luferro/jokes-api';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
 
 export const data: CommandData = {

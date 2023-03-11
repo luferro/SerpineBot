@@ -1,10 +1,12 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookCategory } from '@luferro/database';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
-import { JobName } from '../../types/enums';
+import { EmbedBuilder } from 'discord.js';
+
 import { config } from '../../config/environment';
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
+import { JobName } from '../../types/enums';
 
 export const data: JobData = {
 	name: JobName.Nsfw,
@@ -35,7 +37,7 @@ export const execute = async (client: Bot) => {
 							.setImage(nsfwUrl)
 							.setColor('Random');
 
-			await client.sendWebhookMessageToGuilds('Nsfw', message);
+			await client.sendWebhookMessageToGuilds(WebhookCategory.Nsfw, message);
 		}
 	}
 };

@@ -1,6 +1,7 @@
-import { FetchUtil, ConverterUtil } from '@luferro/shared-utils';
 import { GoogleSearchApi } from '@luferro/google-api';
+import { ConverterUtil,FetchUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
+
 import type { HowLongToBeatResponse } from '../types/response';
 
 export const search = async (title: string) => {

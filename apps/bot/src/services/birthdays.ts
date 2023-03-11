@@ -1,20 +1,17 @@
-import type { Client, Guild } from 'discord.js';
+import { BirthdaysModel } from '@luferro/database';
+import { DateUtil } from '@luferro/shared-utils';
 import { TenorApi } from '@luferro/tenor-api';
-import { birthdaysModel } from '../database/models/birthdays';
+import type { Client, Guild } from 'discord.js';
 
-export const create = async (userId: string, date: string) => {
-	const isValid = Date.parse(date);
+export const createBirthday = async (userId: string, date: string) => {
+	const isValid = DateUtil.isValidDate(date);
 	if (!isValid) throw new Error('Invalid date.');
 
-	await birthdaysModel.updateOne({ userId }, { $set: { date } }, { upsert: true });
-};
-
-export const remove = async (userId: string) => {
-	await birthdaysModel.deleteOne({ userId });
+	await BirthdaysModel.createOrUpdateBirthday(userId, date);
 };
 
 export const getBirthdays = async (client: Client) => {
-	const birthdays = await birthdaysModel.find();
+	const birthdays = await BirthdaysModel.getBirthdays();
 
 	return Promise.all(
 		birthdays.map(async ({ userId, date }) => {
@@ -29,7 +26,11 @@ export const getBirthdays = async (client: Client) => {
 	);
 };
 
-export const send = async (guild: Guild, channelId: string, userId: string, birthday: string) => {
+export const deleteBirthday = async (userId: string) => {
+	await BirthdaysModel.deleteBirthdayById(userId);
+};
+
+export const sendBirthdayMessage = async (guild: Guild, channelId: string, userId: string, birthday: string) => {
 	const target = await guild.members.fetch(userId);
 	if (!target) throw new Error(`Cannot find userId ${userId} in guild ${guild.name}.`);
 

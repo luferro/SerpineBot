@@ -1,7 +1,8 @@
-import { marked } from 'marked';
 import parse from 'html-react-parser';
-import styles from '../styles/Home.module.css';
+import { marked } from 'marked';
 import { useEffect, useState } from 'react';
+
+import styles from '../styles/Home.module.css';
 
 interface Props {
 	author: {

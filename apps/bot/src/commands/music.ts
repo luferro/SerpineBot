@@ -1,12 +1,13 @@
-import type { Bot } from '../structures/bot';
-import type { CommandData, CommandExecute } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction, ExtendedStringSelectMenuInteraction } from '../types/interaction';
+import { randomUUID } from 'crypto';
 import { StringSelectMenuBuilder } from 'discord.js';
 import { ActionRowBuilder, ComponentType, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import * as Music from '../services/music';
-import { CommandName } from '../types/enums';
-import { randomUUID } from 'crypto';
 import { Playlist, QueueRepeatMode, Track } from 'discord-player';
+
+import * as Music from '../services/music';
+import type { Bot } from '../structures/bot';
+import type { CommandData, CommandExecute } from '../types/bot';
+import { CommandName } from '../types/enums';
+import type { ExtendedChatInputCommandInteraction, ExtendedStringSelectMenuInteraction } from '../types/interaction';
 
 export const data: CommandData = {
 	name: CommandName.Music,

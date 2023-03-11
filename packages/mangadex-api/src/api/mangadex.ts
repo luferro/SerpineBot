@@ -1,5 +1,6 @@
-import type { Chapter, Manga, MangadexResponse, SearchResult } from '../types/response';
 import { FetchUtil } from '@luferro/shared-utils';
+
+import type { Chapter, Manga, MangadexResponse, SearchResult } from '../types/response';
 
 export const search = async (title: string) => {
 	const data = await FetchUtil.fetch<MangadexResponse<SearchResult>>({

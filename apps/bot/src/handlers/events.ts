@@ -1,9 +1,10 @@
-import type { Event } from '../types/bot';
-import path from 'path';
-import { Bot } from '../structures/bot';
 import { FileUtil, logger } from '@luferro/shared-utils';
+import path from 'path';
 
-export const register = async () => {
+import { Bot } from '../structures/bot';
+import type { Event } from '../types/bot';
+
+export const registerEvents = async () => {
 	const files = FileUtil.getFiles(path.resolve(__dirname, '../events'));
 	for (const file of files) {
 		const event: Event = await import(`../events/${file}`);

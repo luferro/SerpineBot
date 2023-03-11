@@ -1,6 +1,7 @@
-import type { CommandData, CommandExecute } from '../types/bot';
 import { ChannelType } from 'discord.js';
 import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
 
 export const data: CommandData = {

@@ -1,7 +1,8 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { DealsApi } from '@luferro/games-api';
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+
 import * as Subscriptions from '../services/subscriptions';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
 
 export const data: CommandData = {

@@ -1,14 +1,15 @@
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
-import type { CommandData, CommandExecute } from '../types/bot';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+
 import * as Birthdays from '../services/birthdays';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 
 export const data: CommandData = {
 	name: CommandName.Birthdays,
 	slashCommand: new SlashCommandBuilder()
 		.setName(CommandName.Birthdays)
-		.setDescription('Birthday related commands.')
+		.setDescription('Birthday commands.')
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('create')
@@ -23,7 +24,7 @@ export const data: CommandData = {
 					option.setName('year').setDescription('Year of your birthday.').setRequired(true),
 				),
 		)
-		.addSubcommand((subcommand) => subcommand.setName('list').setDescription('Returns a list of birthdays.'))
+		.addSubcommand((subcommand) => subcommand.setName('list').setDescription('Lists all registered birthdays.'))
 		.addSubcommand((subcommand) => subcommand.setName('delete').setDescription('Delete your birthday entry.')),
 };
 
@@ -35,7 +36,6 @@ export const execute: CommandExecute = async ({ interaction }) => {
 		list: getBirthdays,
 		delete: deleteBirthday,
 	};
-
 	await select[subcommand](interaction);
 };
 
@@ -44,7 +44,7 @@ const createBirthday = async (interaction: ExtendedChatInputCommandInteraction) 
 	const month = interaction.options.getInteger('month', true);
 	const year = interaction.options.getInteger('year', true);
 
-	await Birthdays.create(interaction.user.id, `${year}-${month}-${day}`);
+	await Birthdays.createBirthday(interaction.user.id, `${year}-${month}-${day}`);
 	const embed = new EmbedBuilder().setTitle(`Your birthday has been registered.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
@@ -54,10 +54,10 @@ const getBirthdays = async (interaction: ExtendedChatInputCommandInteraction) =>
 	if (birthdays.length === 0) throw new Error('No birthdays have been registered.');
 
 	const sortedBirthdays = birthdays.sort((a, b) => {
-		const date = new Date();
 		const { 0: firstDateDay, 1: firstDateMonth } = a.birthday.split('/');
 		const { 0: secondDateDay, 1: secondDateMonth } = b.birthday.split('/');
 
+		const date = new Date();
 		const firstDate = new Date(date.getFullYear(), Number(firstDateMonth) - 1, Number(firstDateDay));
 		const secondDate = new Date(date.getFullYear(), Number(secondDateMonth) - 1, Number(secondDateDay));
 
@@ -70,7 +70,7 @@ const getBirthdays = async (interaction: ExtendedChatInputCommandInteraction) =>
 };
 
 const deleteBirthday = async (interaction: ExtendedChatInputCommandInteraction) => {
-	await Birthdays.remove(interaction.user.id);
+	await Birthdays.deleteBirthday(interaction.user.id);
 	const embed = new EmbedBuilder().setTitle('Your birthday has been deleted.').setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

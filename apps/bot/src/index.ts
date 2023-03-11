@@ -1,5 +1,7 @@
 import 'dotenv/config';
+
 import { GatewayIntentBits } from 'discord.js';
+
 import { Bot } from './structures/bot';
 
 (async () => {

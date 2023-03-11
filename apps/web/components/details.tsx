@@ -1,6 +1,7 @@
 import { Text } from '@mantine/core';
-import { marked } from 'marked';
 import parse from 'html-react-parser';
+import { marked } from 'marked';
+
 import styles from '../styles/Home.module.css';
 
 interface Props {

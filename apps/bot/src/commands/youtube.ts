@@ -1,6 +1,7 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import { SlashCommandBuilder } from 'discord.js';
 import { YoutubeApi } from '@luferro/google-api';
+import { SlashCommandBuilder } from 'discord.js';
+
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
 
 export const data: CommandData = {

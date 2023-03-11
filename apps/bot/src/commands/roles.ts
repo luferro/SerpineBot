@@ -1,9 +1,10 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { Role } from 'discord.js';
 import { EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+
 import * as Roles from '../services/roles';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 
 export const data: CommandData = {
 	name: CommandName.Roles,
@@ -60,8 +61,8 @@ export const data: CommandData = {
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
-				.setName('dissociate')
-				.setDescription('Dissociate a role from a guild member.')
+				.setName('unassign')
+				.setDescription('Unassign a role from a guild member.')
 				.addUserOption((option) => option.setName('user').setDescription('Guild user.').setRequired(true))
 				.addRoleOption((option) => option.setName('role').setDescription('Guild role.').setRequired(true)),
 		),
@@ -75,7 +76,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 		update: updateRole,
 		delete: deleteRole,
 		assign: assignRole,
-		dissociate: dissociateRole,
+		unassign: unassignRole,
 	};
 
 	await select[subcommand](interaction);
@@ -90,7 +91,7 @@ const createRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const isValidHexColor = color && /^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color);
 	if (!isValidHexColor) throw new Error('Invalid hexadecimal color.');
 
-	await Roles.create(interaction.guild, name, color ?? 'Default', Boolean(hoist), Boolean(mentionable));
+	await Roles.createRole(interaction.guild, name, color ?? 'Default', Boolean(hoist), Boolean(mentionable));
 	const embed = new EmbedBuilder().setTitle(`Role ${name} has been created.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
@@ -106,7 +107,7 @@ const updateRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const isValidHexColor = color && /^#(?:[0-9a-fA-F]{3}){1,2}$/g.test(color);
 	if (!isValidHexColor) throw new Error('Invalid hexadecimal color.');
 
-	await Roles.update(interaction.guild, role, name, color, hoist, mentionable, position);
+	await Roles.updateRole(interaction.guild, role, name, color, hoist, mentionable, position);
 	const embed = new EmbedBuilder().setTitle(`Role ${name} has been updated.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
@@ -114,7 +115,7 @@ const updateRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 const deleteRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const role = interaction.options.getRole('role', true) as Role;
 
-	await Roles.remove(role);
+	await Roles.deleteRole(role);
 	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been deleted.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
@@ -123,16 +124,16 @@ const assignRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const user = interaction.options.getUser('user', true);
 	const role = interaction.options.getRole('role', true) as Role;
 
-	await Roles.assign(interaction.guild, user.id, role);
+	await Roles.assignRole(interaction.guild, user.id, role);
 	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been added to ${user.tag}.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const dissociateRole = async (interaction: ExtendedChatInputCommandInteraction) => {
+const unassignRole = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const user = interaction.options.getUser('user', true);
 	const role = interaction.options.getRole('role', true) as Role;
 
-	await Roles.dissociate(interaction.guild, user.id, role);
+	await Roles.unassignRole(interaction.guild, user.id, role);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Role ${role.name} has been removed from ${user.tag}.`)

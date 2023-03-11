@@ -1,8 +1,10 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookCategory } from '@luferro/database';
 import { PlayStationApi } from '@luferro/games-api';
 import { StringUtil } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
+
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -21,7 +23,7 @@ export const execute = async (client: Bot) => {
 			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
 			embed[category === 'PlayStation Plus' ? 'setImage' : 'setThumbnail'](image);
 
-			await client.sendWebhookMessageToGuilds('PlayStation', embed);
+			await client.sendWebhookMessageToGuilds(WebhookCategory.PlayStation, embed);
 		}
 	}
 };

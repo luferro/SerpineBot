@@ -1,9 +1,10 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 import type { TimeUnit } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+
 import * as Reminders from '../services/reminders';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 
 export const data: CommandData = {
 	name: CommandName.Reminders,
@@ -65,7 +66,7 @@ const createReminder = async (interaction: ExtendedChatInputCommandInteraction) 
 	const unit = interaction.options.getString('unit', true) as Exclude<TimeUnit, 'Milliseconds'>;
 	const message = interaction.options.getString('message', true);
 
-	const { reminderId } = await Reminders.create(interaction.user.id, time, unit, message);
+	const { reminderId } = await Reminders.createReminder(interaction.user.id, time, unit, message);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`**Reminder Id:** ${reminderId}`)
@@ -78,7 +79,7 @@ const createReminder = async (interaction: ExtendedChatInputCommandInteraction) 
 const deleteReminder = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const reminderId = interaction.options.getString('reminder', true);
 
-	await Reminders.remove(reminderId);
+	await Reminders.deleteReminder(reminderId);
 	const embed = new EmbedBuilder().setTitle(`Reminder ${reminderId} has been deleted.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

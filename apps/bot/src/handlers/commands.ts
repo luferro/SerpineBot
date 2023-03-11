@@ -1,11 +1,12 @@
-import type { Command } from '../types/bot';
-import type { ApplicationCommandDataResolvable, Client } from 'discord.js';
-import path from 'path';
-import { Bot } from '../structures/bot';
 import { FileUtil, logger } from '@luferro/shared-utils';
-import { config } from '../config/environment';
+import type { Client, RESTPostAPIChatInputApplicationCommandsJSONBody } from 'discord.js';
+import path from 'path';
 
-export const register = async () => {
+import { config } from '../config/environment';
+import { Bot } from '../structures/bot';
+import type { Command } from '../types/bot';
+
+export const registerCommands = async () => {
 	const files = FileUtil.getFiles(path.resolve(__dirname, '../commands'));
 	for (const file of files) {
 		const command: Command = await import(`../commands/${file}`);
@@ -15,25 +16,25 @@ export const register = async () => {
 	logger.info(`Commands handler registered **${files.length}** command(s).`);
 };
 
-export const deploy = async (client: Client) => {
-	if (!client.application) throw new Error('Not a client application.');
+export const deployCommands = async (client: Client) => {
+	const commands = Bot.commands.map((command) => command.data.slashCommand.toJSON());
 
-	const commands = Bot.commands.map((command) =>
-		command.data.slashCommand.toJSON(),
-	) as ApplicationCommandDataResolvable[];
+	if (config.NODE_ENV !== 'PRODUCTION') return await deployGuildCommands(client, commands);
 
-	if (config.NODE_ENV === 'production') {
-		for (const { 1: guild } of client.guilds.cache) {
-			await guild.commands.set([]);
-		}
+	await deployGuildCommands(client, []);
+	await deployGlobalCommands(client, commands);
+};
 
-		const globalCommands = await client.application.commands.set(commands);
-		logger.info(`Commands handler deployed **${globalCommands.size}** slash command(s) globally.`);
-		return;
-	}
-
+const deployGuildCommands = async (client: Client, commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]) => {
 	for (const { 1: guild } of client.guilds.cache) {
 		const guildCommands = await guild.commands.set(commands);
+		if (guildCommands.size === 0) continue;
 		logger.info(`Commands handler deployed **${guildCommands.size}** slash command(s) to guild **${guild.name}**.`);
 	}
+};
+
+const deployGlobalCommands = async (client: Client, commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]) => {
+	if (!client.application) throw new Error('Not a client application.');
+	const globalCommands = await client.application.commands.set(commands);
+	logger.info(`Commands handler deployed **${globalCommands.size}** slash command(s) globally.`);
 };

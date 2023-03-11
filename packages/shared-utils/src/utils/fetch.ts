@@ -1,7 +1,8 @@
-import type { HttpMethod } from '../types/fetch';
-import undici from 'undici';
 import { HeaderGenerator } from 'header-generator';
+import undici from 'undici';
+
 import { FetchError } from '../errors/FetchError';
+import type { HttpMethod } from '../types/fetch';
 
 interface Request {
 	url: string | URL;
@@ -43,5 +44,5 @@ export const fetch = async <T>({ method = 'GET', url, body }: Request): Promise<
 export const fetchRedirectLocation = async ({ method = 'GET', url }: Pick<Request, 'url' | 'method'>) => {
 	const res = await undici.request(url, { method, headers: generateHeaders() });
 	res.body.dump();
-	return res.headers['location'] ?? null;
+	return res.headers['location'].toString() ?? null;
 };

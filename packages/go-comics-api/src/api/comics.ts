@@ -1,6 +1,7 @@
-import type { ComicSelection } from '../types/category';
 import { FetchUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
+
+import type { ComicSelection } from '../types/category';
 
 const ComicSelections = Object.freeze<Record<ComicSelection, string>>({
 	'Garfield': 'https://www.gocomics.com/random/garfield',

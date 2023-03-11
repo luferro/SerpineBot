@@ -1,9 +1,11 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookCategory } from '@luferro/database';
 import { Country, GNewsApi } from '@luferro/gnews-api';
+import { EmbedBuilder } from 'discord.js';
+
+import * as Webhook from '../../services/webhooks';
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
 import { JobName } from '../../types/enums';
-import type { WebhookCategory } from '../../types/category';
 
 export const data: JobData = {
 	name: JobName.BreakingNews,
@@ -17,9 +19,9 @@ export const execute = async (client: Bot) => {
 	].sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 
 	for (const { country, title, url, publisher, description, image, publishedAt } of news.reverse()) {
-		const category: WebhookCategory = country === Country.Portugal ? 'Portugal News' : 'World News';
+		const category = WebhookCategory[country === Country.Portugal ? 'PortugalNews' : 'WorldNews'];
 
-		const { isDuplicated } = await client.manageState(data.name, category, title, url);
+		const { isDuplicated } = await client.manageState(data.name, Webhook.getWebhookName(category), title, url);
 		if (isDuplicated) continue;
 
 		const embed = new EmbedBuilder()

@@ -1,7 +1,8 @@
-import type { XboxWireCategory } from '../types/category';
+import { YoutubeApi } from '@luferro/google-api';
 import { FetchUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
-import { YoutubeApi } from '@luferro/google-api';
+
+import type { XboxWireCategory } from '../types/category';
 
 const BlogCategories = Object.freeze<Record<XboxWireCategory, string>>({
 	'Game Pass': 'https://news.xbox.com/en-us/?s=Xbox+Game+Pass&search-category=news-stories',

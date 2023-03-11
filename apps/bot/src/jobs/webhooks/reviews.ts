@@ -1,8 +1,10 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
-import { EmbedBuilder } from 'discord.js';
-import { RedditApi } from '@luferro/reddit-api';
+import { WebhookCategory } from '@luferro/database';
 import { OpenCriticApi } from '@luferro/games-api';
+import { RedditApi } from '@luferro/reddit-api';
+import { EmbedBuilder } from 'discord.js';
+
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -65,6 +67,6 @@ export const execute = async (client: Bot) => {
 			])
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds('Reviews', embed);
+		await client.sendWebhookMessageToGuilds(WebhookCategory.Reviews, embed);
 	}
 };

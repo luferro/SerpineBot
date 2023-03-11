@@ -8,5 +8,5 @@ export * as NintendoApi from './api/nintendo';
 export * as OpenCriticApi from './api/opencritic';
 export * as PlayStationApi from './api/playstation';
 export * as SteamApi from './api/steam';
-export * as XboxApi from './api/xbox';
 export * as SubscriptionsApi from './api/subscriptions';
+export * as XboxApi from './api/xbox';

@@ -1,9 +1,11 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookCategory } from '@luferro/database';
 import { XboxApi } from '@luferro/games-api';
 import { YoutubeApi } from '@luferro/google-api';
 import { StringUtil } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
+
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -27,7 +29,7 @@ export const execute = async (client: Bot) => {
 				message[category === 'Game Pass' && /Game(.*?)Pass/gi.test(title) ? 'setImage' : 'setThumbnail'](image);
 			}
 
-			await client.sendWebhookMessageToGuilds('Xbox', message);
+			await client.sendWebhookMessageToGuilds(WebhookCategory.Xbox, message);
 		}
 	}
 };

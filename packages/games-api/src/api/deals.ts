@@ -1,6 +1,7 @@
-import type { DealsCategory } from '../types/category';
 import { FetchUtil, UrlUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
+
+import type { DealsCategory } from '../types/category';
 
 const BlogCategories = Object.freeze<Record<Exclude<DealsCategory, 'Free Games' | 'Paid Games'>, string>>({
 	'Sales': 'https://gg.deals/eu/news/deals/',

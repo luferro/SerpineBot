@@ -1,9 +1,11 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookCategory } from '@luferro/database';
 import { JikanApi } from '@luferro/jikan-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
+
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 enum Aggregator {
@@ -71,21 +73,19 @@ export const execute = async (client: Bot) => {
 			])
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds('Anime', embed);
+		await client.sendWebhookMessageToGuilds(WebhookCategory.Anime, embed);
 	}
 };
 
 const getIdFromAggregator = (aggregatorsList: string[], selectedAggregator: Aggregator) => {
-	const myAnimeList = aggregatorsList.find((aggregator) => aggregator.includes(selectedAggregator));
-	return myAnimeList?.match(/\((.*?)\)/g)?.[0].match(/\d+/g)?.[0] ?? null;
+	const aggregator = aggregatorsList.find((aggregator) => aggregator.includes(selectedAggregator));
+	return aggregator?.match(/\((.*?)\)/g)?.[0].match(/\d+/g)?.[0] ?? null;
 };
 
 const findSelftextMatches = (selftext: string | null, array: [string, Aggregator | Stream][]) => {
-	if (!selftext) return [];
-
 	return array
 		.map(([key, value]) => {
-			const stream = selftext.split('\n').find((text) => text.includes(value));
+			const stream = selftext?.split('\n').find((text) => text.includes(value));
 			if (!stream) return;
 
 			return `> **[${key}](${stream.match(/(?<=\()(.*)(?=\))/g)![0]})**`;

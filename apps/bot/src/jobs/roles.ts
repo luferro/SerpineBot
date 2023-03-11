@@ -1,10 +1,12 @@
-import type { JobData } from '../types/bot';
-import type { ExtendedStringSelectMenuInteraction } from '../types/interaction';
+import { MessageCategory, SettingsModel, WebhookCategory } from '@luferro/database';
+import { logger } from '@luferro/shared-utils';
 import { Client, Collection, Guild, GuildMember, Message, StringSelectMenuBuilder, TextBasedChannel } from 'discord.js';
 import { ActionRowBuilder, EmbedBuilder } from 'discord.js';
-import { logger } from '@luferro/shared-utils';
-import { settingsModel } from '../database/models/settings';
+
+import * as Webhook from '../services/webhooks';
+import type { JobData } from '../types/bot';
 import { JobName } from '../types/enums';
+import type { ExtendedStringSelectMenuInteraction } from '../types/interaction';
 
 export const data: JobData = {
 	name: JobName.Roles,
@@ -13,15 +15,16 @@ export const data: JobData = {
 
 export const execute = async (client: Client) => {
 	for (const [guildId, guild] of client.guilds.cache) {
-		const settings = await settingsModel.findOne({ guildId });
+		const settings = await SettingsModel.getSettingsByGuildId(guildId);
 
-		const channelId = settings?.roles.channelId;
+		const channelId = settings?.messages[MessageCategory.Roles].channelId;
 		if (!channelId) continue;
 
 		const channel = await client.channels.fetch(channelId);
 		if (!channel?.isTextBased()) continue;
 
-		await createOrUpdateRoleSelectMenuMessage(guild, channel, settings.roles.options);
+		const options = settings?.messages[MessageCategory.Roles].options;
+		await createOrUpdateRoleSelectMenuMessage(guild, channel, options ?? []);
 
 		logger.info(`Job **${data.name}** sent a message to channelId **${channelId}** in guild **${guild.name}**.`);
 	}
@@ -77,7 +80,7 @@ const assignRole = (guild: Guild, member: GuildMember, options: string[]) => {
 
 		const restrictionsRole = guild.roles.cache.find(({ name }) => name === 'Restrictions');
 		const userHasRestrictionTole = restrictionsRole && member.roles.cache.has(restrictionsRole.id);
-		if (userHasRestrictionTole && role.name === 'NSFW') {
+		if (userHasRestrictionTole && role.name === Webhook.getWebhookName(WebhookCategory.Nsfw)) {
 			restricted.push(role.name);
 			continue;
 		}
@@ -92,11 +95,7 @@ const assignRole = (guild: Guild, member: GuildMember, options: string[]) => {
 		revoked.push(role.name);
 	}
 
-	return {
-		granted,
-		revoked,
-		restricted,
-	};
+	return { granted, revoked, restricted };
 };
 
 export const handleRolesUpdate = async (interaction: ExtendedStringSelectMenuInteraction) => {

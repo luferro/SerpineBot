@@ -1,22 +1,21 @@
-import type { Command, Event, Job } from '../types/bot';
-import type { CommandName, EventName, JobName } from '../types/enums';
-import type { WebhookCategory } from '../types/category';
+import { Connector, StateModel, WebhookCategory } from '@luferro/database';
+import { SteamApi } from '@luferro/games-api';
+import { GNewsApi } from '@luferro/gnews-api';
+import { FetchError, logger, SleepUtil } from '@luferro/shared-utils';
+import { TenorApi } from '@luferro/tenor-api';
+import { TheMovieDbApi } from '@luferro/the-movie-db-api';
+import { CronJob } from 'cron';
 import { ClientOptions, DiscordAPIError } from 'discord.js';
 import { Client, Collection, EmbedBuilder } from 'discord.js';
 import { Player } from 'discord-player';
-import { CronJob } from 'cron';
-import { TenorApi } from '@luferro/tenor-api';
-import { SteamApi } from '@luferro/games-api';
-import { TheMovieDbApi } from '@luferro/the-movie-db-api';
-import { GNewsApi } from '@luferro/gnews-api';
-import { FetchError, logger, SleepUtil } from '@luferro/shared-utils';
-import * as Database from '../database/database';
-import * as JobsHandler from '../handlers/jobs';
-import * as EventsHandler from '../handlers/events';
-import * as CommandsHandler from '../handlers/commands';
-import * as Webhooks from '../services/webhooks';
-import { stateModel } from '../database/models/state';
+
 import { config } from '../config/environment';
+import * as CommandsHandler from '../handlers/commands';
+import * as EventsHandler from '../handlers/events';
+import * as JobsHandler from '../handlers/jobs';
+import * as Webhooks from '../services/webhooks';
+import type { Command, Event, Job } from '../types/bot';
+import type { CommandName, EventName, JobName } from '../types/enums';
 
 export class Bot extends Client {
 	public player: Player;
@@ -27,20 +26,19 @@ export class Bot extends Client {
 
 	constructor(options: ClientOptions) {
 		super(options);
-		this.player = this.initializePlayer();
+		this.login(config.BOT_TOKEN);
 		this.setApiTokens();
+		this.player = this.initializePlayer();
 	}
 
 	public start = async () => {
-		logger.info('Starting SerpineBot.');
+		logger.info(`Starting SerpineBot in **${config.NODE_ENV}**.`);
 
 		try {
-			await this.login(config.BOT_TOKEN);
-
-			await Database.connect();
-			await JobsHandler.register();
-			await EventsHandler.register();
-			await CommandsHandler.register();
+			await Connector.connect(config.MONGO_URI);
+			await JobsHandler.registerJobs();
+			await EventsHandler.registerEvents();
+			await CommandsHandler.registerCommands();
 
 			this.initializeListeners();
 			this.initializeSchedulers();
@@ -56,18 +54,12 @@ export class Bot extends Client {
 	public manageState = async (jobName: JobName, category: string | null, title: string, url: string) => {
 		await SleepUtil.sleep(5000);
 
-		const state = await stateModel.findOne({ jobName: jobName.toUpperCase() });
+		const state = await StateModel.getStateByJobName(jobName);
 		const lookup = category ?? 'default';
 		const entries = state?.entries.get(lookup) ?? [];
 
 		const hasEntry = entries.some((entry) => entry.title === title || entry.url === url);
-		if (!hasEntry) {
-			await stateModel.updateOne(
-				{ jobName: jobName.toUpperCase() },
-				{ $set: { [`entries.${lookup}`]: entries.concat({ title, url }).slice(-100) } },
-				{ upsert: true },
-			);
-		}
+		if (!hasEntry) await StateModel.createOrUpdateState(jobName, lookup, entries.concat({ title, url }));
 
 		return { isDuplicated: hasEntry };
 	};
@@ -83,7 +75,7 @@ export class Bot extends Client {
 
 	public stop = () => {
 		logger.info('Stopping SerpineBot.');
-		Database.disconnect();
+		Connector.disconnect();
 		process.exit(1);
 	};
 

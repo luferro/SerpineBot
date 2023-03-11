@@ -1,8 +1,9 @@
+import { logger, StringUtil } from '@luferro/shared-utils';
 import type { BrowserContext, Route } from 'playwright-chromium';
+import { chromium } from 'playwright-chromium';
+
 import type { CatalogCategory, EaPlayCategory, GamePassCategory } from '../types/category';
 import type { SubscriptionCatalogEntry, SubscriptionCatalogResponse } from '../types/response';
-import { logger, StringUtil } from '@luferro/shared-utils';
-import { chromium } from 'playwright-chromium';
 
 const cache = new Map<CatalogCategory, SubscriptionCatalogEntry[]>();
 

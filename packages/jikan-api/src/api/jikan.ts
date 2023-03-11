@@ -1,5 +1,6 @@
-import type { JikanResponse } from '../types/response';
 import { FetchUtil } from '@luferro/shared-utils';
+
+import type { JikanResponse } from '../types/response';
 
 export const getAnimeById = async (id: string) => {
 	const {

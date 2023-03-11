@@ -1,6 +1,7 @@
-import type { PlayStationBlogCategory } from '../types/category';
 import { FetchUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
+
+import type { PlayStationBlogCategory } from '../types/category';
 
 const BlogCategories = Object.freeze<Record<PlayStationBlogCategory, string>>({
 	'PlayStation Plus': 'https://blog.playstation.com/tag/playstation-plus/',

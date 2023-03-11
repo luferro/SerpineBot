@@ -1,13 +1,11 @@
-import type { JobData } from '../types/bot';
-import type { Bot } from '../structures/bot';
-import type { IntegrationCategory } from '../types/category';
-import { EmbedBuilder } from 'discord.js';
-import { logger, SleepUtil } from '@luferro/shared-utils';
+import { IntegrationCategory, IntegrationsModel, MessageCategory, SettingsModel } from '@luferro/database';
 import { XboxApi } from '@luferro/games-api';
+import { EnumUtil, logger, SleepUtil } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
+
 import * as Leaderboards from '../services/leaderboards';
-import { settingsModel } from '../database/models/settings';
-import { steamModel } from '../database/models/steam';
-import { xboxModel } from '../database/models/xbox';
+import type { Bot } from '../structures/bot';
+import type { JobData } from '../types/bot';
 import { JobName } from '../types/enums';
 
 export const data: JobData = {
@@ -16,22 +14,16 @@ export const data: JobData = {
 };
 
 export const execute = async (client: Bot) => {
-	const categories: IntegrationCategory[] = ['Steam', 'Xbox'];
 	const leaderboards = await getLeaderboards(client);
 
 	for (const [guildId, guild] of client.guilds.cache) {
-		const settings = await settingsModel.findOne({ guildId });
+		const settings = await SettingsModel.getSettingsByGuildId(guildId);
 
-		const channels: Record<IntegrationCategory, string | null> = {
-			Steam: settings?.leaderboards.steam.channelId ?? null,
-			Xbox: settings?.leaderboards.xbox.channelId ?? null,
-		};
-
-		for (const category of categories) {
+		for (const category of EnumUtil.enumKeysToArray(IntegrationCategory)) {
 			const leaderboard = leaderboards[category];
 			if (!leaderboard || leaderboard.length === 0) continue;
 
-			const channelId = channels[category];
+			const channelId = settings?.messages[MessageCategory.Leaderboards].channelId;
 			if (!channelId) continue;
 
 			const channel = await client.channels.fetch(channelId);
@@ -69,12 +61,12 @@ const getLeaderboards = async (client: Bot) => {
 };
 
 const resetLeaderboards = async () => {
-	await steamModel.updateMany({}, { $set: { 'recentlyPlayed.$[].weeklyHours': 0 } });
+	await IntegrationsModel.resetWeeklyHours();
 
-	const integrations = await xboxModel.find();
+	const integrations = await IntegrationsModel.getIntegrations(IntegrationCategory.Xbox);
 	for (const integration of integrations) {
 		const { gamerscore } = await XboxApi.getProfile(integration.profile.gamertag);
-		await xboxModel.updateOne({ userId: integration.userId }, { $set: { 'profile.gamerscore': gamerscore } });
+		await IntegrationsModel.updateGamerscore(integration.userId, gamerscore);
 		await SleepUtil.sleep(5000);
 	}
 };

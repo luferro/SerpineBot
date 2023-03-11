@@ -1,9 +1,10 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
-import type { IntegrationCategory } from '../types/category';
+import { IntegrationCategory } from '@luferro/database';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+
 import * as Integrations from '../services/integrations';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 
 export const data: CommandData = {
 	name: CommandName.Integrations,
@@ -14,54 +15,44 @@ export const data: CommandData = {
 			subcommand
 				.setName('import')
 				.setDescription('Adds an integration.')
-				.addStringOption((option) =>
+				.addNumberOption((option) =>
 					option
 						.setName('category')
 						.setDescription('Integration category.')
 						.setRequired(true)
-						.addChoices({ name: 'Steam', value: 'Steam' }, { name: 'Xbox', value: 'Xbox' }),
+						.addChoices(
+							{ name: 'Steam', value: IntegrationCategory.Steam },
+							{ name: 'Xbox', value: IntegrationCategory.Xbox },
+						),
 				)
 				.addStringOption((option) =>
 					option.setName('account').setDescription('Steam profile url or Xbox gamertag.').setRequired(true),
 				),
 		)
 		.addSubcommand((subcommand) =>
-			subcommand
-				.setName('sync')
-				.setDescription('Synchronizes an integration manually.')
-				.addStringOption((option) =>
-					option
-						.setName('category')
-						.setDescription('Integration category.')
-						.setRequired(true)
-						.addChoices({ name: 'Steam', value: 'Steam' }),
-				),
+			subcommand.setName('sync').setDescription('Manually synchronizes a Steam integration.'),
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('delete')
 				.setDescription('Deletes an integration.')
-				.addStringOption((option) =>
+				.addNumberOption((option) =>
 					option
 						.setName('category')
 						.setDescription('Integration category.')
 						.setRequired(true)
-						.addChoices({ name: 'Steam', value: 'Steam' }, { name: 'Xbox', value: 'Xbox' }),
+						.addChoices(
+							{ name: 'Steam', value: IntegrationCategory.Steam },
+							{ name: 'Xbox', value: IntegrationCategory.Xbox },
+						),
 				),
 		)
 		.addSubcommand((subcommand) =>
 			subcommand
 				.setName('notifications')
-				.setDescription('Turns an integration notifications on or off.')
-				.addStringOption((option) =>
-					option
-						.setName('category')
-						.setDescription('Integration category.')
-						.setRequired(true)
-						.addChoices({ name: 'Steam', value: 'Steam' }),
-				)
+				.setDescription('Toggles notifications on or off for Steam integrations.')
 				.addBooleanOption((option) =>
-					option.setName('option').setDescription('Option as a boolean.').setRequired(true),
+					option.setName('toggle').setDescription('Notifications toggle.').setRequired(true),
 				),
 		),
 };
@@ -73,46 +64,43 @@ export const execute: CommandExecute = async ({ interaction }) => {
 		sync: syncIntegration,
 		import: addIntegration,
 		delete: deleteIntegration,
-		notifications: integrationNotifications,
+		notifications: toggleNotifications,
 	};
 
 	await select[subcommand](interaction);
 };
 
 const addIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getString('category', true) as IntegrationCategory;
+	const category = interaction.options.getNumber('category', true) as IntegrationCategory;
 	const account = interaction.options.getString('account', true);
 
-	await Integrations.create(category, interaction.user.id, account);
+	await Integrations.createIntegration(category, interaction.user.id, account);
 	const embed = new EmbedBuilder().setTitle(`${category} account imported successfully.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
 const syncIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getString('category', true) as Exclude<IntegrationCategory, 'Xbox'>;
-
-	await Integrations.sync(category, interaction.user.id);
-	const embed = new EmbedBuilder().setTitle(`${category} integration synced successfully.`).setColor('Random');
+	await Integrations.syncIntegration(IntegrationCategory.Steam, interaction.user.id);
+	const embed = new EmbedBuilder().setTitle('Steam integration synced successfully.').setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
-const integrationNotifications = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getString('category', true) as Exclude<IntegrationCategory, 'Xbox'>;
-	const option = interaction.options.getBoolean('option', true);
+const toggleNotifications = async (interaction: ExtendedChatInputCommandInteraction) => {
+	const toggle = interaction.options.getBoolean('toggle', true);
 
-	await Integrations.notifications(category, interaction.user.id, option);
+	await Integrations.toggleNotifications(IntegrationCategory.Steam, interaction.user.id, toggle);
 
 	const embed = new EmbedBuilder()
-		.setTitle(`${category} integration notifications have been turned ${option ? 'on' : 'off'}.`)
+		.setTitle(`Steam integration notifications have been turned ${toggle ? 'on' : 'off'}.`)
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
 
 const deleteIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getString('category', true) as IntegrationCategory;
+	const category = interaction.options.getNumber('category', true) as IntegrationCategory;
 
-	await Integrations.remove(category, interaction.user.id);
+	await Integrations.deleteIntegration(category, interaction.user.id);
 	const embed = new EmbedBuilder().setTitle(`${category} integration deleted successfully.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

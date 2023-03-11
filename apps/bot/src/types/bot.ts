@@ -1,8 +1,9 @@
+import type { SteamWishlistEntry } from '@luferro/database';
 import type { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from 'discord.js';
+
 import type { Bot } from '../structures/bot';
 import type { CommandName, EventName, JobName } from './enums';
 import type { ExtendedChatInputCommandInteraction } from './interaction';
-import type { SteamWishlistItem } from './schemas';
 
 export interface CommandData {
 	name: CommandName;
@@ -48,7 +49,7 @@ export interface Job {
 	execute: JobExecute;
 }
 
-export interface SteamAlert extends SteamWishlistItem {
+export interface SteamAlert extends SteamWishlistEntry {
 	addedTo?: string[];
 	removedFrom?: string[];
 }

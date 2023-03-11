@@ -1,6 +1,7 @@
+import { FetchUtil, StringUtil } from '@luferro/shared-utils';
+
 import type { Country } from '../types/news';
 import type { Article, NewsResponse } from '../types/response';
-import { FetchUtil, StringUtil } from '@luferro/shared-utils';
 
 let API_KEY: string;
 

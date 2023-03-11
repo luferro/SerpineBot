@@ -1,11 +1,12 @@
-import type { CommandData, CommandExecute } from '../types/bot';
-import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
+import { IntegrationCategory, IntegrationsModel } from '@luferro/database';
+import { XboxApi } from '@luferro/games-api';
 import type { GuildMember } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { XboxApi } from '@luferro/games-api';
+
 import * as Leaderboards from '../services/leaderboards';
+import type { CommandData, CommandExecute } from '../types/bot';
 import { CommandName } from '../types/enums';
-import { xboxModel } from '../database/models/xbox';
+import type { ExtendedChatInputCommandInteraction } from '../types/interaction';
 
 export const data: CommandData = {
 	name: CommandName.Xbox,
@@ -91,11 +92,10 @@ const getLeaderboard = async (interaction: ExtendedChatInputCommandInteraction) 
 
 const getProfile = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
+
 	const userId = mention?.user.id ?? interaction.user.id;
-
-	const integration = await xboxModel.findOne({ userId });
-	if (!integration) throw new Error('No Xbox integration is in place.');
-
+	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, IntegrationCategory.Xbox);
+	const integration = await IntegrationsModel.getIntegrationByUserId(userId, IntegrationCategory.Xbox);
 	const { name, image, gamerscore, gamesPlayed } = await XboxApi.getProfile(integration.profile.gamertag);
 
 	const embed = new EmbedBuilder()

@@ -1,7 +1,8 @@
-import type { Bot } from '../structures/bot';
+import { ConverterUtil } from '@luferro/shared-utils';
 import type { GuildMember, User, VoiceBasedChannel } from 'discord.js';
 import { QueryType, QueueRepeatMode, Track } from 'discord-player';
-import { ConverterUtil } from '@luferro/shared-utils';
+
+import type { Bot } from '../structures/bot';
 
 const getQueue = (client: Bot, guildId: string) => {
 	const queue = client.player.getQueue(guildId);

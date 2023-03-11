@@ -1,10 +1,10 @@
-import type { JobData } from '../types/bot';
-import type { Bot } from '../structures/bot';
-import * as Reminders from '../services/reminders';
-import { remindersModel } from '../database/models/reminders';
-import { JobName } from '../types/enums';
+import { RemindersModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
-import type { Reminder } from '../types/schemas';
+
+import * as Reminders from '../services/reminders';
+import type { Bot } from '../structures/bot';
+import type { JobData } from '../types/bot';
+import { JobName } from '../types/enums';
 
 export const data: JobData = {
 	name: JobName.Reminders,
@@ -12,13 +12,13 @@ export const data: JobData = {
 };
 
 export const execute = async (client: Bot) => {
-	const reminders = await remindersModel.find().sort({ timeEnd: 'asc' });
-	const filteredReminders = reminders.filter(({ timeEnd }) => Date.now() >= timeEnd) as Reminder[];
+	const reminders = await RemindersModel.getReminders();
+	const filteredReminders = reminders.filter(({ timeEnd }) => Date.now() >= timeEnd);
 	for (const reminder of filteredReminders) {
 		const { reminderId, userId } = reminder;
 
 		try {
-			await Reminders.send(client, reminder);
+			await Reminders.sendReminder(client, reminder);
 			const user = await client.users.fetch(userId);
 			logger.info(`Job **${data.name}** notified **${user.tag}** regarding reminderId **${reminderId}**.`);
 		} catch (error) {

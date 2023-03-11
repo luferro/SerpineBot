@@ -1,6 +1,7 @@
-import type { SteamId64, SteamPlayers, SteamRecentlyPlayed, SteamResponse, SteamWishlist } from '../types/response';
-import { FetchUtil, ConverterUtil } from '@luferro/shared-utils';
+import { ConverterUtil,FetchUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
+
+import type { SteamId64, SteamPlayers, SteamRecentlyPlayed, SteamResponse, SteamWishlist } from '../types/response';
 
 enum Status {
 	Offline,

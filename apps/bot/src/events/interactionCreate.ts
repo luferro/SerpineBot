@@ -1,14 +1,15 @@
+import { FetchError, logger } from '@luferro/shared-utils';
+import { DiscordAPIError, EmbedBuilder } from 'discord.js';
+
+import * as RolesJob from '../jobs/roles';
+import { Bot } from '../structures/bot';
 import type { EventData } from '../types/bot';
+import { CommandName, EventName } from '../types/enums';
 import type {
 	ExtendedChatInputCommandInteraction,
 	ExtendedStringSelectMenuInteraction,
 	Interaction,
 } from '../types/interaction';
-import { DiscordAPIError, EmbedBuilder } from 'discord.js';
-import { FetchError, logger } from '@luferro/shared-utils';
-import { Bot } from '../structures/bot';
-import { CommandName, EventName } from '../types/enums';
-import * as RolesJob from '../jobs/roles';
 
 export const data: EventData = {
 	name: EventName.InteractionCreate,
@@ -26,19 +27,18 @@ const handleSelectMenuInteraction = async (interaction: ExtendedStringSelectMenu
 
 const handleChatInputCommandInteraction = async (client: Bot, interaction: ExtendedChatInputCommandInteraction) => {
 	const interactionName = `/${interaction.commandName} ${interaction.options.getSubcommand(false) ?? ''}`.trim();
-	const guildName = interaction.guild.name;
-	logger.info(`**${interactionName}** used by **${interaction.user.tag}** in guild **${guildName}**.`);
+	logger.info(`**${interactionName}** used by **${interaction.user.tag}** in guild **${interaction.guild.name}**.`);
 
 	try {
 		if (!interaction.guild.available) throw new Error('Guild is currently unavailable.');
 
 		const command = Bot.commands.get(interaction.commandName as CommandName);
-		if (!command) throw new Error('Command does not exist.');
+		if (!command) throw new Error('Slash command is not registered.');
 
 		await command.execute({ client, interaction });
 	} catch (error) {
 		if (error instanceof DiscordAPIError || error instanceof FetchError) {
-			error.message = `Interaction **${interactionName}** in guild ${guildName} failed. Reason: ${error.message}`;
+			error.message = `Interaction **${interactionName}** in guild ${interaction.guild.name} failed. Reason: ${error.message}`;
 			throw error;
 		}
 

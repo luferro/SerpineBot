@@ -1,9 +1,11 @@
-import type { JobData } from '../../types/bot';
-import type { Bot } from '../../structures/bot';
-import { EmbedBuilder } from 'discord.js';
-import { RedditApi } from '@luferro/reddit-api';
+import { WebhookCategory } from '@luferro/database';
 import { YoutubeApi } from '@luferro/google-api';
+import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
+
+import type { Bot } from '../../structures/bot';
+import type { JobData } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -21,7 +23,7 @@ export const execute = async (client: Bot) => {
 		const isYoutubeEmbed = embedType === 'youtube.com';
 		if (!isYoutubeEmbed && YoutubeApi.isVideo(url)) continue;
 
-		const targetUrl = getUrl(url, isYoutubeEmbed, isTwitterEmbed);
+		const targetUrl = await getUrl(url, isYoutubeEmbed, isTwitterEmbed);
 
 		const { isDuplicated } = await client.manageState(data.name, null, title, targetUrl);
 		if (isDuplicated) continue;
@@ -33,12 +35,15 @@ export const execute = async (client: Bot) => {
 			? `**${StringUtil.truncate(title)}**\n${targetUrl}`
 			: new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(targetUrl).setColor('Random');
 
-		await client.sendWebhookMessageToGuilds('Gaming News', message);
+		await client.sendWebhookMessageToGuilds(WebhookCategory.GamingNews, message);
 	}
 };
 
-const getUrl = (url: string, isVideo: boolean, isTweet: boolean) => {
+const getUrl = async (url: string, isVideo: boolean, isTweet: boolean) => {
 	if (isTweet) return url.split('?')[0];
-	if (isVideo) return `https://www.youtube.com/watch?v=${YoutubeApi.getVideoId(url)}`;
+	if (isVideo) {
+		const isPlaylist = await YoutubeApi.isPlaylist(url);
+		return isPlaylist ? url : `https://www.youtube.com/watch?v=${YoutubeApi.getVideoId(url)}`;
+	}
 	return url;
 };

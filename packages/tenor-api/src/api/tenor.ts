@@ -1,5 +1,6 @@
-import type { TenorResponse } from '../types/response';
 import { FetchUtil } from '@luferro/shared-utils';
+
+import type { TenorResponse } from '../types/response';
 
 let API_KEY: string;
 
