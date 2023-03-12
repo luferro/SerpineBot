@@ -35,7 +35,7 @@ else
 fi
 
 echo "Step 2: Rebuild $container"
-docker-compose up --build --force-recreate --no-deps -d $container
+docker compose up --build --force-recreate --no-deps -d $container
 
 echo "Step 3: Remove unused containers, networks and images"
 docker system prune -f
