@@ -1,77 +1,41 @@
 #! /bin/bash
 
-usage() { echo "Usage: $0 [-r <repository>] [-p <process>] [-o <output>]" 1>&2; exit 1; }
+usage() { echo "Usage: $0 [-r <repository>] [-f <folder>] [-c <container>]" 1>&2; exit 1; }
 
-while getopts r:p:o: flag
+while getopts r:f:c: flag
 do
     case "${flag}" in
         r) repository=${OPTARG};;
-        p) process=${OPTARG};;
-        o) output=${OPTARG};;
+        f) folder=${OPTARG};;
+        c) container=${OPTARG};;
         *) usage;;
     esac
 done
 
-if [ -z "${repository}" ] || [ -z "${process}" || [ -z "${output}" ] ]; then
+if [ -z "${repository}" ] || [ -z "${folder}" ] || [ -z "${container}" ]; then
     usage
 fi
 
-if [ "$EUID" -ne 0 ]; then
-    echo "root permission required."
-    exit
+if ! docker info > /dev/null 2>&1; then
+  echo "Docker is required to execute this script"
+  exit 1
 fi
 
-echo "Step 1: Installing node.js"
-if which node > /dev/null; then
-    echo "Already installed. Skipping..."
-else
-    # Ubuntu distributrion. Please refer to https://nodejs.org/en/download/package-manager/ for other distributions
-    curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - && sudo apt-get install -y nodejs
-    echo "node.js $(node -v) has been installed."
-fi
-
-echo "Step 2: Installing pnpm"
-if which pnpm > /dev/null; then
-    echo "Already installed. Skipping..."
-else
-    corepack enable
-    corepack prepare pnpm@latest --activate
-    echo "pnpm $(pnpm -v) has been installed."
-fi
-
-echo "Step 3: Installing pm2"
-if which pm2 > /dev/null; then
-    echo "Already installed. Skipping..."
-else
-    npm install -g pm2
-    echo "pm2 $(pm2 -v) has been installed"
-fi
-
-dir="/root/$process"
+dir="/root/$folder"
 if [ -d $dir ]; then
-    echo "Step 4: Pulling changes from $repository"
+    echo "Step 1: Pulling changes from $repository"
     cd $dir
     git pull
-    pm2 delete $process
 else
-    echo "Step 4: Cloning $repository into $dir"
+    echo "Step 1: Cloning $repository into $dir"
     git clone https://github.com/luferro/$repository.git $dir
     echo "$repository has been cloned into $dir"
-    echo "Additional configuration required. Create a .env within the application folder following .env.example guidelines."
+    echo ".env configuration file is required"
     exit
 fi
 
-echo "Step 5: Installing dependencies"
-pnpm install --frozen-lockfile
+echo "Step 2: Rebuild $container"
+docker-compose up --build --force-recreate --no-deps -d $container
 
-echo "Step 6: Build"
-pnpm build --filter "./packages/**" --concurrency=1
-cd $output
-cd ../
-pnpm build
-
-echo "Step 7: Starting $process in working directory $PWD"
-pm2 start "pnpm start" --name $process
-
-echo "Step 8: Save process"
-pm2 save
+echo "Step 3: Remove unused containers, networks and images"
+docker system prune -f

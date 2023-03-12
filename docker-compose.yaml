@@ -2,5 +2,7 @@ version: '3.0'
 services:
     bot:
         container_name: bot
+        image: bot:latest
         build:
+            context: .
             dockerfile: ./apps/bot/Dockerfile

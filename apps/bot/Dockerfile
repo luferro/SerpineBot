@@ -11,7 +11,6 @@ COPY --from=builder /usr/src/app/tsconfig.json .
 COPY --from=builder /usr/src/app/out/json/ .
 COPY --from=builder /usr/src/app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install
-
 COPY --from=builder /usr/src/app/out/full/ .
 RUN pnpm turbo run build --filter=bot...
 
