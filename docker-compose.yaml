@@ -6,3 +6,4 @@ services:
         build:
             context: .
             dockerfile: ./apps/bot/Dockerfile
+        restart: always
