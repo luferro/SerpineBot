@@ -3,63 +3,96 @@
 ## SerpineBot
 
 SerpineBot is a monorepo that consists in two applications: **bot** and **web**.
--   **Bot**: A multipurpose Discord bot for my private discord server.
--   **Web**: A website to provide an easy way to see all available slash commands with response samples.
+-   **Bot**: Multipurpose Discord bot for my private discord server.
+-   **Web**: Easy way to see all available slash commands with embed samples.
 
 ## Features:
 
--   **Slash commands**: An overview of all available slash commands can be found [here](https://serpine-bot.vercel.app).
--   **Webhooks**: Feed text channels with data on various topics (e.g. news, game deals, game reviews, anime episodes and many others).
--   **Jobs**: Scheduled jobs are executed to handle bot integrations (e.g. Steam and Xbox integration), reminders, birthdays and much more.
+-   **Slash commands**: *20+* slash command that serve various uses. An overview for all these commands can be found [here](https://serpine-bot.vercel.app).
+-   **Webhooks**: *10+* webhooks that feed text channels with content on various topics (e.g. news, game deals, game reviews, anime episodes and many others).
+-   **Jobs**: Scheduled jobs to handle bot integrations (e.g. Steam and Xbox integration), reminders, birthdays and much more.
 
-## Technologies
+## Tech Stack
 
+Bot application:
 -   Node.js: >= 16.9.0
 -   Discord.js
--   Typescript
+-   TypeScript
 -   Mongoose
+
+Web application:
+-   Node.js
 -   Next.js
+-   TypeScript
 -   Mantine.dev
 
-## Install dependencies
+## Configuration
 
+Each application package uses its own configuration file. 
+
+Please follow the **.env.example** file within each application package to create you own **.env**.
+-   [Example](/apps/bot/.env.example) for bot application .env file
+-   [Example](/apps/web/.env.example) for web application .env file
+
+## Usage
+
+**NOTE:** Every command in this section should be executed at the root of the project.
+
+This section includes two guides on how to get the applications: [Docker](#docker) and [Node.js](#nodejs).
+
+This project includes a [docker-compose](docker-compose.yaml) configuration file.
+
+If you have Docker Engine 1.13.0+ installed on your machine, you can go ahead and follow the [Docker](#docker) section guide.
+Otherwise, you can skip to the [Node.js](#nodejs) section guide.
+
+### Docker
+
+#### Start the application
+
+**NOTE:** Docker configuration is not yet available for the web application.
+
+```
+docker compose up bot
+```
+
+And that's it!
+
+### Node.js
+
+#### Install pnpm
+```
+corepack enable 
+corepack prepare pnpm@latest --activate
+```
+If you do not have Node.js v16.7 or newer, you may install pnpm with the following command:
+```
+npm install -g pnpm
+```
+
+#### Install dependencies
 ```
 pnpm install
 ```
 
-## Configuration
-
-Each application package uses a .env file for configuration. 
-
-Please follow the .env.example file within each application package.
-
-## Build
-
-### Build bot application
-
+#### Build project
 ```
-pnpm build --filter bot
+pnpm run build
 ```
 
-### Build web application
-
-```
-pnpm build --filter web
-```
-
-## Start
-
-### Start bot application
-
+#### Start the application
 ```
 pnpm start --filter bot
 ```
-
-### Start web application
-
+or
 ```
 pnpm start --filter web
 ```
+
+And that's it!
+
+## Codestyle
+
+The project follows the codestyle defined in the [prettier configuration](.prettierrc).
 
 ## Author
 
