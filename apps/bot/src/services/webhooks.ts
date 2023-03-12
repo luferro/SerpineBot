@@ -25,9 +25,8 @@ export const createWebhook = async (guildId: string, channel: TextChannel, categ
 		throw new Error('Nsfw webhook can only be assigned to a nsfw text channel.');
 	}
 
-	const settings = await SettingsModel.getSettingsByGuildId(guildId);
-	const hasWebhook = (settings?.webhooks ?? []).some((webhook) => webhook.category === category);
-	if (hasWebhook) throw new Error('Webhook has already been assigned to a text channel in this guild.');
+	const webhook = await SettingsModel.getGuildWebhook(guildId, category);
+	if (webhook) throw new Error('Webhook has already been assigned to a text channel in this guild.');
 
 	const { id, token, name } = await channel.createWebhook({ name: getWebhookName(category) });
 	if (!token) throw new Error('No token was provided.');
@@ -36,27 +35,27 @@ export const createWebhook = async (guildId: string, channel: TextChannel, categ
 };
 
 export const getWebhook = async (client: Client, guildId: string, category: WebhookCategory) => {
+	const webhook = await SettingsModel.getGuildWebhook(guildId, category);
+	if (!webhook) return null;
+
 	const guild = await client.guilds.fetch(guildId);
-	const settings = await SettingsModel.getSettingsByGuildId(guildId);
-
-	const guildWebhook = settings?.webhooks.find((webhook) => webhook.category === category);
-	if (!guildWebhook) return;
-
 	const guildWebhooks = await guild.fetchWebhooks();
-	const hasWebhook = guildWebhooks.has(guildWebhook.id);
-	if (!hasWebhook) return await SettingsModel.deleteGuildWebhook(guildId, category);
+	const hasWebhook = guildWebhooks.has(webhook.id);
+	if (!hasWebhook) {
+		await SettingsModel.deleteGuildWebhook(guildId, category);
+		return null;
+	}
 
-	return await client.fetchWebhook(guildWebhook.id, guildWebhook.token);
+	return await client.fetchWebhook(webhook.id, webhook.token);
 };
 
 export const deleteWebhook = async (client: Client, guildId: string, category: WebhookCategory) => {
-	const settings = await SettingsModel.getSettingsByGuildId(guildId);
-	const hasWebhook = (settings?.webhooks ?? []).some((webhook) => webhook.category === category);
-	if (!hasWebhook) throw new Error('Webhook is not assigned to a text channel in this guild.');
+	const webhook = await SettingsModel.getGuildWebhook(guildId, category);
+	if (!webhook) throw new Error('Webhook is not assigned to a text channel in this guild.');
 
-	const webhook = await getWebhook(client, guildId, category);
-	if (!webhook) return;
+	const guildWebhook = await getWebhook(client, guildId, category);
+	if (!guildWebhook) return;
 
-	await webhook.delete();
+	await guildWebhook.delete();
 	await SettingsModel.deleteGuildWebhook(guildId, category);
 };
