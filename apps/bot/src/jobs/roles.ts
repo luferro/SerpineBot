@@ -15,15 +15,15 @@ export const data: JobData = {
 
 export const execute = async (client: Client) => {
 	for (const [guildId, guild] of client.guilds.cache) {
-		const settings = await SettingsModel.getSettingsByGuildId(guildId);
+		const message = await SettingsModel.getGuildMessage(guildId, MessageCategory.Roles);
+		if (!message) continue;
 
-		const channelId = settings?.messages[MessageCategory.Roles]?.channelId;
+		const { channelId, options } = message;
 		if (!channelId) continue;
 
 		const channel = await client.channels.fetch(channelId);
 		if (!channel?.isTextBased()) continue;
 
-		const options = settings?.messages[MessageCategory.Roles]?.options;
 		await createOrUpdateRoleSelectMenuMessage(guild, channel, options ?? []);
 
 		logger.info(`Job **${data.name}** sent a message to channelId **${channelId}** in guild **${guild.name}**.`);

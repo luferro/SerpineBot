@@ -17,13 +17,14 @@ export const execute = async (client: Bot) => {
 	const leaderboards = await getLeaderboards(client);
 
 	for (const [guildId, guild] of client.guilds.cache) {
-		const settings = await SettingsModel.getSettingsByGuildId(guildId);
+		const message = await SettingsModel.getGuildMessage(guildId, MessageCategory.Leaderboards);
+		if (!message) continue;
 
 		for (const category of EnumUtil.enumKeysToArray(IntegrationCategory)) {
 			const leaderboard = leaderboards[category];
 			if (!leaderboard || leaderboard.length === 0) continue;
 
-			const channelId = settings?.messages[MessageCategory.Leaderboards]?.channelId;
+			const { channelId } = message;
 			if (!channelId) continue;
 
 			const channel = await client.channels.fetch(channelId);

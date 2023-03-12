@@ -14,6 +14,9 @@ export const data: JobData = {
 export const execute = async (client: Bot) => {
 	const birthdays = await BirthdaysModel.getBirthdays();
 	for (const [guildId, guild] of client.guilds.cache) {
+		const message = await SettingsModel.getGuildMessage(guildId, MessageCategory.Birthdays);
+		if (!message) continue;
+
 		for (const birthday of birthdays) {
 			const currentDate = new Date();
 			currentDate.setHours(0, 0, 0, 0);
@@ -24,8 +27,7 @@ export const execute = async (client: Bot) => {
 
 			if (currentDate.getTime() !== birthdayDate.getTime()) continue;
 
-			const settings = await SettingsModel.getSettingsByGuildId(guildId);
-			const channelId = settings?.messages[MessageCategory.Birthdays]?.channelId;
+			const { channelId } = message;
 			if (!channelId) continue;
 
 			try {
