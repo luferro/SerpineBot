@@ -6,4 +6,6 @@ services:
         build:
             context: .
             dockerfile: ./apps/bot/Dockerfile
+            args:
+                - CONCURRENCY=${CONCURRENCY:-5}
         restart: always
