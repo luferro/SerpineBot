@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import { NintendoApi } from '@luferro/games-api';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
@@ -25,6 +25,6 @@ export const execute = async (client: Bot) => {
 			.setThumbnail(image)
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds(WebhookCategory.Nintendo, embed);
+		await client.sendWebhookMessageToGuilds(WebhookEnum.Nintendo, embed);
 	}
 };

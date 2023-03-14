@@ -1,4 +1,4 @@
-import { IntegrationCategory, IntegrationsModel } from '@luferro/database';
+import { IntegrationEnum, IntegrationsModel } from '@luferro/database';
 import { SteamApi } from '@luferro/games-api';
 import type { GuildMember } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
@@ -121,8 +121,8 @@ const getProfile = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 
 	const userId = mention?.user.id ?? interaction.user.id;
-	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, IntegrationCategory.Steam);
-	const integration = await IntegrationsModel.getIntegrationByUserId(userId, IntegrationCategory.Steam);
+	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, IntegrationEnum.Steam);
+	const integration = await IntegrationsModel.getIntegrationByUserId(userId, IntegrationEnum.Steam);
 	const { name, image, status, logoutAt, createdAt } = await SteamApi.getProfile(integration.profile.id);
 
 	const embed = new EmbedBuilder()
@@ -158,8 +158,8 @@ const getWishlist = async (interaction: ExtendedChatInputCommandInteraction) => 
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 
 	const user = mention?.user ?? interaction.user;
-	await IntegrationsModel.checkIfIntegrationIsInPlace(user.id, IntegrationCategory.Steam);
-	const integration = await IntegrationsModel.getIntegrationByUserId(user.id, IntegrationCategory.Steam);
+	await IntegrationsModel.checkIfIntegrationIsInPlace(user.id, IntegrationEnum.Steam);
+	const integration = await IntegrationsModel.getIntegrationByUserId(user.id, IntegrationEnum.Steam);
 
 	const formattedWishlist = integration.wishlist
 		.slice(0, 10)

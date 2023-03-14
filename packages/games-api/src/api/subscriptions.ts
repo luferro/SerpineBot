@@ -165,7 +165,7 @@ const getUbisoftPlusCatalog = async (context: BrowserContext) => {
 	await privacyDialog.waitFor();
 	await privacyDialog.click();
 
-	const regionDialog = page.locator('.stay-on-country-store');
+	const regionDialog = page.locator('.stay-on-CountryEnum-store');
 	await regionDialog.waitFor();
 	await regionDialog.click();
 

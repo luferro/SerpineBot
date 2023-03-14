@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import { PlayStationApi } from '@luferro/games-api';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
@@ -23,7 +23,7 @@ export const execute = async (client: Bot) => {
 			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
 			embed[category === 'PlayStation Plus' ? 'setImage' : 'setThumbnail'](image);
 
-			await client.sendWebhookMessageToGuilds(WebhookCategory.PlayStation, embed);
+			await client.sendWebhookMessageToGuilds(WebhookEnum.PlayStation, embed);
 		}
 	}
 };

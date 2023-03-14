@@ -1,4 +1,4 @@
-import { BirthdaysModel, MessageCategory, SettingsModel } from '@luferro/database';
+import { BirthdaysModel, MessageEnum, SettingsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 
 import * as Birthdays from '../services/birthdays';
@@ -14,7 +14,7 @@ export const data: JobData = {
 export const execute = async (client: Bot) => {
 	const birthdays = await BirthdaysModel.getBirthdays();
 	for (const [guildId, guild] of client.guilds.cache) {
-		const message = await SettingsModel.getGuildMessage(guildId, MessageCategory.Birthdays);
+		const message = await SettingsModel.getGuildMessage(guildId, MessageEnum.Birthdays);
 		if (!message) continue;
 
 		for (const birthday of birthdays) {

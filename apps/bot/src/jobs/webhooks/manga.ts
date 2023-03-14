@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import { MangadexApi } from '@luferro/mangadex-api';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
@@ -49,6 +49,6 @@ export const execute = async (client: Bot) => {
 			.setDescription(formattedChapters.join('\n'))
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds(WebhookCategory.Manga, embed);
+		await client.sendWebhookMessageToGuilds(WebhookEnum.Manga, embed);
 	}
 };

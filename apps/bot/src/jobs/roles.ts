@@ -1,4 +1,4 @@
-import { MessageCategory, SettingsModel, WebhookCategory } from '@luferro/database';
+import { MessageEnum, SettingsModel, WebhookEnum } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { Client, Collection, Guild, GuildMember, Message, StringSelectMenuBuilder, TextBasedChannel } from 'discord.js';
 import { ActionRowBuilder, EmbedBuilder } from 'discord.js';
@@ -15,7 +15,7 @@ export const data: JobData = {
 
 export const execute = async (client: Client) => {
 	for (const [guildId, guild] of client.guilds.cache) {
-		const message = await SettingsModel.getGuildMessage(guildId, MessageCategory.Roles);
+		const message = await SettingsModel.getGuildMessage(guildId, MessageEnum.Roles);
 		if (!message) continue;
 
 		const { channelId, options } = message;
@@ -80,7 +80,7 @@ const assignRole = (guild: Guild, member: GuildMember, options: string[]) => {
 
 		const restrictionsRole = guild.roles.cache.find(({ name }) => name === 'Restrictions');
 		const userHasRestrictionTole = restrictionsRole && member.roles.cache.has(restrictionsRole.id);
-		if (userHasRestrictionTole && role.name === Webhook.getWebhookName(WebhookCategory.Nsfw)) {
+		if (userHasRestrictionTole && role.name === Webhook.getWebhookName(WebhookEnum.Nsfw)) {
 			restricted.push(role.name);
 			continue;
 		}

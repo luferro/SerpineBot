@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import type { DealsCategory } from '@luferro/games-api';
 import { DealsApi } from '@luferro/games-api';
 import { StringUtil } from '@luferro/shared-utils';
@@ -39,8 +39,8 @@ const handleDiscountedDeals = async (client: Bot, category: Extract<DealsCategor
 
 		if (category === 'Paid Games' && coupon) embed.addFields([{ name: 'Store coupon', value: `*${coupon}*` }]);
 
-		const webhookCategory = WebhookCategory[category === 'Free Games' ? 'FreeGames' : 'Deals'];
-		await client.sendWebhookMessageToGuilds(webhookCategory, embed);
+		const webhook = WebhookEnum[category === 'Free Games' ? 'FreeGames' : 'Deals'];
+		await client.sendWebhookMessageToGuilds(webhook, embed);
 	}
 };
 
@@ -58,6 +58,6 @@ const handleBlogPosts = async (client: Bot, category: Extract<DealsCategory, 'Bu
 		.setDescription(lead ?? 'N/A')
 		.setColor('Random');
 
-	const webhookCategory = WebhookCategory[category === 'Prime Gaming' ? 'FreeGames' : 'Deals'];
-	await client.sendWebhookMessageToGuilds(webhookCategory, embed);
+	const webhook = WebhookEnum[category === 'Prime Gaming' ? 'FreeGames' : 'Deals'];
+	await client.sendWebhookMessageToGuilds(webhook, embed);
 };

@@ -1,27 +1,27 @@
-import { SettingsModel, WebhookCategory } from '@luferro/database';
+import { SettingsModel, WebhookEnum } from '@luferro/database';
 import type { Client, TextChannel } from 'discord.js';
 
-export const getWebhookName = (category: WebhookCategory) => {
+export const getWebhookName = (category: WebhookEnum) => {
 	const webhookNames: Record<typeof category, string> = {
-		[WebhookCategory.Nsfw]: 'NSFW',
-		[WebhookCategory.Memes]: 'Memes',
-		[WebhookCategory.Anime]: 'Anime',
-		[WebhookCategory.Manga]: 'Manga',
-		[WebhookCategory.WorldNews]: 'World News',
-		[WebhookCategory.PortugalNews]: 'Portugal News',
-		[WebhookCategory.GamingNews]: 'Gaming News',
-		[WebhookCategory.Reviews]: 'Game Reviews',
-		[WebhookCategory.Deals]: 'Game Deals',
-		[WebhookCategory.FreeGames]: 'Free Games',
-		[WebhookCategory.Xbox]: 'Xbox',
-		[WebhookCategory.PlayStation]: 'PlayStation',
-		[WebhookCategory.Nintendo]: 'Nintendo',
+		[WebhookEnum.Nsfw]: 'NSFW',
+		[WebhookEnum.Memes]: 'Memes',
+		[WebhookEnum.Anime]: 'Anime',
+		[WebhookEnum.Manga]: 'Manga',
+		[WebhookEnum.WorldNews]: 'World News',
+		[WebhookEnum.PortugalNews]: 'Portugal News',
+		[WebhookEnum.GamingNews]: 'Gaming News',
+		[WebhookEnum.Reviews]: 'Game Reviews',
+		[WebhookEnum.Deals]: 'Game Deals',
+		[WebhookEnum.FreeGames]: 'Free Games',
+		[WebhookEnum.Xbox]: 'Xbox',
+		[WebhookEnum.PlayStation]: 'PlayStation',
+		[WebhookEnum.Nintendo]: 'Nintendo',
 	};
 	return webhookNames[category];
 };
 
-export const createWebhook = async (guildId: string, channel: TextChannel, category: WebhookCategory) => {
-	if (category === WebhookCategory.Nsfw && !channel.nsfw) {
+export const createWebhook = async (guildId: string, channel: TextChannel, category: WebhookEnum) => {
+	if (category === WebhookEnum.Nsfw && !channel.nsfw) {
 		throw new Error('Nsfw webhook can only be assigned to a nsfw text channel.');
 	}
 
@@ -34,7 +34,7 @@ export const createWebhook = async (guildId: string, channel: TextChannel, categ
 	await SettingsModel.createGuildWebhook(guildId, { category, id, token, name });
 };
 
-export const getWebhook = async (client: Client, guildId: string, category: WebhookCategory) => {
+export const getWebhook = async (client: Client, guildId: string, category: WebhookEnum) => {
 	const webhook = await SettingsModel.getGuildWebhook(guildId, category);
 	if (!webhook) return null;
 
@@ -49,7 +49,7 @@ export const getWebhook = async (client: Client, guildId: string, category: Webh
 	return await client.fetchWebhook(webhook.id, webhook.token);
 };
 
-export const deleteWebhook = async (client: Client, guildId: string, category: WebhookCategory) => {
+export const deleteWebhook = async (client: Client, guildId: string, category: WebhookEnum) => {
 	const webhook = await SettingsModel.getGuildWebhook(guildId, category);
 	if (!webhook) throw new Error('Webhook is not assigned to a text channel in this guild.');
 

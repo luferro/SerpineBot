@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import { XboxApi } from '@luferro/games-api';
 import { YoutubeApi } from '@luferro/google-api';
 import { StringUtil } from '@luferro/shared-utils';
@@ -29,7 +29,7 @@ export const execute = async (client: Bot) => {
 				message[category === 'Game Pass' && /Game(.*?)Pass/gi.test(title) ? 'setImage' : 'setThumbnail'](image);
 			}
 
-			await client.sendWebhookMessageToGuilds(WebhookCategory.Xbox, message);
+			await client.sendWebhookMessageToGuilds(WebhookEnum.Xbox, message);
 		}
 	}
 };

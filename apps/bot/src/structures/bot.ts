@@ -1,4 +1,4 @@
-import { Connector, StateModel, WebhookCategory } from '@luferro/database';
+import { Connector, StateModel, WebhookEnum } from '@luferro/database';
 import { SteamApi } from '@luferro/games-api';
 import { GNewsApi } from '@luferro/gnews-api';
 import { FetchError, logger, SleepUtil } from '@luferro/shared-utils';
@@ -64,7 +64,7 @@ export class Bot extends Client {
 		return { isDuplicated: hasEntry };
 	};
 
-	public sendWebhookMessageToGuilds = async (category: WebhookCategory, message: EmbedBuilder | string) => {
+	public sendWebhookMessageToGuilds = async (category: WebhookEnum, message: EmbedBuilder | string) => {
 		for (const { 0: guildId } of this.guilds.cache) {
 			const webhook = await Webhooks.getWebhook(this, guildId, category);
 			if (!webhook) continue;

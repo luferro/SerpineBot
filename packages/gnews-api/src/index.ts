@@ -1,5 +1,5 @@
 // Types
-export * from './types/news';
+export * from './types/enums';
 
 // Api
 export * as GNewsApi from './api/news';

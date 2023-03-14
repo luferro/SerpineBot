@@ -1,4 +1,4 @@
-import { IntegrationCategory, IntegrationsModel, MessageCategory, SettingsModel } from '@luferro/database';
+import { IntegrationEnum, IntegrationsModel, MessageEnum, SettingsModel } from '@luferro/database';
 import { XboxApi } from '@luferro/games-api';
 import { EnumUtil, logger, SleepUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
@@ -17,10 +17,10 @@ export const execute = async (client: Bot) => {
 	const leaderboards = await getLeaderboards(client);
 
 	for (const [guildId, guild] of client.guilds.cache) {
-		const message = await SettingsModel.getGuildMessage(guildId, MessageCategory.Leaderboards);
+		const message = await SettingsModel.getGuildMessage(guildId, MessageEnum.Leaderboards);
 		if (!message) continue;
 
-		for (const category of EnumUtil.enumKeysToArray(IntegrationCategory)) {
+		for (const category of EnumUtil.enumKeysToArray(IntegrationEnum)) {
 			const leaderboard = leaderboards[category];
 			if (!leaderboard || leaderboard.length === 0) continue;
 
@@ -64,7 +64,7 @@ const getLeaderboards = async (client: Bot) => {
 const resetLeaderboards = async () => {
 	await IntegrationsModel.resetWeeklyHours();
 
-	const integrations = await IntegrationsModel.getIntegrations(IntegrationCategory.Xbox);
+	const integrations = await IntegrationsModel.getIntegrations(IntegrationEnum.Xbox);
 	for (const integration of integrations) {
 		const { gamerscore } = await XboxApi.getProfile(integration.profile.gamertag);
 		await IntegrationsModel.updateGamerscore(integration.userId, gamerscore);

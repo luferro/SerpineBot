@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
@@ -37,7 +37,7 @@ export const execute = async (client: Bot) => {
 							.setImage(nsfwUrl)
 							.setColor('Random');
 
-			await client.sendWebhookMessageToGuilds(WebhookCategory.Nsfw, message);
+			await client.sendWebhookMessageToGuilds(WebhookEnum.Nsfw, message);
 		}
 	}
 };

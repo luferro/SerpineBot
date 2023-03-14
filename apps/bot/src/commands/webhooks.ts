@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import type { GuildBasedChannel } from 'discord.js';
 import { ChannelType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 
@@ -23,19 +23,19 @@ export const data: CommandData = {
 						.setDescription('Webhook category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'NSFW', value: WebhookCategory.Nsfw },
-							{ name: 'Memes', value: WebhookCategory.Memes },
-							{ name: 'Anime', value: WebhookCategory.Anime },
-							{ name: 'Manga', value: WebhookCategory.Manga },
-							{ name: 'World News', value: WebhookCategory.WorldNews },
-							{ name: 'Portugal News', value: WebhookCategory.PortugalNews },
-							{ name: 'Gaming News', value: WebhookCategory.GamingNews },
-							{ name: 'Game Reviews', value: WebhookCategory.Reviews },
-							{ name: 'Game Deals', value: WebhookCategory.Deals },
-							{ name: 'Free Games', value: WebhookCategory.FreeGames },
-							{ name: 'Xbox', value: WebhookCategory.Xbox },
-							{ name: 'PlayStation', value: WebhookCategory.PlayStation },
-							{ name: 'Nintendo', value: WebhookCategory.Nintendo },
+							{ name: 'NSFW', value: WebhookEnum.Nsfw },
+							{ name: 'Memes', value: WebhookEnum.Memes },
+							{ name: 'Anime', value: WebhookEnum.Anime },
+							{ name: 'Manga', value: WebhookEnum.Manga },
+							{ name: 'World News', value: WebhookEnum.WorldNews },
+							{ name: 'Portugal News', value: WebhookEnum.PortugalNews },
+							{ name: 'Gaming News', value: WebhookEnum.GamingNews },
+							{ name: 'Game Reviews', value: WebhookEnum.Reviews },
+							{ name: 'Game Deals', value: WebhookEnum.Deals },
+							{ name: 'Free Games', value: WebhookEnum.FreeGames },
+							{ name: 'Xbox', value: WebhookEnum.Xbox },
+							{ name: 'PlayStation', value: WebhookEnum.PlayStation },
+							{ name: 'Nintendo', value: WebhookEnum.Nintendo },
 						),
 				)
 				.addChannelOption((option) =>
@@ -55,19 +55,19 @@ export const data: CommandData = {
 						.setDescription('Webhook category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'NSFW', value: WebhookCategory.Nsfw },
-							{ name: 'Memes', value: WebhookCategory.Memes },
-							{ name: 'Anime', value: WebhookCategory.Anime },
-							{ name: 'Manga', value: WebhookCategory.Manga },
-							{ name: 'World News', value: WebhookCategory.WorldNews },
-							{ name: 'Portugal News', value: WebhookCategory.PortugalNews },
-							{ name: 'Gaming News', value: WebhookCategory.GamingNews },
-							{ name: 'Game Reviews', value: WebhookCategory.Reviews },
-							{ name: 'Game Deals', value: WebhookCategory.Deals },
-							{ name: 'Free Games', value: WebhookCategory.FreeGames },
-							{ name: 'Xbox', value: WebhookCategory.Xbox },
-							{ name: 'PlayStation', value: WebhookCategory.PlayStation },
-							{ name: 'Nintendo', value: WebhookCategory.Nintendo },
+							{ name: 'NSFW', value: WebhookEnum.Nsfw },
+							{ name: 'Memes', value: WebhookEnum.Memes },
+							{ name: 'Anime', value: WebhookEnum.Anime },
+							{ name: 'Manga', value: WebhookEnum.Manga },
+							{ name: 'World News', value: WebhookEnum.WorldNews },
+							{ name: 'Portugal News', value: WebhookEnum.PortugalNews },
+							{ name: 'Gaming News', value: WebhookEnum.GamingNews },
+							{ name: 'Game Reviews', value: WebhookEnum.Reviews },
+							{ name: 'Game Deals', value: WebhookEnum.Deals },
+							{ name: 'Free Games', value: WebhookEnum.FreeGames },
+							{ name: 'Xbox', value: WebhookEnum.Xbox },
+							{ name: 'PlayStation', value: WebhookEnum.PlayStation },
+							{ name: 'Nintendo', value: WebhookEnum.Nintendo },
 						),
 				),
 		),
@@ -85,7 +85,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 };
 
 const createWebhook = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getInteger('category', true) as WebhookCategory;
+	const category = interaction.options.getInteger('category', true) as WebhookEnum;
 	const channel = interaction.options.getChannel('channel', true) as GuildBasedChannel;
 
 	if (channel.type !== ChannelType.GuildText) throw new Error('Webhooks can only be assigned to text channels.');
@@ -100,7 +100,7 @@ const createWebhook = async (interaction: ExtendedChatInputCommandInteraction) =
 };
 
 const deleteWebhook = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getInteger('category', true) as WebhookCategory;
+	const category = interaction.options.getInteger('category', true) as WebhookEnum;
 
 	await Webhooks.deleteWebhook(interaction.client, interaction.guild.id, category);
 

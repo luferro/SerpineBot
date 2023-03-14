@@ -1,18 +1,18 @@
-import type { IntegrationCategory, MessageCategory, WebhookCategory } from './enum';
+import type { IntegrationEnum, MessageEnum, WebhookEnum } from './enum';
 
 export interface BaseSettings {
 	guildId: string;
 }
 
 export interface Webhook {
-	category: WebhookCategory;
+	category: WebhookEnum;
 	id: string;
 	token: string;
 	name: string;
 }
 
 export interface Message {
-	category: MessageCategory;
+	category: MessageEnum;
 	channelId: string;
 	options?: string[];
 }
@@ -53,7 +53,7 @@ export interface SteamRecentlyPlayedEntry {
 
 export interface BaseIntegration {
 	userId: string;
-	category: IntegrationCategory;
+	category: IntegrationEnum;
 }
 
 export interface SteamIntegration {

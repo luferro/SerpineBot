@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import { JikanApi } from '@luferro/jikan-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
@@ -73,7 +73,7 @@ export const execute = async (client: Bot) => {
 			])
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds(WebhookCategory.Anime, embed);
+		await client.sendWebhookMessageToGuilds(WebhookEnum.Anime, embed);
 	}
 };
 

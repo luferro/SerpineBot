@@ -1,4 +1,4 @@
-import { IntegrationCategory, IntegrationsModel } from '@luferro/database';
+import { IntegrationEnum, IntegrationsModel } from '@luferro/database';
 import { XboxApi } from '@luferro/games-api';
 import type { GuildMember } from 'discord.js';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
@@ -94,8 +94,8 @@ const getProfile = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 
 	const userId = mention?.user.id ?? interaction.user.id;
-	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, IntegrationCategory.Xbox);
-	const integration = await IntegrationsModel.getIntegrationByUserId(userId, IntegrationCategory.Xbox);
+	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, IntegrationEnum.Xbox);
+	const integration = await IntegrationsModel.getIntegrationByUserId(userId, IntegrationEnum.Xbox);
 	const { name, image, gamerscore, gamesPlayed } = await XboxApi.getProfile(integration.profile.gamertag);
 
 	const embed = new EmbedBuilder()

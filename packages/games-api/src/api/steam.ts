@@ -1,17 +1,8 @@
-import { ConverterUtil,FetchUtil } from '@luferro/shared-utils';
+import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 import { load } from 'cheerio';
 
+import { StatusEnum } from '../types/enums';
 import type { SteamId64, SteamPlayers, SteamRecentlyPlayed, SteamResponse, SteamWishlist } from '../types/response';
-
-enum Status {
-	Offline,
-	Online,
-	Busy,
-	Away,
-	Snooze,
-	LookingToTrade,
-	LookingToPlay,
-}
 
 let API_KEY: string;
 
@@ -45,7 +36,7 @@ export const getProfile = async (steamId: string) => {
 	return {
 		name: personaname,
 		image: avatarfull,
-		status: Status[personastate],
+		status: StatusEnum[personastate],
 		logoutAt: new Date(lastlogoff * 1000).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' }),
 		createdAt: new Date(timecreated * 1000).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' }),
 	};

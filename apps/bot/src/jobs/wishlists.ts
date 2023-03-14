@@ -1,4 +1,4 @@
-import { IntegrationCategory, IntegrationsModel, SteamWishlistEntry } from '@luferro/database';
+import { IntegrationEnum, IntegrationsModel, SteamWishlistEntry } from '@luferro/database';
 import { SteamApi } from '@luferro/games-api';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
@@ -68,7 +68,7 @@ const getGameSubscriptionChanges = (newGame: SteamWishlistEntry, oldGame?: Steam
 };
 
 const updateSteamWishlist = async (client: Bot) => {
-	const integrations = await IntegrationsModel.getIntegrations(IntegrationCategory.Steam, true);
+	const integrations = await IntegrationsModel.getIntegrations(IntegrationEnum.Steam, true);
 	for (const integration of integrations) {
 		const alerts: Record<AlertCategory, SteamAlert[]> = {
 			'Sale': [],

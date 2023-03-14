@@ -1,15 +1,15 @@
-export enum MessageCategory {
+export enum MessageEnum {
 	Roles = 1,
 	Birthdays,
 	Leaderboards,
 }
 
-export enum IntegrationCategory {
+export enum IntegrationEnum {
 	Steam = 1,
 	Xbox,
 }
 
-export enum WebhookCategory {
+export enum WebhookEnum {
 	Nsfw = 1,
 	Memes,
 	Anime,

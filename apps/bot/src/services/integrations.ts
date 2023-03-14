@@ -1,19 +1,19 @@
-import { IntegrationCategory, IntegrationsModel } from '@luferro/database';
+import { IntegrationEnum, IntegrationsModel } from '@luferro/database';
 import { SteamApi, XboxApi } from '@luferro/games-api';
 
 import * as Subscriptions from './subscriptions';
 
-export const createIntegration = async (category: IntegrationCategory, userId: string, account: string) => {
+export const createIntegration = async (category: IntegrationEnum, userId: string, account: string) => {
 	const select: Record<typeof category, (arg0: string, arg1: string) => Promise<void>> = {
-		[IntegrationCategory.Steam]: createSteamIntegration,
-		[IntegrationCategory.Xbox]: createXboxIntegration,
+		[IntegrationEnum.Steam]: createSteamIntegration,
+		[IntegrationEnum.Xbox]: createXboxIntegration,
 	};
 
 	await select[category](userId, account);
 };
 
 const createSteamIntegration = async (userId: string, url: string) => {
-	await IntegrationsModel.checkIfIntegrationIsNotInPlace(userId, IntegrationCategory.Steam);
+	await IntegrationsModel.checkIfIntegrationIsNotInPlace(userId, IntegrationEnum.Steam);
 
 	const profileUrl = url.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
 	if (!profileUrl) throw new Error('Invalid Steam profile url.');
@@ -52,11 +52,11 @@ const createSteamIntegration = async (userId: string, url: string) => {
 		},
 	};
 
-	await IntegrationsModel.createOrUpdateIntegration(userId, IntegrationCategory.Steam, integrationInfo);
+	await IntegrationsModel.createOrUpdateIntegration(userId, IntegrationEnum.Steam, integrationInfo);
 };
 
 const createXboxIntegration = async (userId: string, gamertag: string) => {
-	await IntegrationsModel.checkIfIntegrationIsNotInPlace(userId, IntegrationCategory.Xbox);
+	await IntegrationsModel.checkIfIntegrationIsNotInPlace(userId, IntegrationEnum.Xbox);
 
 	const isGamertagValid = await XboxApi.isGamertagValid(gamertag);
 	if (!isGamertagValid) throw new Error('Invalid Xbox gamertag.');
@@ -70,10 +70,10 @@ const createXboxIntegration = async (userId: string, gamertag: string) => {
 		},
 	};
 
-	await IntegrationsModel.createOrUpdateIntegration(userId, IntegrationCategory.Xbox, integrationInfo);
+	await IntegrationsModel.createOrUpdateIntegration(userId, IntegrationEnum.Xbox, integrationInfo);
 };
 
-export const syncIntegration = async (category: IntegrationCategory.Steam, userId: string) => {
+export const syncIntegration = async (category: IntegrationEnum.Steam, userId: string) => {
 	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, category);
 
 	const integration = await IntegrationsModel.getIntegrationByUserId(userId, category);
@@ -88,16 +88,12 @@ export const syncIntegration = async (category: IntegrationCategory.Steam, userI
 	await IntegrationsModel.updateWishlist(userId, wishlistItems);
 };
 
-export const deleteIntegration = async (category: IntegrationCategory, userId: string) => {
+export const deleteIntegration = async (category: IntegrationEnum, userId: string) => {
 	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, category);
 	await IntegrationsModel.deleteIntegrationByUserId(userId, category);
 };
 
-export const toggleNotifications = async (
-	category: IntegrationCategory.Steam,
-	userId: string,
-	notifications: boolean,
-) => {
+export const toggleNotifications = async (category: IntegrationEnum.Steam, userId: string, notifications: boolean) => {
 	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, category);
 	await IntegrationsModel.updateNotifications(userId, notifications);
 };

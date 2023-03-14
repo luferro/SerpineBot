@@ -1,4 +1,4 @@
-import { IntegrationCategory, IntegrationsModel } from '@luferro/database';
+import { IntegrationEnum, IntegrationsModel } from '@luferro/database';
 import { SteamApi, XboxApi } from '@luferro/games-api';
 import type { Client } from 'discord.js';
 
@@ -13,7 +13,7 @@ enum Medals {
 export const getSteamLeaderboard = async (client: Bot | Client) => {
 	const leaderboard = [];
 
-	const integrations = await IntegrationsModel.getIntegrations(IntegrationCategory.Steam);
+	const integrations = await IntegrationsModel.getIntegrations(IntegrationEnum.Steam);
 	for (const integration of integrations) {
 		const data = await SteamApi.getRecentlyPlayed(integration.profile.id);
 		if (data.length === 0) continue;
@@ -48,7 +48,7 @@ export const getSteamLeaderboard = async (client: Bot | Client) => {
 export const getXboxLeaderboard = async (client: Bot | Client) => {
 	const leaderboard = [];
 
-	const integrations = await IntegrationsModel.getIntegrations(IntegrationCategory.Xbox);
+	const integrations = await IntegrationsModel.getIntegrations(IntegrationEnum.Xbox);
 	for (const integration of integrations) {
 		const data = await XboxApi.getProfile(integration.profile.gamertag);
 		if (!data) continue;

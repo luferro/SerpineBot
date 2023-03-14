@@ -1,4 +1,4 @@
-import { IntegrationCategory, MessageCategory } from '@luferro/database';
+import { IntegrationEnum, MessageEnum } from '@luferro/database';
 import { EnumUtil } from '@luferro/shared-utils';
 import { randomUUID } from 'crypto';
 import type { GuildBasedChannel } from 'discord.js';
@@ -68,9 +68,9 @@ export const data: CommandData = {
 						.setDescription('Message category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'Roles', value: MessageCategory.Roles },
-							{ name: 'Birthdays', value: MessageCategory.Birthdays },
-							{ name: 'Leaderboards', value: MessageCategory.Leaderboards },
+							{ name: 'Roles', value: MessageEnum.Roles },
+							{ name: 'Birthdays', value: MessageEnum.Birthdays },
+							{ name: 'Leaderboards', value: MessageEnum.Leaderboards },
 						),
 				)
 				.addChannelOption((option) =>
@@ -90,9 +90,9 @@ export const data: CommandData = {
 						.setDescription('Message category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'Roles', value: MessageCategory.Roles },
-							{ name: 'Birthdays', value: MessageCategory.Birthdays },
-							{ name: 'Leaderboards', value: MessageCategory.Leaderboards },
+							{ name: 'Roles', value: MessageEnum.Roles },
+							{ name: 'Birthdays', value: MessageEnum.Birthdays },
+							{ name: 'Leaderboards', value: MessageEnum.Leaderboards },
 						),
 				)
 				.addChannelOption((option) =>
@@ -155,11 +155,11 @@ const deleteChannel = async (interaction: ExtendedChatInputCommandInteraction) =
 
 const assignChannel = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const channel = interaction.options.getChannel('channel', true) as GuildBasedChannel;
-	const category = interaction.options.getInteger('category', true) as MessageCategory;
+	const category = interaction.options.getInteger('category', true) as MessageEnum;
 
 	if (channel.type !== ChannelType.GuildText) throw new Error('Channel must be a text channel.');
 
-	if (category === MessageCategory.Birthdays) {
+	if (category === MessageEnum.Birthdays) {
 		await Channels.assignChannel(interaction.guild.id, category, channel);
 		const embed = new EmbedBuilder().setTitle(`Message has been assigned to ${channel.name}.`).setColor('Random');
 		await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -167,9 +167,9 @@ const assignChannel = async (interaction: ExtendedChatInputCommandInteraction) =
 	}
 
 	const options =
-		category === MessageCategory.Roles
+		category === MessageEnum.Roles
 			? Roles.getGuildRoles(interaction.guild).map((role) => ({ label: role.name, value: role.id }))
-			: EnumUtil.enumKeysToArray(IntegrationCategory).map((option) => ({ label: option, value: option }));
+			: EnumUtil.enumKeysToArray(IntegrationEnum).map((option) => ({ label: option, value: option }));
 	if (options.length === 0) throw new Error('Select at least one option from the menu.');
 
 	const uuid = randomUUID();
@@ -195,12 +195,12 @@ const assignChannel = async (interaction: ExtendedChatInputCommandInteraction) =
 	const updatedEmbed = new EmbedBuilder().setTitle(`Channel ${channel.name} has been updated.`).setColor('Random');
 	await selectMenuInteraction.update({ embeds: [updatedEmbed], components: [] });
 
-	if (category === MessageCategory.Roles) await RolesJob.execute(selectMenuInteraction.client);
+	if (category === MessageEnum.Roles) await RolesJob.execute(selectMenuInteraction.client);
 };
 
 const unassignChannel = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const channel = interaction.options.getChannel('channel', true) as GuildBasedChannel;
-	const category = interaction.options.getInteger('category', true) as MessageCategory;
+	const category = interaction.options.getInteger('category', true) as MessageEnum;
 
 	if (channel.type !== ChannelType.GuildText) throw new Error('Channel must be a text channel.');
 

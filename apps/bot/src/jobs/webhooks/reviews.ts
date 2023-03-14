@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import { OpenCriticApi } from '@luferro/games-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { EmbedBuilder } from 'discord.js';
@@ -67,6 +67,6 @@ export const execute = async (client: Bot) => {
 			])
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds(WebhookCategory.Reviews, embed);
+		await client.sendWebhookMessageToGuilds(WebhookEnum.Reviews, embed);
 	}
 };

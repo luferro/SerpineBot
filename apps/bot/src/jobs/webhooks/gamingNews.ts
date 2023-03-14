@@ -1,4 +1,4 @@
-import { WebhookCategory } from '@luferro/database';
+import { WebhookEnum } from '@luferro/database';
 import { YoutubeApi } from '@luferro/google-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
@@ -35,7 +35,7 @@ export const execute = async (client: Bot) => {
 			? `**${StringUtil.truncate(title)}**\n${targetUrl}`
 			: new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(targetUrl).setColor('Random');
 
-		await client.sendWebhookMessageToGuilds(WebhookCategory.GamingNews, message);
+		await client.sendWebhookMessageToGuilds(WebhookEnum.GamingNews, message);
 	}
 };
 

@@ -1,4 +1,4 @@
-import { IntegrationCategory } from '@luferro/database';
+import { IntegrationEnum } from '@luferro/database';
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 
 import * as Integrations from '../services/integrations';
@@ -21,8 +21,8 @@ export const data: CommandData = {
 						.setDescription('Integration category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'Steam', value: IntegrationCategory.Steam },
-							{ name: 'Xbox', value: IntegrationCategory.Xbox },
+							{ name: 'Steam', value: IntegrationEnum.Steam },
+							{ name: 'Xbox', value: IntegrationEnum.Xbox },
 						),
 				)
 				.addStringOption((option) =>
@@ -42,8 +42,8 @@ export const data: CommandData = {
 						.setDescription('Integration category.')
 						.setRequired(true)
 						.addChoices(
-							{ name: 'Steam', value: IntegrationCategory.Steam },
-							{ name: 'Xbox', value: IntegrationCategory.Xbox },
+							{ name: 'Steam', value: IntegrationEnum.Steam },
+							{ name: 'Xbox', value: IntegrationEnum.Xbox },
 						),
 				),
 		)
@@ -71,7 +71,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 };
 
 const addIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getNumber('category', true) as IntegrationCategory;
+	const category = interaction.options.getNumber('category', true) as IntegrationEnum;
 	const account = interaction.options.getString('account', true);
 
 	await Integrations.createIntegration(category, interaction.user.id, account);
@@ -80,7 +80,7 @@ const addIntegration = async (interaction: ExtendedChatInputCommandInteraction) 
 };
 
 const syncIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
-	await Integrations.syncIntegration(IntegrationCategory.Steam, interaction.user.id);
+	await Integrations.syncIntegration(IntegrationEnum.Steam, interaction.user.id);
 	const embed = new EmbedBuilder().setTitle('Steam integration synced successfully.').setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };
@@ -88,7 +88,7 @@ const syncIntegration = async (interaction: ExtendedChatInputCommandInteraction)
 const toggleNotifications = async (interaction: ExtendedChatInputCommandInteraction) => {
 	const toggle = interaction.options.getBoolean('toggle', true);
 
-	await Integrations.toggleNotifications(IntegrationCategory.Steam, interaction.user.id, toggle);
+	await Integrations.toggleNotifications(IntegrationEnum.Steam, interaction.user.id, toggle);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Steam integration notifications have been turned ${toggle ? 'on' : 'off'}.`)
@@ -98,7 +98,7 @@ const toggleNotifications = async (interaction: ExtendedChatInputCommandInteract
 };
 
 const deleteIntegration = async (interaction: ExtendedChatInputCommandInteraction) => {
-	const category = interaction.options.getNumber('category', true) as IntegrationCategory;
+	const category = interaction.options.getNumber('category', true) as IntegrationEnum;
 
 	await Integrations.deleteIntegration(category, interaction.user.id);
 	const embed = new EmbedBuilder().setTitle(`${category} integration deleted successfully.`).setColor('Random');
