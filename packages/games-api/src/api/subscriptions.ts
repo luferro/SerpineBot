@@ -77,7 +77,7 @@ export const refreshCatalogs = async () => {
 		try {
 			const { catalog } = await scrapeCatalog(page, CatalogEnum[category]);
 			catalogs.set(CatalogEnum[category], catalog);
-			logger.info(`**${category}** catalog cache has been refreshed. ${catalog.length}`);
+			logger.info(`**${category}** catalog cache has been refreshed.`);
 		} catch (error) {
 			logger.warn(`**${category}** catalog cache failed to refresh. ${(error as Error).message}`);
 		}

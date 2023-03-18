@@ -14,13 +14,13 @@ export const data: JobData = {
 export const execute = async () => {
 	await SubscriptionsApi.refreshCatalogs();
 	for (const { category, catalog } of SubscriptionsApi.getCatalogs()) {
-		logger.debug(`Job **${data.name}** found **${catalog.length}** items in **${category}** catalog.`);
+		logger.debug(`Job **${data.name}** found **${catalog.length}** items in **${CatalogEnum[category]}** catalog.`);
 
 		const subscription = await SubscriptionsModel.getCatalogByCategory(CatalogEnum[category]);
 		if (catalog.length < Math.round((subscription?.count ?? 0) * 0.6)) continue;
 
 		await SubscriptionsModel.updateCatalog(CatalogEnum[category], catalog);
 
-		logger.info(`Job **${data.name}** successfully updated **${category}** catalog.`);
+		logger.info(`Job **${data.name}** successfully updated **${CatalogEnum[category]}** catalog.`);
 	}
 };
