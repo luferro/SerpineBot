@@ -1,5 +1,6 @@
 import { SubscriptionsModel } from '@luferro/database';
 import { SubscriptionsApi } from '@luferro/games-api';
+import { CatalogEnum } from '@luferro/games-api/dist/types/enums';
 import { logger } from '@luferro/shared-utils';
 
 import type { JobData } from '../types/bot';
@@ -11,14 +12,14 @@ export const data: JobData = {
 };
 
 export const execute = async () => {
-	const catalogs = await SubscriptionsApi.getCatalogs(true);
-	for (const { category, catalog } of catalogs) {
+	await SubscriptionsApi.refreshCatalogs();
+	for (const { category, catalog } of SubscriptionsApi.getCatalogs()) {
 		logger.debug(`Job **${data.name}** found **${catalog.length}** items in **${category}** catalog.`);
 
-		const subscription = await SubscriptionsModel.getCatalogByCategory(category);
+		const subscription = await SubscriptionsModel.getCatalogByCategory(CatalogEnum[category]);
 		if (catalog.length < Math.round((subscription?.count ?? 0) * 0.6)) continue;
 
-		await SubscriptionsModel.updateCatalog(category, catalog);
+		await SubscriptionsModel.updateCatalog(CatalogEnum[category], catalog);
 
 		logger.info(`Job **${data.name}** successfully updated **${category}** catalog.`);
 	}

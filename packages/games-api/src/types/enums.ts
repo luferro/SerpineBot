@@ -7,3 +7,11 @@ export enum StatusEnum {
 	LookingToTrade,
 	LookingToPlay,
 }
+
+export enum CatalogEnum {
+	XboxGamePass,
+	PcGamePass,
+	EaPlay,
+	EaPlayPro,
+	UbisoftPlus,
+}
