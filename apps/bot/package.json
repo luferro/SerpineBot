@@ -19,18 +19,18 @@
 		"node": ">=16.9.0"
 	},
 	"devDependencies": {
-		"@types/cron": "^2.0.0",
-		"@types/node": "^18.15.0",
-		"discord-player": "^6.1.0",
+		"@types/cron": "^2.0.1",
+		"@types/node": "^18.15.5",
+		"discord-player": "^6.1.1",
 		"play-dl": "^1.9.6",
 		"soundcloud-scraper": "^5.0.3",
 		"spotify-url-info": "^3.2.3",
-		"typescript": "^4.9.5",
+		"typescript": "^5.0.2",
 		"youtube-sr": "^4.3.4",
 		"ytdl-core": "^4.11.2"
 	},
 	"dependencies": {
-		"@discord-player/extractor": "^4.1.1",
+		"@discord-player/extractor": "^4.1.2",
 		"@discordjs/opus": "^0.9.0",
 		"@luferro/database": "workspace:^",
 		"@luferro/games-api": "workspace:^",
@@ -45,11 +45,11 @@
 		"@luferro/tenor-api": "workspace:^",
 		"@luferro/the-movie-db-api": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
-		"cron": "^2.2.0",
-		"discord.js": "^14.7.1",
+		"cron": "^2.3.0",
+		"discord.js": "^14.8.0",
 		"dotenv": "^16.0.3",
 		"ffmpeg-static": "^5.1.0",
-		"mongoose": "^7.0.1",
+		"mongoose": "^7.0.2",
 		"tweetnacl": "^1.0.3"
 	}
 }
