@@ -15,9 +15,6 @@
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 
-		// https://www.typescriptlang.org/tsconfig#Emit_6246
-		"importsNotUsedAsValues": "error",
-
 		// https://www.typescriptlang.org/tsconfig#Interop_Constraints_6252
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
