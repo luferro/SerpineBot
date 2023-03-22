@@ -13,6 +13,7 @@
 			"error",
 			{ "vars": "all", "args": "after-used", "ignoreRestSiblings": false }
 		],
+		"@typescript-eslint/consistent-type-imports": "error",
 		"simple-import-sort/imports": "error",
 		"simple-import-sort/exports": "error"
 	}
