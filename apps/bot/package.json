@@ -20,8 +20,8 @@
 	},
 	"devDependencies": {
 		"@types/cron": "^2.0.1",
-		"@types/node": "^18.15.5",
-		"typescript": "^5.0.2"
+		"@types/node": "^18.15.11",
+		"typescript": "^5.0.3"
 	},
 	"dependencies": {
 		"@discord-player/extractor": "^4.1.2",
@@ -44,9 +44,9 @@
 		"discord.js": "^14.8.0",
 		"dotenv": "^16.0.3",
 		"ffmpeg-static": "^5.1.0",
-		"mongoose": "^7.0.2",
+		"mongoose": "^7.0.3",
 		"play-dl": "^1.9.6",
 		"youtube-sr": "^4.3.4",
-		"ytdl-core": "^4.11.2"
+		"ytdl-core": "^4.11.3"
 	}
 }
