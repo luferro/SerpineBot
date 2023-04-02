@@ -38,7 +38,6 @@
 		"@luferro/shared-utils": "workspace:^",
 		"@luferro/tenor-api": "workspace:^",
 		"@luferro/the-movie-db-api": "workspace:^",
-		"cheerio": "^1.0.0-rc.12",
 		"cron": "^2.3.0",
 		"discord-player": "^6.1.1",
 		"discord.js": "^14.8.0",

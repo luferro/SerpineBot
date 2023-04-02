@@ -40,7 +40,6 @@ importers:
       '@luferro/the-movie-db-api': workspace:^
       '@types/cron': ^2.0.1
       '@types/node': ^18.15.11
-      cheerio: ^1.0.0-rc.12
       cron: ^2.3.0
       discord-player: ^6.1.1
       discord.js: ^14.8.0
@@ -66,7 +65,6 @@ importers:
       '@luferro/shared-utils': link:../../packages/shared-utils
       '@luferro/tenor-api': link:../../packages/tenor-api
       '@luferro/the-movie-db-api': link:../../packages/the-movie-db-api
-      cheerio: 1.0.0-rc.12
       cron: 2.3.0
       discord-player: 6.1.1_rt26f2kjeekdv4fkva5hrtn4ci
       discord.js: 14.8.0
@@ -635,8 +633,8 @@ packages:
     engines: {node: '>=16.9.0'}
     dev: false
 
-  /@discordjs/voice/0.15.0_bfd7ybjr4u3cxk5yt76u2mrpt4:
-    resolution: {integrity: sha512-YEvrRchDhjB0QbI9QYOF/qgDwvGb9sNGUyks5d3Srl+VRoMoKkMzWY+wcEfVbAgdMIAdLi5vyrTKP/gLND26jA==}
+  /@discordjs/voice/0.16.0_bfd7ybjr4u3cxk5yt76u2mrpt4:
+    resolution: {integrity: sha512-ToGCvHD1cBscuW3p+C7zOF5+L7MJmU4GjdOARfNk9mkHyFFZq4grK+Sxr3QXKbp27DtfDBc9uqD4GUOYgxngfA==}
     engines: {node: '>=16.9.0'}
     dependencies:
       '@types/ws': 8.5.4
@@ -2000,7 +1998,7 @@ packages:
       '@discord-player/equalizer': 0.2.1
       '@discord-player/extractor': 4.1.2_pki7lcundaoskrjga26nwuvnry
       '@discord-player/utils': 0.2.1
-      '@discordjs/voice': 0.15.0_bfd7ybjr4u3cxk5yt76u2mrpt4
+      '@discordjs/voice': 0.16.0_bfd7ybjr4u3cxk5yt76u2mrpt4
       discord.js: 14.8.0
       libsodium-wrappers: 0.7.11
       youtube-sr: 4.3.4
