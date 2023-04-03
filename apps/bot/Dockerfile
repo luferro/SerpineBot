@@ -21,6 +21,5 @@ WORKDIR /usr/src/app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN apt update && apt upgrade -y && apt install libnss3 libatk-bridge2.0-0 libdrm-dev libxkbcommon-dev libgbm-dev libasound-dev libatspi2.0-0 libxshmfence-dev -y
 COPY --from=installer /usr/src/app .
-RUN pnpm install @discordjs/opus --force --filter bot
 
 CMD ["pnpm", "start"]
