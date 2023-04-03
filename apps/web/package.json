@@ -17,7 +17,7 @@
 	"devDependencies": {
 		"@types/marked": "^4.0.8",
 		"@types/node": "^18.15.11",
-		"@types/react": "18.0.31",
+		"@types/react": "18.0.32",
 		"@types/react-dom": "18.0.11",
 		"eslint": "^8.37.0",
 		"eslint-config-next": "13.2.4",
@@ -30,7 +30,7 @@
 		"@mantine/core": "^6.0.5",
 		"@mantine/hooks": "^6.0.5",
 		"@mantine/next": "^6.0.5",
-		"discord.js": "^14.8.0",
+		"discord.js": "^14.9.0",
 		"dotenv": "^16.0.3",
 		"html-react-parser": "^3.0.15",
 		"marked": "^4.3.0",
