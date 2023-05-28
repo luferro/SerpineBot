@@ -1,15 +1,15 @@
-export enum MessageEnum {
+export enum Action {
 	Roles = 1,
 	Birthdays,
 	Leaderboards,
 }
 
-export enum IntegrationEnum {
+export enum Integration {
 	Steam = 1,
 	Xbox,
 }
 
-export enum WebhookEnum {
+export enum Webhook {
 	Nsfw = 1,
 	Memes,
 	Anime,

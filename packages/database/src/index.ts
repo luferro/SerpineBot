@@ -3,7 +3,7 @@ export * from './types/enum';
 export * from './types/schemas';
 
 // Database connector
-export * as Connector from './database/connector';
+export * as Database from './database/database';
 
 // Models
 export { default as BirthdaysModel } from './database/models/birthdays';

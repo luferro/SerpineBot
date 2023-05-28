@@ -1,7 +1,7 @@
 import { StringUtil } from '@luferro/shared-utils';
 import mongoose, { Model } from 'mongoose';
 
-import type { Subscription, SubscriptionCatalogEntry,SubscriptionMatches } from '../../types/schemas';
+import type { Subscription, SubscriptionCatalogEntry, SubscriptionMatches } from '../../types/schemas';
 
 interface SubscriptionsModel extends Model<Subscription> {
 	getCatalogByCategory: (category: string) => Promise<Subscription>;
@@ -37,7 +37,7 @@ schema.statics.getCatalogMatches = async function (title: string) {
 
 	return results
 		.sort((a, b) => a._id.localeCompare(b._id))
-		.map(({ _id, entry: { name, url } }) => ({ name: _id, entry: { name, url } }));
+		.map(({ _id, entry: { name, url } }) => ({ provider: _id, entry: { name, url } }));
 };
 
 schema.statics.updateCatalog = async function (category: string, catalog: SubscriptionCatalogEntry[]) {

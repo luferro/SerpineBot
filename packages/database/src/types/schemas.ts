@@ -1,25 +1,25 @@
-import type { IntegrationEnum, MessageEnum, WebhookEnum } from './enum';
+import type { Action, Integration, Webhook } from './enum';
 
 export interface BaseSettings {
 	guildId: string;
 }
 
-export interface Webhook {
-	category: WebhookEnum;
+export interface GuildWebhook {
+	category: Webhook;
 	id: string;
 	token: string;
 	name: string;
 }
 
-export interface Message {
-	category: MessageEnum;
+export interface GuildMessage {
+	category: Action;
 	channelId: string;
 	options?: string[];
 }
 
 export interface GuildSettings {
-	messages: Message[];
-	webhooks: Webhook[];
+	messages: GuildMessage[];
+	webhooks: GuildWebhook[];
 }
 
 export interface SteamWishlistEntry {
@@ -53,7 +53,7 @@ export interface SteamRecentlyPlayedEntry {
 
 export interface BaseIntegration {
 	userId: string;
-	category: IntegrationEnum;
+	category: Integration;
 }
 
 export interface SteamIntegration {
@@ -74,7 +74,7 @@ export interface XboxIntegration {
 }
 
 export interface SubscriptionMatches {
-	name: string;
+	provider: string;
 	entry: SubscriptionCatalogEntry;
 }
 

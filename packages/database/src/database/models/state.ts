@@ -3,8 +3,8 @@ import mongoose, { Model } from 'mongoose';
 import type { State, StateEntry } from '../../types/schemas';
 
 interface StateModel extends Model<State> {
-	createOrUpdateState: (jobName: string, category: string, entries: StateEntry[]) => Promise<void>;
-	getStateByJobName: (jobName: string) => Promise<State | null>;
+	createOrUpdateState: (job: string, category: string, entries: StateEntry[]) => Promise<void>;
+	getStateByJob: (job: string) => Promise<State | null>;
 }
 
 const schema = new mongoose.Schema<State>(
@@ -23,16 +23,16 @@ const schema = new mongoose.Schema<State>(
 	{ timestamps: true },
 );
 
-schema.statics.createOrUpdateState = async function (jobName: string, category: string, entries: StateEntry[]) {
+schema.statics.createOrUpdateState = async function (job: string, category: string, entries: StateEntry[]) {
 	await this.updateOne(
-		{ jobName: jobName.toUpperCase() },
+		{ jobName: job.toUpperCase() },
 		{ $set: { [`entries.${category}`]: entries.slice(-100) } },
 		{ upsert: true },
 	);
 };
 
-schema.statics.getStateByJobName = async function (jobName: string) {
-	const state = await this.findOne({ jobName: jobName.toUpperCase() });
+schema.statics.getStateByJob = async function (job: string) {
+	const state = await this.findOne({ jobName: job.toUpperCase() });
 	return state ?? null;
 };
 
