@@ -1,9 +1,11 @@
-import { FetchUtil } from '@luferro/shared-utils';
-import { load } from 'cheerio';
+import { StaticScraper } from '@luferro/scraper';
 
-export const search = async (query: string) => {
-	const data = await FetchUtil.fetch<string>({ url: `https://www.google.com/search?q=${query}` });
-	const $ = load(data);
+export enum Endpoint {
+	SEARCH_PAGE = 'https://www.google.com/search?q=:query',
+}
+
+export const getList = async (url: Endpoint) => {
+	const $ = await StaticScraper.load(url);
 
 	return $('#search')
 		.children('div')
@@ -18,10 +20,7 @@ export const search = async (query: string) => {
 			const url = $(element).find('a').attr('href')!;
 			if (!name && !url) return;
 
-			return {
-				name,
-				url,
-			};
+			return { name, url };
 		})
 		.filter((element): element is NonNullable<typeof element> => !!element);
 };
