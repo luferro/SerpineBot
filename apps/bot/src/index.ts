@@ -2,7 +2,7 @@ import 'dotenv/config';
 
 import { GatewayIntentBits } from 'discord.js';
 
-import { Bot } from './structures/bot';
+import { Bot } from './structures/Bot';
 
 (async () => {
 	const client = new Bot({
@@ -15,7 +15,7 @@ import { Bot } from './structures/bot';
 			GatewayIntentBits.GuildVoiceStates,
 		],
 	});
-	client.start();
+	await client.start();
 
 	['SIGINT', 'SIGTERM'].forEach((event) => process.on(event, client.stop));
 })();
