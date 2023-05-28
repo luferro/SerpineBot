@@ -1,9 +1,8 @@
 import { RemindersModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
 
-import * as Reminders from '../services/reminders';
-import type { Bot } from '../structures/bot';
-import type { JobData } from '../types/bot';
+import type { JobData, JobExecute } from '../types/bot';
 import { JobName } from '../types/enums';
 
 export const data: JobData = {
@@ -11,19 +10,32 @@ export const data: JobData = {
 	schedule: '*/30 * * * * *',
 };
 
-export const execute = async (client: Bot) => {
+export const execute: JobExecute = async ({ client }) => {
 	const reminders = await RemindersModel.getReminders();
 	const filteredReminders = reminders.filter(({ timeEnd }) => Date.now() >= timeEnd);
 	for (const reminder of filteredReminders) {
-		const { reminderId, userId } = reminder;
+		const { reminderId, userId, timeStart, message } = reminder;
 
 		try {
-			await Reminders.sendReminder(client, reminder);
-			const user = await client.users.fetch(userId);
-			logger.info(`Job **${data.name}** notified **${user.tag}** regarding reminderId **${reminderId}**.`);
+			const target = await client.users.fetch(userId);
+			if (!target) throw new Error(`Cannot find a target with userId ${userId}.`);
+
+			const embed = new EmbedBuilder()
+				.setTitle(`Reminder set on ${new Date(timeStart).toLocaleString('pt-PT')}`)
+				.addFields([
+					{
+						name: '**Message**',
+						value: message.trim(),
+					},
+				])
+				.setColor('Random');
+
+			await target.send({ embeds: [embed] });
+			await RemindersModel.deleteOne({ reminderId });
+
+			logger.info(`Job **${data.name}** notified **${target.tag}** regarding reminderId **${reminderId}**.`);
 		} catch (error) {
-			const { message } = error as Error;
-			logger.warn(`Job **${data.name}** failed for reminderId **${reminderId}**. **${message}**.`);
+			logger.warn(`Job **${data.name}** failed for reminderId **${reminderId}**. Reason: **${error}**.`);
 		}
 	}
 };

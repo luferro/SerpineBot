@@ -1,10 +1,9 @@
-import { MessageEnum, SettingsModel, WebhookEnum } from '@luferro/database';
+import { Action } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
-import { Client, Collection, Guild, GuildMember, Message, StringSelectMenuBuilder, TextBasedChannel } from 'discord.js';
+import { Collection, Guild, GuildMember, Message, StringSelectMenuBuilder, TextBasedChannel } from 'discord.js';
 import { ActionRowBuilder, EmbedBuilder } from 'discord.js';
 
-import * as Webhook from '../services/webhooks';
-import type { JobData } from '../types/bot';
+import type { JobData, JobExecute } from '../types/bot';
 import { JobName } from '../types/enums';
 import type { ExtendedStringSelectMenuInteraction } from '../types/interaction';
 
@@ -13,9 +12,9 @@ export const data: JobData = {
 	schedule: new Date(Date.now() + 1000 * 60),
 };
 
-export const execute = async (client: Client) => {
-	for (const [guildId, guild] of client.guilds.cache) {
-		const message = await SettingsModel.getGuildMessage(guildId, MessageEnum.Roles);
+export const execute: JobExecute = async ({ client }) => {
+	for (const { 1: guild } of client.guilds.cache) {
+		const message = await client.settings.message().withGuild(guild).get({ category: Action.Roles });
 		if (!message) continue;
 
 		const { channelId, options } = message;
@@ -35,10 +34,10 @@ export const getRoleSelectMenuId = () => 'CLAIM_YOUR_ROLES';
 const createRoleSelectMenu = (guild: Guild, options: string[]) => {
 	const roles = options
 		.map((id) => {
-			const messageRole = guild.roles.cache.find(({ id: nestedRoleId }) => nestedRoleId === id);
-			if (!messageRole) return;
+			const role = guild.roles.cache.find(({ id: nestedRoleId }) => nestedRoleId === id);
+			if (!role) return;
 
-			return { label: messageRole.name, value: messageRole.id };
+			return { label: role.name, value: role.id };
 		})
 		.filter((item): item is NonNullable<typeof item> => !!item);
 
@@ -70,17 +69,16 @@ const createOrUpdateRoleSelectMenuMessage = async (guild: Guild, channel: TextBa
 };
 
 const assignRole = (guild: Guild, member: GuildMember, options: string[]) => {
-	const granted: string[] = [];
-	const revoked: string[] = [];
-	const restricted: string[] = [];
+	const granted = [];
+	const revoked = [];
+	const restricted = [];
 
 	for (const value of options) {
 		const role = guild.roles.cache.find(({ id }) => id === value);
 		if (!role) continue;
 
 		const restrictionsRole = guild.roles.cache.find(({ name }) => name === 'Restrictions');
-		const userHasRestrictionTole = restrictionsRole && member.roles.cache.has(restrictionsRole.id);
-		if (userHasRestrictionTole && role.name === Webhook.getWebhookName(WebhookEnum.Nsfw)) {
+		if (restrictionsRole && member.roles.cache.has(restrictionsRole.id)) {
 			restricted.push(role.name);
 			continue;
 		}

@@ -1,11 +1,10 @@
-import { IntegrationEnum, IntegrationsModel, MessageEnum, SettingsModel } from '@luferro/database';
-import { XboxApi } from '@luferro/games-api';
+import { Action, Integration, IntegrationsModel } from '@luferro/database';
 import { EnumUtil, logger, SleepUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
 import * as Leaderboards from '../services/leaderboards';
-import type { Bot } from '../structures/bot';
-import type { JobData } from '../types/bot';
+import type { Bot } from '../structures/Bot';
+import type { JobData, JobExecute } from '../types/bot';
 import { JobName } from '../types/enums';
 
 export const data: JobData = {
@@ -13,14 +12,14 @@ export const data: JobData = {
 	schedule: '0 0 0 * * 0',
 };
 
-export const execute = async (client: Bot) => {
+export const execute: JobExecute = async ({ client }) => {
 	const leaderboards = await getLeaderboards(client);
 
-	for (const [guildId, guild] of client.guilds.cache) {
-		const message = await SettingsModel.getGuildMessage(guildId, MessageEnum.Leaderboards);
+	for (const { 1: guild } of client.guilds.cache) {
+		const message = await client.settings.message().withGuild(guild).get({ category: Action.Leaderboards });
 		if (!message) continue;
 
-		for (const category of EnumUtil.enumKeysToArray(IntegrationEnum)) {
+		for (const category of EnumUtil.enumKeysToArray(Integration)) {
 			const leaderboard = leaderboards[category];
 			if (!leaderboard || leaderboard.length === 0) continue;
 
@@ -44,7 +43,7 @@ export const execute = async (client: Bot) => {
 		}
 	}
 
-	await resetLeaderboards();
+	await resetLeaderboards(client);
 };
 
 const getLeaderboards = async (client: Bot) => {
@@ -61,12 +60,12 @@ const getLeaderboards = async (client: Bot) => {
 	};
 };
 
-const resetLeaderboards = async () => {
+const resetLeaderboards = async (client: Bot) => {
 	await IntegrationsModel.resetWeeklyHours();
 
-	const integrations = await IntegrationsModel.getIntegrations(IntegrationEnum.Xbox);
+	const integrations = await IntegrationsModel.getIntegrations(Integration.Xbox);
 	for (const integration of integrations) {
-		const { gamerscore } = await XboxApi.getProfile(integration.profile.gamertag);
+		const { gamerscore } = await client.api.gaming.xbox.getProfile(integration.profile.gamertag);
 		await IntegrationsModel.updateGamerscore(integration.userId, gamerscore);
 		await SleepUtil.sleep(5000);
 	}
