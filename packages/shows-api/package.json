@@ -1,8 +1,8 @@
 {
-	"name": "@luferro/jikan-api",
+	"name": "@luferro/shows-api",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Jikan api wrapper",
+	"description": "Provides everything related to shows (animes, tv shows, movies)",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
@@ -15,10 +15,11 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^18.15.11",
-		"typescript": "^5.0.3"
+		"@types/node": "^20.2.5",
+		"typescript": "^5.0.4"
 	},
 	"dependencies": {
+		"@luferro/scraper": "workspace:^",
 		"@luferro/shared-utils": "workspace:^"
 	}
 }

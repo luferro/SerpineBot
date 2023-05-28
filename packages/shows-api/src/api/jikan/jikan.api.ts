@@ -1,6 +1,6 @@
 import { FetchUtil } from '@luferro/shared-utils';
 
-import type { JikanResponse } from '../types/response';
+import { JikanPayload } from '../../types/payload';
 
 export const getAnimeById = async (id: string) => {
 	const {
@@ -18,7 +18,7 @@ export const getAnimeById = async (id: string) => {
 			trailer,
 			images,
 		},
-	} = await FetchUtil.fetch<JikanResponse>({ url: `https://api.jikan.moe/v4/anime/${id}` });
+	} = await FetchUtil.fetch<JikanPayload>({ url: `https://api.jikan.moe/v4/anime/${id}` });
 
 	return {
 		id,
@@ -30,10 +30,7 @@ export const getAnimeById = async (id: string) => {
 		episodes,
 		duration,
 		trailer,
-		title: {
-			romaji: title,
-			english: title_english,
-		},
+		title: { romaji: title, english: title_english },
 		broadcast: broadcast.string,
 		image: images.jpg.large_image_url,
 	};
