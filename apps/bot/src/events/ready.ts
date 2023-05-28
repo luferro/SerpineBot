@@ -1,8 +1,7 @@
-import { SettingsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 
 import * as CommandsHandler from '../handlers/commands';
-import type { Bot } from '../structures/bot';
+import type { Bot } from '../structures/Bot';
 import type { EventData } from '../types/bot';
 import { EventName } from '../types/enums';
 
@@ -15,7 +14,7 @@ export const execute = async (client: Bot) => {
 	await CommandsHandler.deployCommands(client);
 
 	for (const [guildId, guild] of client.guilds.cache) {
-		const settings = await SettingsModel.getSettingsByGuildId(guildId);
+		const settings = await client.settings.get(guildId);
 		if (!settings) client.emit('guildCreate', guild);
 	}
 

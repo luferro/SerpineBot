@@ -1,6 +1,6 @@
 import type { VoiceState } from 'discord.js';
 
-import type { Bot } from '../structures/bot';
+import type { Bot } from '../structures/Bot';
 import type { EventData } from '../types/bot';
 import { EventName } from '../types/enums';
 

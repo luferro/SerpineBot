@@ -1,8 +1,7 @@
-import { SettingsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import type { Guild } from 'discord.js';
 
-import type { Bot } from '../structures/bot';
+import type { Bot } from '../structures/Bot';
 import type { EventData } from '../types/bot';
 import { EventName } from '../types/enums';
 
@@ -11,7 +10,7 @@ export const data: EventData = {
 	type: 'on',
 };
 
-export const execute = async (_client: Bot, guild: Guild) => {
-	await SettingsModel.deleteSettingsByGuildId(guild.id);
+export const execute = async (client: Bot, guild: Guild) => {
+	await client.settings.delete(guild.id);
 	logger.info(`Settings for **${guild.name}** have been deleted.`);
 };
