@@ -1,8 +1,6 @@
-import { IntegrationEnum, IntegrationsModel } from '@luferro/database';
-import { SteamApi, XboxApi } from '@luferro/games-api';
-import type { Client } from 'discord.js';
+import { Integration, IntegrationsModel } from '@luferro/database';
 
-import type { Bot } from '../structures/bot';
+import type { Bot } from '../structures/Bot';
 
 enum Medals {
 	'🥇' = 1,
@@ -10,12 +8,12 @@ enum Medals {
 	'🥉',
 }
 
-export const getSteamLeaderboard = async (client: Bot | Client) => {
+export const getSteamLeaderboard = async (client: Bot) => {
 	const leaderboard = [];
 
-	const integrations = await IntegrationsModel.getIntegrations(IntegrationEnum.Steam);
+	const integrations = await IntegrationsModel.getIntegrations(Integration.Steam);
 	for (const integration of integrations) {
-		const data = await SteamApi.getRecentlyPlayed(integration.profile.id);
+		const data = await client.api.gaming.steam.getRecentlyPlayed(integration.profile.id);
 		if (data.length === 0) continue;
 
 		const recentlyPlayed = data.map((game) => {
@@ -40,17 +38,16 @@ export const getSteamLeaderboard = async (client: Bot | Client) => {
 		.map(({ user, topPlayed }, index) => {
 			const position = Medals[index + 1] ?? `\`${index + 1}.\``;
 			const description = `**${user.tag}** with \`${topPlayed.hours}h\`\nTop played game was **[${topPlayed.name}](${topPlayed.url})**`;
-
 			return `${position} ${description}`;
 		});
 };
 
-export const getXboxLeaderboard = async (client: Bot | Client) => {
+export const getXboxLeaderboard = async (client: Bot) => {
 	const leaderboard = [];
 
-	const integrations = await IntegrationsModel.getIntegrations(IntegrationEnum.Xbox);
+	const integrations = await IntegrationsModel.getIntegrations(Integration.Xbox);
 	for (const integration of integrations) {
-		const data = await XboxApi.getProfile(integration.profile.gamertag);
+		const data = await client.api.gaming.xbox.getProfile(integration.profile.gamertag);
 		if (!data) continue;
 
 		await IntegrationsModel.updateGamerscore(integration.userId, data.gamerscore);
@@ -67,7 +64,6 @@ export const getXboxLeaderboard = async (client: Bot | Client) => {
 		.map(({ user, gamerscore }, index) => {
 			const position = Medals[index + 1] ?? `\`${index + 1}.\``;
 			const description = `**${user.tag}** with \`${gamerscore}G\``;
-
 			return `${position} ${description}`;
 		});
 };
