@@ -1,0 +1,22 @@
+import { Integration, IntegrationsModel } from '@luferro/database';
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+
+import { CommandData, CommandExecute } from '../../../types/bot';
+
+export const data: CommandData = new SlashCommandSubcommandBuilder()
+	.setName('notifications')
+	.setDescription('Toggle notifications on or off for your Steam integration.')
+	.addBooleanOption((option) => option.setName('toggle').setDescription('Notifications toggle.').setRequired(true));
+
+export const execute: CommandExecute = async ({ interaction }) => {
+	await interaction.deferReply({ ephemeral: true });
+
+	const toggle = interaction.options.getBoolean('toggle', true);
+
+	await IntegrationsModel.checkIfIntegrationIsInPlace(interaction.user.id, Integration.Steam);
+	await IntegrationsModel.updateNotifications(interaction.user.id, toggle);
+
+	const state = toggle ? 'on' : 'off';
+	const embed = new EmbedBuilder().setTitle(`Steam notifications have been turned ${state}.`).setColor('Random');
+	await interaction.reply({ embeds: [embed], ephemeral: true });
+};

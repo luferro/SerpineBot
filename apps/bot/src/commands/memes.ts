@@ -1,21 +1,17 @@
-import { RedditApi } from '@luferro/reddit-api';
 import { StringUtil } from '@luferro/shared-utils';
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 
-import type { CommandData, CommandExecute } from '../types/bot';
-import { CommandName } from '../types/enums';
+import type { CommandExecute } from '../types/bot';
 
-export const data: CommandData = {
-	name: CommandName.Memes,
-	slashCommand: new SlashCommandBuilder().setName(CommandName.Memes).setDescription('Random meme.'),
-};
+export const execute: CommandExecute = async ({ client, interaction }) => {
+	await interaction.deferReply();
 
-export const execute: CommandExecute = async ({ interaction }) => {
-	const posts = await RedditApi.getPosts('Memes');
+	const posts = await client.api.reddit.getPosts('Memes');
 	const { title, url, selfurl, hasEmbeddedMedia } = posts[Math.floor(Math.random() * posts.length)];
 
 	if (hasEmbeddedMedia) {
-		await interaction.reply({ content: `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}` });
+		const content = `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}`;
+		await interaction.editReply({ content });
 		return;
 	}
 
@@ -25,5 +21,5 @@ export const execute: CommandExecute = async ({ interaction }) => {
 		.setImage(url)
 		.setColor('Random');
 
-	await interaction.reply({ embeds: [embed] });
+	await interaction.editReply({ embeds: [embed] });
 };
