@@ -1,8 +1,12 @@
-export interface Gallery {
-	media_id: string;
+export interface RedditPayload<T> {
+	data: T;
 }
 
-export interface Children {
+export interface RedditChildren<T> {
+	children: T;
+}
+
+export interface RedditPost {
 	data: {
 		title: string;
 		selftext: string | null;
@@ -12,7 +16,7 @@ export interface Children {
 			type: string;
 		};
 		gallery_data?: {
-			items: Gallery[];
+			items: { media_id: string }[];
 		};
 		preview?: {
 			reddit_video_preview?: {
@@ -25,11 +29,5 @@ export interface Children {
 		is_video: boolean;
 		removed_by_category: boolean | null;
 		created_utc: number;
-	};
-}
-
-export interface RedditPost {
-	data: {
-		children: Children[];
 	};
 }

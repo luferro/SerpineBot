@@ -1,5 +1,2 @@
-// Types
-export * from './types/reddit';
-
-// Api
+// APIs
 export * as RedditApi from './api/reddit';
