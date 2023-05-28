@@ -82,7 +82,7 @@ export const registerCommands = async () => {
 	const metadata = new Map<string, Map<string, MetadataBuilder[]>>();
 	for (const file of files) {
 		const content = file.split('commands')[1];
-		const matches = content.match(/(?!\\)(.*?)(?=(\\|\.))/g)?.filter((match) => match);
+		const matches = content.match(/(?!(\\|\/))(.*?)(?=(\\|\/|\.))/g)?.filter((match) => match);
 		if (!matches) continue;
 
 		if (matches.length > 3) {
