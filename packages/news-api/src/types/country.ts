@@ -1,4 +1,4 @@
-export enum CountryEnum {
+export enum Country {
 	'Australia' = 'au',
 	'Belgium' = 'be',
 	'Brazil' = 'br',

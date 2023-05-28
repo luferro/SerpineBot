@@ -1,8 +1,8 @@
 {
-	"name": "@luferro/gnews-api",
+	"name": "@luferro/news-api",
 	"private": true,
 	"version": "1.0.0",
-	"description": "GNews api wrapper",
+	"description": "Provides everything related to breaking news (global or by country)",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
@@ -15,8 +15,8 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^18.15.11",
-		"typescript": "^5.0.3"
+		"@types/node": "^20.2.5",
+		"typescript": "^5.0.4"
 	},
 	"dependencies": {
 		"@luferro/shared-utils": "workspace:^"

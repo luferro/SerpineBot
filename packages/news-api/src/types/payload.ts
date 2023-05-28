@@ -1,4 +1,4 @@
-export interface NewsResponse<T> {
+export interface NewsPayload<T> {
 	totalArticles: number;
 	articles: T[];
 }
