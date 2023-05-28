@@ -1,11 +1,8 @@
-// Types
-export * from './types/fetch';
-export * from './types/unit';
-
 // Custom errors
 export * from './errors/FetchError';
 
 // Utils
+export * as ArrayUtil from './utils/array';
 export * as ConverterUtil from './utils/converter';
 export * as DateUtil from './utils/date';
 export * as EnumUtil from './utils/enum';

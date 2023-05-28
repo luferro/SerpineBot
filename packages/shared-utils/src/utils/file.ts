@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { join } from 'path';
 
 import { fetch } from './fetch';
 
@@ -13,14 +14,13 @@ export const isReachable = async (file: string) => {
 	}
 };
 
-export const getFiles = (path: string, subdirectory?: string, files: string[] = []) => {
-	const data = fs.readdirSync(path, { withFileTypes: true });
-	for (const item of data) {
-		if (item.isDirectory()) {
-			files = getFiles(`${path}/${item.name}`, item.name, files);
+export const getFiles = (path: string, files: string[] = []) => {
+	for (const file of fs.readdirSync(path, { withFileTypes: true })) {
+		if (file.isDirectory()) {
+			files = getFiles(join(path, file.name), files);
 			continue;
 		}
-		files.push(`${subdirectory ? `${subdirectory}/${item.name}` : item.name}`);
+		files.push(join(path, file.name));
 	}
 
 	return files;

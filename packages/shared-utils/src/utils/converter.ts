@@ -1,13 +1,15 @@
-import type { TimeUnit } from '../types/unit';
-
 export const centsToEuros = (cents: number) => {
 	return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
 		.format(cents / 100)
 		.replace(String.fromCharCode(160), ' ');
 };
 
-export const toMilliseconds = (time: number, unit: Exclude<TimeUnit, 'Milliseconds'>) => {
+export const toMilliseconds = (
+	time: number,
+	unit: 'Milliseconds' | 'Seconds' | 'Minutes' | 'Hours' | 'Days' | 'Weeks' | 'Months' | 'Years',
+) => {
 	const options: Record<typeof unit, number> = {
+		Milliseconds: time,
 		Seconds: time * 1000,
 		Minutes: time * 1000 * 60,
 		Hours: time * 1000 * 60 * 60,
@@ -19,28 +21,22 @@ export const toMilliseconds = (time: number, unit: Exclude<TimeUnit, 'Millisecon
 	return options[unit];
 };
 
-export const toSeconds = (ms: number) => {
-	return ms / 1000;
+export const toSeconds = (ms: number) => ms / 1000;
+
+export const toMinutes = (ms: number) => ms / (1000 * 60);
+
+export const toHours = (ms: number) => ms / (1000 * 60 * 60);
+
+export const toMinutesFormatted = (ms: number) => {
+	const seconds = Math.floor(toSeconds(ms) % 60)
+		.toString()
+		.padStart(2, '0');
+	return `${Math.floor(toMinutes(ms))}:${seconds}`;
 };
 
-export const toMinutes = (ms: number, formatted = false) => {
-	const minutes = ms / (1000 * 60);
-	if (formatted) {
-		const seconds = Math.floor((ms / 1000) % 60)
-			.toString()
-			.padStart(2, '0');
-		return `${Math.floor(minutes)}:${seconds}`;
-	}
-	return minutes;
-};
-
-export const toHours = (ms: number, formatted = false) => {
-	const hours = ms / (1000 * 60 * 60);
-	if (formatted) {
-		const minutes = Math.floor((ms / (1000 * 60)) % 60)
-			.toString()
-			.padStart(2, '0');
-		return `${Math.floor(hours)}h${minutes}`;
-	}
-	return hours;
+export const toHoursFormatted = (ms: number) => {
+	const minutes = Math.floor(toMinutes(ms) % 60)
+		.toString()
+		.padStart(2, '0');
+	return `${Math.floor(toHours(ms))}h${minutes}`;
 };
