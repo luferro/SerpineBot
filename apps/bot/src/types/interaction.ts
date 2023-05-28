@@ -6,19 +6,13 @@ import type {
 	StringSelectMenuInteraction,
 } from 'discord.js';
 
-export type Interaction = ExtendedChatInputCommandInteraction | ExtendedButtonInteraction;
+type GenericInteraction<T> = { guild: Guild; member: GuildMember } & T;
 
-export interface ExtendedChatInputCommandInteraction extends ChatInputCommandInteraction {
-	guild: Guild;
-	member: GuildMember;
-}
+export type ExtendedChatInputCommandInteraction = GenericInteraction<ChatInputCommandInteraction>;
+export type ExtendedStringSelectMenuInteraction = GenericInteraction<StringSelectMenuInteraction>;
+export type ExtendedButtonInteraction = GenericInteraction<ButtonInteraction>;
 
-export interface ExtendedButtonInteraction extends ButtonInteraction {
-	guild: Guild;
-	member: GuildMember;
-}
-
-export interface ExtendedStringSelectMenuInteraction extends StringSelectMenuInteraction {
-	guild: Guild;
-	member: GuildMember;
-}
+export type Interaction =
+	| ExtendedChatInputCommandInteraction
+	| ExtendedStringSelectMenuInteraction
+	| ExtendedButtonInteraction;
