@@ -1,6 +1,4 @@
-import type { CatalogCategory } from './category';
-
-export interface SteamResponse<T> {
+export interface SteamPayload<T> {
 	[key: string]: T;
 }
 
@@ -114,9 +112,4 @@ export interface SubscriptionCatalogEntry {
 	name: string;
 	slug: string;
 	url: string | null;
-}
-
-export interface SubscriptionCatalogResponse {
-	category: CatalogCategory;
-	catalog: SubscriptionCatalogEntry[];
 }

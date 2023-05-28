@@ -1,11 +1,13 @@
-import { FetchUtil } from '@luferro/shared-utils';
-import { load } from 'cheerio';
+import { StaticScraper } from '@luferro/scraper';
 
-import type { NintendoResponse } from '../types/response';
+import { NintendoResponse } from '../../types/payload';
 
-export const getLatestNintendoNews = async () => {
-	const data = await FetchUtil.fetch<string>({ url: 'https://www.nintendo.com/whatsnew/' });
-	const $ = load(data);
+export enum Endpoint {
+	LATEST_NEWS = 'https://www.nintendo.com/whatsnew',
+}
+
+export const getNewsList = async (url: Endpoint) => {
+	const $ = await StaticScraper.load(url);
 
 	const script = $('script[type="application/json"]').first().text();
 	const {
@@ -16,9 +18,9 @@ export const getLatestNintendoNews = async () => {
 
 	return Object.values(initialApolloState)
 		.filter(({ __typename }) => __typename === 'NewsArticle')
-		.map(({ title, media, 'url({"relative":true})': url }) => ({
+		.map(({ title, media, 'url({"relative":true})': href }) => ({
 			title,
-			url: `https://www.nintendo.com${url}`,
+			url: `https://www.nintendo.com${href}`,
 			image: media
 				? `https://assets.nintendo.com/image/upload/q_auto/f_auto/c_fill,w_1200/${media.publicId}`
 				: null,
