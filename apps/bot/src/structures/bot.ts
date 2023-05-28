@@ -1,11 +1,13 @@
-import { Connector, StateModel, WebhookEnum } from '@luferro/database';
-import { SteamApi } from '@luferro/games-api';
-import { GNewsApi } from '@luferro/gnews-api';
-import { FetchError, logger, SleepUtil } from '@luferro/shared-utils';
-import { TenorApi } from '@luferro/tenor-api';
-import { TheMovieDbApi } from '@luferro/the-movie-db-api';
+import { ComicsApi } from '@luferro/comics-api';
+import { Database, Webhook } from '@luferro/database';
+import { GamingApi } from '@luferro/gaming-api';
+import { GoogleApi } from '@luferro/google-api';
+import { NewsApi } from '@luferro/news-api';
+import { RedditApi } from '@luferro/reddit-api';
+import { ArrayUtil, FetchError, logger } from '@luferro/shared-utils';
+import { ShowsApi } from '@luferro/shows-api';
 import { CronJob } from 'cron';
-import { ClientOptions, DiscordAPIError } from 'discord.js';
+import { ClientOptions } from 'discord.js';
 import { Client, Collection, EmbedBuilder } from 'discord.js';
 import { Player } from 'discord-player';
 
@@ -13,29 +15,36 @@ import { config } from '../config/environment';
 import * as CommandsHandler from '../handlers/commands';
 import * as EventsHandler from '../handlers/events';
 import * as JobsHandler from '../handlers/jobs';
-import * as Webhooks from '../services/webhooks';
-import type { Command, Event, Job } from '../types/bot';
-import type { CommandName, EventName, JobName } from '../types/enums';
+import type { Api, Command, Event, Job } from '../types/bot';
+import { Settings } from './settings/Settings';
+import { State } from './state/State';
 
 export class Bot extends Client {
-	public player: Player;
+	private static readonly MAX_EMBEDS_SIZE = 10;
 
-	public static events: Collection<EventName, Event> = new Collection();
-	public static commands: Collection<CommandName, Command> = new Collection();
-	public static jobs: Collection<JobName, Job> = new Collection();
+	static jobs: Collection<string, Job> = new Collection();
+	static events: Collection<string, Event> = new Collection();
+	static commands: Command = { metadata: [], execute: new Collection() };
+
+	api: Api;
+	state: State;
+	player: Player;
+	settings: Settings;
 
 	constructor(options: ClientOptions) {
 		super(options);
-		this.setApiTokens();
+		this.state = new State();
+		this.settings = new Settings(this);
+		this.api = this.initializeApis();
 		this.player = this.initializePlayer();
 	}
 
-	public start = async () => {
+	async start() {
 		logger.info(`Starting SerpineBot in **${config.NODE_ENV}**.`);
 
 		try {
 			await this.login(config.BOT_TOKEN);
-			await Connector.connect(config.MONGO_URI);
+			await Database.connect(config.MONGO_URI);
 			await JobsHandler.registerJobs();
 			await EventsHandler.registerEvents();
 			await CommandsHandler.registerCommands();
@@ -45,77 +54,82 @@ export class Bot extends Client {
 
 			this.emit('ready', this as Client);
 		} catch (error) {
-			const { message } = error as Error;
-			logger.error(`Fatal error during application start. Reason: ${message}`);
+			logger.error(`Fatal error during application start. Reason: ${error}`);
 			this.stop();
 		}
-	};
+	}
 
-	public manageState = async (jobName: JobName, category: string | null, title: string, url: string) => {
-		await SleepUtil.sleep(5000);
-
-		const state = await StateModel.getStateByJobName(jobName);
-		const lookup = category ?? 'default';
-		const entries = state?.entries.get(lookup) ?? [];
-
-		const hasEntry = entries.some((entry) => entry.title === title || entry.url === url);
-		if (!hasEntry) await StateModel.createOrUpdateState(jobName, lookup, entries.concat({ title, url }));
-
-		return { isDuplicated: hasEntry };
-	};
-
-	public sendWebhookMessageToGuilds = async (category: WebhookEnum, message: EmbedBuilder | string) => {
-		for (const { 0: guildId } of this.guilds.cache) {
-			const webhook = await Webhooks.getWebhook(this, guildId, category);
+	async propageMessage(category: Webhook, content: string) {
+		for (const { 1: guild } of this.guilds.cache) {
+			const webhook = await this.settings.webhook().withGuild(guild).get({ category });
 			if (!webhook) continue;
 
-			await webhook.send(message instanceof EmbedBuilder ? { embeds: [message] } : { content: message });
+			await webhook.send({ content });
 		}
-	};
+	}
 
-	public stop = () => {
+	async propageMessages(category: Webhook, embeds: EmbedBuilder[]) {
+		for (const { 1: guild } of this.guilds.cache) {
+			const webhook = await this.settings.webhook().withGuild(guild).get({ category });
+			if (!webhook) continue;
+
+			const chunks = ArrayUtil.splitIntoChunks(embeds, Bot.MAX_EMBEDS_SIZE);
+			for (const chunk of chunks) {
+				await webhook.send({ embeds: chunk });
+			}
+		}
+	}
+
+	stop() {
 		logger.info('Stopping SerpineBot.');
-		Connector.disconnect();
+		Database.disconnect();
 		process.exit(1);
-	};
+	}
 
-	private setApiTokens = () => {
-		TenorApi.setApiKey(config.TENOR_API_KEY);
-		SteamApi.setApiKey(config.STEAM_API_KEY);
-		GNewsApi.setApiKey(config.GNEWS_API_KEY);
-		TheMovieDbApi.setApiKey(config.THE_MOVIE_DB_API_KEY);
-	};
+	private initializeApis() {
+		NewsApi.setApiKey(config.GNEWS_API_KEY);
+		GamingApi.steam.setApiKey(config.STEAM_API_KEY);
+		ShowsApi.tmdb.setApiKey(config.THE_MOVIE_DB_API_KEY);
 
-	private initializePlayer = () => {
+		return {
+			comics: ComicsApi,
+			gaming: GamingApi,
+			google: GoogleApi,
+			news: NewsApi,
+			reddit: RedditApi,
+			shows: ShowsApi,
+		};
+	}
+
+	private initializePlayer() {
 		const player = new Player(this);
+		player.extractors.loadDefault();
 		player.events.on('error', (_queue, error) => logger.error(error));
+		logger.debug(player.scanDeps());
 		return player;
-	};
+	}
 
-	private initializeListeners = () => {
+	private initializeListeners() {
 		for (const [name, event] of Bot.events.entries()) {
 			this[event.data.type](name, (...args: unknown[]) => event.execute(this, ...args).catch(this.handleError));
-
 			logger.info(`Event listener is listening ${event.data.type} **${name}**.`);
 		}
-	};
+	}
 
-	private initializeSchedulers = () => {
+	private initializeSchedulers() {
 		for (const [name, job] of Bot.jobs.entries()) {
-			const cronjob = new CronJob(job.data.schedule, () =>
-				job.execute(this).catch((error) => {
+			new CronJob(job.data.schedule, () =>
+				job.execute({ client: this }).catch((error) => {
 					error.message = `Job **${name}** failed. Reason: ${error.message}`;
 					this.handleError(error);
 				}),
-			);
-			cronjob.start();
-
+			).start();
 			logger.info(`Job **${name}** is set to run. Schedule: **(${job.data.schedule})**.`);
 		}
-	};
+	}
 
-	private handleError = (error: Error) => {
-		if (error instanceof DiscordAPIError || error instanceof FetchError) logger.warn(error.message);
+	private handleError(error: Error) {
+		if (error instanceof FetchError) logger.warn(error);
 		else logger.error(error);
-	};
+	}
 }

@@ -1,11 +1,9 @@
-import { WebhookEnum } from '@luferro/database';
-import { RedditApi } from '@luferro/reddit-api';
+import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
 import { config } from '../../config/environment';
-import type { Bot } from '../../structures/bot';
-import type { JobData } from '../../types/bot';
+import type { JobData, JobExecute } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -13,36 +11,39 @@ export const data: JobData = {
 	schedule: '0 */15 * * * *',
 };
 
-export const execute = async (client: Bot) => {
+export const execute: JobExecute = async ({ client }) => {
 	for (const subreddit of config.NSFW_SUBREDDITS) {
-		const posts = await RedditApi.getPosts(subreddit, 'hot', 25);
+		const posts = await client.api.reddit.getPosts(subreddit, 'hot', 25);
 
+		const embeds = [];
 		for (const { title, url, selfurl, gallery, fallback, embedType, hasEmbeddedMedia } of posts.reverse()) {
 			const isRedGifsEmbed = embedType === 'redgifs.com';
-			const fallbackUrl = fallback?.reddit_video_preview?.fallback_url;
-			if (isRedGifsEmbed && !fallbackUrl) continue;
+			const redGifsUrl = fallback?.reddit_video_preview?.fallback_url;
+			if (isRedGifsEmbed && !redGifsUrl) continue;
 
 			const galleryMediaId = gallery?.items[0].media_id;
-			const nsfwUrl = getUrl(url, galleryMediaId, fallbackUrl);
+			const nsfwUrl = galleryMediaId ? `https://i.redd.it/${galleryMediaId}.jpg` : redGifsUrl ?? url;
 
-			const { isDuplicated } = await client.manageState(data.name, subreddit, title, nsfwUrl);
-			if (isDuplicated) continue;
+			const isSuccessful = await client.state
+				.entry({ job: data.name, category: subreddit, data: { title, url: nsfwUrl } })
+				.update();
+			if (!isSuccessful) continue;
 
-			const message =
-				hasEmbeddedMedia || isRedGifsEmbed
-					? `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${nsfwUrl}`
-					: new EmbedBuilder()
-							.setTitle(StringUtil.truncate(title))
-							.setURL(selfurl)
-							.setImage(nsfwUrl)
-							.setColor('Random');
+			if (hasEmbeddedMedia) {
+				const content = `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${nsfwUrl}`;
+				await client.propageMessage(Webhook.Nsfw, content);
+				continue;
+			}
 
-			await client.sendWebhookMessageToGuilds(WebhookEnum.Nsfw, message);
+			const embed = new EmbedBuilder()
+				.setTitle(StringUtil.truncate(title))
+				.setURL(selfurl)
+				.setImage(nsfwUrl)
+				.setColor('Random');
+
+			embeds.push(embed);
 		}
-	}
-};
 
-const getUrl = (url: string, galleryMediaId?: string, fallbackUrl?: string) => {
-	if (galleryMediaId) return `https://i.redd.it/${galleryMediaId}.jpg`;
-	return fallbackUrl ?? url;
+		await client.propageMessages(Webhook.Nsfw, embeds);
+	}
 };

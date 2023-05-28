@@ -1,11 +1,8 @@
-import { WebhookEnum } from '@luferro/database';
-import { JikanApi } from '@luferro/jikan-api';
-import { RedditApi } from '@luferro/reddit-api';
+import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import type { Bot } from '../../structures/bot';
-import type { JobData } from '../../types/bot';
+import type { JobData, JobExecute } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 enum Aggregator {
@@ -28,12 +25,13 @@ export const data: JobData = {
 	schedule: '0 */20 * * * *',
 };
 
-export const execute = async (client: Bot) => {
-	const posts = await RedditApi.getPostsByFlair('Anime', 'new', ['Episode'], 20);
+export const execute: JobExecute = async ({ client }) => {
+	const posts = await client.api.reddit.getPostsByFlair('Anime', ['Episode'], 'new', 20);
 
+	const embeds = [];
 	for (const { title, url, selftext } of posts.reverse()) {
-		const { isDuplicated } = await client.manageState(data.name, null, title, url);
-		if (isDuplicated) continue;
+		const isSuccessful = await client.state.entry({ job: data.name, data: { title, url } }).update();
+		if (!isSuccessful) continue;
 
 		const streams = findSelftextMatches(selftext, Object.entries(Stream));
 		const aggregators = findSelftextMatches(selftext, Object.entries(Aggregator));
@@ -41,7 +39,7 @@ export const execute = async (client: Bot) => {
 		const id = getIdFromAggregator(aggregators, Aggregator.MyAnimeList);
 		if (!id) continue;
 
-		const { episodes, score, image, duration } = await JikanApi.getAnimeById(id);
+		const { episodes, score, image, duration } = await client.api.shows.jikan.getAnimeById(id);
 
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title.replace(/Discussion|discussion/, '')))
@@ -73,8 +71,10 @@ export const execute = async (client: Bot) => {
 			])
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds(WebhookEnum.Anime, embed);
+		embeds.push(embed);
 	}
+
+	await client.propageMessages(Webhook.Anime, embeds);
 };
 
 const getIdFromAggregator = (aggregatorsList: string[], selectedAggregator: Aggregator) => {
@@ -82,7 +82,7 @@ const getIdFromAggregator = (aggregatorsList: string[], selectedAggregator: Aggr
 	return aggregator?.match(/\((.*?)\)/g)?.[0].match(/\d+/g)?.[0] ?? null;
 };
 
-const findSelftextMatches = (selftext: string | null, array: [string, Aggregator | Stream][]) => {
+const findSelftextMatches = (selftext: string | null, array: [string, string][]) => {
 	return array
 		.map(([key, value]) => {
 			const stream = selftext?.split('\n').find((text) => text.includes(value));

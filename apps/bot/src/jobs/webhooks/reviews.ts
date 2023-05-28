@@ -1,10 +1,7 @@
-import { WebhookEnum } from '@luferro/database';
-import { OpenCriticApi } from '@luferro/games-api';
-import { RedditApi } from '@luferro/reddit-api';
+import { Webhook } from '@luferro/database';
 import { EmbedBuilder } from 'discord.js';
 
-import type { Bot } from '../../structures/bot';
-import type { JobData } from '../../types/bot';
+import type { JobData, JobExecute } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -12,28 +9,24 @@ export const data: JobData = {
 	schedule: '0 */30 * * * *',
 };
 
-export const execute = async (client: Bot) => {
-	const posts = await RedditApi.getPostsByFlair('Games', 'new', ['Review Thread'], 20);
+export const execute: JobExecute = async ({ client }) => {
+	const posts = await client.api.reddit.getPostsByFlair('Games', ['Review Thread'], 'new', 20);
 
+	const embeds = [];
 	for (const { selftext } of posts.reverse()) {
 		const selftextArray = selftext?.split('\n') ?? [];
 
 		const opencriticMatch = selftextArray.find((text) => text.includes('https://opencritic.com/game/'));
 		const opencriticUrl = opencriticMatch?.match(/(?<=\()(.*)(?=\))/g)?.[0];
-		const opencriticId = opencriticUrl?.match(/\d+/g)?.[0];
-
-		const metacriticMatch = selftextArray.find((text) => text.includes('https://www.metacritic.com/game/'));
-		const metacriticSlug = metacriticMatch?.split('/')[5];
-
-		const id = opencriticId ?? (metacriticSlug && (await OpenCriticApi.search(metacriticSlug)).id);
+		const id = opencriticUrl?.match(/\d+/g)?.[0];
 		if (!id) continue;
 
 		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
-			await OpenCriticApi.getReviewById(id);
+			await client.api.gaming.opencritic.getReviewById(id);
 		if (!tier || !score) continue;
 
-		const { isDuplicated } = await client.manageState(data.name, null, name, url);
-		if (isDuplicated) continue;
+		const isSuccessful = await client.state.entry({ job: data.name, data: { title: name, url } }).update();
+		if (!isSuccessful) continue;
 
 		const embed = new EmbedBuilder()
 			.setTitle(name)
@@ -67,6 +60,8 @@ export const execute = async (client: Bot) => {
 			])
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds(WebhookEnum.Reviews, embed);
+		embeds.push(embed);
 	}
+
+	await client.propageMessages(Webhook.Reviews, embeds);
 };

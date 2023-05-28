@@ -1,11 +1,9 @@
-import { WebhookEnum } from '@luferro/database';
-import { RedditApi } from '@luferro/reddit-api';
+import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
 import { config } from '../../config/environment';
-import type { Bot } from '../../structures/bot';
-import type { JobData } from '../../types/bot';
+import type { JobData, JobExecute } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -13,25 +11,34 @@ export const data: JobData = {
 	schedule: '0 */10 * * * *',
 };
 
-export const execute = async (client: Bot) => {
+export const execute: JobExecute = async ({ client }) => {
 	for (const subreddit of config.MEMES_SUBREDDITS) {
-		const posts = await RedditApi.getPosts(subreddit, 'hot', 25);
+		const posts = await client.api.reddit.getPosts(subreddit, 'hot', 25);
 
+		const embeds = [];
 		for (const { title, url, selfurl, hasEmbeddedMedia, isSelf } of posts.reverse()) {
 			if (isSelf) continue;
 
-			const { isDuplicated } = await client.manageState(data.name, subreddit, title, url);
-			if (isDuplicated) continue;
+			const isSuccessful = await client.state
+				.entry({ job: data.name, category: subreddit, data: { title, url } })
+				.update();
+			if (!isSuccessful) continue;
 
-			const message = hasEmbeddedMedia
-				? `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}`
-				: new EmbedBuilder()
-						.setTitle(StringUtil.truncate(title))
-						.setURL(selfurl)
-						.setImage(url)
-						.setColor('Random');
+			if (hasEmbeddedMedia) {
+				const content = `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}`;
+				await client.propageMessage(Webhook.Memes, content);
+				continue;
+			}
 
-			await client.sendWebhookMessageToGuilds(WebhookEnum.Memes, message);
+			const embed = new EmbedBuilder()
+				.setTitle(StringUtil.truncate(title))
+				.setURL(selfurl)
+				.setImage(url)
+				.setColor('Random');
+
+			embeds.push(embed);
 		}
+
+		await client.propageMessages(Webhook.Memes, embeds);
 	}
 };

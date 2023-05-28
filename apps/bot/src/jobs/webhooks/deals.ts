@@ -1,55 +1,52 @@
-import { WebhookEnum } from '@luferro/database';
-import type { DealsCategory } from '@luferro/games-api';
-import { DealsApi } from '@luferro/games-api';
+import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import type { Bot } from '../../structures/bot';
-import type { JobData } from '../../types/bot';
+import type { Bot } from '../../structures/Bot';
+import type { JobData, JobExecute } from '../../types/bot';
 import { JobName } from '../../types/enums';
+
+enum Category {
+	Sales = 'Sales',
+	Bundles = 'Bundles',
+	PrimeGaming = 'Prime Gaming',
+	PaidGames = 'Paid Games',
+	FreeGames = 'Free Games',
+}
 
 export const data: JobData = {
 	name: JobName.Deals,
 	schedule: '0 */8 * * * *',
 };
 
-export const execute = async (client: Bot) => {
-	for (const category of DealsApi.getCategories()) {
-		if (category === 'Free Games' || category === 'Paid Games') {
-			return await handleDiscountedDeals(client, category);
-		}
+export const execute: JobExecute = async ({ client }) => {
+	const data = [
+		await getBlogData(client, Category.Sales),
+		await getBlogData(client, Category.Bundles),
+		await getBlogData(client, Category.PrimeGaming),
+		await getDealsData(client, Category.FreeGames),
+		await getDealsData(client, Category.PaidGames),
+	].filter((item): item is NonNullable<typeof item> => !!item);
 
-		await handleBlogPosts(client, category);
+	for (const { webhook, embeds } of data) {
+		await client.propageMessages(webhook, embeds);
 	}
 };
 
-const handleDiscountedDeals = async (client: Bot, category: Extract<DealsCategory, 'Paid Games' | 'Free Games'>) => {
-	const deals = await DealsApi.getLatestDeals(category);
+const getWebhookByCategory = (category: Category) =>
+	category === Category.FreeGames || category === Category.PrimeGaming ? Webhook.FreeGames : Webhook.Deals;
 
-	for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
-		const { isDuplicated } = await client.manageState(data.name, category, title, url);
-		if (isDuplicated || (!discount && !regular)) continue;
-
-		const embed = new EmbedBuilder()
-			.setTitle(title)
-			.setURL(url)
-			.setThumbnail(image)
-			.setDescription(`**${discount}** off! ~~${regular}~~ | **${discounted}** @ **${store}**`)
-			.setColor('Random');
-
-		if (category === 'Paid Games' && coupon) embed.addFields([{ name: 'Store coupon', value: `*${coupon}*` }]);
-
-		const webhook = WebhookEnum[category === 'Free Games' ? 'FreeGames' : 'Deals'];
-		await client.sendWebhookMessageToGuilds(webhook, embed);
-	}
-};
-
-const handleBlogPosts = async (client: Bot, category: Extract<DealsCategory, 'Bundles' | 'Prime Gaming' | 'Sales'>) => {
-	const { title, url, lead, image } = await DealsApi.getLatestBlogNews(category);
+const getBlogData = async (client: Bot, category: Exclude<Category, Category.FreeGames | Category.PaidGames>) => {
+	const select = {
+		[Category.Sales]: client.api.gaming.deals.getLatestSale,
+		[Category.Bundles]: client.api.gaming.deals.getLatestBundle,
+		[Category.PrimeGaming]: client.api.gaming.deals.getLatestPrimeGamingAddition,
+	};
+	const { title, url, lead, image } = await select[category]();
 	if (!title || !url) return;
 
-	const { isDuplicated } = await client.manageState(data.name, category, title, url);
-	if (isDuplicated) return;
+	const isSuccessful = await client.state.entry({ job: data.name, category, data: { title, url } }).update();
+	if (!isSuccessful) return;
 
 	const embed = new EmbedBuilder()
 		.setTitle(StringUtil.truncate(title))
@@ -58,6 +55,34 @@ const handleBlogPosts = async (client: Bot, category: Extract<DealsCategory, 'Bu
 		.setDescription(lead ?? 'N/A')
 		.setColor('Random');
 
-	const webhook = WebhookEnum[category === 'Prime Gaming' ? 'FreeGames' : 'Deals'];
-	await client.sendWebhookMessageToGuilds(webhook, embed);
+	return { webhook: getWebhookByCategory(category), embeds: [embed] };
+};
+
+const getDealsData = async (client: Bot, category: Extract<Category, Category.FreeGames | Category.PaidGames>) => {
+	const select = {
+		[Category.FreeGames]: client.api.gaming.deals.getLatestFreeDeals,
+		[Category.PaidGames]: client.api.gaming.deals.getLatestPaidDeals,
+	};
+	const deals = await select[category]();
+
+	const embeds = [];
+	for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
+		const isSuccessful = await client.state.entry({ job: data.name, category, data: { title, url } }).update();
+		if (!isSuccessful) continue;
+
+		const embed = new EmbedBuilder()
+			.setTitle(title)
+			.setURL(url)
+			.setThumbnail(image)
+			.setDescription(`**${discount}** off! ~~${regular}~~ | **${discounted}** @ **${store}**`)
+			.setColor('Random');
+
+		if (category === Category.PaidGames && coupon) {
+			embed.addFields([{ name: 'Store coupon', value: `*${coupon}*` }]);
+		}
+
+		embeds.push(embed);
+	}
+
+	return { webhook: getWebhookByCategory(category), embeds };
 };

@@ -1,11 +1,9 @@
-import { WebhookEnum } from '@luferro/database';
-import { YoutubeApi } from '@luferro/google-api';
-import { RedditApi } from '@luferro/reddit-api';
+import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import type { Bot } from '../../structures/bot';
-import type { JobData } from '../../types/bot';
+import type { Bot } from '../../structures/Bot';
+import type { JobData, JobExecute } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -13,37 +11,44 @@ export const data: JobData = {
 	schedule: '0 */6 * * * *',
 };
 
-export const execute = async (client: Bot) => {
-	const posts = await RedditApi.getPosts('Games', 'new', 25);
+export const execute: JobExecute = async ({ client }) => {
+	const posts = await client.api.reddit.getPosts('Games', 'new', 25);
 
+	const embeds = [];
 	for (const { title, url, hasEmbeddedMedia, embedType, isSelf, isCrosspost } of posts.reverse()) {
 		if (isCrosspost || isSelf) continue;
 
 		const isTwitterEmbed = embedType === 'twitter.com';
 		const isYoutubeEmbed = embedType === 'youtube.com';
-		if (!isYoutubeEmbed && YoutubeApi.isVideo(url)) continue;
+		if (!isYoutubeEmbed && client.api.google.youtube.isVideo(url)) continue;
 
-		const targetUrl = await getUrl(url, isYoutubeEmbed, isTwitterEmbed);
+		const newsUrl = await getUrl(client, url, isYoutubeEmbed, isTwitterEmbed);
 
-		const { isDuplicated } = await client.manageState(data.name, null, title, targetUrl);
-		if (isDuplicated) continue;
+		const isSuccessful = await client.state.entry({ job: data.name, data: { title, url: newsUrl } }).update();
+		if (!isSuccessful) continue;
 
-		const subscribers = isYoutubeEmbed ? await YoutubeApi.getSubscribers(targetUrl) : null;
-		if (typeof subscribers === 'number' && subscribers < 50_000) continue;
+		let subscribers = null;
+		if (isYoutubeEmbed) {
+			const { channel } = await client.api.google.youtube.getVideoDetails(url);
+			subscribers = channel.subscribers;
+			if (typeof subscribers === 'number' && subscribers < 50_000) continue;
+		}
 
-		const message = hasEmbeddedMedia
-			? `**${StringUtil.truncate(title)}**\n${targetUrl}`
-			: new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(targetUrl).setColor('Random');
+		if (hasEmbeddedMedia) {
+			const content = `**${StringUtil.truncate(title)}**\n${url}`;
+			await client.propageMessage(Webhook.GamingNews, content);
+			continue;
+		}
 
-		await client.sendWebhookMessageToGuilds(WebhookEnum.GamingNews, message);
+		const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
+		embeds.push(embed);
 	}
+
+	await client.propageMessages(Webhook.GamingNews, embeds);
 };
 
-const getUrl = async (url: string, isVideo: boolean, isTweet: boolean) => {
+const getUrl = async (client: Bot, url: string, isVideo: boolean, isTweet: boolean) => {
 	if (isTweet) return url.split('?')[0];
-	if (isVideo) {
-		const isPlaylist = await YoutubeApi.isPlaylist(url);
-		return isPlaylist ? url : `https://www.youtube.com/watch?v=${YoutubeApi.getVideoId(url)}`;
-	}
+	if (isVideo) return `https://www.youtube.com/watch?v=${client.api.google.youtube.getVideoId(url)}`;
 	return url;
 };

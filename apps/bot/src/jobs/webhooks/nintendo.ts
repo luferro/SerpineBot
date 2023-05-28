@@ -1,10 +1,8 @@
-import { WebhookEnum } from '@luferro/database';
-import { NintendoApi } from '@luferro/games-api';
+import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import type { Bot } from '../../structures/bot';
-import type { JobData } from '../../types/bot';
+import type { JobData, JobExecute } from '../../types/bot';
 import { JobName } from '../../types/enums';
 
 export const data: JobData = {
@@ -12,12 +10,13 @@ export const data: JobData = {
 	schedule: '0 */10 * * * *',
 };
 
-export const execute = async (client: Bot) => {
-	const articles = await NintendoApi.getLatestNintendoNews();
+export const execute: JobExecute = async ({ client }) => {
+	const articles = await client.api.gaming.nintendo.getLatestNews();
 
+	const embeds = [];
 	for (const { title, url, image } of articles.reverse()) {
-		const { isDuplicated } = await client.manageState(data.name, null, title, url);
-		if (isDuplicated) continue;
+		const isSuccessful = await client.state.entry({ job: data.name, data: { title, url } }).update();
+		if (!isSuccessful) continue;
 
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title))
@@ -25,6 +24,8 @@ export const execute = async (client: Bot) => {
 			.setThumbnail(image)
 			.setColor('Random');
 
-		await client.sendWebhookMessageToGuilds(WebhookEnum.Nintendo, embed);
+		embeds.push(embed);
 	}
+
+	await client.propageMessages(Webhook.Nintendo, embeds);
 };
