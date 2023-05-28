@@ -8,7 +8,7 @@ SerpineBot is a monorepo that consists in two applications: **bot** and **web**.
 
 ## Features:
 
--   **Slash commands**: *20+* slash command that serve various uses. An overview for all these commands can be found [here](https://serpine-bot.vercel.app).
+-   **Slash commands**: *15* slash command that serve various uses. An overview for all these commands can be found [here](https://serpine-bot.vercel.app).
 -   **Webhooks**: *10+* webhooks that feed text channels with content on various topics (e.g. news, game deals, game reviews, anime episodes and many others).
 -   **Jobs**: Scheduled jobs to handle bot integrations (e.g. Steam and Xbox integration), reminders, birthdays and much more.
 
