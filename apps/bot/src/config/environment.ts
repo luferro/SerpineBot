@@ -11,13 +11,15 @@ const getEnvConfig = () => ({
 
 	// API KEYS
 	STEAM_API_KEY: process.env.STEAM_API_KEY ?? null,
-	TENOR_API_KEY: process.env.TENOR_API_KEY ?? null,
 	GNEWS_API_KEY: process.env.GNEWS_API_KEY ?? null,
 	THE_MOVIE_DB_API_KEY: process.env.THE_MOVIE_DB_API_KEY ?? null,
 
 	// SUBREDDITS
 	NSFW_SUBREDDITS: process.env.NSFW_SUBREDDITS?.split(',') ?? [],
 	MEMES_SUBREDDITS: process.env.MEMES_SUBREDDITS?.split(',') ?? [],
+
+	// GIFS
+	BIRTHDAY_GIFS: process.env.BIRTHDAY_GIFS?.split(',') ?? [],
 });
 
 const getSanitizedEnvConfig = () => {
