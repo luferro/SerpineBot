@@ -91,7 +91,7 @@ export const getProvidersForId = async (type: ShowType, id: string) => {
 	} = await FetchUtil.fetch<TMDBProvidersPayload>({ url });
 
 	const ptUrl = PT?.link ?? null;
-	const providers = url ? await getProviders(url) : [];
+	const providers = ptUrl ? await getProviders(ptUrl) : [];
 	const buy = providers.filter(({ type }) => type === 'Buy');
 	const rent = providers.filter(({ type }) => type === 'Rent');
 	const stream = providers.filter(({ type }) => type === 'Stream');
