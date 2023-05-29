@@ -15,12 +15,11 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 				{ name: 'Off', value: QueueRepeatMode.OFF },
 				{ name: 'Track', value: QueueRepeatMode.TRACK },
 				{ name: 'Queue', value: QueueRepeatMode.QUEUE },
-				{ name: 'Autoplay', value: QueueRepeatMode.AUTOPLAY },
 			),
 	);
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
-	const mode = interaction.options.getInteger('mode', true) as QueueRepeatMode;
+	const mode = interaction.options.getInteger('mode', true) as Exclude<QueueRepeatMode, QueueRepeatMode.AUTOPLAY>;
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error('Cannot toggle loop.');
