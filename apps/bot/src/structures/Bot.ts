@@ -54,7 +54,7 @@ export class Bot extends Client {
 
 			this.emit('ready', this as Client);
 		} catch (error) {
-			logger.error(`Fatal error during application start. Reason: ${error}`);
+			logger.error('Fatal error during application start.', error);
 			this.stop();
 		}
 	}
@@ -104,7 +104,7 @@ export class Bot extends Client {
 	private initializePlayer() {
 		const player = new Player(this);
 		player.extractors.loadDefault();
-		player.events.on('error', (_queue, error) => logger.error(error));
+		player.events.on('error', (_queue, error) => logger.error('Player failed.', error));
 		logger.debug(player.scanDeps());
 		return player;
 	}
