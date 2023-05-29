@@ -3,21 +3,25 @@ import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
 import ytsr, { type Video } from 'ytsr';
 
-const isValidId = (id: string) => {
+export const isVideo = (url: string) => Boolean(getVideoId(url));
+
+export const isPlaylist = async (url: string) => Boolean(await getPlaylistId(url));
+
+export const getVideoId = (url: string) => {
 	try {
-		return ytdl.validateID(id);
+		return ytdl.getVideoID(url);
 	} catch (error) {
-		return false;
+		return null;
 	}
 };
 
-export const isVideo = (url: string) => isValidId(getVideoId(url));
-
-export const isPlaylist = async (url: string) => isValidId(await getPlaylistId(url));
-
-export const getVideoId = (url: string) => ytdl.getVideoID(url);
-
-export const getPlaylistId = async (url: string) => await ytpl.getPlaylistID(url);
+export const getPlaylistId = async (url: string) => {
+	try {
+		return await ytpl.getPlaylistID(url);
+	} catch (error) {
+		return null;
+	}
+};
 
 export const search = async (query: string) => {
 	const { items } = await ytsr(query, { limit: 10 });
