@@ -1,4 +1,5 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { PlayerTimestamp, Track } from 'discord-player';
 
 import type { CommandData, CommandExecute } from '../../types/bot';
 
@@ -11,32 +12,36 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	if (!queue) throw new Error('Cannot display guild queue.');
 
 	const { currentTrack, tracks } = queue;
+	const timestamp = queue.node.getTimestamp();
 
-	const formattedCurrentTrack = currentTrack
-		? `**[${currentTrack.title}](${currentTrack.url})** | **${currentTrack.duration}**\nRequest by \`${
-				currentTrack.requestedBy?.tag ?? 'Unknown'
-		  }\``
-		: 'Nothing is playing.';
+	const getFormattedTrack = (currentTrack: Track, timestamp?: PlayerTimestamp) => {
+		const title = `[${currentTrack.title}](${currentTrack.url})`;
+		const duration = timestamp ? `${timestamp.current.label} / ${timestamp.total.label}` : currentTrack.duration;
+
+		let formatted = `**${title}** | **${duration}**`;
+		if (currentTrack.requestedBy) formatted = `${formatted}\nRequest by \`${currentTrack.requestedBy.tag}\``;
+		return formatted;
+	};
+
 	const formattedQueue = tracks
-		.map(
-			({ title, duration, requestedBy }, index) =>
-				`\`${index + 1}.\` **${title}** | **${duration}**\nRequest by \`${requestedBy?.tag ?? 'Unknown'}\``,
-		)
-		.slice(0, 10);
+		.toArray()
+		.slice(0, 10)
+		.map((track, index) => `\`${index + 1}.\` ${getFormattedTrack(track)}`);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Queue for ${interaction.guild.name}`)
+		.setThumbnail(interaction.guild.iconURL())
 		.addFields([
 			{
 				name: '**Now playing**',
-				value: formattedCurrentTrack,
+				value: currentTrack && timestamp ? getFormattedTrack(currentTrack, timestamp) : 'Nothing is playing.',
 			},
 			{
 				name: '**Queue**',
 				value: formattedQueue.join('\n') || 'Queue is empty.',
 			},
 		])
-		.setFooter({ text: `${queue.size} total items in queue.` })
+		.setFooter({ text: `${queue.size} item(s) in queue.` })
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });
