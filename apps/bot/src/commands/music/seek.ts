@@ -11,6 +11,8 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 	);
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
+	await interaction.deferReply();
+
 	const timestamp = interaction.options.getString('timestamp', true);
 
 	const queue = client.player.nodes.get(interaction.guild.id);
@@ -31,7 +33,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	await queue.node.seek(seekMilliseconds);
 
 	const embed = new EmbedBuilder().setTitle(`Playback jumped to timestamp \`${timestamp}\`.`).setColor('Random');
-	await interaction.reply({ embeds: [embed] });
+	await interaction.editReply({ embeds: [embed] });
 };
 
 const getMilliseconds = (timestampToConvert: string) => {
