@@ -32,7 +32,6 @@ const handleChatInputCommandInteraction = async ({ client, interaction }: Args) 
 	try {
 		const execute = Bot.commands.execute.get(name);
 		if (!execute) throw new Error(`Slash command "${name}" is not registered.`);
-
 		await execute({ client, interaction });
 	} catch (error) {
 		if (error instanceof DiscordAPIError || error instanceof FetchError) {
@@ -42,7 +41,6 @@ const handleChatInputCommandInteraction = async ({ client, interaction }: Args) 
 
 		const { message } = error as Error;
 		const embed = new EmbedBuilder().setTitle('Something went wrong.').setDescription(message).setColor('Random');
-
 		if (interaction.deferred) await interaction.editReply({ content: null, embeds: [embed], components: [] });
 		else await interaction.reply({ embeds: [embed], ephemeral: true });
 	}
