@@ -48,7 +48,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 		const reminderId = await RemindersModel.createReminder(
 			gifter.user.id,
 			Date.now(),
-			Date.now() + eventDate.getTime() - Date.now(),
+			eventDate.getTime(),
 			`Secret Santa ${eventDate.getFullYear()}: It is time to exchange gifts. 🎅 Merry Christmas 🎅`,
 		);
 
