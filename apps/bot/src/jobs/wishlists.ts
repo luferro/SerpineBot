@@ -138,8 +138,7 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 		const user = await client.users.fetch(userId);
 		await user.send({ embeds: [embed] });
 
-		const message = `Job **${data.name}** notified **${user.tag}** about **${queue.length}** update(s) in **${Alert[category]}** category.`;
-		logger.info(message);
-		logger.debug(JSON.stringify(alerts));
+		logger.info(`Job **${data.name}** notified **${user.tag}** (${Alert[category]} | ${queue.length} update(s)).`);
+		logger.debug(JSON.stringify({ queue }));
 	}
 };
