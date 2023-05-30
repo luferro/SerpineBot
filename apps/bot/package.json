@@ -41,7 +41,6 @@
 		"dotenv": "^16.1.0",
 		"mongoose": "^7.2.2",
 		"play-dl": "^1.9.6",
-		"youtube-sr": "^4.3.4",
-		"ytdl-core": "^4.11.4"
+		"youtube-sr": "^4.3.4"
 	}
 }

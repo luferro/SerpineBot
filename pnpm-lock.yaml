@@ -45,7 +45,6 @@ importers:
       play-dl: ^1.9.6
       typescript: ^5.0.4
       youtube-sr: ^4.3.4
-      ytdl-core: ^4.11.4
     dependencies:
       '@discord-player/extractor': 4.2.2
       '@discordjs/opus': 0.9.0
@@ -65,7 +64,6 @@ importers:
       mongoose: 7.2.2
       play-dl: 1.9.6
       youtube-sr: 4.3.4
-      ytdl-core: 4.11.4
     devDependencies:
       '@types/cron': 2.0.1
       '@types/node': 20.2.5
