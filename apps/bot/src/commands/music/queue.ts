@@ -15,11 +15,18 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const timestamp = queue.node.getTimestamp();
 
 	const getFormattedTrack = (currentTrack: Track, timestamp?: PlayerTimestamp) => {
-		const title = `[${currentTrack.title}](${currentTrack.url})`;
-		const duration = timestamp ? `${timestamp.current.label} / ${timestamp.total.label}` : currentTrack.duration;
+		let formatted = `**[${currentTrack.title}](${currentTrack.url})**`;
 
-		let formatted = `**${title}** | **${duration}**`;
-		if (currentTrack.requestedBy) formatted = `${formatted}\nRequest by \`${currentTrack.requestedBy.tag}\``;
+		if (timestamp) {
+			const progress = getProgressBar({
+				progress: timestamp.progress,
+				current: timestamp.current.label,
+				total: timestamp.total.label,
+			});
+			formatted += `\n${progress}`;
+		} else formatted += ` | **${currentTrack.duration}**`;
+
+		if (currentTrack.requestedBy) formatted += `\nRequest by \`${currentTrack.requestedBy.tag}\``;
 		return formatted;
 	};
 
@@ -45,4 +52,10 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });
+};
+
+const getProgressBar = ({ progress, current, total }: { progress: number; current: string; total: string }) => {
+	const array = Array.from({ length: 20 });
+	const bar = `[${array.map((_, index) => ((index * 100) / 20 < progress ? '=' : '-')).join('')}]`;
+	return `\`${current}\` **${bar}** \`${total}\``;
 };
