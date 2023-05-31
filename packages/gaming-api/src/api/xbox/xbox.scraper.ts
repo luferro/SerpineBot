@@ -60,14 +60,13 @@ export const getNewsList = async (url: string) => {
 export const getXboxList = async (url: string) => {
 	const $ = await StaticScraper.load(url);
 
-	return $('.context-list-page > div')
+	return $('section > ul li')
 		.get()
 		.slice(0, 10)
 		.map((element, index) => {
 			const position = index + 1;
-			const name = $(element).find('h3').first().text();
-			const href = $(element).find('a').attr('href');
-			const url = `https://www.xbox.com${href}`;
+			const name = $(element).find('.card-body a').text();
+			const url = $(element).find('.card-body a').attr('href')!;
 
 			return { position, name, url };
 		});
