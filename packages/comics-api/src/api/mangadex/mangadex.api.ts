@@ -1,25 +1,42 @@
 import { FetchUtil } from '@luferro/shared-utils';
 
-import { MangadexChapter, MangadexManga, MangadexPayload, MangadexSearch } from '../../types/payload';
+type Payload<T> = { data: T };
+
+type Search = { id: number };
+
+type Relationship = {
+	id: string;
+	type: string;
+	related?: string;
+	attributes: { description: string; volume: string; fileName: string };
+};
+type Chapter = {
+	id: string;
+	attributes: { volume: string | null; chapter: string; title: string; externalUrl: string };
+	relationships: Relationship[];
+};
+
+type Manga = {
+	id: string;
+	attributes: { title: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string } };
+	relationships: Relationship[];
+};
 
 export const search = async (query: string) => {
 	const url = `https://api.mangadex.org/manga?title=${query}`;
-	const data = await FetchUtil.fetch<MangadexPayload<MangadexSearch[]>>({ url });
-	const id = data.data[0]?.id.toString() ?? null;
-	return { id };
+	const { payload } = await FetchUtil.fetch<Payload<Search[]>>({ url });
+	return { id: payload.data[0]?.id.toString() ?? null };
 };
 
 export const getMangaById = async (id: string) => {
 	const url = `https://api.mangadex.org/manga/${id}?includes[]=cover_art`;
 	const {
-		data: {
-			attributes: {
-				title: { en, ja, jp, 'ja-ro': romaji },
-			},
-			relationships,
+		payload: {
+			data: { attributes, relationships },
 		},
-	} = await FetchUtil.fetch<MangadexPayload<MangadexManga>>({ url });
+	} = await FetchUtil.fetch<Payload<Manga>>({ url });
 
+	const { en, ja, jp, 'ja-ro': romaji } = attributes.title;
 	const coverArt = relationships.find(({ type }) => type === 'cover_art');
 	const image = coverArt ? `https://uploads.mangadex.org/covers/${id}/${coverArt.attributes.fileName}` : null;
 
@@ -33,9 +50,9 @@ export const getMangaById = async (id: string) => {
 
 export const getLastestChapters = async (limit = 20) => {
 	const url = `https://api.mangadex.org/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&limit=${limit}`;
-	const { data } = await FetchUtil.fetch<MangadexPayload<MangadexChapter[]>>({ url });
+	const { payload } = await FetchUtil.fetch<Payload<Chapter[]>>({ url });
 
-	return data.map(({ id, attributes: { title, chapter, externalUrl }, relationships }) => {
+	return payload.data.map(({ id, attributes: { title, chapter, externalUrl }, relationships }) => {
 		const manga = relationships.find(({ type }) => type === 'manga')!;
 
 		const chapterNumber = chapter ? `Ch. ${chapter}` : '';

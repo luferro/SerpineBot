@@ -1,6 +1,20 @@
 import { StaticScraper } from '@luferro/scraper';
 
-import { NintendoResponse } from '../../types/payload';
+type Articles = {
+	props: {
+		pageProps: {
+			initialApolloState: {
+				[key: string]: {
+					'__typename': string;
+					'title': string;
+					'media': { publicId: string };
+					'publishDate': string;
+					'url({"relative":true})': string;
+				};
+			};
+		};
+	};
+};
 
 export enum Endpoint {
 	LATEST_NEWS = 'https://www.nintendo.com/whatsnew',
@@ -14,7 +28,7 @@ export const getNewsList = async (url: Endpoint) => {
 		props: {
 			pageProps: { initialApolloState },
 		},
-	} = JSON.parse(script) as NintendoResponse;
+	} = JSON.parse(script) as Articles;
 
 	return Object.values(initialApolloState)
 		.filter(({ __typename }) => __typename === 'NewsArticle')

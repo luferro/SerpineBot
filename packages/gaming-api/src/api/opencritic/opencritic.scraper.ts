@@ -1,6 +1,18 @@
 import { StaticScraper } from '@luferro/scraper';
 
-import { OpenCriticReview } from '../../types/payload';
+type Review = {
+	name: string;
+	datePublished: string;
+	gamePlatform: string[];
+	image: string;
+	aggregateRating?: {
+		ratingValue: number;
+		bestRating: number;
+		worstRating: number;
+		reviewCount: number;
+		ratingCount: number;
+	};
+};
 
 export enum Endpoint {
 	GAME_PAGE = 'https://opencritic.com/game/:id/:slug',
@@ -15,7 +27,7 @@ export const getReviewDetails = async (url: string) => {
 	const recommended = $('app-score-orb').last().text().trim();
 	const script = $('app-json-ld').first().text();
 
-	const { name, datePublished, gamePlatform, image, aggregateRating } = JSON.parse(script) as OpenCriticReview;
+	const { name, datePublished, gamePlatform, image, aggregateRating } = JSON.parse(script) as Review;
 
 	return {
 		name,

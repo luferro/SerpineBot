@@ -1,13 +1,32 @@
 import { FetchUtil } from '@luferro/shared-utils';
 
-import type { RedditChildren, RedditPayload, RedditPost } from '../types/payload';
-
 type Sort = 'new' | 'hot' | 'top';
+
+type Payload<T> = { data: T };
+
+type Children<T> = { children: T };
+
+type Post = {
+	data: {
+		title: string;
+		selftext: string | null;
+		url: string;
+		permalink: string;
+		secure_media?: { type: string };
+		gallery_data?: { items: { media_id: string }[] };
+		preview?: { reddit_video_preview?: { fallback_url: string } };
+		is_self: boolean;
+		crosspost_parent: boolean | null;
+		stickied: boolean;
+		is_video: boolean;
+		removed_by_category: boolean | null;
+		created_utc: number;
+	};
+};
 
 export const getPosts = async (subreddit: string, sort: Sort = 'hot', limit = 100) => {
 	const url = `https://www.reddit.com/r/${subreddit}/${sort}.json?limit=${limit}&restrict_sr=1`;
-	const data = await FetchUtil.fetch<RedditPayload<RedditChildren<RedditPost[]>>>({ url });
-	return extract(data);
+	return await getPostsList(url);
 };
 
 export const getPostsByFlair = async (subreddit: string, flairs: string[], sort: Sort = 'hot', limit = 100) => {
@@ -15,14 +34,14 @@ export const getPostsByFlair = async (subreddit: string, flairs: string[], sort:
 
 	const flair = flairs.map((flair) => `flair_name:"${flair}"`).join(' OR ');
 	const url = `https://www.reddit.com/r/${subreddit}/search.json?q=${flair}&limit=${limit}&sort=${sort}&restrict_sr=1`;
-	const data = await FetchUtil.fetch<RedditPayload<RedditChildren<RedditPost[]>>>({ url });
-	return extract(data);
+	return await getPostsList(url);
 };
 
-const extract = (post: RedditPayload<RedditChildren<RedditPost[]>>) => {
-	if (!post?.data?.children) throw new Error('Failed to retrieve reddit post.');
+const getPostsList = async (url: string) => {
+	const { payload } = await FetchUtil.fetch<Payload<Children<Post[]>>>({ url });
+	if (!payload?.data?.children) throw new Error('Failed to retrieve reddit post.');
 
-	return post.data.children
+	return payload.data.children
 		.filter(({ data }) => !data.stickied && !data.is_video && !data.removed_by_category)
 		.sort((a, b) => b.data.created_utc - a.data.created_utc)
 		.map(({ data }) => ({

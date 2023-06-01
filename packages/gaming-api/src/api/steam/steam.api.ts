@@ -1,6 +1,5 @@
 import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 
-import type { SteamId64, SteamPayload, SteamPlayers, SteamRecentlyPlayed, SteamWishlist } from '../../types/payload';
 import { Endpoint, getChartsList, getSalesList, getSteamList } from './steam.scraper';
 
 enum Status {
@@ -13,6 +12,30 @@ enum Status {
 	LookingToPlay,
 }
 
+type Payload<T> = { [key: string]: T };
+
+type SteamId64 = { steamid?: string };
+
+type Profile = {
+	personaname: string;
+	avatarfull: string;
+	lastlogoff: number;
+	personastate: number;
+	timecreated: number;
+};
+
+type Package = { id: number; discount_block: string; price: number; discount_pct: number };
+type Wishlist = {
+	name: string;
+	release_date: string | number;
+	priority: number;
+	is_free_game: boolean;
+	subs: Package[];
+};
+
+type App = { appid: number; name: string; playtime_2weeks: number; playtime_forever: number };
+type RecentlyPlayed = { total_count?: number; games?: App[] };
+
 let API_KEY: string | null = null;
 
 const validateApiKey = () => {
@@ -24,20 +47,17 @@ export const setApiKey = (apiKey: string) => (API_KEY = apiKey);
 export const getSteamId64 = async (customId: string) => {
 	validateApiKey();
 	const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${API_KEY}&vanityurl=${customId}`;
-	const data = await FetchUtil.fetch<SteamPayload<SteamId64>>({ url });
-	return data.response?.steamid ?? null;
+	const { payload } = await FetchUtil.fetch<Payload<SteamId64>>({ url });
+	return payload.response?.steamid ?? null;
 };
 
 export const getProfile = async (steamId: string) => {
 	validateApiKey();
 	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${API_KEY}&steamids=${steamId}`;
-	const {
-		response: {
-			players: {
-				0: { personaname, avatarfull, personastate, lastlogoff, timecreated },
-			},
-		},
-	} = await FetchUtil.fetch<SteamPayload<SteamPlayers>>({ url });
+	const { payload } = await FetchUtil.fetch<Payload<Payload<Profile[]>>>({ url });
+
+	if (payload.response.players.length === 0) throw new Error(`Cannot find a profile for steamId ${steamId}.`);
+	const { personaname, avatarfull, personastate, lastlogoff, timecreated } = payload.response.players[0];
 
 	return {
 		name: personaname,
@@ -51,9 +71,9 @@ export const getProfile = async (steamId: string) => {
 export const getRecentlyPlayed = async (steamId: string) => {
 	validateApiKey();
 	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${API_KEY}&steamid=${steamId}&format=json`;
-	const { response } = await FetchUtil.fetch<SteamPayload<SteamRecentlyPlayed>>({ url });
+	const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed>>({ url });
 
-	return (response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
+	return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
 		name,
 		id: appid,
 		totalHours: ConverterUtil.toHours(playtime_forever * 1000 * 60),
@@ -68,12 +88,12 @@ export const getWishlist = async (steamId: string) => {
 	let page = 0;
 	while (true) {
 		const url = `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=${page}`;
-		const data = await FetchUtil.fetch<SteamPayload<SteamWishlist>>({ url });
+		const { payload } = await FetchUtil.fetch<Payload<Wishlist>>({ url });
 
-		const hasMore = Object.keys(data).some((id) => !isNaN(Number(id)));
+		const hasMore = Object.keys(payload).some((id) => !isNaN(Number(id)));
 		if (!hasMore) break;
 
-		for (const [id, { name, release_date, priority, is_free_game, subs }] of Object.entries(data)) {
+		for (const [id, { name, release_date, priority, is_free_game, subs }] of Object.entries(payload)) {
 			const isPriced = !is_free_game && subs.length > 0;
 
 			const discount = isPriced ? subs[0].discount_pct : null;

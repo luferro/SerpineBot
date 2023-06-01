@@ -1,7 +1,26 @@
 import { StaticScraper } from '@luferro/scraper';
 import { ConverterUtil } from '@luferro/shared-utils';
 
-import { HowLongToBeatResponse } from '../../types/payload';
+type Payload<T> = { props: { pageProps: { game: { data: { game: T } } } } };
+
+type Entry = {
+	game_id: number;
+	game_name: string;
+	game_alias: string;
+	profile_summary: string;
+	profile_dev: string;
+	profile_pub: string;
+	profile_genre: string;
+	release_world: string;
+	review_score: number;
+	profile_steam: number;
+	profile_ign: string;
+	rating_esrb: string;
+	game_image: string;
+	comp_main: number;
+	comp_plus: number;
+	comp_100: number;
+};
 
 export enum Endpoint {
 	GAME_PAGE = 'https://howlongtobeat.com/game/:id',
@@ -23,7 +42,7 @@ export const getGameDetails = async (url: Endpoint) => {
 				},
 			},
 		},
-	} = JSON.parse(script) as HowLongToBeatResponse;
+	} = JSON.parse(script) as Payload<Entry[]>;
 
 	return {
 		name: game_name,
