@@ -1,5 +1,4 @@
 import { StaticScraper } from '@luferro/scraper';
-import { FetchUtil } from '@luferro/shared-utils';
 
 export enum Endpoint {
 	GARFIELD_COMIC = 'https://www.gocomics.com/random/garfield',
@@ -20,8 +19,7 @@ export const getComic = async (url: Endpoint) => {
 		const redirectUrl = $('a').attr('href');
 		if (!redirectUrl) throw new Error(`Couldn't find comic.`);
 
-		const { payload } = await FetchUtil.fetch<string>({ url: redirectUrl });
-		$ = await StaticScraper.load(payload);
+		$ = await StaticScraper.load(redirectUrl);
 	}
 
 	const title = $('.comic').attr('data-feature-name') ?? null;
