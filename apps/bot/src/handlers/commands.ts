@@ -95,7 +95,6 @@ export const registerCommands = async () => {
 		const subcommand = matches.length > 1 ? matches.at(-1) : null;
 
 		const { data, execute }: RawCommand = await import(file);
-
 		const options = Array.isArray(data) ? data : [data];
 
 		const category = group ?? command;
