@@ -36,6 +36,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 				value: formattedSubscriptions.join('\n'),
 			},
 		])
+		.setFooter({ text: 'Data provided by JustWatch.' })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

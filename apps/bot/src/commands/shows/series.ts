@@ -19,7 +19,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const formattedStream = stream.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
 
 	const { name, description, url, status, firstEpisode, nextEpisode, seasons, image, score, runtime, genres } =
-		await client.api.shows.tmdb.getShowById('tv', id);
+		await client.api.shows.tmdb.getSeriesById(id);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
@@ -66,6 +66,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 				value: formattedStream.join('\n') || 'N/A',
 			},
 		])
+		.setFooter({ text: 'Stream data provided by JustWatch.' })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

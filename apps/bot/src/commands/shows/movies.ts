@@ -21,7 +21,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const formattedRent = rent.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
 
 	const { name, description, url, releaseDate, image, score, runtime, genres } =
-		await client.api.shows.tmdb.getShowById('movie', id);
+		await client.api.shows.tmdb.getMovieById(id);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
@@ -64,6 +64,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 				inline: true,
 			},
 		])
+		.setFooter({ text: 'Buy, Rent and Stream data provided by JustWatch.' })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });
