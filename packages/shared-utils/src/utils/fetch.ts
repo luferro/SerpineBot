@@ -1,35 +1,25 @@
-import { HeaderGenerator } from 'header-generator';
 import undici from 'undici';
 
 import { FetchError } from '../errors/FetchError';
-import { logger } from './logger';
 
 type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
 type Request = { url: string | URL; method?: HttpMethod; body?: string };
 
-const generateHeaders = () => new HeaderGenerator({ browserListQuery: 'last 5 versions' }).getHeaders();
-
 export const fetch = async <T>({ method = 'GET', url, body }: Request) => {
-	const generatedHeaders = generateHeaders();
-	const headers = body ? { ...generatedHeaders, 'content-type': 'application/json' } : generatedHeaders;
-
+	const headers = body ? { 'content-type': 'application/json' } : null;
 	try {
-		const res = await undici.fetch(url, { method, headers, body });
-		if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+		const res = await undici.request(url, { headers, method, body });
+		if (res.statusCode >= 400) {
+			await res.body.dump();
+			throw new Error(`Status code ${res.statusCode}`);
+		}
 
-		const data = res.headers.get('content-type')?.includes('application/json')
-			? await res.json()
-			: await res.text();
+		const payload: T = res.headers['content-type']?.includes('application/json')
+			? await res.body.json()
+			: await res.body.text();
 
-		return data as Promise<T>;
+		return { headers: res.headers, payload };
 	} catch (error) {
-		logger.debug(error);
-		throw new FetchError(`**${method}** request to **${url}** failed.`);
+		throw new FetchError(`**${method}** request to **${url}** failed. Reason: ${(error as Error).message}`);
 	}
-};
-
-export const getRedirectLocation = async ({ url }: Omit<Request, 'body'>) => {
-	const res = await undici.request(url, { headers: generateHeaders(), method: 'GET' });
-	await res.body.dump();
-	return res.headers['location']?.toString() ?? null;
 };

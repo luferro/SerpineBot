@@ -13,7 +13,8 @@ export const isValid = (string: string) => {
 
 export const getRedirectLocation = async (url: string | URL): Promise<string> => {
 	try {
-		const location = await FetchUtil.getRedirectLocation({ url });
+		const { headers } = await FetchUtil.fetch({ url });
+		const location = headers['location']?.toString();
 		if (!location) return url.toString();
 
 		const { searchParams } = new URL(location);
