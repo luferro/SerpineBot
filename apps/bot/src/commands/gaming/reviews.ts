@@ -15,7 +15,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const { id } = await client.api.gaming.opencritic.search(query);
 	if (!id) throw new Error(`No matches for "${query}".`);
 
-	const review = await client.api.gaming.opencritic.getReviewById(id);
+	const review = await client.api.gaming.opencritic.getReviewsById(id);
 	const { name, url, releaseDate, platforms, tier, score, count, recommended, image } = review;
 	if (!tier || !score) throw new Error(`${name} doesn't have enough reviews to be displayed.`);
 
