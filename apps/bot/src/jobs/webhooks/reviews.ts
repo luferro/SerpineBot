@@ -16,13 +16,13 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const { selftext } of posts.reverse()) {
 		const selftextArray = selftext?.split('\n') ?? [];
 
-		const opencriticMatch = selftextArray.find((text) => text.includes('https://opencritic.com/game/'));
-		const opencriticUrl = opencriticMatch?.match(/(?<=\()(.*)(?=\))/g)?.[0];
-		const id = opencriticUrl?.match(/\d+/g)?.[0];
-		if (!id) continue;
+		const opencriticUrl = selftextArray
+			.find((text) => text.includes('https://opencritic.com/game/'))
+			?.match(/(?<=\()(.*)(?=\))/g)?.[0];
+		if (!opencriticUrl) continue;
 
 		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
-			await client.api.gaming.opencritic.getReviewById(id);
+			await client.api.gaming.opencritic.getReviewsForUrl(opencriticUrl);
 		if (!tier || !score) continue;
 
 		const isSuccessful = await client.state.entry({ job: data.name, data: { title: name, url } }).update();
