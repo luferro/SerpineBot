@@ -18,7 +18,7 @@ export enum Endpoint {
 	GAME_PAGE = 'https://opencritic.com/game/:id/:slug',
 }
 
-export const getReviewDetails = async (url: string) => {
+export const getReviewsDetails = async (url: string) => {
 	const $ = await StaticScraper.load(url);
 
 	const tierDisplay = $('app-tier-display').first().find('img');
