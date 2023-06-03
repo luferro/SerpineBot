@@ -18,7 +18,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 		const opencriticUrl = selftextArray
 			.find((text) => text.includes('https://opencritic.com/game/'))
-			?.match(/(?<=\()(.*)(?=\))/g)?.[0];
+			?.match(/https?[\w:/\-.]+/g)?.[0];
 		if (!opencriticUrl) continue;
 
 		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
