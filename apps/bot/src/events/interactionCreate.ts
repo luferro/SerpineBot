@@ -4,13 +4,9 @@ import { DiscordAPIError, EmbedBuilder } from 'discord.js';
 import * as RolesJob from '../jobs/roles';
 import { Bot } from '../structures/Bot';
 import type { Args, EventData } from '../types/bot';
-import { EventName } from '../types/enums';
 import type { ExtendedStringSelectMenuInteraction, Interaction } from '../types/interaction';
 
-export const data: EventData = {
-	name: EventName.InteractionCreate,
-	type: 'on',
-};
+export const data: EventData = { type: 'on' };
 
 export const execute = async (client: Bot, interaction: Interaction) => {
 	if (interaction.isStringSelectMenu()) await handleSelectMenuInteraction(interaction);

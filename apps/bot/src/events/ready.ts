@@ -1,14 +1,10 @@
 import { logger } from '@luferro/shared-utils';
 
-import * as CommandsHandler from '../handlers/commands';
+import * as CommandsHandler from '../handlers/commands/commands';
 import type { Bot } from '../structures/Bot';
 import type { EventData } from '../types/bot';
-import { EventName } from '../types/enums';
 
-export const data: EventData = {
-	name: EventName.Ready,
-	type: 'once',
-};
+export const data: EventData = { type: 'once' };
 
 export const execute = async (client: Bot) => {
 	await CommandsHandler.deployCommands(client);

@@ -3,12 +3,8 @@ import type { GuildMember } from 'discord.js';
 
 import type { Bot } from '../structures/Bot';
 import type { EventData } from '../types/bot';
-import { EventName } from '../types/enums';
 
-export const data: EventData = {
-	name: EventName.GuildMemberAdd,
-	type: 'on',
-};
+export const data: EventData = { type: 'on' };
 
 export const execute = async (_client: Bot, member: GuildMember) => {
 	let role = member.guild.roles.cache.find((role) => role.name === 'Restrictions');
