@@ -2,13 +2,10 @@ import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import type { JobData, JobExecute } from '../../types/bot';
-import { JobName } from '../../types/enums';
+import type { JobData, JobExecute } from '../types/bot';
+import { getCategoryFromPath } from '../utils/filename';
 
-export const data: JobData = {
-	name: JobName.Manga,
-	schedule: '0 */10 * * * *',
-};
+export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const latestChapters = await client.api.comics.mangadex.getLastestChapters();
@@ -23,7 +20,10 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const [mangaId, chapters] of chaptersByManga) {
 		for (const { chapterId, url } of chapters) {
 			const isSuccessful = await client.state
-				.entry({ job: data.name, data: { title: `${mangaId}:${chapterId}`, url } })
+				.entry({
+					job: getCategoryFromPath(__filename, 'jobs'),
+					data: { title: `${mangaId}:${chapterId}`, url },
+				})
 				.update();
 			if (!isSuccessful) continue;
 

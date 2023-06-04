@@ -2,14 +2,11 @@ import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import { config } from '../../config/environment';
-import type { JobData, JobExecute } from '../../types/bot';
-import { JobName } from '../../types/enums';
+import { config } from '../config/environment';
+import type { JobData, JobExecute } from '../types/bot';
+import { getCategoryFromPath } from '../utils/filename';
 
-export const data: JobData = {
-	name: JobName.Memes,
-	schedule: '0 */10 * * * *',
-};
+export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	for (const subreddit of config.MEMES_SUBREDDITS) {
@@ -20,7 +17,7 @@ export const execute: JobExecute = async ({ client }) => {
 			if (isSelf) continue;
 
 			const isSuccessful = await client.state
-				.entry({ job: data.name, category: subreddit, data: { title, url } })
+				.entry({ job: getCategoryFromPath(__filename, 'jobs', subreddit), data: { title, url } })
 				.update();
 			if (!isSuccessful) continue;
 

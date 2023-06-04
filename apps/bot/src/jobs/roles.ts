@@ -4,13 +4,9 @@ import { Collection, Guild, GuildMember, Message, StringSelectMenuBuilder, TextB
 import { ActionRowBuilder, EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../types/bot';
-import { JobName } from '../types/enums';
 import type { ExtendedStringSelectMenuInteraction } from '../types/interaction';
 
-export const data: JobData = {
-	name: JobName.Roles,
-	schedule: new Date(Date.now() + 1000 * 60),
-};
+export const data: JobData = { schedule: new Date(Date.now() + 1000 * 60) };
 
 export const execute: JobExecute = async ({ client }) => {
 	for (const { 1: guild } of client.guilds.cache) {
@@ -25,7 +21,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 		await createOrUpdateRoleSelectMenuMessage(guild, channel, options ?? []);
 
-		logger.info(`Job **${data.name}** sent a message to channelId **${channelId}** in guild **${guild.name}**.`);
+		logger.info(`Roles message sent to channelId **${channelId}** in guild **${guild.name}**.`);
 	}
 };
 
@@ -130,8 +126,7 @@ export const handleRolesUpdate = async (interaction: ExtendedStringSelectMenuInt
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 
-	logger.info(
-		`Roles updated for **${member.user.tag}** in **${guild.name}**. ${granted.length} granted and ${revoked.length} revoked.`,
-	);
+	const { tag } = member.user;
+	logger.info(`Roles updated for **${tag}** in **${guild.name}** (+${granted.length} | -${revoked.length}).`);
 	logger.debug(JSON.stringify({ granted, revoked, restricted }));
 };

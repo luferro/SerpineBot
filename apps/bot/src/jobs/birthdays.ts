@@ -3,12 +3,8 @@ import { logger } from '@luferro/shared-utils';
 
 import { config } from '../config/environment';
 import type { JobData, JobExecute } from '../types/bot';
-import { JobName } from '../types/enums';
 
-export const data: JobData = {
-	name: JobName.Birthdays,
-	schedule: '0 0 0 * * *',
-};
+export const data: JobData = { schedule: '0 0 0 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const birthdays = await BirthdaysModel.getBirthdays();
@@ -43,9 +39,9 @@ export const execute: JobExecute = async ({ client }) => {
 				const content = `${guild.roles.everyone}, ${target} is now ${age} years old! Happy birthday! 🎉🥳🎂🥳🎉`;
 				await channel.send({ content: gif ? `${content}\n${gif}` : content });
 
-				logger.info(`Job **${data.name}** notified channelId **${channelId}** in guild **${guild.name}**.`);
+				logger.info(`Notified users in **${guild.name}** about **${target.user.tag}** birthday.`);
 			} catch (error) {
-				logger.warn(`Job **${data.name}** failed for userId **${userId}**. Reason: **${error}**`);
+				logger.warn(`Failed to notify users about **${userId}** birthday. Reason: **${error}**`);
 			}
 		}
 	}

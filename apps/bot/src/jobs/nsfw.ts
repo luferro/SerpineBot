@@ -2,14 +2,11 @@ import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import { config } from '../../config/environment';
-import type { JobData, JobExecute } from '../../types/bot';
-import { JobName } from '../../types/enums';
+import { config } from '../config/environment';
+import type { JobData, JobExecute } from '../types/bot';
+import { getCategoryFromPath } from '../utils/filename';
 
-export const data: JobData = {
-	name: JobName.Nsfw,
-	schedule: '0 */15 * * * *',
-};
+export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	for (const subreddit of config.NSFW_SUBREDDITS) {
@@ -25,7 +22,7 @@ export const execute: JobExecute = async ({ client }) => {
 			const nsfwUrl = galleryMediaId ? `https://i.redd.it/${galleryMediaId}.jpg` : redGifsUrl ?? url;
 
 			const isSuccessful = await client.state
-				.entry({ job: data.name, category: subreddit, data: { title, url: nsfwUrl } })
+				.entry({ job: getCategoryFromPath(__filename, 'jobs', subreddit), data: { title, url: nsfwUrl } })
 				.update();
 			if (!isSuccessful) continue;
 

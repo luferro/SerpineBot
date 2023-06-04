@@ -2,12 +2,9 @@ import { Webhook } from '@luferro/database';
 import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../../types/bot';
-import { JobName } from '../../types/enums';
+import { getCategoryFromPath } from '../../utils/filename';
 
-export const data: JobData = {
-	name: JobName.Reviews,
-	schedule: '0 */30 * * * *',
-};
+export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const posts = await client.api.reddit.getPostsByFlair('Games', ['Review Thread'], 'new', 20);
@@ -25,7 +22,9 @@ export const execute: JobExecute = async ({ client }) => {
 			await client.api.gaming.opencritic.getReviewsForUrl(opencriticUrl);
 		if (!tier || !score) continue;
 
-		const isSuccessful = await client.state.entry({ job: data.name, data: { title: name, url } }).update();
+		const isSuccessful = await client.state
+			.entry({ job: getCategoryFromPath(__filename, 'jobs'), data: { title: name, url } })
+			.update();
 		if (!isSuccessful) continue;
 
 		const embed = new EmbedBuilder()

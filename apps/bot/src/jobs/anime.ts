@@ -2,8 +2,8 @@ import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import type { JobData, JobExecute } from '../../types/bot';
-import { JobName } from '../../types/enums';
+import type { JobData, JobExecute } from '../types/bot';
+import { getCategoryFromPath } from '../utils/filename';
 
 enum Aggregator {
 	Kitsu = 'kitsu.io',
@@ -20,17 +20,16 @@ enum Stream {
 	Crunchyroll = 'crunchyroll.com',
 }
 
-export const data: JobData = {
-	name: JobName.Anime,
-	schedule: '0 */20 * * * *',
-};
+export const data: JobData = { schedule: '0 */20 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const posts = await client.api.reddit.getPostsByFlair('Anime', ['Episode'], 'new', 20);
 
 	const embeds = [];
 	for (const { title, url, selftext } of posts.reverse()) {
-		const isSuccessful = await client.state.entry({ job: data.name, data: { title, url } }).update();
+		const isSuccessful = await client.state
+			.entry({ job: getCategoryFromPath(__filename, 'jobs'), data: { title, url } })
+			.update();
 		if (!isSuccessful) continue;
 
 		const streams = findSelftextMatches(selftext, Object.entries(Stream));
