@@ -1,0 +1,54 @@
+{
+	"birthdays": {
+		"permissions": null,
+		"description": "Manage your birthday entry."
+	},
+	"channels": {
+		"permissions": "ManageChannels",
+		"description": "Manage guild text / voice channels and assign / unassign bot messages to text channels."
+	},
+	"comics": {
+		"permissions": null,
+		"description": "Random comic page."
+	},
+	"gaming": {
+		"permissions": null,
+		"description": "Manage your gaming integrations, check out deals, average playtime, leaderboards and much more."
+	},
+	"memes": {
+		"permissions": null,
+		"description": "Random meme."
+	},
+	"music": {
+		"permissions": null,
+		"description": "Manage music playback."
+	},
+	"prune": {
+		"permissions": "ManageMessages",
+		"description": "Deletes the last N messages, ignoring messages older than 2 weeks."
+	},
+	"reminders": {
+		"permissions": null,
+		"description": "Manage your reminders."
+	},
+	"roles": {
+		"permissions": "ManageRoles",
+		"description": "Manage guild roles."
+	},
+	"secret-santa": {
+		"permissions": null,
+		"description": "Organize a secret-santa"
+	},
+	"shows": {
+		"permissions": null,
+		"description": "Lookup movies and series."
+	},
+	"webhooks": {
+		"permissions": "ManageWebhooks",
+		"description": "Manage guild webhooks."
+	},
+	"youtube": {
+		"permissions": null,
+		"description": "Get the Youtube URL that matches your query."
+	}
+}
