@@ -111,8 +111,8 @@ export interface StateEntry {
 }
 
 export interface State {
-	jobName: string;
-	entries: Map<string, StateEntry[]>;
+	job: string;
+	entries: StateEntry[];
 }
 
 export interface Client {
