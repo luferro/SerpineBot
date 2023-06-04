@@ -14,7 +14,6 @@ import type {
 } from 'discord.js';
 
 import type { Bot } from '../structures/Bot';
-import type { EventName, JobName } from './enums';
 import type { ExtendedChatInputCommandInteraction } from './interaction';
 
 export type Args = { client: Bot; interaction: ExtendedChatInputCommandInteraction };
@@ -25,11 +24,11 @@ export type CommandData = Exclude<MetadataBuilder, 'SlashCommandOption'> | Slash
 export type CommandExecute = { (args: Args): Promise<void> };
 export type Command = { execute: Collection<string, CommandExecute>; metadata: SlashCommandBuilder[] };
 
-export type EventData = { name: EventName; type: 'on' | 'once' };
+export type EventData = { type: 'on' | 'once' };
 export type EventExecute = { (...args: unknown[]): Promise<void> };
 export type Event = { data: EventData; execute: EventExecute };
 
-export type JobData = { name: JobName; schedule: string | Date };
+export type JobData = { schedule: string | Date };
 export type JobExecute = { (args: Pick<Args, 'client'>): Promise<void> };
 export type Job = { data: JobData; execute: JobExecute };
 
