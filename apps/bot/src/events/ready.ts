@@ -1,6 +1,6 @@
 import { logger } from '@luferro/shared-utils';
 
-import * as CommandsHandler from '../handlers/commands/commands';
+import * as CommandsHandler from '../handlers/commands';
 import type { Bot } from '../structures/Bot';
 import type { EventData } from '../types/bot';
 
