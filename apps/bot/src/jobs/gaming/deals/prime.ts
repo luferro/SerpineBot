@@ -8,7 +8,7 @@ import { getCategoryFromPath } from '../../../utils/filename';
 export const data: JobData = { schedule: '0 */8 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const { title, url, lead, image } = await client.api.gaming.deals.getLatestSale();
+	const { title, url, lead, image } = await client.api.gaming.deals.getLatestPrimeGamingAddition();
 	if (!title || !url) return;
 
 	const isSuccessful = await client.state
