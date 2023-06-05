@@ -21,8 +21,8 @@ export const execute: JobExecute = async ({ client }) => {
 			.setURL(url)
 			.setThumbnail(image)
 			.setDescription(`**${discount}** off! ~~${regular}~~ | **${discounted}** @ **${store}**`)
-			.addFields([{ name: 'Store coupon', value: `*${coupon}*` }])
 			.setColor('Random');
+		if (coupon) embed.addFields([{ name: 'Store coupon', value: `*${coupon}*` }]);
 
 		embeds.push(embed);
 	}
