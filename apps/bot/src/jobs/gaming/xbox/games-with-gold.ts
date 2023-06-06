@@ -8,7 +8,7 @@ import { getCategoryFromPath } from '../../../utils/filename';
 export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const articles = await client.api.gaming.xbox.getLatestDealsWithGold();
+	const articles = await client.api.gaming.xbox.getLatestGamesWithGoldAdditions();
 
 	const embeds = [];
 	for (const { title, url, image } of articles.reverse()) {
