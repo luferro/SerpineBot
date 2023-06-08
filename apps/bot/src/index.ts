@@ -13,6 +13,7 @@ import { Bot } from './structures/Bot';
 			GatewayIntentBits.DirectMessages,
 			GatewayIntentBits.GuildMessageReactions,
 			GatewayIntentBits.GuildVoiceStates,
+			GatewayIntentBits.GuildScheduledEvents,
 		],
 	});
 	await client.start();
