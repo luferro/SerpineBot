@@ -19,7 +19,7 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 	.addChannelOption((option) =>
 		option
 			.setName('channel')
-			.setDescription('Text channel to be assigned the message category.')
+			.setDescription('Text channel.')
 			.addChannelTypes(ChannelType.GuildText)
 			.setRequired(true),
 	);
