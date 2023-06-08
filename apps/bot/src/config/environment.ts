@@ -17,9 +17,6 @@ const getEnvConfig = () => ({
 	// SUBREDDITS
 	NSFW_SUBREDDITS: process.env.NSFW_SUBREDDITS?.split(',') ?? [],
 	MEMES_SUBREDDITS: process.env.MEMES_SUBREDDITS?.split(',') ?? [],
-
-	// GIFS
-	BIRTHDAY_GIFS: process.env.BIRTHDAY_GIFS?.split(',') ?? [],
 });
 
 const getSanitizedEnvConfig = () => {
