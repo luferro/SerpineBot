@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel, SubscriptionsModel } from '@luferro/database';
+import { IntegrationsModel, SteamIntegration, SubscriptionsModel } from '@luferro/database';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { CommandData, CommandExecute } from '../../../types/bot';
@@ -13,8 +13,6 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const profile = interaction.options.getString('profile', true);
 
-	await IntegrationsModel.checkIfIntegrationIsNotInPlace(interaction.user.id, Integration.Steam);
-
 	const url = profile.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
 	if (!url) throw new Error('Invalid Steam profile url.');
 
@@ -28,7 +26,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const recentlyPlayed = await client.api.gaming.steam.getRecentlyPlayed(steamId);
 	const wishlist = await Promise.all(
 		rawWishlist.map(async (game) => {
-			const rawSubscriptions = await SubscriptionsModel.getCatalogMatches(game.name);
+			const rawSubscriptions = await SubscriptionsModel.getMatches({ name: game.name });
 			const subscriptions = {
 				xbox_game_pass: rawSubscriptions.some(({ provider }) => provider === 'Xbox Game Pass'),
 				pc_game_pass: rawSubscriptions.some(({ provider }) => provider === 'PC Game Pass'),
@@ -40,13 +38,17 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		}),
 	);
 
-	await IntegrationsModel.createOrUpdateIntegration(interaction.user.id, Integration.Steam, {
-		wishlist,
-		recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })),
-		notifications: true,
-		profile: {
-			id: steamId,
-			url: `https://steamcommunity.com/profiles/${steamId}`,
+	await IntegrationsModel.createIntegration<SteamIntegration>({
+		userId: interaction.user.id,
+		category: 'Steam',
+		partialIntegration: {
+			wishlist,
+			recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })),
+			notifications: true,
+			profile: {
+				id: steamId,
+				url: `https://steamcommunity.com/profiles/${steamId}`,
+			},
 		},
 	});
 

@@ -11,7 +11,7 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 export const execute: CommandExecute = async ({ interaction }) => {
 	const reminderId = interaction.options.getString('id', true);
 
-	await RemindersModel.deleteReminderById(reminderId);
+	await RemindersModel.deleteReminderById({ reminderId });
 	const embed = new EmbedBuilder().setTitle(`Reminder ${reminderId} has been deleted.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

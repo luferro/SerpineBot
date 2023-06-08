@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel } from '@luferro/database';
+import { IntegrationsModel, SteamIntegration, XboxIntegration } from '@luferro/database';
 
 import type { Bot } from '../structures/Bot';
 
@@ -11,7 +11,7 @@ enum Medals {
 export const getSteamLeaderboard = async (client: Bot) => {
 	const leaderboard = [];
 
-	const integrations = await IntegrationsModel.getIntegrations(Integration.Steam);
+	const integrations = await IntegrationsModel.getIntegrations<SteamIntegration>({ category: 'Steam' });
 	for (const integration of integrations) {
 		const data = await client.api.gaming.steam.getRecentlyPlayed(integration.profile.id);
 		if (data.length === 0) continue;
@@ -23,7 +23,7 @@ export const getSteamLeaderboard = async (client: Bot) => {
 
 			return { ...game, weeklyHours: storedWeeklyHours + weeklyHours };
 		});
-		await IntegrationsModel.updateRecentlyPlayed(integration.userId, recentlyPlayed);
+		await IntegrationsModel.updateRecentlyPlayed({ userId: integration.userId, recentlyPlayed });
 
 		const user = await client.users.fetch(integration.userId);
 		const { name, url } = recentlyPlayed.reduce((acc, el) => (el.weeklyHours > acc.weeklyHours ? el : acc));
@@ -45,12 +45,12 @@ export const getSteamLeaderboard = async (client: Bot) => {
 export const getXboxLeaderboard = async (client: Bot) => {
 	const leaderboard = [];
 
-	const integrations = await IntegrationsModel.getIntegrations(Integration.Xbox);
+	const integrations = await IntegrationsModel.getIntegrations<XboxIntegration>({ category: 'Xbox' });
 	for (const integration of integrations) {
 		const data = await client.api.gaming.xbox.getProfile(integration.profile.gamertag);
 		if (!data) continue;
 
-		await IntegrationsModel.updateGamerscore(integration.userId, data.gamerscore);
+		await IntegrationsModel.updateGamerscore({ userId: integration.userId, gamerscore: data.gamerscore });
 
 		const user = await client.users.fetch(integration.userId);
 		const weeklyGamerscore = data.gamerscore - integration.profile.gamerscore;

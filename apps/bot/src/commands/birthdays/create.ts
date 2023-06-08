@@ -19,7 +19,10 @@ export const execute: CommandExecute = async ({ interaction }) => {
 	const date = `${year}-${month}-${day}`;
 	if (!DateUtil.isValidDate(date)) throw new Error('Invalid date.');
 
-	await BirthdaysModel.createOrUpdateBirthday(interaction.user.id, date);
+	const isBirthdayRegistered = await BirthdaysModel.isBirthdayRegistered({ userId: interaction.user.id });
+	if (isBirthdayRegistered) throw new Error('Birthday is already registered.');
+
+	await BirthdaysModel.createBirthday({ userId: interaction.user.id, date });
 
 	const embed = new EmbedBuilder().setTitle(`Your birthday has been registered.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });

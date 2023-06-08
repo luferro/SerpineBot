@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel } from '@luferro/database';
+import { IntegrationsModel, SteamIntegration } from '@luferro/database';
 import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { CommandData, CommandExecute } from '../../../types/bot';
@@ -14,8 +14,10 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 
 	const userId = mention?.user.id ?? interaction.user.id;
-	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, Integration.Steam);
-	const { profile } = await IntegrationsModel.getIntegrationByUserId(userId, Integration.Steam);
+	const integration = await IntegrationsModel.getIntegration<SteamIntegration>({ userId, category: 'Steam' });
+	if (!integration) throw new Error('No Steam integration in place.');
+
+	const { profile } = integration;
 	const { name, image, status, logoutAt, createdAt } = await client.api.gaming.steam.getProfile(profile.id);
 
 	const embed = new EmbedBuilder()

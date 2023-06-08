@@ -1,3 +1,4 @@
+import { SettingsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 
 import * as CommandsHandler from '../handlers/commands';
@@ -10,7 +11,7 @@ export const execute = async (client: Bot) => {
 	await CommandsHandler.deployCommands(client);
 
 	for (const [guildId, guild] of client.guilds.cache) {
-		const settings = await client.settings.get(guildId);
+		const settings = await SettingsModel.getSettingsByGuildId({ guildId });
 		if (!settings) client.emit('guildCreate', guild);
 	}
 

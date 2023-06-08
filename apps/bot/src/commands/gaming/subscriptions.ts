@@ -14,7 +14,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 
 	const query = interaction.options.getString('query', true);
 
-	const subscriptions = await SubscriptionsModel.getCatalogMatches(query);
+	const subscriptions = await SubscriptionsModel.getMatches({ name: query });
 	if (subscriptions.length === 0) throw new Error(`No subscription service including "${query}" was found.`);
 
 	const formattedSubscriptions = subscriptions.map(({ provider, entry }) =>

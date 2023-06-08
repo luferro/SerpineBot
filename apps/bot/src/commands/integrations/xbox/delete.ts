@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel } from '@luferro/database';
+import { IntegrationsModel } from '@luferro/database';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { CommandData, CommandExecute } from '../../../types/bot';
@@ -10,8 +10,7 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 export const execute: CommandExecute = async ({ interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
 
-	await IntegrationsModel.checkIfIntegrationIsInPlace(interaction.user.id, Integration.Xbox);
-	await IntegrationsModel.deleteIntegrationByUserId(interaction.user.id, Integration.Xbox);
+	await IntegrationsModel.deleteIntegrationByUserId({ userId: interaction.user.id, category: 'Xbox' });
 
 	const embed = new EmbedBuilder().setTitle('Xbox integration deleted successfully.').setColor('Random');
 	await interaction.editReply({ embeds: [embed] });

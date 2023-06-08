@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel } from '@luferro/database';
+import { IntegrationsModel, XboxIntegration } from '@luferro/database';
 import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { CommandData, CommandExecute } from '../../../types/bot';
@@ -14,8 +14,10 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 
 	const userId = mention?.user.id ?? interaction.user.id;
-	await IntegrationsModel.checkIfIntegrationIsInPlace(userId, Integration.Xbox);
-	const { profile } = await IntegrationsModel.getIntegrationByUserId(userId, Integration.Xbox);
+	const integration = await IntegrationsModel.getIntegration<XboxIntegration>({ userId, category: 'Xbox' });
+	if (!integration) throw new Error('No Steam integration in place.');
+
+	const { profile } = integration;
 	const { name, image, gamerscore, gamesPlayed } = await client.api.gaming.xbox.getProfile(profile.gamertag);
 
 	const embed = new EmbedBuilder()

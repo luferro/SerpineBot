@@ -16,7 +16,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const { id } = await client.api.gaming.deals.search(query);
 	if (!id) throw new Error(`No matches for "${query}".`);
 
-	const subscriptions = await SubscriptionsModel.getCatalogMatches(query);
+	const subscriptions = await SubscriptionsModel.getMatches({ name: query });
 	const formattedSubscriptions = subscriptions.map(({ provider }) => `**${provider}**`);
 
 	const deal = await client.api.gaming.deals.getDealById(id);

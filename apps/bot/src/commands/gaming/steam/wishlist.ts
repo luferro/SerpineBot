@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel } from '@luferro/database';
+import { IntegrationsModel, SteamIntegration } from '@luferro/database';
 import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { CommandData, CommandExecute } from '../../../types/bot';
@@ -14,21 +14,26 @@ export const execute: CommandExecute = async ({ interaction }) => {
 	const mention = interaction.options.getMentionable('mention') as GuildMember | null;
 
 	const user = mention?.user ?? interaction.user;
-	await IntegrationsModel.checkIfIntegrationIsInPlace(user.id, Integration.Steam);
-	const integration = await IntegrationsModel.getIntegrationByUserId(user.id, Integration.Steam);
+	const integration = await IntegrationsModel.getIntegration<SteamIntegration>({
+		userId: user.id,
+		category: 'Steam',
+	});
+	if (!integration) throw new Error('No Steam integration in place.');
 
-	const formattedWishlist = integration.wishlist
+	const { profile, wishlist } = integration;
+
+	const formattedWishlist = wishlist
 		.slice(0, 10)
 		.map(
 			({ name, url, discounted, free }, index) =>
 				`\`${index + 1}.\` **[${name}](${url})** | ${discounted || (free && 'Free') || 'N/A'}`,
 		);
-	const hiddenCount = integration.wishlist.length - formattedWishlist.length;
+	const hiddenCount = wishlist.length - formattedWishlist.length;
 	if (hiddenCount > 0) formattedWishlist.push(`And ${hiddenCount} more!`);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`\`${user.tag}\`'s wishlist`)
-		.setURL(`https://store.steampowered.com/wishlist/profiles/${integration.profile.id}/#sort=order`)
+		.setURL(`https://store.steampowered.com/wishlist/profiles/${profile.id}/#sort=order`)
 		.setDescription(formattedWishlist.join('\n'))
 		.setColor('Random');
 

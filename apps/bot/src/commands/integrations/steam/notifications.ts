@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel } from '@luferro/database';
+import { IntegrationsModel } from '@luferro/database';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { CommandData, CommandExecute } from '../../../types/bot';
@@ -13,8 +13,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 
 	const toggle = interaction.options.getBoolean('toggle', true);
 
-	await IntegrationsModel.checkIfIntegrationIsInPlace(interaction.user.id, Integration.Steam);
-	await IntegrationsModel.updateNotifications(interaction.user.id, toggle);
+	await IntegrationsModel.updateNotifications({ userId: interaction.user.id, notifications: toggle });
 
 	const state = toggle ? 'on' : 'off';
 	const embed = new EmbedBuilder().setTitle(`Steam notifications have been turned ${state}.`).setColor('Random');

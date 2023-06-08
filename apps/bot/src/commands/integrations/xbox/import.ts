@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel } from '@luferro/database';
+import { IntegrationsModel, XboxIntegration } from '@luferro/database';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { CommandData, CommandExecute } from '../../../types/bot';
@@ -13,16 +13,18 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const gamertag = interaction.options.getString('gamertag', true);
 
-	await IntegrationsModel.checkIfIntegrationIsNotInPlace(interaction.user.id, Integration.Xbox);
-
 	const isGamertagValid = await client.api.gaming.xbox.isGamertagValid(gamertag);
 	if (!isGamertagValid) throw new Error('Invalid Xbox gamertag.');
 
 	const { name, gamerscore } = await client.api.gaming.xbox.getProfile(gamertag);
-	await IntegrationsModel.createOrUpdateIntegration(interaction.user.id, Integration.Xbox, {
-		profile: {
-			gamertag: name,
-			gamerscore,
+	await IntegrationsModel.createIntegration<XboxIntegration>({
+		userId: interaction.user.id,
+		category: 'Xbox',
+		partialIntegration: {
+			profile: {
+				gamertag: name,
+				gamerscore,
+			},
 		},
 	});
 

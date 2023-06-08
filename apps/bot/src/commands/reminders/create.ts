@@ -35,12 +35,12 @@ export const execute: CommandExecute = async ({ interaction }) => {
 	if (unit === 'Seconds' && time < 300) throw new Error('Minimum of 300 seconds required.');
 	if (unit === 'Minutes' && time < 5) throw new Error('Minimum of 5 minutes required.');
 
-	const reminderId = await RemindersModel.createReminder(
-		interaction.user.id,
-		Date.now(),
-		Date.now() + ConverterUtil.toMilliseconds(time, unit),
+	const reminderId = await RemindersModel.createReminder({
+		userId: interaction.user.id,
+		timeStart: Date.now(),
+		timeEnd: Date.now() + ConverterUtil.toMilliseconds(time, unit),
 		message,
-	);
+	});
 
 	const embed = new EmbedBuilder()
 		.setTitle(`**Reminder Id:** ${reminderId}`)

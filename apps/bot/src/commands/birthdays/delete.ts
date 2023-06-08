@@ -8,7 +8,7 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 	.setDescription('Delete your birthday entry.');
 
 export const execute: CommandExecute = async ({ interaction }) => {
-	await BirthdaysModel.deleteBirthdayById(interaction.user.id);
+	await BirthdaysModel.deleteBirthdayById({ userId: interaction.user.id });
 	const embed = new EmbedBuilder().setTitle('Your birthday has been deleted.').setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

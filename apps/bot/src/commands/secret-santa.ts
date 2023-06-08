@@ -45,12 +45,12 @@ export const execute: CommandExecute = async ({ interaction }) => {
 	for (const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
-		const reminderId = await RemindersModel.createReminder(
-			gifter.user.id,
-			Date.now(),
-			eventDate.getTime(),
-			`Secret Santa ${eventDate.getFullYear()}: It is time to exchange gifts. 🎅 Merry Christmas 🎅`,
-		);
+		const reminderId = await RemindersModel.createReminder({
+			userId: gifter.user.id,
+			timeStart: Date.now(),
+			timeEnd: eventDate.getTime(),
+			message: `Secret Santa ${eventDate.getFullYear()}: It is time to exchange gifts. 🎅 Merry Christmas 🎅`,
+		});
 
 		const embed = new EmbedBuilder()
 			.setTitle(`Secret Santa ${eventDate.getFullYear()}`)
