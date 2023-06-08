@@ -1,28 +1,39 @@
 import mongoose, { Model } from 'mongoose';
 
-import type { Birthday } from '../../types/schemas';
+type Birthday = { userId: string; date: string };
 
 interface BirthdaysModel extends Model<Birthday> {
-	createOrUpdateBirthday: (userId: string, date: string) => Promise<void>;
+	isBirthdayRegistered: (args: Pick<Birthday, 'userId'>) => Promise<boolean>;
+	createBirthday: (args: Birthday) => Promise<void>;
 	getBirthdays: () => Promise<Birthday[]>;
-	deleteBirthdayById: (userId: string) => Promise<void>;
+	getBirthdayById: (args: Pick<Birthday, 'userId'>) => Promise<Birthday>;
+	deleteBirthdayById: (args: Pick<Birthday, 'userId'>) => Promise<void>;
 }
 
 const schema = new mongoose.Schema<Birthday>({
-	userId: { type: String, required: true },
+	userId: { type: String, required: true, index: true },
 	date: { type: String, required: true },
 });
 
-schema.statics.createOrUpdateBirthday = async function (userId: string, date: string) {
-	await this.updateOne({ userId }, { $set: { date } }, { upsert: true });
+schema.statics.isBirthdayRegistered = async function ({ userId }: Pick<Birthday, 'userId'>) {
+	const exists = await this.exists({ userId });
+	return !!exists;
+};
+
+schema.statics.createBirthday = async function ({ userId, date }: Birthday) {
+	await this.create({ userId, date });
 };
 
 schema.statics.getBirthdays = async function () {
 	return await this.find();
 };
 
-schema.statics.deleteBirthdayById = async function (userId: string) {
-	return await this.deleteOne({ userId });
+schema.statics.getBirthdayById = async function ({ userId }: Pick<Birthday, 'userId'>) {
+	return await this.find({ userId });
+};
+
+schema.statics.deleteBirthdayById = async function ({ userId }: Pick<Birthday, 'userId'>) {
+	await this.deleteOne({ userId });
 };
 
 export default mongoose.model<Birthday, BirthdaysModel>('birthdays', schema);

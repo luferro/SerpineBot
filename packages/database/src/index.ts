@@ -1,6 +1,6 @@
 // Types
-export * from './types/enum';
-export * from './types/schemas';
+export * from './types/category';
+export * from './types/integration';
 
 // Database connector
 export * as Database from './database/database';

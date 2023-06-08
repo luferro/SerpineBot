@@ -1,103 +1,94 @@
 import mongoose, { Model, Schema } from 'mongoose';
 
-import { Integration } from '../../types/enum';
-import type {
-	BaseIntegration,
-	SteamIntegration,
-	SteamRecentlyPlayedEntry,
-	SteamWishlistEntry,
-	XboxIntegration,
-} from '../../types/schemas';
+import { IntegrationType } from '../../types/category';
+import { RecentlyPlayedEntry, SteamIntegration, WishlistEntry, XboxIntegration } from '../../types/integration';
 
-type PartialIntegration = SteamIntegration & XboxIntegration;
-type FullIntegration<T> = BaseIntegration & T;
+type PartialType = SteamIntegration | XboxIntegration;
+type BaseIntegration = { userId: string; category: IntegrationType };
+type PartialIntegration<T> = { partialIntegration: T };
+type Integration<T> = BaseIntegration & T;
 
-interface IntegrationModel extends Model<FullIntegration<PartialIntegration>> {
-	checkIfIntegrationIsInPlace: (userId: string, category: Integration) => Promise<void>;
-	checkIfIntegrationIsNotInPlace: (userId: string, category: Integration) => Promise<void>;
-	createOrUpdateIntegration: ((
-		userId: string,
-		category: Integration.Steam,
-		integration: SteamIntegration,
-	) => Promise<void>) &
-		((userId: string, category: Integration.Xbox, integration: XboxIntegration) => Promise<void>);
-	getIntegrationByUserId: ((
-		userId: string,
-		category: Integration.Steam,
-	) => Promise<FullIntegration<SteamIntegration>>) &
-		((userId: string, category: Integration.Xbox) => Promise<FullIntegration<XboxIntegration>>);
-	getIntegrations: ((
-		category: Integration.Steam,
-		notifications?: boolean,
-	) => Promise<FullIntegration<SteamIntegration>[]>) &
-		((category: Integration.Xbox) => Promise<FullIntegration<XboxIntegration>[]>);
-	updateWishlist: (userId: string, wishlist: Partial<SteamWishlistEntry>[]) => Promise<void>;
-	updateRecentlyPlayed: (userId: string, recentlyPlayed: SteamRecentlyPlayedEntry[]) => Promise<void>;
-	updateNotifications: (userId: string, notifications: boolean) => Promise<void>;
-	updateGamerscore: (userId: string, gamerscore: number) => Promise<void>;
+type UserId = Pick<BaseIntegration, 'userId'>;
+type Category = Pick<BaseIntegration, 'category'>;
+type Notifications = { notifications?: boolean };
+type Wishlist = { wishlist: Partial<WishlistEntry>[] };
+type RecentlyPlayed = { recentlyPlayed: RecentlyPlayedEntry[] };
+type Gamerscore = { gamerscore: number };
+
+interface IntegrationModel extends Model<Integration<PartialType>> {
+	createIntegration: <T extends PartialType>(args: BaseIntegration & PartialIntegration<T>) => Promise<void>;
+	updateIntegration: <T extends PartialType>(args: BaseIntegration & PartialIntegration<T>) => Promise<void>;
+	getIntegration: <T extends PartialType>(args: BaseIntegration) => Promise<Integration<T>>;
+	getIntegrations: <T extends PartialType>(args: Category & Notifications) => Promise<Integration<T>[]>;
+	updateWishlist: (args: UserId & Wishlist) => Promise<void>;
+	updateRecentlyPlayed: (args: UserId & RecentlyPlayed) => Promise<void>;
+	updateNotifications: (args: UserId & Notifications) => Promise<void>;
+	updateGamerscore: (args: UserId & Gamerscore) => Promise<void>;
 	resetWeeklyHours: () => Promise<void>;
-	deleteIntegrationByUserId: (userId: string, category: Integration) => Promise<void>;
+	deleteIntegrationByUserId: (args: BaseIntegration) => Promise<void>;
 }
 
-const schema = new mongoose.Schema<FullIntegration<PartialIntegration>>({
-	userId: { type: String, required: true },
-	category: { type: Number, enum: Integration },
+const schema = new mongoose.Schema<Integration<PartialType>>({
+	userId: { type: String, required: true, index: true },
+	category: { type: String, required: true, index: true },
 	profile: { type: Schema.Types.Mixed },
 	wishlist: { type: Schema.Types.Mixed },
 	recentlyPlayed: { type: Schema.Types.Mixed },
 	notifications: { type: Schema.Types.Mixed },
 });
 
-schema.statics.checkIfIntegrationIsInPlace = async function (userId: string, category: Integration) {
-	const isInPlace = await this.exists({ userId, category });
-	if (!isInPlace) throw new Error(`No ${Integration[category]} integration is in place.`);
+schema.statics.createIntegration = async function ({
+	userId,
+	category,
+	partialIntegration,
+}: BaseIntegration & PartialIntegration<PartialType>) {
+	const exists = await this.exists({ userId, category });
+	if (exists) throw new Error(`${category} integration is already in place`);
+	await this.create({ userId, category, ...partialIntegration });
 };
 
-schema.statics.checkIfIntegrationIsNotInPlace = async function (userId: string, category: Integration) {
-	const isInPlace = await this.exists({ userId, category });
-	if (isInPlace) throw new Error(`${Integration[category]} integration is already in place.`);
+schema.statics.updateIntegration = async function ({
+	userId,
+	category,
+	partialIntegration,
+}: BaseIntegration & PartialIntegration<PartialType>) {
+	const exists = await this.exists({ userId, category });
+	if (!exists) throw new Error(`No ${category} integration is in place`);
+	await this.updateOne({ userId, category }, { $set: partialIntegration });
 };
 
-schema.statics.createOrUpdateIntegration = async function (
-	userId: string,
-	category: Integration,
-	integration: PartialIntegration,
-) {
-	await this.updateOne({ userId, category }, { $set: integration }, { upsert: true });
-};
-
-schema.statics.getIntegrationByUserId = async function (userId: string, category: Integration) {
+schema.statics.getIntegration = async function ({ userId, category }: BaseIntegration) {
 	return await this.findOne({ userId, category });
 };
 
-schema.statics.getIntegrations = async function (category: Integration, notifications?: boolean) {
+schema.statics.getIntegrations = async function ({ category, notifications }: Category & Notifications) {
 	return typeof notifications === 'undefined'
 		? await this.find({ category })
 		: await this.find({ category, notifications });
 };
 
-schema.statics.updateWishlist = async function (userId: string, wishlist: Partial<SteamWishlistEntry>[]) {
-	await this.updateOne({ userId, category: Integration.Steam }, { $set: { wishlist } });
+schema.statics.updateWishlist = async function ({ userId, wishlist }: UserId & Wishlist) {
+	await this.updateOne({ userId, category: 'Steam' }, { $set: { wishlist } });
 };
 
-schema.statics.updateRecentlyPlayed = async function (userId: string, recentlyPlayed: SteamRecentlyPlayedEntry[]) {
-	await this.updateOne({ userId, category: Integration.Steam }, { $set: { recentlyPlayed } });
+schema.statics.updateRecentlyPlayed = async function ({ userId, recentlyPlayed }: UserId & RecentlyPlayed) {
+	await this.updateOne({ userId, category: 'Steam' }, { $set: { recentlyPlayed } });
 };
 
-schema.statics.updateNotifications = async function (userId: string, notifications: boolean) {
-	await this.updateOne({ userId, category: Integration.Steam }, { $set: { notifications } });
+schema.statics.updateNotifications = async function ({ userId, notifications }: UserId & Notifications) {
+	await this.updateOne({ userId, category: 'Steam' }, { $set: { notifications: Boolean(notifications) } });
 };
 
-schema.statics.updateGamerscore = async function (userId: string, gamerscore: number) {
-	await this.updateOne({ userId, category: Integration.Xbox }, { $set: { 'profile.gamerscore': gamerscore } });
+schema.statics.updateGamerscore = async function ({ userId, gamerscore }: UserId & Gamerscore) {
+	await this.updateOne({ userId, category: 'Xbox' }, { $set: { 'profile.gamerscore': gamerscore } });
 };
 
 schema.statics.resetWeeklyHours = async function () {
-	await this.updateMany({ category: Integration.Steam }, { $set: { 'recentlyPlayed.$[].weeklyHours': 0 } });
+	await this.updateMany({ category: 'Steam' }, { $set: { 'recentlyPlayed.$[].weeklyHours': 0 } });
 };
 
-schema.statics.deleteIntegrationByUserId = async function (userId: string, category: Integration) {
+schema.statics.deleteIntegrationByUserId = async function ({ userId, category }: BaseIntegration) {
 	await this.deleteOne({ userId, category });
 };
 
-export default mongoose.model<FullIntegration<PartialIntegration>, IntegrationModel>('integrations', schema);
+export default mongoose.model<Integration<PartialType>, IntegrationModel>('integrations', schema);

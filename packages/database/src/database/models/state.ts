@@ -1,27 +1,24 @@
 import mongoose, { Model } from 'mongoose';
 
-import type { State, StateEntry } from '../../types/schemas';
+type State = { hash: string };
 
 interface StateModel extends Model<State> {
-	createOrUpdateState: (job: string, entries: StateEntry[]) => Promise<void>;
-	getStateByJob: (job: string) => Promise<State | null>;
+	createEntry: (args: State) => Promise<boolean>;
 }
 
 const schema = new mongoose.Schema<State>(
-	{
-		job: { type: String, required: true },
-		entries: [{ title: String, url: String }],
-	},
+	{ hash: { type: String, required: true, index: true } },
 	{ timestamps: true },
 );
 
-schema.statics.createOrUpdateState = async function (job: string, entries: StateEntry[]) {
-	await this.updateOne({ job }, { $set: { entries: entries.slice(-100) } }, { upsert: true });
-};
+schema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 });
 
-schema.statics.getStateByJob = async function (job: string) {
-	const state = await this.findOne({ job });
-	return state ?? null;
+schema.statics.createEntry = async function ({ hash }: State) {
+	const exists = await this.exists({ hash });
+	if (exists) return false;
+
+	await this.create({ hash });
+	return true;
 };
 
 export default mongoose.model<State, StateModel>('state', schema, 'state');
