@@ -1,9 +1,7 @@
-import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../../types/bot';
-import { getCategoryFromPath } from '../../utils/filename';
 
 export const data: JobData = { schedule: '0 */6 * * * *' };
 
@@ -19,14 +17,12 @@ export const execute: JobExecute = async ({ client }) => {
 			if (typeof channel.subscribers === 'number' && channel.subscribers < 50_000) continue;
 		}
 
-		const isSuccessful = await client.state
-			.entry({ job: getCategoryFromPath(__filename, 'jobs'), data: { title, url } })
-			.update();
+		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
 		if (hasEmbeddedMedia) {
 			const content = `**${StringUtil.truncate(title)}**\n${url}`;
-			await client.propageMessage(Webhook.GamingNews, content);
+			await client.propageMessage({ category: 'Gaming News', content });
 			continue;
 		}
 
@@ -34,5 +30,5 @@ export const execute: JobExecute = async ({ client }) => {
 		embeds.push(embed);
 	}
 
-	await client.propageMessages(Webhook.GamingNews, embeds);
+	await client.propageMessages({ category: 'Gaming News', embeds });
 };

@@ -1,9 +1,7 @@
-import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../types/bot';
-import { getCategoryFromPath } from '../utils/filename';
 
 enum Aggregator {
 	Kitsu = 'kitsu.io',
@@ -27,9 +25,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 	const embeds = [];
 	for (const { title, url, selftext } of posts.reverse()) {
-		const isSuccessful = await client.state
-			.entry({ job: getCategoryFromPath(__filename, 'jobs'), data: { title, url } })
-			.update();
+		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
 		const streams = findSelftextMatches(selftext, Object.entries(Stream));
@@ -73,7 +69,7 @@ export const execute: JobExecute = async ({ client }) => {
 		embeds.push(embed);
 	}
 
-	await client.propageMessages(Webhook.Anime, embeds);
+	await client.propageMessages({ category: 'Anime', embeds });
 };
 
 const getIdFromAggregator = (aggregatorsList: string[], selectedAggregator: Aggregator) => {

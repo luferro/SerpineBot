@@ -1,9 +1,7 @@
-import { Webhook } from '@luferro/database';
 import { Country } from '@luferro/news-api';
 import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../../types/bot';
-import { getCategoryFromPath } from '../../utils/filename';
 
 export const data: JobData = { schedule: '0 */30 * * * *' };
 
@@ -13,9 +11,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 	const embeds = [];
 	for (const { title, url, publisher, description, image, publishedAt } of sortedNews.reverse()) {
-		const isSuccessful = await client.state
-			.entry({ job: getCategoryFromPath(__filename, 'jobs'), data: { title, url } })
-			.update();
+		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
 		const embed = new EmbedBuilder()
@@ -30,5 +26,5 @@ export const execute: JobExecute = async ({ client }) => {
 		embeds.push(embed);
 	}
 
-	await client.propageMessages(Webhook.PortugalNews, embeds);
+	await client.propageMessages({ category: 'Portugal News', embeds });
 };

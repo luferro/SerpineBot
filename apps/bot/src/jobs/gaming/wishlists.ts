@@ -1,4 +1,4 @@
-import { Integration, IntegrationsModel, SteamWishlistEntry, SubscriptionsModel } from '@luferro/database';
+import { IntegrationsModel, SteamIntegration, SubscriptionsModel, WishlistEntry } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
@@ -12,7 +12,7 @@ enum Alert {
 	RemovedFrom = 'removedFrom',
 }
 
-type SteamAlert = { addedTo?: string[]; removedFrom?: string[] } & SteamWishlistEntry;
+type SteamAlert = { addedTo?: string[]; removedFrom?: string[] } & WishlistEntry;
 
 type Entries<T> = {
 	[K in keyof T]: [K, T[K]];
@@ -21,7 +21,10 @@ type Entries<T> = {
 export const data: JobData = { schedule: '0 */15 7-23 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const integrations = await IntegrationsModel.getIntegrations(Integration.Steam, true);
+	const integrations = await IntegrationsModel.getIntegrations<SteamIntegration>({
+		category: 'Steam',
+		notifications: true,
+	});
 	for (const integration of integrations) {
 		const alerts: Record<Alert, SteamAlert[]> = {
 			[Alert.Sale]: [],
@@ -36,7 +39,7 @@ export const execute: JobExecute = async ({ client }) => {
 		const updatedWishlist = await Promise.all(
 			wishlist.map(async (game) => {
 				const storedGame = integration.wishlist.find(({ name }) => name === game.name);
-				const subscriptions = await SubscriptionsModel.getCatalogMatches(game.name);
+				const subscriptions = await SubscriptionsModel.getMatches({ name: game.name });
 
 				const updatedEntry = {
 					...game,
@@ -68,7 +71,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 		await notifyUser(client, integration.userId, alerts);
 
-		await IntegrationsModel.updateWishlist(integration.userId, updatedWishlist);
+		await IntegrationsModel.updateWishlist({ userId: integration.userId, wishlist: updatedWishlist });
 	}
 };
 
@@ -101,7 +104,7 @@ const getDescription = (category: Alert, items: SteamAlert[]) => {
 	return select[category].join('\n');
 };
 
-const getSubscriptionChanges = (newGame: SteamWishlistEntry, oldGame?: SteamWishlistEntry) => {
+const getSubscriptionChanges = (newGame: WishlistEntry, oldGame?: WishlistEntry) => {
 	const addedTo = [];
 	const removedFrom = [];
 	for (const [name, isIncluded] of Object.entries(newGame.subscriptions)) {

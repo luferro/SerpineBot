@@ -1,4 +1,4 @@
-import { Action } from '@luferro/database';
+import { SettingsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { Collection, Guild, GuildMember, Message, StringSelectMenuBuilder, TextBasedChannel } from 'discord.js';
 import { ActionRowBuilder, EmbedBuilder } from 'discord.js';
@@ -9,17 +9,15 @@ import type { ExtendedStringSelectMenuInteraction } from '../types/interaction';
 export const data: JobData = { schedule: new Date(Date.now() + 1000 * 60) };
 
 export const execute: JobExecute = async ({ client }) => {
-	for (const { 1: guild } of client.guilds.cache) {
-		const message = await client.settings.message().withGuild(guild).get({ category: Action.Roles });
-		if (!message) continue;
-
-		const { channelId, options } = message;
+	for (const { 0: guildId, 1: guild } of client.guilds.cache) {
+		const settings = await SettingsModel.getSettingsByGuildId({ guildId });
+		const channelId = settings?.roles.channelId;
 		if (!channelId) continue;
 
 		const channel = await client.channels.fetch(channelId);
 		if (!channel?.isTextBased()) continue;
 
-		await createOrUpdateRoleSelectMenuMessage(guild, channel, options ?? []);
+		await createOrUpdateRoleSelectMenuMessage(guild, channel, settings.roles.options ?? []);
 
 		logger.info(`Roles message sent to channelId **${channelId}** in guild **${guild.name}**.`);
 	}
@@ -49,7 +47,9 @@ const createRoleSelectMenu = (guild: Guild, options: string[]) => {
 const createOrUpdateRoleSelectMenuMessage = async (guild: Guild, channel: TextBasedChannel, options: string[]) => {
 	const component = createRoleSelectMenu(guild, options);
 	const messages = (await channel.messages.fetch()) as Collection<string, Message>;
-	const message = messages.find((message) => message.components[0].components[0].customId === getRoleSelectMenuId());
+	const message = messages.find(
+		(message) => message?.components[0]?.components[0]?.customId === getRoleSelectMenuId(),
+	);
 	if (message) {
 		await message.edit({ components: [component] });
 		return;

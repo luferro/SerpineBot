@@ -1,4 +1,4 @@
-import { Action, IntegrationsModel } from '@luferro/database';
+import { IntegrationsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
@@ -12,25 +12,16 @@ export const data: JobData = {
 export const execute: JobExecute = async ({ client }) => {
 	const leaderboard = await Leaderboards.getSteamLeaderboard(client);
 
-	for (const { 1: guild } of client.guilds.cache) {
-		const message = await client.settings.message().withGuild(guild).get({ category: Action.Leaderboards });
-		if (!message?.channelId || !leaderboard || leaderboard.length === 0) continue;
+	const fromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
+	const toDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
 
-		const channel = await client.channels.fetch(message.channelId);
-		if (!channel?.isTextBased()) continue;
+	const embed = new EmbedBuilder()
+		.setTitle(`Weekly Steam Leaderboard (${fromDate} - ${toDate})`)
+		.setDescription(leaderboard.join('\n'))
+		.setColor('Random');
 
-		const fromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
-		const toDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
-
-		const embed = new EmbedBuilder()
-			.setTitle(`Weekly Steam Leaderboard (${fromDate} - ${toDate})`)
-			.setDescription(leaderboard.join('\n'))
-			.setColor('Random');
-
-		await channel.send({ embeds: [embed] });
-
-		logger.info(`**Steam** leaderboard has been generated and sent to guild **${guild.name}**.`);
-	}
+	await client.propageMessages({ category: 'Leaderboards', embeds: [embed] });
+	logger.info(`**Steam** leaderboard has been generated and sent to all guilds.`);
 
 	await resetLeaderboard();
 };

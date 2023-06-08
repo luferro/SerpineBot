@@ -1,8 +1,6 @@
-import { Webhook } from '@luferro/database';
 import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../../../types/bot';
-import { getCategoryFromPath } from '../../../utils/filename';
 
 export const data: JobData = { schedule: '0 */8 * * * *' };
 
@@ -11,9 +9,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 	const embeds = [];
 	for (const { title, url, image, store, discount, regular, discounted, coupon } of deals.reverse()) {
-		const isSuccessful = await client.state
-			.entry({ job: getCategoryFromPath(__filename, 'jobs'), data: { title, url } })
-			.update();
+		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
 		const embed = new EmbedBuilder()
@@ -27,5 +23,5 @@ export const execute: JobExecute = async ({ client }) => {
 		embeds.push(embed);
 	}
 
-	await client.propageMessages(Webhook.Deals, embeds);
+	await client.propageMessages({ category: 'Game Deals', embeds });
 };

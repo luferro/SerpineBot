@@ -7,14 +7,14 @@ export const data: JobData = { schedule: '30 16 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const catalog = await client.api.gaming.subscriptions.getXboxGamePassCatalog();
-	logger.debug(`Found ${catalog.length} items in **Xbox Game Pass** catalog.`);
+	logger.debug(`Found **${catalog.length}** items in **Xbox Game Pass** catalog.`);
 
-	const storedSubscription = await SubscriptionsModel.getCatalogByCategory('XboxGamePass');
+	const storedSubscription = await SubscriptionsModel.getCatalog({ category: 'Xbox Game Pass' });
 	if (catalog.length < Math.round((storedSubscription?.count ?? 0) * 0.6)) {
-		logger.warn('Ignoring **XboxGamePass** catalog...');
+		logger.warn('Ignoring **Xbox Game Pass** catalog...');
 		return;
 	}
 
-	await SubscriptionsModel.updateCatalog('XboxGamePass', catalog);
-	logger.info('Successfully updated **XboxGamePass** catalog entries.');
+	await SubscriptionsModel.updateCatalog({ category: 'Xbox Game Pass', catalog });
+	logger.info('Successfully updated **Xbox Game Pass** catalog entries.');
 };

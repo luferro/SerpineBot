@@ -7,14 +7,14 @@ export const data: JobData = { schedule: '30 16 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const catalog = await client.api.gaming.subscriptions.getUbisoftPlusCatalog();
-	logger.debug(`Found ${catalog.length} items in **Ubisoft Plus** catalog.`);
+	logger.debug(`Found **${catalog.length}** items in **Ubisoft Plus** catalog.`);
 
-	const storedSubscription = await SubscriptionsModel.getCatalogByCategory('UbisoftPlus');
+	const storedSubscription = await SubscriptionsModel.getCatalog({ category: 'Ubisoft Plus' });
 	if (catalog.length < Math.round((storedSubscription?.count ?? 0) * 0.6)) {
-		logger.warn('Ignoring **UbisoftPlus** catalog...');
+		logger.warn('Ignoring **Ubisoft Plus** catalog...');
 		return;
 	}
 
-	await SubscriptionsModel.updateCatalog('UbisoftPlus', catalog);
-	logger.info('Successfully updated **UbisoftPlus** catalog entries.');
+	await SubscriptionsModel.updateCatalog({ category: 'Ubisoft Plus', catalog });
+	logger.info('Successfully updated **Ubisoft Plus** catalog entries.');
 };

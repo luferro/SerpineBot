@@ -1,9 +1,7 @@
-import { Webhook } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../types/bot';
-import { getCategoryFromPath } from '../utils/filename';
 
 export const data: JobData = { schedule: '0 */10 * * * *' };
 
@@ -19,12 +17,7 @@ export const execute: JobExecute = async ({ client }) => {
 	const embeds = [];
 	for (const [mangaId, chapters] of chaptersByManga) {
 		for (const { chapterId, url } of chapters) {
-			const isSuccessful = await client.state
-				.entry({
-					job: getCategoryFromPath(__filename, 'jobs'),
-					data: { title: `${mangaId}:${chapterId}`, url },
-				})
-				.update();
+			const isSuccessful = await client.state({ title: `${mangaId}:${chapterId}`, url });
 			if (!isSuccessful) continue;
 
 			const chapterIndex = chapters.findIndex((currentChapter) => currentChapter.chapterId === chapterId);
@@ -53,5 +46,5 @@ export const execute: JobExecute = async ({ client }) => {
 		embeds.push(embed);
 	}
 
-	await client.propageMessages(Webhook.Manga, embeds);
+	await client.propageMessages({ category: 'Manga', embeds });
 };
