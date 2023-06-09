@@ -1,20 +1,17 @@
 import { BaseGuildVoiceChannel, EmbedBuilder, GuildScheduledEvent } from 'discord.js';
 
-import type { Bot } from '../structures/Bot';
-import type { EventData } from '../types/bot';
+import type { EventData, EventExecute } from '../../types/bot';
+
+type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent: GuildScheduledEvent];
 
 export const data: EventData = { type: 'on' };
 
-export const execute = async (
-	client: Bot,
-	oldGuildScheduledEvent: GuildScheduledEvent,
-	newGuildScheduledEvent: GuildScheduledEvent,
-) => {
-	const isStarting = oldGuildScheduledEvent.isScheduled() && newGuildScheduledEvent.isActive();
+export const execute: EventExecute<Args> = async ({ client, rest: [oldState, newState] }) => {
+	const isStarting = oldState.isScheduled() && newState.isActive();
 	if (!isStarting) return;
 
 	const { guild, name, url, description, channel, entityMetadata, creator, scheduledStartAt, scheduledEndAt } =
-		newGuildScheduledEvent;
+		newState;
 
 	const location = entityMetadata?.location ?? channel;
 	if (!guild || !location) return;
@@ -30,12 +27,12 @@ export const execute = async (
 			},
 			{
 				name: '**Start**',
-				value: scheduledStartAt?.toLocaleString('pt-PT') ?? 'N/A',
+				value: scheduledStartAt?.toLocaleString(client.config.LOCALE, { timeZone: client.config.TZ }) ?? 'N/A',
 				inline: true,
 			},
 			{
 				name: '**End**',
-				value: scheduledEndAt?.toLocaleString('pt-PT') ?? 'N/A',
+				value: scheduledEndAt?.toLocaleString(client.config.LOCALE, { timeZone: client.config.TZ }) ?? 'N/A',
 				inline: true,
 			},
 			{
@@ -44,7 +41,7 @@ export const execute = async (
 			},
 		])
 		.setThumbnail(guild.iconURL())
-		.setImage(newGuildScheduledEvent.coverImageURL({ size: 4096 }))
+		.setImage(newState.coverImageURL({ size: 4096 }))
 		.setColor('Random');
 
 	const webhook = await client.webhook({ guild, category: 'Events' });

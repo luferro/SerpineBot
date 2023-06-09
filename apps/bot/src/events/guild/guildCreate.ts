@@ -2,12 +2,13 @@ import { SettingsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import type { Guild } from 'discord.js';
 
-import type { Bot } from '../structures/Bot';
-import type { EventData } from '../types/bot';
+import type { EventData, EventExecute } from '../../types/bot';
+
+type Args = [guild: Guild];
 
 export const data: EventData = { type: 'on' };
 
-export const execute = async (_client: Bot, guild: Guild) => {
+export const execute: EventExecute<Args> = async ({ rest: [guild] }) => {
 	await SettingsModel.createSettings({
 		guildId: guild.id,
 		roles: { channelId: null, options: [] },
