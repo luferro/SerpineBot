@@ -11,10 +11,8 @@ import {
 } from 'discord.js';
 import path from 'path';
 
-import { config } from '../config/environment';
 import { Bot } from '../structures/Bot';
 import type { CommandData, CommandExecute, MetadataBuilder } from '../types/bot';
-import { getCategoryFromPath } from '../utils/filename';
 import CommandsMetadata from './metadata/commands.json';
 
 type RawCommand = { data: CommandData; execute: CommandExecute };
@@ -25,7 +23,7 @@ export const registerCommands = async () => {
 
 	const metadata = new Map<string, Map<string, MetadataBuilder[]>>();
 	for (const file of files) {
-		const name = getCategoryFromPath(file, 'commands');
+		const name = FileUtil.getRelativePath(file, 'commands');
 		if (!name) continue;
 
 		const { data, execute }: RawCommand = await import(file);
@@ -72,14 +70,21 @@ const buildSlashCommands = (map: Map<string, Map<string, CommandData[]>>) => {
 							.setDescription(`${category} group commands.`);
 
 			for (const option of options) {
-				if (option instanceof SlashCommandSubcommandBuilder) builder.addSubcommand(option);
+				const isSubcommand = option instanceof SlashCommandSubcommandBuilder;
+				if (isSubcommand) builder.addSubcommand(option);
 
-				if (builder instanceof SlashCommandSubcommandGroupBuilder) continue;
-				if (option instanceof SlashCommandStringOption) builder.addStringOption(option);
-				if (option instanceof SlashCommandIntegerOption) builder.addIntegerOption(option);
+				const isSubcommandGroup = builder instanceof SlashCommandSubcommandGroupBuilder;
+				if (isSubcommandGroup) continue;
+
+				const isStringOption = option instanceof SlashCommandStringOption;
+				if (isStringOption) builder.addStringOption(option);
+
+				const isIntegerOption = option instanceof SlashCommandIntegerOption;
+				if (isIntegerOption) builder.addIntegerOption(option);
 			}
 
-			if (builder instanceof SlashCommandSubcommandGroupBuilder) command.addSubcommandGroup(builder);
+			const isSubcommandGroup = builder instanceof SlashCommandSubcommandGroupBuilder;
+			if (isSubcommandGroup) command.addSubcommandGroup(builder);
 		}
 
 		Bot.commands.metadata.push(command);
@@ -87,10 +92,10 @@ const buildSlashCommands = (map: Map<string, Map<string, CommandData[]>>) => {
 	logger.info(`Command handler built **${map.size}** slash command(s).`);
 };
 
-export const deployCommands = async (client: Client) => {
+export const deployCommands = async (client: Bot) => {
 	const commands = Bot.commands.metadata.map((metadata) => metadata.toJSON());
 
-	if (config.NODE_ENV === 'PRODUCTION') {
+	if (client.config.NODE_ENV === 'PRODUCTION') {
 		await deployGuildCommands(client, []);
 		await deployGlobalCommands(client, commands);
 		return;
