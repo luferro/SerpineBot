@@ -15,12 +15,12 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.2.5",
-		"typescript": "^5.0.4"
+		"@types/node": "^20.2.6",
+		"typescript": "^5.1.3"
 	},
 	"dependencies": {
 		"@luferro/shared-utils": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
-		"playwright-chromium": "^1.34.3"
+		"playwright-chromium": "^1.35.0"
 	}
 }
