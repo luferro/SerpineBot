@@ -9,12 +9,12 @@ export const execute: JobExecute = async ({ client }) => {
 
 	const embeds = [];
 	for (const { title, url, image, store, discount, regular, discounted } of deals.reverse()) {
-		const isSuccessful = await client.state({ title, url });
+		const isSuccessful = await client.state({ title, url: url.original });
 		if (!isSuccessful) continue;
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)
-			.setURL(url)
+			.setURL(url.redirect)
 			.setThumbnail(image)
 			.setDescription(`**${discount}** off! ~~${regular}~~ | **${discounted}** @ **${store}**`)
 			.setColor('Random');
