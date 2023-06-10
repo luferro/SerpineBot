@@ -16,20 +16,22 @@ import type {
 import type { Bot } from '../structures/Bot';
 import type { ExtendedChatInputCommandInteraction } from './interaction';
 
-export type Args = { client: Bot; interaction: ExtendedChatInputCommandInteraction };
+type CommandArgs = { client: Bot; interaction: ExtendedChatInputCommandInteraction };
+type EventArgs<T> = Pick<CommandArgs, 'client'> & { rest: T };
+type JobArgs = Pick<CommandArgs, 'client'>;
 
 export type SlashCommandOption = SlashCommandStringOption | SlashCommandIntegerOption;
 export type MetadataBuilder = SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder | SlashCommandOption;
 export type CommandData = Exclude<MetadataBuilder, 'SlashCommandOption'> | SlashCommandOption[];
-export type CommandExecute = { (args: Args): Promise<void> };
+export type CommandExecute = { (args: CommandArgs): Promise<void> };
 export type Command = { execute: Collection<string, CommandExecute>; metadata: SlashCommandBuilder[] };
 
 export type EventData = { type: 'on' | 'once' };
-export type EventExecute = { (...args: unknown[]): Promise<void> };
-export type Event = { data: EventData; execute: EventExecute };
+export type EventExecute<T = void> = { (args: EventArgs<T>): Promise<void> };
+export type Event = { data: EventData; execute: EventExecute<unknown[]> };
 
 export type JobData = { schedule: string | Date };
-export type JobExecute = { (args: Pick<Args, 'client'>): Promise<void> };
+export type JobExecute = { (args: JobArgs): Promise<void> };
 export type Job = { data: JobData; execute: JobExecute };
 
 export type Api = {
@@ -40,3 +42,5 @@ export type Api = {
 	reddit: typeof RedditApi;
 	shows: typeof ShowsApi;
 };
+
+export type Cache = { anime: Collection<number, ShowsApi.animeschedule.WeeklySchedule> };

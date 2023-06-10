@@ -12,11 +12,11 @@ import { ClientOptions, Guild } from 'discord.js';
 import { Client, Collection, EmbedBuilder } from 'discord.js';
 import { Player } from 'discord-player';
 
-import { config } from '../config/environment';
+import { getSanitizedEnvConfig } from '../config/environment';
 import * as CommandsHandler from '../handlers/commands';
 import * as EventsHandler from '../handlers/events';
 import * as JobsHandler from '../handlers/jobs';
-import type { Api, Command, Event, Job } from '../types/bot';
+import type { Api, Cache, Command, Event, Job } from '../types/bot';
 
 type StateArgs = { title: string; url: string };
 type WebhookArgs = { guild: Guild; category: WebhookType };
@@ -25,23 +25,30 @@ type PropageArgs = { category: WebhookType; content: string; embeds: EmbedBuilde
 export class Bot extends Client {
 	private static readonly MAX_EMBEDS_SIZE = 10;
 
+	static readonly ROLES_MESSAGE_ID = 'CLAIM_YOUR_ROLES';
+
 	static jobs: Collection<string, Job> = new Collection();
 	static events: Collection<string, Event> = new Collection();
 	static commands: Command = { metadata: [], execute: new Collection() };
 
 	api: Api;
+	cache: Cache;
 	player: Player;
+	config: ReturnType<typeof getSanitizedEnvConfig>;
 
 	constructor(options: ClientOptions) {
 		super(options);
+		this.config = getSanitizedEnvConfig();
 		this.api = this.initializeApis();
 		this.player = this.initializePlayer();
+		this.cache = { anime: new Collection() };
 	}
 
 	private initializeApis() {
-		NewsApi.setApiKey(config.GNEWS_API_KEY);
-		GamingApi.steam.setApiKey(config.STEAM_API_KEY);
-		ShowsApi.tmdb.setApiKey(config.THE_MOVIE_DB_API_KEY);
+		NewsApi.setApiKey(this.config.GNEWS_API_KEY);
+		GamingApi.steam.setApiKey(this.config.STEAM_API_KEY);
+		ShowsApi.tmdb.setApiKey(this.config.THE_MOVIE_DB_API_KEY);
+		ShowsApi.animeschedule.setApiKey(this.config.ANIME_SCHEDULE_API_KEY);
 
 		return {
 			comics: ComicsApi,
@@ -63,13 +70,16 @@ export class Bot extends Client {
 
 	private initializeListeners() {
 		for (const [name, event] of Bot.events.entries()) {
-			this[event.data.type](name, (...args: unknown[]) => event.execute(this, ...args).catch(this.handleError));
+			this[event.data.type](name, (...args: unknown[]) =>
+				event.execute({ client: this, rest: args }).catch(this.handleError),
+			);
 			logger.info(`Event listener is listening ${event.data.type} **${name}**.`);
 		}
 	}
 
 	private initializeSchedulers() {
 		for (const [name, job] of Bot.jobs.entries()) {
+			if (!job?.data) continue;
 			new CronJob(job.data.schedule, () =>
 				job.execute({ client: this }).catch((error) => {
 					error.message = `Job **${name}** failed. Reason: ${error.message}`;
@@ -86,11 +96,11 @@ export class Bot extends Client {
 	}
 
 	async start() {
-		logger.info(`Starting SerpineBot in **${config.NODE_ENV}**.`);
+		logger.info(`Starting SerpineBot in **${this.config.NODE_ENV.trim()}**.`);
 
 		try {
-			await this.login(config.BOT_TOKEN);
-			await Database.connect(config.MONGO_URI);
+			await this.login(this.config.BOT_TOKEN);
+			await Database.connect(this.config.MONGO_URI);
 			await JobsHandler.registerJobs();
 			await EventsHandler.registerEvents();
 			await CommandsHandler.registerCommands();
