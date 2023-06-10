@@ -111,7 +111,10 @@ export const getLatestDeals = async (url: Endpoint) => {
 			.map(async (element) => {
 				const title = $(element).find(':nth-child(4) .game-info-title-wrapper a').text();
 				const href = $(element).find(':last-child a:last-child').attr('href');
-				const url = await UrlUtil.getRedirectLocation(`https://gg.deals${href}`);
+				const url = {
+					original: `https://gg.deals${href}`,
+					redirect: await UrlUtil.getRedirectLocation(`https://gg.deals${href}`),
+				};
 				const image = $(element)
 					.find(':nth-child(3) img')
 					.attr('src')
