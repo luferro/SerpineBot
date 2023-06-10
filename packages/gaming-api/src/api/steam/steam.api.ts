@@ -63,8 +63,8 @@ export const getProfile = async (steamId: string) => {
 		name: personaname,
 		image: avatarfull,
 		status: Status[personastate],
-		logoutAt: new Date(lastlogoff * 1000).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' }),
-		createdAt: new Date(timecreated * 1000).toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' }),
+		logoutAt: new Date(lastlogoff * 1000),
+		createdAt: new Date(timecreated * 1000),
 	};
 };
 
