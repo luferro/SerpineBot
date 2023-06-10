@@ -5,19 +5,13 @@ import type { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const posts = await client.api.reddit.getPostsByFlair('Games', ['Review Thread'], 'new', 20);
+	const [date] = new Date().toISOString().split('T');
+	const results = await client.api.google.engine.search(`reviews site:opencritic.com/game after:${date}`);
 
 	const embeds = [];
-	for (const { selftext } of posts.reverse()) {
-		const selftextArray = selftext?.split('\n') ?? [];
-
-		const opencriticUrl = selftextArray
-			.find((text) => text.includes('https://opencritic.com/game/'))
-			?.match(/https?[\w:/\-.]+/g)?.[0];
-		if (!opencriticUrl) continue;
-
+	for (const result of results.reverse()) {
 		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
-			await client.api.gaming.opencritic.getReviewsForUrl(opencriticUrl);
+			await client.api.gaming.opencritic.getReviewsForUrl(result.url);
 		if (!tier || !score) continue;
 
 		const isSuccessful = await client.state({ title: name, url });
