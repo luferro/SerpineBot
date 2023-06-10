@@ -10,7 +10,6 @@ import {
 	TextChannel,
 } from 'discord.js';
 
-import * as RolesJob from '../../../jobs/roles';
 import { CommandData, CommandExecute } from '../../../types/bot';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()
@@ -62,5 +61,5 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.setColor('Random');
 	await selectMenuInteraction.update({ embeds: [updatedEmbed], components: [] });
 
-	await RolesJob.execute({ client });
+	client.emit('rolesMessageUpdate', client);
 };
