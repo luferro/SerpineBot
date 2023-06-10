@@ -6,7 +6,12 @@ export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const [date] = new Date().toISOString().split('T');
-	const results = await client.api.google.engine.search(`reviews site:opencritic.com/game after:${date}`);
+	const results = (await client.api.google.engine.search(`reviews site:opencritic.com/game after:${date}`)).map(
+		(result) => {
+			const [url] = result.url.match(/https?:\/\/opencritic.com\/game\/\d+\/(\w|-)+/)!;
+			return { name: result.name, url };
+		},
+	);
 
 	const embeds = [];
 	for (const result of results.reverse()) {
