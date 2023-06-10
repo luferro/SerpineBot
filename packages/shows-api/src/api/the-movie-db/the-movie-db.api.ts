@@ -6,7 +6,7 @@ type ShowType = 'movie' | 'tv';
 
 type Search = { results: { id: number }[] };
 
-export interface Movie {
+type Movie = {
 	title: string;
 	tagline: string;
 	overview: string;
@@ -17,9 +17,9 @@ export interface Movie {
 	vote_count: number;
 	runtime: number;
 	genres: { name: string }[];
-}
+};
 
-export interface Series {
+type Series = {
 	name: string;
 	tagline: string;
 	overview: string;
@@ -33,9 +33,9 @@ export interface Series {
 	vote_count: number;
 	episode_run_time: number[];
 	genres: { name: string }[];
-}
+};
 
-export interface Providers {
+type Providers = {
 	results: {
 		PT?: {
 			link: string;
@@ -44,7 +44,7 @@ export interface Providers {
 			buy?: { provider_name: string }[];
 		};
 	};
-}
+};
 
 let API_KEY: string | null = null;
 

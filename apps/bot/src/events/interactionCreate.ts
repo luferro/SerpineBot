@@ -1,23 +1,31 @@
 import { FetchError, logger } from '@luferro/shared-utils';
 import { DiscordAPIError, EmbedBuilder } from 'discord.js';
 
-import * as RolesJob from '../jobs/roles';
 import { Bot } from '../structures/Bot';
-import type { Args, EventData } from '../types/bot';
-import type { ExtendedStringSelectMenuInteraction, Interaction } from '../types/interaction';
+import type { EventData, EventExecute } from '../types/bot';
+import type {
+	ExtendedChatInputCommandInteraction,
+	ExtendedStringSelectMenuInteraction,
+	Interaction,
+} from '../types/interaction';
+
+type Client = Pick<Parameters<typeof execute>[0], 'client'>;
+type Args<T> = [interaction: T];
+type ChatInputArgs = Client & { interaction: ExtendedChatInputCommandInteraction };
+type StringSelectArgs = Client & { interaction: ExtendedStringSelectMenuInteraction };
 
 export const data: EventData = { type: 'on' };
 
-export const execute = async (client: Bot, interaction: Interaction) => {
-	if (interaction.isStringSelectMenu()) await handleSelectMenuInteraction(interaction);
+export const execute: EventExecute<Args<Interaction>> = async ({ client, rest: [interaction] }) => {
+	if (interaction.isStringSelectMenu()) await handleSelectMenuInteraction({ client, interaction });
 	if (interaction.isChatInputCommand()) await handleChatInputCommandInteraction({ client, interaction });
 };
 
-const handleSelectMenuInteraction = async (interaction: ExtendedStringSelectMenuInteraction) => {
-	if (interaction.customId === RolesJob.getRoleSelectMenuId()) RolesJob.handleRolesUpdate(interaction);
+const handleSelectMenuInteraction = async ({ client, interaction }: StringSelectArgs) => {
+	if (interaction.customId === Bot.ROLES_MESSAGE_ID) client.emit('rolesMessageRoleUpdate', interaction);
 };
 
-const handleChatInputCommandInteraction = async ({ client, interaction }: Args) => {
+const handleChatInputCommandInteraction = async ({ client, interaction }: ChatInputArgs) => {
 	const command = interaction.commandName;
 	const group = interaction.options.getSubcommandGroup(false);
 	const subcommand = interaction.options.getSubcommand(false);
