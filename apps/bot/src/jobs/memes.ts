@@ -1,13 +1,12 @@
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import { config } from '../config/environment';
 import type { JobData, JobExecute } from '../types/bot';
 
 export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	for (const subreddit of config.MEMES_SUBREDDITS) {
+	for (const subreddit of client.config.MEMES_SUBREDDITS) {
 		const posts = await client.api.reddit.getPosts(subreddit, 'hot', 25);
 
 		const embeds = [];
