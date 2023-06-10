@@ -3,7 +3,7 @@ import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../../../types/bot';
 
-export const data: JobData = { schedule: '0 */8 * * * *' };
+export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const { title, url, lead, image } = await client.api.gaming.deals.getLatestPrimeGamingAddition();
