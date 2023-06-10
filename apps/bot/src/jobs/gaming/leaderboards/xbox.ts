@@ -12,8 +12,8 @@ export const data: JobData = {
 export const execute: JobExecute = async ({ client }) => {
 	const leaderboard = await Leaderboards.getSteamLeaderboard(client);
 
-	const fromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
-	const toDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('pt-PT');
+	const fromDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString(client.config.LOCALE);
+	const toDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString(client.config.LOCALE);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Weekly Xbox Leaderboard (${fromDate} - ${toDate})`)

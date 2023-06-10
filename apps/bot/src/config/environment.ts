@@ -9,17 +9,22 @@ const getEnvConfig = () => ({
 	// DATABASE URI
 	MONGO_URI: process.env.MONGO_URI ?? null,
 
+	//REGION
+	LOCALE: process.env.LOCALE ?? 'pt-PT',
+	TZ: process.env.TZ ?? 'Europe/Lisbon',
+
 	// API KEYS
 	STEAM_API_KEY: process.env.STEAM_API_KEY ?? null,
 	GNEWS_API_KEY: process.env.GNEWS_API_KEY ?? null,
 	THE_MOVIE_DB_API_KEY: process.env.THE_MOVIE_DB_API_KEY ?? null,
+	ANIME_SCHEDULE_API_KEY: process.env.ANIME_SCHEDULE_API_KEY ?? null,
 
 	// SUBREDDITS
 	NSFW_SUBREDDITS: process.env.NSFW_SUBREDDITS?.split(',') ?? [],
 	MEMES_SUBREDDITS: process.env.MEMES_SUBREDDITS?.split(',') ?? [],
 });
 
-const getSanitizedEnvConfig = () => {
+export const getSanitizedEnvConfig = () => {
 	const config = getEnvConfig();
 	for (const [key, value] of Object.entries(config)) {
 		if (!value) throw new Error(`Environment variable ${key} is missing.`);
@@ -27,5 +32,3 @@ const getSanitizedEnvConfig = () => {
 
 	return config as NonNullableConfig<typeof config>;
 };
-
-export const config = getSanitizedEnvConfig();

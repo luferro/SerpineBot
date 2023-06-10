@@ -35,12 +35,12 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 			},
 			{
 				name: '**Created at**',
-				value: createdAt,
+				value: createdAt.toLocaleString(client.config.LOCALE, { timeZone: client.config.TZ }),
 				inline: true,
 			},
 			{
 				name: '**Last logout at**',
-				value: logoutAt,
+				value: logoutAt.toLocaleString(client.config.LOCALE, { timeZone: client.config.TZ }),
 				inline: true,
 			},
 		])

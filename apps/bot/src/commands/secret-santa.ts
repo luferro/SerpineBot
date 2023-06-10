@@ -17,7 +17,7 @@ export const data: CommandData = [
 		.setRequired(true),
 ];
 
-export const execute: CommandExecute = async ({ interaction }) => {
+export const execute: CommandExecute = async ({ client, interaction }) => {
 	const mentions = interaction.options.getString('mentions', true).match(/\d+/g);
 	const value = interaction.options.getInteger('value', true);
 
@@ -57,7 +57,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 			.addFields([
 				{
 					name: '**Gifts exchange**',
-					value: `**${eventDate.toLocaleDateString('pt-PT')}**`,
+					value: `**${eventDate.toLocaleDateString(client.config.LOCALE, { timeZone: client.config.TZ })}**`,
 				},
 				{
 					name: '**Value**',
@@ -68,7 +68,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 					value: `**${receiver.user.tag}**`,
 				},
 			])
-			.setFooter({ text: `Reminder for the gifts exchange has been created. ReminderId: ${reminderId}` })
+			.setFooter({ text: `A reminder for the gifts exchange has been created. ReminderId: ${reminderId}` })
 			.setColor('Random');
 
 		gifter.user.send({ embeds: [embed] });

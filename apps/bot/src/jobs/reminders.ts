@@ -14,8 +14,10 @@ export const execute: JobExecute = async ({ client }) => {
 			const target = await client.users.fetch(userId);
 			if (!target) throw new Error(`Cannot find a target with userId ${userId}.`);
 
+			const date = new Date(timeStart).toLocaleString(client.config.LOCALE, { timeZone: client.config.TZ });
+
 			const embed = new EmbedBuilder()
-				.setTitle(`Reminder set on ${new Date(timeStart).toLocaleString('pt-PT')}`)
+				.setTitle(`Reminder set on ${date}`)
 				.addFields([
 					{
 						name: '**Message**',
