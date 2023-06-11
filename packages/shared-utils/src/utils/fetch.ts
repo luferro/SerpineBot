@@ -1,16 +1,13 @@
 import axios from 'axios';
 import { HeaderGenerator, Headers } from 'header-generator';
-import http from 'http';
-import https from 'https';
+import { SocksProxyAgent } from 'socks-proxy-agent';
 
 import { FetchError } from '../errors/FetchError';
 
 type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
 type Request = { url: string | URL; method?: HttpMethod; authorization?: string; body?: string };
 
-axios.defaults.timeout = 60000;
-axios.defaults.httpAgent = new http.Agent({ keepAlive: true });
-axios.defaults.httpsAgent = new https.Agent({ keepAlive: true });
+axios.defaults.httpsAgent = new SocksProxyAgent('socks://127.0.0.1:9050');
 
 export const getHeaders = ({ method, authorization }: Pick<Request, 'method' | 'authorization'>) => {
 	const custom = new Map();
