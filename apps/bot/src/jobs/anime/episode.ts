@@ -16,7 +16,9 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const { id, titles, url, image, episodes, streams, isAiring, hasAired, isDelayed } of cache) {
 		if ((!isAiring && !hasAired) || isDelayed) continue;
 
-		const isSuccessful = await client.state({ title: titles.default, url });
+		const title = `${StringUtil.truncate(titles.default, 240)} - Episode ${episodes.current.number}`;
+
+		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
 		const { score, season, trackers } = await client.api.shows.animeschedule.getAnimeById(id);
@@ -25,7 +27,7 @@ export const execute: JobExecute = async ({ client }) => {
 		const formattedStreams = streams.map(({ stream, url }) => `> **[${translate(stream)}](${url})**`);
 
 		const embed = new EmbedBuilder()
-			.setTitle(`${StringUtil.truncate(titles.default, 240)} - Episode ${episodes.current.number}`)
+			.setTitle(title)
 			.setURL(url)
 			.setDescription(season ? `*${season}*` : null)
 			.setThumbnail(image)
