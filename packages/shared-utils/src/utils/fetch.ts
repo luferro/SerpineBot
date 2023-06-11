@@ -12,7 +12,7 @@ axios.defaults.timeout = 60000;
 axios.defaults.httpAgent = new http.Agent({ keepAlive: true });
 axios.defaults.httpsAgent = new https.Agent({ keepAlive: true });
 
-const getHeaders = ({ method, authorization }: Pick<Request, 'method' | 'authorization'>) => {
+export const getHeaders = ({ method, authorization }: Pick<Request, 'method' | 'authorization'>) => {
 	const custom = new Map();
 	if (method === 'POST' || method === 'PUT') custom.set('content-type', 'application/json');
 	if (authorization) custom.set('Authorization', `Bearer ${authorization}`);

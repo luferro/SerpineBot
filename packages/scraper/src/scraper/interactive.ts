@@ -1,8 +1,9 @@
+import { FetchUtil } from '@luferro/shared-utils';
 import { Browser, BrowserContext, chromium, Route } from 'playwright-chromium';
 
 export const load = async ({ url }: { url: string }) => {
 	const browser = await chromium.launch({ chromiumSandbox: false });
-	const context = await browser.newContext();
+	const context = await browser.newContext({ extraHTTPHeaders: FetchUtil.getHeaders({}) });
 	await context.clearCookies();
 
 	const page = await context.newPage();
