@@ -13,8 +13,8 @@ export const execute: JobExecute = async ({ client }) => {
 	if (!cache) return;
 
 	const embeds = [];
-	for (const { id, titles, url, image, episodes, streams, isAiring, hasAired, isDelayed } of cache) {
-		if ((!isAiring && !hasAired) || isDelayed) continue;
+	for (const { id, titles, url, image, episodes, streams, isDelayed } of cache) {
+		if (Date.now() < new Date(episodes.current.date).getTime() || isDelayed) continue;
 
 		const title = `${StringUtil.truncate(titles.default, 240)} - Episode ${episodes.current.number}`;
 
