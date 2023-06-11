@@ -1,3 +1,5 @@
+import { logger } from '@luferro/shared-utils';
+
 import { JobData, JobExecute } from '../../types/bot';
 
 export const data: JobData = { schedule: '0 0 0 * * 1' };
@@ -8,11 +10,9 @@ export const execute: JobExecute = async ({ client }) => {
 		const weekDay = new Date(anime.episodes.current.date).getUTCDay();
 
 		const cache = client.cache.anime.get(weekDay);
-		if (!cache) {
-			client.cache.anime.set(weekDay, [anime]);
-			continue;
-		}
-
-		client.cache.anime.set(weekDay, cache.concat(anime));
+		if (!cache) client.cache.anime.set(weekDay, [anime]);
+		else client.cache.anime.set(weekDay, cache.concat(anime));
 	}
+	logger.info('Weekly anime schedule has been updated.');
+	logger.debug(JSON.stringify(client.cache.anime.get(new Date().getUTCDay())));
 };
