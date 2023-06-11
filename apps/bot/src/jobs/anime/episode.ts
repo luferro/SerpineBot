@@ -13,8 +13,8 @@ export const execute: JobExecute = async ({ client }) => {
 	if (!cache) return;
 
 	const embeds = [];
-	for (const { id, titles, url, image, episodes, streams } of cache) {
-		if (new Date(episodes.current.date).getTime() > Date.now()) continue;
+	for (const { id, titles, url, image, episodes, streams, isAiring, hasAired, isDelayed } of cache) {
+		if ((!isAiring && !hasAired) || isDelayed) continue;
 
 		const isSuccessful = await client.state({ title: titles.default, url });
 		if (!isSuccessful) continue;
