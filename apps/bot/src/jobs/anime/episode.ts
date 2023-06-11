@@ -4,7 +4,7 @@ import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../structures/Bot';
 import type { JobData, JobExecute } from '../../types/bot';
 
-export const data: JobData = { schedule: '0 */25 * * * *' };
+export const data: JobData = { schedule: '0 */5 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	if (client.cache.anime.size === 0) await Bot.jobs.get('anime.schedule')?.execute({ client });
@@ -14,7 +14,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 	const embeds = [];
 	for (const { id, titles, url, image, episodes, streams } of cache) {
-		if (new Date(episodes.current.date).getTime() < Date.now()) continue;
+		if (new Date(episodes.current.date).getTime() > Date.now()) continue;
 
 		const isSuccessful = await client.state({ title: titles.default, url });
 		if (!isSuccessful) continue;
