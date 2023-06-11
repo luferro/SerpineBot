@@ -113,8 +113,6 @@ export const getWeeklySchedule = async () => {
 
 	return payload
 		.map((anime) => {
-			if (anime.airingStatus === 'delayed-air') return;
-
 			const streams = Object.entries(anime.streams).map(([stream, url]) => ({ stream, url: `https://${url}` }));
 
 			return {
