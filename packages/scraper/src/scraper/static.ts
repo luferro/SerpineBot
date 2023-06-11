@@ -1,7 +1,9 @@
 import { FetchUtil } from '@luferro/shared-utils';
-import { load as _load } from 'cheerio';
+import { load } from 'cheerio';
 
-export const load = async (url: string) => {
+export const loadHtml = async ({ html }: { html: string }) => load(html);
+
+export const loadUrl = async ({ url }: { url: string }) => {
 	const { payload } = await FetchUtil.fetch<string>({ url });
-	return _load(payload);
+	return loadHtml({ html: payload });
 };

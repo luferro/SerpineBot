@@ -1,5 +1,5 @@
 import { GoogleApi } from '@luferro/google-api';
-import { StaticScraper } from '@luferro/scraper';
+import { InteractiveScraper, StaticScraper } from '@luferro/scraper';
 
 export enum Endpoint {
 	GAMERTAG = 'https://xboxgamertag.com/search/:gamertag',
@@ -13,7 +13,8 @@ export enum Endpoint {
 }
 
 export const getGamertagDetails = async (url: string) => {
-	const $ = await StaticScraper.load(url);
+	const html = await InteractiveScraper.getHtml({ url });
+	const $ = await StaticScraper.loadHtml({ html });
 
 	const name = $('h1').first().text();
 	const image = $('.avatar img').first().attr('src');
@@ -29,7 +30,7 @@ export const getGamertagDetails = async (url: string) => {
 };
 
 export const getNewsList = async (url: string) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	return $('.media.feed')
 		.get()
@@ -58,7 +59,7 @@ export const getNewsList = async (url: string) => {
 };
 
 export const getXboxList = async (url: string) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	return $('section > ul li')
 		.get()

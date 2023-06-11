@@ -21,7 +21,7 @@ export enum Endpoint {
 }
 
 export const getNewsList = async (url: Endpoint) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	const script = $('script[type="application/json"]').first().text();
 	const {

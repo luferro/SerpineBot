@@ -19,7 +19,7 @@ export enum Endpoint {
 }
 
 export const getReviewsDetails = async (url: string) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	const tierDisplay = $('app-tier-display').first().find('img');
 	const tier = tierDisplay.attr('data-cfsrc') ?? tierDisplay.attr('src');

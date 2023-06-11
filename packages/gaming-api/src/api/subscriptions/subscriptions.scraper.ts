@@ -10,7 +10,7 @@ export enum Endpoint {
 }
 
 export const getCatalogList = async (url: Endpoint) => {
-	const { browser, context, page } = await InteractiveScraper.load(url);
+	const { browser, context, page } = await InteractiveScraper.load({ url });
 	const { element, locator, next } = getSelectors(url);
 
 	const catalog = [];

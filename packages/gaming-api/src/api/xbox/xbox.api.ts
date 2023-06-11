@@ -1,16 +1,13 @@
-import { StaticScraper } from '@luferro/scraper';
+import { InteractiveScraper, StaticScraper } from '@luferro/scraper';
 import { StringUtil } from '@luferro/shared-utils';
 
 import { Endpoint, getGamertagDetails, getNewsList, getXboxList } from './xbox.scraper';
 
 export const isGamertagValid = async (gamertag: string) => {
-	try {
-		const url = StringUtil.format<Endpoint>(Endpoint.GAMERTAG, gamertag);
-		await StaticScraper.load(url);
-		return true;
-	} catch (error) {
-		return false;
-	}
+	const url = StringUtil.format<Endpoint>(Endpoint.GAMERTAG, gamertag);
+	const html = await InteractiveScraper.getHtml({ url });
+	const $ = await StaticScraper.loadHtml({ html });
+	return $('h1').first().text() !== "Gamertag doesn't exist";
 };
 
 export const getProfile = async (gamertag: string) => {

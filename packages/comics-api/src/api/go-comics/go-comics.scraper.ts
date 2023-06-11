@@ -12,14 +12,14 @@ export enum Endpoint {
 }
 
 export const getComic = async (url: Endpoint) => {
-	let $ = await StaticScraper.load(url);
+	let $ = await StaticScraper.loadUrl({ url });
 
 	const isRedirect = $('body').text().includes('redirected');
 	if (isRedirect) {
 		const redirectUrl = $('a').attr('href');
 		if (!redirectUrl) throw new Error(`Couldn't find comic.`);
 
-		$ = await StaticScraper.load(redirectUrl);
+		$ = await StaticScraper.loadUrl({ url: redirectUrl });
 	}
 
 	const title = $('.comic').attr('data-feature-name') ?? null;

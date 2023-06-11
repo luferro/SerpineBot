@@ -8,7 +8,7 @@ export enum Endpoint {
 }
 
 export const getSteamList = async (url: string) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	return $('.search_result_row')
 		.get()
@@ -23,7 +23,7 @@ export const getSteamList = async (url: string) => {
 };
 
 export const getChartsList = async (url: string) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	return $('table#top-games tbody tr')
 		.get()
@@ -39,7 +39,7 @@ export const getChartsList = async (url: string) => {
 };
 
 export const getSalesList = async (url: string) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	const sale = $('p').first().attr('content') ?? null;
 	const status = $('span.status').first().text();

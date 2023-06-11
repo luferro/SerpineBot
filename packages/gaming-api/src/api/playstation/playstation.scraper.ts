@@ -7,7 +7,7 @@ export enum Endpoint {
 }
 
 export const getBlogList = async (url: string) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	return $('.main-content article')
 		.get()

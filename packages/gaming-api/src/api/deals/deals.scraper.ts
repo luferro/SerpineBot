@@ -12,14 +12,14 @@ export enum Endpoint {
 }
 
 export const getFirstSearchResult = async (url: Endpoint) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 	const href = $('#games-list .game-list-item a').first().attr('href');
 	const id = href?.match(/\/game\/(.*)\//)?.pop() ?? null;
 	return { id };
 };
 
 export const getDealDetails = async (url: Endpoint) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	const name = $('.image-game').first().attr('alt')!;
 	const image = $('.image-game')
@@ -84,7 +84,7 @@ export const getDealDetails = async (url: Endpoint) => {
 };
 
 export const getLatestBlogPost = async (url: Endpoint) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	const title = $('.news-section .news-list .news-info-wrapper .news-title a').first().text();
 	const href = $('.news-section .news-list .news-info-wrapper .news-title a').first().attr('href')!;
@@ -103,7 +103,7 @@ export const getLatestBlogPost = async (url: Endpoint) => {
 };
 
 export const getLatestDeals = async (url: Endpoint) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	return await Promise.all(
 		$('.list-items > div')

@@ -5,7 +5,7 @@ export enum Endpoint {
 }
 
 export const getList = async (url: Endpoint) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	return $('#search')
 		.children('div')

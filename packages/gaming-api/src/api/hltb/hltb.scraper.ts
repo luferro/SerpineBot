@@ -27,7 +27,7 @@ export enum Endpoint {
 }
 
 export const getGameDetails = async (url: Endpoint) => {
-	const $ = await StaticScraper.load(url);
+	const $ = await StaticScraper.loadUrl({ url });
 
 	const script = $('script[type="application/json"]').text();
 	const {
