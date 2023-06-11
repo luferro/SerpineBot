@@ -5,6 +5,7 @@ import { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 0 0 * * 1' };
 
 export const execute: JobExecute = async ({ client }) => {
+	client.cache.anime.clear();
 	const schedule = await client.api.shows.animeschedule.getWeeklySchedule();
 	for (const anime of schedule) {
 		const weekDay = new Date(anime.episodes.current.date).getUTCDay();
