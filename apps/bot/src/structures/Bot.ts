@@ -149,11 +149,9 @@ export class Bot extends Client {
 			const webhook = await this.webhook({ guild, category });
 			if (!webhook) continue;
 
-			if (everyone) webhook.send({ content: `${guild.roles.everyone}` });
-
 			const chunks = ArrayUtil.splitIntoChunks(embeds, Bot.MAX_EMBEDS_SIZE);
 			for (const chunk of chunks) {
-				await webhook.send({ embeds: chunk });
+				await webhook.send({ content: everyone ? `${guild.roles.everyone}` : undefined, embeds: chunk });
 			}
 		}
 	}
