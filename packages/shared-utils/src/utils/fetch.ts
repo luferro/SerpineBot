@@ -1,17 +1,10 @@
 import axios from 'axios';
 import { HeaderGenerator, Headers } from 'header-generator';
-import { SocksProxyAgent } from 'socks-proxy-agent';
 
 import { FetchError } from '../errors/FetchError';
 
 type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
 type Request = { url: string | URL; method?: HttpMethod; authorization?: string; body?: string };
-
-axios.defaults.timeout = 60000;
-
-if (process.env.PROXY) {
-	axios.defaults.httpsAgent = new SocksProxyAgent(process.env.PROXY);
-}
 
 export const getHeaders = ({ method, authorization }: Pick<Request, 'method' | 'authorization'>) => {
 	const custom = new Map();
