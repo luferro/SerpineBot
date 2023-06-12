@@ -9,10 +9,6 @@ const getEnvConfig = () => ({
 	// DATABASE URI
 	MONGO_URI: process.env.MONGO_URI ?? null,
 
-	//REGION
-	LOCALE: process.env.LOCALE ?? 'pt-PT',
-	TZ: process.env.TZ ?? 'Europe/Lisbon',
-
 	// API KEYS
 	STEAM_API_KEY: process.env.STEAM_API_KEY ?? null,
 	GNEWS_API_KEY: process.env.GNEWS_API_KEY ?? null,

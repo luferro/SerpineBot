@@ -1,3 +1,4 @@
+import { DateUtil } from '@luferro/shared-utils';
 import { BaseGuildVoiceChannel, EmbedBuilder, GuildScheduledEvent } from 'discord.js';
 
 import { Bot } from '../../structures/Bot';
@@ -41,12 +42,12 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 			},
 			{
 				name: '**Start**',
-				value: scheduledStartAt?.toLocaleString(client.config.LOCALE) ?? 'N/A',
+				value: scheduledStartAt ? DateUtil.formatDate(scheduledStartAt) : 'N/A',
 				inline: true,
 			},
 			{
 				name: '**End**',
-				value: scheduledEndAt?.toLocaleString(client.config.LOCALE) ?? 'N/A',
+				value: scheduledEndAt ? DateUtil.formatDate(scheduledEndAt) : 'N/A',
 				inline: true,
 			},
 			{

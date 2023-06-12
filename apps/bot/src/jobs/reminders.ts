@@ -1,5 +1,5 @@
 import { RemindersModel } from '@luferro/database';
-import { logger } from '@luferro/shared-utils';
+import { DateUtil, logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../types/bot';
@@ -15,7 +15,7 @@ export const execute: JobExecute = async ({ client }) => {
 			if (!target) throw new Error(`Cannot find a target with userId ${userId}.`);
 
 			const embed = new EmbedBuilder()
-				.setTitle(`Reminder set on ${new Date(timeStart).toLocaleString(client.config.LOCALE)}`)
+				.setTitle(`Reminder set on ${DateUtil.formatDate(timeStart)}`)
 				.addFields([
 					{
 						name: '**Message**',

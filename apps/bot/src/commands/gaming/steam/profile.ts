@@ -1,4 +1,5 @@
 import { IntegrationsModel, SteamIntegration } from '@luferro/database';
+import { DateUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { CommandData, CommandExecute } from '../../../types/bot';
@@ -35,12 +36,12 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 			},
 			{
 				name: '**Created at**',
-				value: createdAt.toLocaleString(client.config.LOCALE),
+				value: DateUtil.formatDate(createdAt),
 				inline: true,
 			},
 			{
 				name: '**Last logout at**',
-				value: logoutAt.toLocaleString(client.config.LOCALE),
+				value: DateUtil.formatDate(logoutAt),
 				inline: true,
 			},
 		])

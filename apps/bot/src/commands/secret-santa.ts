@@ -1,5 +1,5 @@
 import { RemindersModel } from '@luferro/database';
-import { logger } from '@luferro/shared-utils';
+import { DateUtil, logger } from '@luferro/shared-utils';
 import { randomUUID } from 'crypto';
 import { EmbedBuilder, SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 
@@ -17,7 +17,7 @@ export const data: CommandData = [
 		.setRequired(true),
 ];
 
-export const execute: CommandExecute = async ({ client, interaction }) => {
+export const execute: CommandExecute = async ({ interaction }) => {
 	const mentions = interaction.options.getString('mentions', true).match(/\d+/g);
 	const value = interaction.options.getInteger('value', true);
 
@@ -57,7 +57,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 			.addFields([
 				{
 					name: '**Gifts exchange**',
-					value: `**${eventDate.toLocaleDateString(client.config.LOCALE)}**`,
+					value: `**${DateUtil.formatDate(eventDate)}**`,
 				},
 				{
 					name: '**Value**',
