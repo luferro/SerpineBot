@@ -1,4 +1,4 @@
-import { FetchUtil } from '@luferro/shared-utils';
+import { DateUtil, FetchUtil } from '@luferro/shared-utils';
 
 type Streams = {
 	crunchyroll: string;
@@ -106,8 +106,11 @@ export const getAnimeById = async (id: string) => {
 export const getWeeklySchedule = async () => {
 	validateApiKey();
 
+	const year = DateUtil.getCurrentDate().getFullYear();
+	const week = DateUtil.getWeekNumber();
+	const timezone = process.env.TZ ?? 'UTC';
 	const { payload } = await FetchUtil.fetch<Schedule[]>({
-		url: `https://animeschedule.net/api/v3/timetables/sub?tz=${process.env.TZ ?? 'UTC'}`,
+		url: `https://animeschedule.net/api/v3/timetables/sub?year=${year}&week=${week}&tz=${timezone}`,
 		authorization: API_KEY!,
 	});
 
