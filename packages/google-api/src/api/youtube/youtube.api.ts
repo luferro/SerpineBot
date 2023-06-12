@@ -45,7 +45,7 @@ export const getVideoDetails = async (url: string) => {
 		url,
 		title: title ?? null,
 		thumbnail: thumbnails[0]?.url ?? null,
-		duration: ConverterUtil.toMinutesFormatted(Number(lengthSeconds) * 1000),
+		duration: isLiveContent ? ConverterUtil.formatTime(Number(lengthSeconds) * 1000) : null,
 		isLivestream: isLiveContent,
 		channel: {
 			id: author.id,

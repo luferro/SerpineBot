@@ -77,7 +77,7 @@ export const getMovieById = async (id: string) => {
 		releaseDate: payload.release_date,
 		image: payload.poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${payload.poster_path}` : null,
 		score: payload.vote_count > 0 && payload.vote_average > 0 ? `${payload.vote_average.toFixed(1)}/10` : null,
-		runtime: payload.runtime > 0 ? ConverterUtil.toHoursFormatted(payload.runtime * 1000 * 60) : null,
+		runtime: payload.runtime > 0 ? ConverterUtil.formatTime(payload.runtime * 1000 * 60) : null,
 		genres: payload.genres.map(({ name }) => `> ${name}`),
 	};
 };
@@ -96,7 +96,7 @@ export const getSeriesById = async (id: string) => {
 		firstEpisode: payload.first_air_date,
 		runtime:
 			payload.episode_run_time.length > 0
-				? ConverterUtil.toHoursFormatted(payload.episode_run_time[0] * 1000 * 60)
+				? ConverterUtil.formatTime(payload.episode_run_time[0] * 1000 * 60)
 				: null,
 		nextEpisode:
 			payload.next_episode_to_air instanceof Object

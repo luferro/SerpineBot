@@ -77,7 +77,7 @@ export const getRecentlyPlayed = async (steamId: string) => {
 		name,
 		id: appid,
 		totalHours: ConverterUtil.toHours(playtime_forever * 1000 * 60),
-		twoWeeksHours: Number(ConverterUtil.toHours(playtime_2weeks * 1000 * 60).toFixed(1)),
+		twoWeeksHours: ConverterUtil.toHours(playtime_2weeks * 1000 * 60),
 		url: `https://store.steampowered.com/app/${appid}`,
 	}));
 };

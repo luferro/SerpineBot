@@ -48,9 +48,9 @@ export const getGameDetails = async (url: Endpoint) => {
 		name: game_name,
 		image: game_image ? `https://howlongtobeat.com/games/${game_image}` : null,
 		playtimes: {
-			main: comp_main != 0 ? ConverterUtil.toHoursFormatted(comp_main * 1000) : null,
-			mainExtra: comp_plus != 0 ? ConverterUtil.toHoursFormatted(comp_plus * 1000) : null,
-			completionist: comp_100 != 0 ? ConverterUtil.toHoursFormatted(comp_100 * 1000) : null,
+			main: comp_main != 0 ? `${ConverterUtil.toHours(comp_main * 1000)}h` : null,
+			mainExtra: comp_plus != 0 ? `${ConverterUtil.toHours(comp_plus * 1000)}h` : null,
+			completionist: comp_100 != 0 ? `${ConverterUtil.toHours(comp_100 * 1000)}h` : null,
 		},
 	};
 };
