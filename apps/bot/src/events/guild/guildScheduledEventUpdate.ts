@@ -41,12 +41,12 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 			},
 			{
 				name: '**Start**',
-				value: scheduledStartAt?.toLocaleString(client.config.LOCALE, { timeZone: client.config.TZ }) ?? 'N/A',
+				value: scheduledStartAt?.toLocaleString(client.config.LOCALE) ?? 'N/A',
 				inline: true,
 			},
 			{
 				name: '**End**',
-				value: scheduledEndAt?.toLocaleString(client.config.LOCALE, { timeZone: client.config.TZ }) ?? 'N/A',
+				value: scheduledEndAt?.toLocaleString(client.config.LOCALE) ?? 'N/A',
 				inline: true,
 			},
 			{

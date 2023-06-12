@@ -57,7 +57,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 			.addFields([
 				{
 					name: '**Gifts exchange**',
-					value: `**${eventDate.toLocaleDateString(client.config.LOCALE, { timeZone: client.config.TZ })}**`,
+					value: `**${eventDate.toLocaleDateString(client.config.LOCALE)}**`,
 				},
 				{
 					name: '**Value**',

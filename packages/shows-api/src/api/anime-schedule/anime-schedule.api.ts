@@ -107,7 +107,7 @@ export const getWeeklySchedule = async () => {
 	validateApiKey();
 
 	const { payload } = await FetchUtil.fetch<Schedule[]>({
-		url: 'https://animeschedule.net/api/v3/timetables/sub?tz=UTC',
+		url: `https://animeschedule.net/api/v3/timetables/sub?tz=${process.env.TZ ?? 'UTC'}`,
 		authorization: API_KEY!,
 	});
 
