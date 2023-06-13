@@ -86,7 +86,7 @@ export const getDealDetails = async (url: Endpoint) => {
 };
 
 export const getLatestBlogPost = async (url: Endpoint) => {
-	const html = await InteractiveScraper.getHtml({ url });
+	const html = await InteractiveScraper.getHtml({ url, wait: { min: 1000, max: 5000 } });
 	const $ = await StaticScraper.loadHtml({ html });
 
 	const title = $('.news-section .news-list .news-info-wrapper .news-title a').first().text();
@@ -106,7 +106,7 @@ export const getLatestBlogPost = async (url: Endpoint) => {
 };
 
 export const getLatestDeals = async (url: Endpoint) => {
-	const html = await InteractiveScraper.getHtml({ url });
+	const html = await InteractiveScraper.getHtml({ url, wait: { min: 1000, max: 5000 } });
 	const $ = await StaticScraper.loadHtml({ html });
 
 	return await Promise.all(
