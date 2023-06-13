@@ -1,4 +1,4 @@
-import { StaticScraper } from '@luferro/scraper';
+import { InteractiveScraper, StaticScraper } from '@luferro/scraper';
 import { UrlUtil } from '@luferro/shared-utils';
 
 export enum Endpoint {
@@ -12,14 +12,16 @@ export enum Endpoint {
 }
 
 export const getFirstSearchResult = async (url: Endpoint) => {
-	const $ = await StaticScraper.loadUrl({ url });
+	const html = await InteractiveScraper.getHtml({ url });
+	const $ = await StaticScraper.loadHtml({ html });
 	const href = $('#games-list .game-list-item a').first().attr('href');
 	const id = href?.match(/\/game\/(.*)\//)?.pop() ?? null;
 	return { id };
 };
 
 export const getDealDetails = async (url: Endpoint) => {
-	const $ = await StaticScraper.loadUrl({ url });
+	const html = await InteractiveScraper.getHtml({ url });
+	const $ = await StaticScraper.loadHtml({ html });
 
 	const name = $('.image-game').first().attr('alt')!;
 	const image = $('.image-game')
@@ -84,7 +86,8 @@ export const getDealDetails = async (url: Endpoint) => {
 };
 
 export const getLatestBlogPost = async (url: Endpoint) => {
-	const $ = await StaticScraper.loadUrl({ url });
+	const html = await InteractiveScraper.getHtml({ url });
+	const $ = await StaticScraper.loadHtml({ html });
 
 	const title = $('.news-section .news-list .news-info-wrapper .news-title a').first().text();
 	const href = $('.news-section .news-list .news-info-wrapper .news-title a').first().attr('href')!;
@@ -103,7 +106,8 @@ export const getLatestBlogPost = async (url: Endpoint) => {
 };
 
 export const getLatestDeals = async (url: Endpoint) => {
-	const $ = await StaticScraper.loadUrl({ url });
+	const html = await InteractiveScraper.getHtml({ url });
+	const $ = await StaticScraper.loadHtml({ html });
 
 	return await Promise.all(
 		$('.list-items > div')

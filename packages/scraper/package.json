@@ -21,6 +21,8 @@
 	"dependencies": {
 		"@luferro/shared-utils": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
-		"playwright-chromium": "^1.35.0"
+		"playwright-chromium": "^1.35.0",
+		"playwright-extra": "^4.3.6",
+		"puppeteer-extra-plugin-stealth": "^2.11.2"
 	}
 }

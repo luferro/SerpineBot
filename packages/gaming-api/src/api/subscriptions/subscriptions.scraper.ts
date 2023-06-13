@@ -10,12 +10,14 @@ export enum Endpoint {
 }
 
 export const getCatalogList = async (url: Endpoint) => {
-	const { browser, context, page } = await InteractiveScraper.load({ url });
+	const { browser, page } = await InteractiveScraper.load({ url });
+	await page.waitForTimeout(5000);
+
 	const { element, locator, next } = getSelectors(url);
 
 	const catalog = [];
 	while (true) {
-		await page.waitForTimeout(1000);
+		await page.waitForTimeout(2000);
 
 		const containers = await page.locator(locator).elementHandles();
 		for (const container of containers) {
@@ -36,7 +38,7 @@ export const getCatalogList = async (url: Endpoint) => {
 
 		await nextPageButton.click();
 	}
-	await InteractiveScraper.close({ browser, context });
+	await InteractiveScraper.close({ browser });
 
 	return [...new Set(catalog)];
 };

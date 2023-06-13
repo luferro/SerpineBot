@@ -1,29 +1,27 @@
-import { FetchUtil } from '@luferro/shared-utils';
-import { Browser, BrowserContext, chromium, Route } from 'playwright-chromium';
+import { Browser, Route } from 'playwright-chromium';
+import { chromium } from 'playwright-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
+chromium.use(StealthPlugin());
 
 export const load = async ({ url }: { url: string }) => {
-	const browser = await chromium.launch({ chromiumSandbox: false });
-	const context = await browser.newContext({ extraHTTPHeaders: FetchUtil.getHeaders({}) });
-	await context.clearCookies();
+	const browser = await chromium.launch();
 
-	const page = await context.newPage();
+	const page = await browser.newPage();
 	await page.route('**/*', (route: Route) => {
 		const hasResource = ['font', 'image'].some((resource) => resource === route.request().resourceType());
 		return hasResource ? route.abort() : route.continue();
 	});
 	await page.goto(url, { waitUntil: 'networkidle' });
 
-	return { browser, context, page };
+	return { browser, page };
 };
 
 export const getHtml = async ({ url }: { url: string }) => {
-	const { browser, context, page } = await load({ url });
+	const { browser, page } = await load({ url });
 	const html = await page.content();
-	await close({ browser, context });
+	await close({ browser });
 	return html;
 };
 
-export const close = async ({ browser, context }: { browser: Browser; context: BrowserContext }) => {
-	await context.close();
-	await browser.close();
-};
+export const close = async ({ browser }: { browser: Browser }) => await browser.close();
