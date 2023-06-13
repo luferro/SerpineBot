@@ -83,7 +83,7 @@ export const getAnimeById = async (id: string) => {
 		.map(([tracker, url]) => ({ tracker, url: `https://${url}` }));
 
 	return {
-		titles: { default: payload.title, alternative: payload.names.english },
+		titles: { default: payload.title, alternative: payload.names?.english ?? null },
 		url: payload.websites.official ?? `https://animeschedule.net/anime/${payload.route}`,
 		image: `https://img.animeschedule.net/production/assets/public/img/${payload.imageVersionRoute}`,
 		premier: payload.premier,
