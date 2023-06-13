@@ -3,7 +3,7 @@ import { logger } from '@luferro/shared-utils';
 
 import type { JobData, JobExecute } from '../../../types/bot';
 
-export const data: JobData = { schedule: '30 16 * * *' };
+export const data: JobData = { schedule: '0 30 2 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const catalog = await client.api.gaming.subscriptions.getXboxGamePassCatalog();
