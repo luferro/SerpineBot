@@ -3,7 +3,7 @@ import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../../types/bot';
 
-export const data: JobData = { schedule: '0 */6 * * * *' };
+export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const posts = await client.api.reddit.getPosts('Games', 'new', 25);

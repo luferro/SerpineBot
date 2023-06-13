@@ -3,7 +3,7 @@ import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../../../types/bot';
 
-export const data: JobData = { schedule: '0 0 */3 * * *' };
+export const data: JobData = { schedule: '0 0 */1 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const articles = await client.api.gaming.playstation.getLatestStateOfPlayEvents();

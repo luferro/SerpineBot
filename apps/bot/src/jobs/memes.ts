@@ -3,7 +3,7 @@ import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../types/bot';
 
-export const data: JobData = { schedule: '0 */10 * * * *' };
+export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	for (const subreddit of client.config.MEMES_SUBREDDITS) {
