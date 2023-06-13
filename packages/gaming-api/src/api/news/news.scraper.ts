@@ -14,7 +14,8 @@ export const getNewsList = async (url: Endpoint) => {
 			const title = $(element).find('h2').first().text();
 			const url = $(element).find('a').first().attr('href')!;
 			const image = $(element).find('img').first().attr('src') ?? null;
+			const publishedAt = new Date($(element).find('p.datetime').attr('title')!);
 
-			return { title, url, image };
+			return { title, url, image, publishedAt };
 		});
 };

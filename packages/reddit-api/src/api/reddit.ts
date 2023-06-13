@@ -54,6 +54,7 @@ const getPostsList = async (url: string) => {
 			embedType: data.secure_media?.type ?? null,
 			gallery: data.gallery_data,
 			fallback: data.preview,
+			publishedAt: new Date(data.created_utc),
 			hasEmbeddedMedia:
 				Boolean(data.secure_media) ||
 				['.gif', '.gifv', '.mp4'].some((extension) => data.url.includes(extension)),
