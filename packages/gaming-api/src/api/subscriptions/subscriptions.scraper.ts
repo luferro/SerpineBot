@@ -1,7 +1,7 @@
 import { InteractiveScraper } from '@luferro/scraper';
 import { StringUtil } from '@luferro/shared-utils';
 
-type Catalog = { name: string; slug: string; url?: string | null };
+type Catalog = { name: string; slug: string; url: string | null };
 
 export enum Endpoint {
 	XBOX_GAME_PASS_CATALOG = 'https://www.xbox.com/pt-PT/xbox-game-pass/games',
@@ -13,7 +13,7 @@ export enum Endpoint {
 
 export const getCatalogList = async (url: Endpoint) => {
 	const { browser, page } = await InteractiveScraper.load({ url });
-	await page.waitForTimeout(5000);
+	await page.waitForTimeout(10_000);
 
 	const { cookies, list, pagination } = getSelectors(url);
 	if (cookies) await page.locator(cookies).click();
@@ -31,11 +31,12 @@ export const getCatalogList = async (url: Endpoint) => {
 			const url = list.item.base ? `${list.item.base}${href}` : href;
 			if (!name) continue;
 
-			const isPresent = catalog.find((item) => item.name === name);
+			// eslint-disable-next-line no-control-regex
+			const fixedName = name.replace(/[^\x00-\x7F]/g, '');
+			const isPresent = catalog.find((item) => item.name === fixedName);
 			if (isPresent) continue;
 
-			// eslint-disable-next-line no-control-regex
-			catalog.push({ name: name.replace(/[^\x00-\x7F]/g, ''), slug: StringUtil.slug(name), url });
+			catalog.push({ name: fixedName, slug: StringUtil.slug(name), url: url ?? null });
 		}
 
 		const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
