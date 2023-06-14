@@ -51,7 +51,7 @@ const getArticles = async (client: Bot) => {
 
 const getMedia = async (client: Bot) => {
 	return (await client.api.reddit.getPosts('Games', 'new', 25))
-		.filter(({ isCrosspost, isSelf, hasEmbeddedMedia }) => isCrosspost || isSelf || !hasEmbeddedMedia)
+		.filter(({ isCrosspost, isSelf, hasEmbeddedMedia }) => !isCrosspost && !isSelf && hasEmbeddedMedia)
 		.map(({ title, url, embedType, publishedAt }) => ({
 			title,
 			url,
