@@ -4,6 +4,8 @@ type Payload<T> = { data: T };
 type Game<T> = { [key: string]: T };
 type List<T> = { list: T };
 
+export type PopularityChart = { position: number; title: string; plain: string; rank: number };
+
 type Search = { results: { id: number; plain: string; title: string }[]; urls: { search: string } };
 
 type Price = { store: string; cut: number; price: number; price_formatted: string; url: string | null };
@@ -45,6 +47,18 @@ export const auth = {
 	validate: function () {
 		if (!this.apiKey) throw new Error('ITAD API key is not set.');
 	},
+};
+
+export const getPopularityChart = async () => {
+	let chart: PopularityChart[] = [];
+	const limit = 500;
+	for (let i = 0; i < 4; i++) {
+		const offset = i * limit;
+		const url = `https://api.isthereanydeal.com/v01/stats/popularity/chart/?key=${auth.apiKey}&offset=${offset}&limit=${limit}`;
+		const { payload } = await FetchUtil.fetch<Payload<PopularityChart[]>>({ url });
+		chart = chart.concat(payload.data);
+	}
+	return chart;
 };
 
 export const search = async (query: string) => {
