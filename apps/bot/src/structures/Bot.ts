@@ -45,10 +45,11 @@ export class Bot extends Client {
 	}
 
 	private initializeApis() {
-		NewsApi.setApiKey(this.config.GNEWS_API_KEY);
-		GamingApi.steam.setApiKey(this.config.STEAM_API_KEY);
-		ShowsApi.tmdb.setApiKey(this.config.THE_MOVIE_DB_API_KEY);
-		ShowsApi.animeschedule.setApiKey(this.config.ANIME_SCHEDULE_API_KEY);
+		NewsApi.auth.setApiKey(this.config.GNEWS_API_KEY);
+		GamingApi.steam.auth.setApiKey(this.config.STEAM_API_KEY);
+		GamingApi.itad.auth.setApiKey(this.config.ITAD_API_KEY);
+		ShowsApi.tmdb.auth.setApiKey(this.config.THE_MOVIE_DB_API_KEY);
+		ShowsApi.animeschedule.auth.setApiKey(this.config.ANIME_SCHEDULE_API_KEY);
 
 		return {
 			comics: ComicsApi,

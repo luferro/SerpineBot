@@ -51,20 +51,21 @@ type Schedule = {
 
 export type WeeklySchedule = Awaited<ReturnType<typeof getWeeklySchedule>>;
 
-let API_KEY: string | null = null;
-
-const validateApiKey = () => {
-	if (!API_KEY) throw new Error('AnimeSchedule API key is not set.');
+export const auth = {
+	apiKey: null as string | null,
+	setApiKey: function (API_KEY: string) {
+		this.apiKey = API_KEY;
+	},
+	validate: function () {
+		if (!this.apiKey) throw new Error('AnimeSchedule API key is not set.');
+	},
 };
 
-export const setApiKey = (apiKey: string) => (API_KEY = apiKey);
-
 export const getAnimeById = async (id: string) => {
-	validateApiKey();
-
+	auth.validate();
 	const { payload } = await FetchUtil.fetch<Anime>({
 		url: `https://animeschedule.net/api/v3/anime/${id}`,
-		authorization: API_KEY!,
+		authorization: auth.apiKey!,
 	});
 
 	const { mal, aniList, animePlanet, kitsu } = payload.websites;
@@ -104,14 +105,10 @@ export const getAnimeById = async (id: string) => {
 };
 
 export const getWeeklySchedule = async () => {
-	validateApiKey();
-
-	const year = DateUtil.getCurrentDate().getFullYear();
-	const week = DateUtil.getWeekNumber();
-	const timezone = process.env.TZ ?? 'UTC';
+	auth.validate();
 	const { payload } = await FetchUtil.fetch<Schedule[]>({
-		url: `https://animeschedule.net/api/v3/timetables/sub?year=${year}&week=${week}&tz=${timezone}`,
-		authorization: API_KEY!,
+		url: `https://animeschedule.net/api/v3/timetables/sub?year=${DateUtil.getCurrentDate().getFullYear()}&week=${DateUtil.getWeekNumber()}&tz=${DateUtil.getTimezone()}`,
+		authorization: auth.apiKey!,
 	});
 
 	return payload

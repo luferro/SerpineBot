@@ -46,26 +46,26 @@ type Providers = {
 	};
 };
 
-let API_KEY: string | null = null;
-
-const validateApiKey = () => {
-	if (!API_KEY) throw new Error('TheMovieDB API key is not set.');
+export const auth = {
+	apiKey: null as string | null,
+	setApiKey: function (API_KEY: string) {
+		this.apiKey = API_KEY;
+	},
+	validate: function () {
+		if (!this.apiKey) throw new Error('TMDB API key is not set.');
+	},
 };
 
-export const setApiKey = (apiKey: string) => (API_KEY = apiKey);
-
 export const search = async (type: ShowType, query: string) => {
-	validateApiKey();
-	const url = `https://api.themoviedb.org/3/search/${type}?query=${query}&api_key=${API_KEY}`;
+	auth.validate();
+	const url = `https://api.themoviedb.org/3/search/${type}?query=${query}&api_key=${auth.apiKey}`;
 	const { payload } = await FetchUtil.fetch<Search>({ url });
-	const id = payload.results[0]?.id.toString() ?? null;
-	return { id };
+	return { id: payload.results[0]?.id.toString() ?? null };
 };
 
 export const getMovieById = async (id: string) => {
-	validateApiKey();
-
-	const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`;
+	auth.validate();
+	const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${auth.apiKey}`;
 	const { payload } = await FetchUtil.fetch<Movie>({ url });
 
 	return {
@@ -83,9 +83,8 @@ export const getMovieById = async (id: string) => {
 };
 
 export const getSeriesById = async (id: string) => {
-	validateApiKey();
-
-	const url = `https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}`;
+	auth.validate();
+	const url = `https://api.themoviedb.org/3/tv/${id}?api_key=${auth.apiKey}`;
 	const { payload } = await FetchUtil.fetch<Series>({ url });
 
 	return {
@@ -110,8 +109,8 @@ export const getSeriesById = async (id: string) => {
 };
 
 export const getProvidersForId = async (type: ShowType, id: string) => {
-	validateApiKey();
-	const url = `https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${API_KEY}`;
+	auth.validate();
+	const url = `https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${auth.apiKey}`;
 	const {
 		payload: {
 			results: { PT },

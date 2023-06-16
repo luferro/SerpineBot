@@ -36,24 +36,26 @@ type Wishlist = {
 type App = { appid: number; name: string; playtime_2weeks: number; playtime_forever: number };
 type RecentlyPlayed = { total_count?: number; games?: App[] };
 
-let API_KEY: string | null = null;
-
-const validateApiKey = () => {
-	if (!API_KEY) throw new Error('Steam API key is not set.');
+export const auth = {
+	apiKey: null as string | null,
+	setApiKey: function (API_KEY: string) {
+		this.apiKey = API_KEY;
+	},
+	validate: function () {
+		if (!this.apiKey) throw new Error('Steam API key is not set.');
+	},
 };
 
-export const setApiKey = (apiKey: string) => (API_KEY = apiKey);
-
 export const getSteamId64 = async (customId: string) => {
-	validateApiKey();
-	const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${API_KEY}&vanityurl=${customId}`;
+	auth.validate();
+	const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${auth.apiKey}&vanityurl=${customId}`;
 	const { payload } = await FetchUtil.fetch<Payload<SteamId64>>({ url });
 	return payload.response?.steamid ?? null;
 };
 
 export const getProfile = async (steamId: string) => {
-	validateApiKey();
-	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${API_KEY}&steamids=${steamId}`;
+	auth.validate();
+	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${auth.apiKey}&steamids=${steamId}`;
 	const { payload } = await FetchUtil.fetch<Payload<Payload<Profile[]>>>({ url });
 
 	if (payload.response.players.length === 0) throw new Error(`Cannot find a profile for steamId ${steamId}.`);
@@ -69,8 +71,8 @@ export const getProfile = async (steamId: string) => {
 };
 
 export const getRecentlyPlayed = async (steamId: string) => {
-	validateApiKey();
-	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${API_KEY}&steamid=${steamId}&format=json`;
+	auth.validate();
+	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${auth.apiKey}&steamid=${steamId}&format=json`;
 	const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed>>({ url });
 
 	return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
