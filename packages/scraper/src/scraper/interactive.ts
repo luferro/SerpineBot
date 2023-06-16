@@ -17,9 +17,8 @@ export const load = async ({ url }: { url: string }) => {
 	return { browser, page };
 };
 
-export const getHtml = async ({ url, wait }: { url: string; wait?: { min: number; max: number } }) => {
+export const getHtml = async ({ url }: { url: string }) => {
 	const { browser, page } = await load({ url });
-	if (wait) await page.waitForTimeout(Math.floor(Math.random() * (wait.max - wait.min + 1) + wait.min));
 	const html = await page.content();
 	await close({ browser });
 	return html;
