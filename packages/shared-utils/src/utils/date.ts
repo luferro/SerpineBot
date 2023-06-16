@@ -1,9 +1,15 @@
-import { getWeek, Locale, setDefaultOptions } from 'date-fns';
+import { getWeek, setDefaultOptions } from 'date-fns';
+import * as Locale from 'date-fns/locale';
 import { formatInTimeZone } from 'date-fns-tz';
 
 const TIMEZONE = process.env.TZ ?? 'UTC';
-const LOCALE = (process.env.LOCALE ?? 'en-US') as unknown as Locale;
-setDefaultOptions({ locale: LOCALE });
+
+export const getLocale = () => {
+	const [locale] = (process.env.LOCALE ?? 'en-US').split('-');
+	return Locale[locale as keyof typeof Locale] ?? Locale[locale.slice(0, 2) as keyof typeof Locale] ?? Locale['enUS'];
+};
+
+setDefaultOptions({ locale: getLocale() });
 
 export const isValidDate = (str: string) => {
 	const { 0: year, 1: month, 2: day } = str.split(/-|\//).map(Number);
