@@ -1,15 +1,19 @@
 import { EmbedBuilder } from 'discord.js';
 
+import { Bot } from '../../../structures/Bot';
 import type { JobData, JobExecute } from '../../../types/bot';
 
-export const data: JobData = { schedule: '0 */10 * * * *' };
+export const data: JobData = { schedule: '0 */1 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
+	if (client.cache.deals.chart.length === 0) await Bot.jobs.get('gaming.deals.chart')?.execute({ client });
+
 	const deals = await client.api.gaming.itad.getLatestDeals();
 
 	const embeds = [];
 	for (const { title, url, isFree, discount, regular, current, store, expiry } of deals.reverse()) {
-		if (isFree) continue;
+		const isPopular = client.cache.deals.chart.some((game) => game.title === title);
+		if (!isFree || !isPopular) continue;
 
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
@@ -17,7 +21,7 @@ export const execute: JobExecute = async ({ client }) => {
 		const embed = new EmbedBuilder()
 			.setTitle(title)
 			.setURL(url)
-			.setDescription(`**${discount}** off! ~~${regular}~~ | **${current}** @ **${store}**`)
+			.setDescription(`**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`)
 			.setColor('Random');
 		if (expiry) embed.setFooter({ text: `Expires on ${expiry}` });
 

@@ -17,7 +17,7 @@ export const execute: JobExecute = async ({ client }) => {
 		const embed = new EmbedBuilder()
 			.setTitle(title)
 			.setURL(url)
-			.setDescription(`**${discount}** off! ~~${regular}~~ | **${current}** @ **${store}**`)
+			.setDescription(`**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`)
 			.setColor('Random');
 		if (expiry) embed.setFooter({ text: `Expires on ${expiry}` });
 
