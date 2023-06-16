@@ -13,37 +13,35 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const query = interaction.options.getString('query', true);
 
-	const { id } = await client.api.gaming.deals.search(query);
+	const { id, title } = await client.api.gaming.itad.search(query);
 	if (!id) throw new Error(`No matches for "${query}".`);
 
 	const subscriptions = await SubscriptionsModel.getMatches({ name: query });
-	const formattedSubscriptions = subscriptions.map(({ provider }) => `**${provider}**`);
+	const formattedSubscriptions = subscriptions.map(({ provider }) => `> **${provider}**`);
 
-	const deal = await client.api.gaming.deals.getDealById(id);
-	const { name, image, historicalLows, officialStores, keyshops, coupons } = deal;
+	const { url, deal, historicalLow, bundles } = await client.api.gaming.itad.getDealById(id);
+
+	const formattedBundles = bundles.live.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
 
 	const embed = new EmbedBuilder()
-		.setTitle(name)
-		.setURL(`https://gg.deals/eu/game/${id}`)
-		.setThumbnail(image)
+		.setTitle(title)
+		.setURL(url)
 		.addFields([
 			{
-				name: '**Historical Low Prices**',
-				value: historicalLows.join('\n') || 'N/A',
-			},
-			{
-				name: '**Official Stores**',
-				value: officialStores.join('\n') || 'N/A',
+				name: '**Historical Low**',
+				value: `**${historicalLow.price}** @ ${
+					historicalLow.url ? `[${historicalLow.store}](${historicalLow.url})` : historicalLow.store
+				}\n*${historicalLow.on}*`,
 				inline: true,
 			},
 			{
-				name: '**Keyshops**',
-				value: keyshops.join('\n') || 'N/A',
+				name: '**Best deal**',
+				value: `**${deal.price}** @ [${deal.store}](${deal.url})`,
 				inline: true,
 			},
 			{
-				name: '**Coupons**',
-				value: coupons.join('\n') || 'N/A',
+				name: '**Live bundles**',
+				value: formattedBundles.join('\n') || 'N/A',
 			},
 			{
 				name: '**Subscriptions**',
