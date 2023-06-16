@@ -2,7 +2,7 @@ import { getWeek, setDefaultOptions } from 'date-fns';
 import * as Locale from 'date-fns/locale';
 import { formatInTimeZone } from 'date-fns-tz';
 
-const TIMEZONE = process.env.TZ ?? 'UTC';
+export const getTimezone = () => process.env.TZ ?? 'UTC';
 
 export const getLocale = () => {
 	const [locale] = (process.env.LOCALE ?? 'en-US').split('-');
@@ -21,4 +21,4 @@ export const getCurrentDate = () => new Date();
 
 export const getWeekNumber = () => getWeek(getCurrentDate());
 
-export const formatDate = (date: Date | string | number) => formatInTimeZone(date, TIMEZONE, 'dd/MM/yyyy HH:mm');
+export const formatDate = (date: Date | string | number) => formatInTimeZone(date, getTimezone(), 'dd/MM/yyyy HH:mm');
