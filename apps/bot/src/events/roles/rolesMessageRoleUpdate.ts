@@ -53,7 +53,7 @@ export const execute: EventExecute<Args> = async ({ client, rest: [interaction] 
 
 	const name = member.nickname ?? member.displayName;
 	logger.info(`Roles updated for **${name}** in **${guild.name}** (+${granted.length} | -${revoked.length}).`);
-	logger.debug(JSON.stringify({ granted, revoked }));
+	logger.debug({ granted, revoked });
 
 	client.emit('rolesMessageUpdate', client);
 };

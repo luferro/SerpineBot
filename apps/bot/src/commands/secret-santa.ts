@@ -72,7 +72,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 			.setColor('Random');
 
 		gifter.user.send({ embeds: [embed] });
-		logger.debug(JSON.stringify({ gifterId: gifter.participantId, receiverId: receiver.participantId }));
+		logger.debug({ gifterId: gifter.participantId, receiverId: receiver.participantId });
 	}
 };
 
