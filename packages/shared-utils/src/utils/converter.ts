@@ -1,11 +1,14 @@
 import { intervalToDuration } from 'date-fns';
 
+import { DateUtil } from '..';
+
 type UnitType = 'Milliseconds' | 'Seconds' | 'Minutes' | 'Hours' | 'Days' | 'Weeks' | 'Months' | 'Years';
 
+export const formatCurrency = (amount: number) =>
+	new Intl.NumberFormat(DateUtil.getLocale().code, { style: 'currency', currency: 'EUR' }).format(amount);
+
 export const centsToEuros = (cents: number) => {
-	return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' })
-		.format(cents / 100)
-		.replace(String.fromCharCode(160), ' ');
+	return formatCurrency(cents / 100).replace(String.fromCharCode(160), ' ');
 };
 
 export const toMilliseconds = (time: number, unit: UnitType) => {
