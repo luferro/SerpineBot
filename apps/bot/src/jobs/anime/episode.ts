@@ -7,9 +7,9 @@ import type { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 */5 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	if (client.cache.anime.size === 0) await Bot.jobs.get('anime.schedule')?.execute({ client });
+	if (client.cache.anime.schedule.size === 0) await Bot.jobs.get('anime.schedule')?.execute({ client });
 
-	const cache = client.cache.anime.get(new Date().getDay());
+	const cache = client.cache.anime.schedule.get(new Date().getDay());
 	if (!cache) return;
 
 	const embeds = [];

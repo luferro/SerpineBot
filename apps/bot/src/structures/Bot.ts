@@ -41,7 +41,10 @@ export class Bot extends Client {
 		this.config = getSanitizedEnvConfig();
 		this.api = this.initializeApis();
 		this.player = this.initializePlayer();
-		this.cache = { anime: new Collection() };
+		this.cache = {
+			anime: { schedule: new Collection() },
+			deals: { chart: [] },
+		};
 	}
 
 	private initializeApis() {

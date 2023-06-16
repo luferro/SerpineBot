@@ -43,4 +43,7 @@ export type Api = {
 	shows: typeof ShowsApi;
 };
 
-export type Cache = { anime: Collection<number, ShowsApi.animeschedule.WeeklySchedule> };
+export type Cache = {
+	anime: { schedule: Collection<number, ShowsApi.animeschedule.WeeklySchedule> };
+	deals: { chart: GamingApi.itad.PopularityChart[] };
+};
