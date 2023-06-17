@@ -3,14 +3,14 @@ import { Accordion, Box, Text } from '@mantine/core';
 import { Command, Group, Option, Subcommand } from '../../../types/bot';
 import { Embed } from '../../Embed/Embed';
 import { Control } from '../Control/Control';
-import { StyledCommand, StyledOption, StyledOptionsList, StyledPanel } from './Panel.styled';
+import { StyledCommand, StyledOption, StyledOptionsList, StyledOptionsPanel } from './Panel.styled';
 
 type Metadata = { name: string; description?: string };
 
 export const Panel = ({ command: { name, description, groups, subcommands, options } }: { command: Command }) => {
 	const getOptionsPanel = (metadata: Metadata, options: Option[]) => {
 		return (
-			<StyledPanel>
+			<StyledOptionsPanel>
 				<Box>
 					<Box>
 						<StyledCommand>
@@ -43,7 +43,7 @@ export const Panel = ({ command: { name, description, groups, subcommands, optio
 					<Text weight={700}>Embed sample</Text>
 					<Embed name={metadata.name} />
 				</Box>
-			</StyledPanel>
+			</StyledOptionsPanel>
 		);
 	};
 

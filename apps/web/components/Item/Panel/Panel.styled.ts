@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-export const StyledPanel = styled.div`
+export const StyledOptionsPanel = styled.div`
 	width: 100%;
 	display: flex;
 	& > div {
