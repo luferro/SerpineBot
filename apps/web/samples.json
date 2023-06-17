@@ -35,7 +35,7 @@
 		"thumbnail": null,
 		"image": "/images/comics-image-sample.jpg"
 	},
-	"deals": {
+	"gaming.deals": {
 		"author": null,
 		"title": "**ELDEN RING**",
 		"url": "https://gg.deals/eu/game/elden-ring",
@@ -70,7 +70,7 @@
 		"thumbnail": "/images/deals-thumbnail-sample.jpg",
 		"image": null
 	},
-	"hltb": {
+	"gaming.hltb": {
 		"author": null,
 		"title": "**How long to beat `Sekiro: Shadows Die Twice`**",
 		"url": "https://howlongtobeat.com/game/57415",
@@ -78,30 +78,21 @@
 		"fields": [
 			{
 				"key": "**Main Story**",
-				"value": "~29h36",
+				"value": "~29.63h",
 				"inline": true
 			},
 			{
 				"key": "**Main Story + Extras**",
-				"value": "~42h17",
+				"value": "~42.36h",
 				"inline": true
 			},
 			{
 				"key": "**Completionist**",
-				"value": "~69h55",
+				"value": "~69.83h",
 				"inline": true
 			}
 		],
 		"thumbnail": "/images/hltb-thumbnail-sample.jpg",
-		"image": null
-	},
-	"jokes": {
-		"author": null,
-		"title": "**Programming joke**",
-		"url": null,
-		"description": "Why are Assembly programmers always soaking wet?<br/>They work below C-level.",
-		"fields": [],
-		"thumbnail": null,
 		"image": null
 	},
 	"memes": {
@@ -113,7 +104,7 @@
 		"thumbnail": null,
 		"image": "/images/memes-image-sample.jpg"
 	},
-	"movies": {
+	"shows.movies": {
 		"author": null,
 		"title": "**A Silent Voice: The Movie**",
 		"url": "http://asilentvoice.com.au/",
@@ -158,16 +149,7 @@
 		"thumbnail": "/images/movies-thumbnail-sample.jpg",
 		"image": null
 	},
-	"poll": {
-		"author": null,
-		"title": "**Sample question**",
-		"url": null,
-		"description": "> 1️⃣ Option 1<br/>2️⃣ Option 2<br/>3️⃣ Option 3",
-		"fields": [],
-		"thumbnail": null,
-		"image": null
-	},
-	"reviews": {
+	"gaming.reviews": {
 		"author": null,
 		"title": "**Persona 5 Royal**",
 		"url": "https://opencritic.com/game/8785/persona-5-royal",
@@ -202,7 +184,7 @@
 		"thumbnail": "/images/reviews-thumbnail-sample.png",
 		"image": "/images/reviews-image-sample.jpg"
 	},
-	"series": {
+	"shows.series": {
 		"author": null,
 		"title": "**Your Lie in April**",
 		"url": "http://www.kimiuso.jp/",
@@ -252,7 +234,7 @@
 		"thumbnail": "/images/series-thumbnail-sample.jpg",
 		"image": null
 	},
-	"steam.hot": {
+	"gaming.steam.hot": {
 		"author": null,
 		"title": "**Steam's Top Sellers**",
 		"url": null,
@@ -261,7 +243,7 @@
 		"thumbnail": null,
 		"image": null
 	},
-	"steam.leaderboard": {
+	"gaming.steam.leaderboard": {
 		"author": null,
 		"title": "**Weekly Steam Leaderboard**",
 		"url": null,
@@ -270,7 +252,7 @@
 		"thumbnail": null,
 		"image": null
 	},
-	"steam.new": {
+	"gaming.steam.new": {
 		"author": null,
 		"title": "**Steam's Upcoming Sellers**",
 		"url": null,
@@ -279,7 +261,7 @@
 		"thumbnail": null,
 		"image": null
 	},
-	"steam.profile": {
+	"gaming.steam.profile": {
 		"author": null,
 		"title": "**JohnDoe**",
 		"url": "https://steamcommunity.com/",
@@ -309,7 +291,7 @@
 		"thumbnail": "/images/steam-profile-thumbnail-sample.jpg",
 		"image": null
 	},
-	"steam.sale": {
+	"gaming.steam.sale": {
 		"author": null,
 		"title": "**When is the next Steam sale?**",
 		"url": null,
@@ -324,7 +306,7 @@
 		"thumbnail": null,
 		"image": null
 	},
-	"steam.wishlist": {
+	"gaming.steam.wishlist": {
 		"author": null,
 		"title": "`JohnDoe#0000's` wishlist",
 		"url": "https://steamcommunity.com/",
@@ -333,7 +315,7 @@
 		"thumbnail": null,
 		"image": null
 	},
-	"subscriptions": {
+	"gaming.subscriptions": {
 		"author": null,
 		"title": "**Family Guy**",
 		"url": null,
@@ -348,7 +330,7 @@
 		"thumbnail": null,
 		"image": null
 	},
-	"xbox.leaderboard": {
+	"gaming.xbox.leaderboard": {
 		"author": null,
 		"title": "**Weekly Xbox Leaderboard**",
 		"url": null,
@@ -357,7 +339,7 @@
 		"thumbnail": null,
 		"image": null
 	},
-	"xbox.profile": {
+	"gaming.xbox.profile": {
 		"author": null,
 		"title": "**JohnDoe**",
 		"url": null,
