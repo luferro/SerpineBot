@@ -1,88 +1,103 @@
-import { Skeleton, Text } from '@mantine/core';
-import { Client, Collection, GatewayIntentBits } from 'discord.js';
-import dynamic from 'next/dynamic';
+import { Box, Skeleton } from '@mantine/core';
+import { ApplicationCommandOptionType, Client, GatewayIntentBits } from 'discord.js';
 import Head from 'next/head';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-import Details from '../components/details';
-import styles from '../styles/Home.module.css';
-import type { Command } from '../types/response';
+import { Accordion } from '../components/Accordion/Accordion';
+import { Footer } from '../components/Footer/Footer';
+import { Landing } from '../components/Landing/Landing';
+import { Main } from '../components/Main/Main';
+import { Command, Group, Option, Subcommand } from '../types/bot';
 
-interface Props {
-	commands: Command[];
-}
+const getSubcommandGroups = ({ options }: { options?: Option[] }) => {
+	return (
+		(options?.filter(({ type }) => type === ApplicationCommandOptionType.SubcommandGroup) as Group[])?.map(
+			({ name, description, options, required }) => ({
+				name,
+				description,
+				required,
+				subcommands: getSubcommands({ options }),
+				options: getOptions({ options }),
+			}),
+		) ?? []
+	);
+};
 
-const Accordion = dynamic(() => import('../components/accordion'), { loading: () => <div>Loading...</div> });
+const getSubcommands = ({ options }: { options?: Option[] }) => {
+	return (
+		(options?.filter(({ type }) => type === ApplicationCommandOptionType.Subcommand) as Subcommand[])?.map(
+			({ name, description, options, required }) => ({
+				name,
+				description,
+				required,
+				options: getOptions({ options }),
+			}),
+		) ?? []
+	);
+};
+
+const getOptions = ({ options }: { options?: Option[] }) => {
+	return (
+		(
+			options?.filter(
+				({ type }) =>
+					type !== ApplicationCommandOptionType.SubcommandGroup &&
+					type !== ApplicationCommandOptionType.Subcommand,
+			) as Option[]
+		)?.map(({ name, description, required, choices }) => ({ name, description, required, choices })) ?? []
+	);
+};
 
 export const getStaticProps = async () => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 	await client.login(process.env.BOT_TOKEN);
+	if (!client.application) throw new Error('Could not fetch registered slash commands.');
 
-	const commands = ((await client.application?.commands.fetch()) ?? new Collection())
-		.map((command) => command.toJSON() as Command)
-		.map(({ name, description, options, defaultMemberPermissions }) => ({
-			name,
-			description,
-			options: options.sort((a, b) => a.name.localeCompare(b.name)),
-			defaultMemberPermissions,
+	const commands = (await client.application.commands.fetch())
+		.map((command) => ({
+			name: command.name,
+			description: command.description,
+			groups: getSubcommandGroups({ options: command.options as Option[] }),
+			subcommands: getSubcommands({ options: command.options as Option[] }),
+			options: getOptions({ options: command.options as Option[] }),
 		}))
 		.sort((a, b) => a.name.localeCompare(b.name));
 
-	const serializedCommands = JSON.parse(
-		JSON.stringify(commands, (_key, value) => {
-			if (typeof value === 'undefined') return null;
-			if (typeof value === 'bigint') return value.toString();
-			return value;
-		}),
-	);
-
-	return { props: { commands: serializedCommands }, revalidate: 60 * 60 * 24 };
+	return { props: { commands: JSON.parse(JSON.stringify(commands)) } };
 };
 
-const Home = ({ commands }: Props) => {
+const Home = ({ commands }: { commands: Command[] }) => {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => setLoading(false), []);
 
 	return (
-		<div className={styles.container}>
+		<Box>
 			<Head>
-				<title>SerpineBot Documentation</title>
+				<title>SerpineBot Slash Commands Overview</title>
 				<meta name="author" content="Luís Ferro" />
-				<meta name="description" content="Overview of all SerpineBot commands" />
-				<meta name="keywords" content="serpinebot,bot,discordjs,multipurpose"></meta>
-				<meta httpEquiv="Content-Type" content="text/html; charset=utf-8"></meta>
+				<meta name="description" content="Overview of all SerpineBot slash commands" />
+				<meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 
-			<main className={styles.main}>
-				<Skeleton visible={loading} className={styles.skeleton}>
-					<Details
+			<Main>
+				<Skeleton visible={loading}>
+					<Landing
 						title="SerpineBot, a multipurpose discord bot for my private discord server"
 						description={`This page is an overview of all available slash commands.<br/>
 						Does not include webhooks or jobs documentation.<br/>
 						You can look into the repository at [https://github.com/luferro/SerpineBot](https://github.com/luferro/SerpineBot)`}
 					/>
 				</Skeleton>
-				<br />
-				<Skeleton visible={loading} className={styles.skeleton}>
+				<Skeleton visible={loading}>
 					<Accordion commands={commands} />
 				</Skeleton>
-			</main>
+			</Main>
 
-			<footer className={styles.footer}>
-				<Text size="lg">Made by Luís Ferro</Text>
-				<div>
-					<a href="https://github.com/luferro" target="_blank" rel="noopener noreferrer">
-						<Image src={'/svg/github.svg'} alt="Github icon" width={32} height={32} />
-					</a>
-					<a href="https://www.linkedin.com/in/luis-ferro/" target="_blank" rel="noopener noreferrer">
-						<Image src={'/svg/linkedin.svg'} alt="LinkedIn icon" width={32} height={32} />
-					</a>
-				</div>
-			</footer>
-		</div>
+			<Footer />
+		</Box>
 	);
 };
 
