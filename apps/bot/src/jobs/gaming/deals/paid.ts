@@ -9,11 +9,12 @@ export const execute: JobExecute = async ({ client }) => {
 	if (client.cache.deals.chart.length === 0) await Bot.jobs.get('gaming.deals.chart')?.execute({ client });
 
 	const deals = await client.api.gaming.itad.getLatestDeals();
+	const paidDeals = deals.filter(({ isFree }) => !isFree);
 
 	const embeds = [];
-	for (const { title, url, isFree, discount, regular, current, store, expiry } of deals.reverse()) {
+	for (const { title, url, discount, regular, current, store, expiry } of paidDeals.reverse()) {
 		const isPopular = client.cache.deals.chart.some((game) => game.title === title);
-		if (!isFree || !isPopular) continue;
+		if (!isPopular) continue;
 
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;

@@ -6,11 +6,10 @@ export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const deals = await client.api.gaming.itad.getLatestDeals();
+	const freeDeals = deals.filter(({ isFree }) => isFree);
 
 	const embeds = [];
-	for (const { title, url, isFree, discount, regular, current, store, expiry } of deals.reverse()) {
-		if (!isFree) continue;
-
+	for (const { title, url, discount, regular, current, store, expiry } of freeDeals.reverse()) {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
