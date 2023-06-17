@@ -19,7 +19,7 @@ FROM node:18 AS runner
 FROM mcr.microsoft.com/playwright:focal
 WORKDIR /usr/src/app
 RUN corepack enable && corepack prepare pnpm@latest --activate
-RUN apt-get update && apt-get upgrade -y && apt-get install libnss3 libatk-bridge2.0-0 libdrm-dev libxkbcommon-dev libgbm-dev libasound-dev libatspi2.0-0 libxshmfence-dev -y
+RUN apt-get update && apt-get upgrade -y && apt-get install libnss3 libatk-bridge2.0-0 libdrm-dev libxkbcommon-dev libgbm-dev libasound-dev libatspi2.0-0 libxshmfence-dev -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
 
 RUN pnpm install @discordjs/opus --force --filter bot
