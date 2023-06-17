@@ -3,7 +3,7 @@ import { EmbedBuilder } from 'discord.js';
 import { Bot } from '../../../structures/Bot';
 import type { JobData, JobExecute } from '../../../types/bot';
 
-export const data: JobData = { schedule: '0 */1 * * * *' };
+export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	if (client.cache.deals.chart.length === 0) await Bot.jobs.get('gaming.deals.chart')?.execute({ client });
