@@ -63,7 +63,7 @@ export const getStaticProps = async () => {
 		}))
 		.sort((a, b) => a.name.localeCompare(b.name));
 
-	return { props: { commands: JSON.parse(JSON.stringify(commands)) } };
+	return { props: { commands: JSON.parse(JSON.stringify(commands)), revalidate: 60 * 60 * 24 } };
 };
 
 const Home = ({ commands }: { commands: Command[] }) => {
