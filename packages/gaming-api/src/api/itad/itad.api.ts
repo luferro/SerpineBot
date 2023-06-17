@@ -109,8 +109,9 @@ export const getLatestDeals = async () => {
 
 	return payload.data.list
 		.filter(({ drm }) => drm.length > 0)
-		.map(({ title, price_new, price_old, price_cut, shop, expiry, urls }) => ({
+		.map(({ title, plain, price_new, price_old, price_cut, shop, expiry, urls }) => ({
 			title,
+			id: plain,
 			url: urls.buy,
 			store: shop.name,
 			isFree: price_cut === 100,
