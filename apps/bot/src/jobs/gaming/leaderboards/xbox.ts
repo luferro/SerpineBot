@@ -13,7 +13,7 @@ export const execute: JobExecute = async ({ client }) => {
 	const leaderboard = await Leaderboards.getXboxLeaderboard(client);
 
 	const fromDate = DateUtil.formatDate(Date.now() - 7 * 24 * 60 * 60 * 1000);
-	const toDate = DateUtil.formatDate(Date.now() - 24 * 60 * 60 * 1000);
+	const toDate = DateUtil.formatDate(Date.now());
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Weekly Xbox Leaderboard (${fromDate} - ${toDate})`)
