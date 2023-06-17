@@ -4,13 +4,20 @@
 
 SerpineBot is a monorepo that consists in two applications: **bot** and **web**.
 -   **Bot**: Multipurpose Discord bot for my private discord server.
--   **Web**: Easy way to see all available slash commands with embed samples.
+-   **Web**: Overview of all available slash commands with embed samples.
 
 ## Features:
 
--   **Slash commands**: *15* slash command that serve various uses. An overview for all these commands can be found [here](https://serpine-bot.vercel.app).
--   **Webhooks**: *10+* webhooks that feed text channels with content on various topics (e.g. news, game deals, game reviews, anime episodes and many others).
--   **Jobs**: Scheduled jobs to handle bot integrations (e.g. Steam and Xbox integration), reminders, birthdays and much more.
+-   **Slash commands**
+    -   **15** slash commands that result in **60+** commands available to use.
+    -   An overview can be found [here](https://serpine-bot.vercel.app).
+-   **Jobs**
+    -   **30** scheduled jobs
+        -   Feed text channels with data on news, deals, anime episodes, manga chapters, memes and more!
+        -   Handle bot integrations (Steam wishlist, Steam leaderboard and Xbox leaderboard).
+        -   Notify users about your birthday.
+        -   Remind you about any reminders you set.
+        -   And much more!
 
 ## Tech Stack
 
