@@ -2,8 +2,8 @@ import { SettingsModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { ActionRowBuilder, Collection, EmbedBuilder, Message, StringSelectMenuBuilder } from 'discord.js';
 
-import type { EventData, EventExecute } from '../../types/bot';
 import { Bot } from '../../structures/Bot';
+import type { EventData, EventExecute } from '../../types/bot';
 
 export const data: EventData = { type: 'on' };
 
