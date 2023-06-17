@@ -2,22 +2,15 @@ import { Text } from '@mantine/core';
 import parse from 'html-react-parser';
 import { marked } from 'marked';
 
-import styles from '../styles/Home.module.css';
+import { StyledLanding } from './Landing.styles';
 
-interface Props {
-	title: string;
-	description: string;
-}
-
-const Details = ({ title, description }: Props) => {
+export const Landing = ({ title, description }: { title: string; description: string }) => {
 	return (
-		<div className={styles.details}>
+		<StyledLanding>
 			<Text size="xl">{parse(marked.parse(title))}</Text>
 			<Text size="md" color="dimmed">
 				{parse(marked.parse(description))}
 			</Text>
-		</div>
+		</StyledLanding>
 	);
 };
-
-export default Details;
