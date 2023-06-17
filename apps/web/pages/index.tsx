@@ -1,4 +1,4 @@
-import { Box, Skeleton } from '@mantine/core';
+import { Box } from '@mantine/core';
 import { ApplicationCommandOptionType, Client, GatewayIntentBits } from 'discord.js';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
@@ -7,6 +7,7 @@ import { Accordion } from '../components/Accordion/Accordion';
 import { Footer } from '../components/Footer/Footer';
 import { Landing } from '../components/Landing/Landing';
 import { Main } from '../components/Main/Main';
+import { StyledSkeleton } from '../components/Skeleton/Skeleton.styled';
 import { Command, Group, Option, Subcommand } from '../types/bot';
 
 const getSubcommandGroups = ({ options }: { options?: Option[] }) => {
@@ -83,17 +84,17 @@ const Home = ({ commands }: { commands: Command[] }) => {
 			</Head>
 
 			<Main>
-				<Skeleton visible={loading}>
+				<StyledSkeleton visible={loading}>
 					<Landing
 						title="SerpineBot, a multipurpose discord bot for my private discord server"
 						description={`This page is an overview of all available slash commands.<br/>
 						Does not include webhooks or jobs documentation.<br/>
 						You can look into the repository at [https://github.com/luferro/SerpineBot](https://github.com/luferro/SerpineBot)`}
 					/>
-				</Skeleton>
-				<Skeleton visible={loading}>
+				</StyledSkeleton>
+				<StyledSkeleton visible={loading}>
 					<Accordion commands={commands} />
-				</Skeleton>
+				</StyledSkeleton>
 			</Main>
 
 			<Footer />
