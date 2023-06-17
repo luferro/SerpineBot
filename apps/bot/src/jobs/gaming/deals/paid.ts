@@ -12,8 +12,8 @@ export const execute: JobExecute = async ({ client }) => {
 	const paidDeals = deals.filter(({ isFree }) => !isFree);
 
 	const embeds = [];
-	for (const { title, url, discount, regular, current, store, expiry } of paidDeals.reverse()) {
-		const isPopular = client.cache.deals.chart.some((game) => game.title === title);
+	for (const { id, title, url, discount, regular, current, store, expiry } of paidDeals.reverse()) {
+		const isPopular = client.cache.deals.chart.some((game) => game.plain === id);
 		if (!isPopular) continue;
 
 		const isSuccessful = await client.state({ title, url });
