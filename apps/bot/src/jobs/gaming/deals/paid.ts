@@ -12,7 +12,7 @@ export const execute: JobExecute = async ({ client }) => {
 	const paidDeals = deals.filter(({ isFree }) => !isFree);
 
 	const embeds = [];
-	for (const { id, title, url, discount, regular, current, store, expiry } of paidDeals.reverse()) {
+	for (const { id, title, url, discount, regular, current, store, drm, expiry } of paidDeals.reverse()) {
 		const isPopular = client.cache.deals.chart.some((game) => game.plain === id);
 		if (!isPopular) continue;
 
@@ -23,6 +23,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.setTitle(title)
 			.setURL(url)
 			.setDescription(`**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`)
+			.addFields({ name: 'DRM', value: drm.map((platform) => `> **${platform}**`).join('\n') || 'N/A' })
 			.setColor('Random');
 		if (expiry) embed.setFooter({ text: `Expires on ${expiry}` });
 

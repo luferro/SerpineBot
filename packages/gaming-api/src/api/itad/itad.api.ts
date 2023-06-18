@@ -1,4 +1,4 @@
-import { ConverterUtil, DateUtil, FetchUtil } from '@luferro/shared-utils';
+import { ConverterUtil, DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
 
 type Payload<T> = { data: T };
 type Game<T> = { [key: string]: T };
@@ -109,11 +109,12 @@ export const getLatestDeals = async () => {
 
 	return payload.data.list
 		.filter(({ drm }) => drm.length > 0)
-		.map(({ title, plain, price_new, price_old, price_cut, shop, expiry, urls }) => ({
+		.map(({ title, plain, price_new, price_old, price_cut, shop, drm, expiry, urls }) => ({
 			title,
 			id: plain,
 			url: urls.buy,
 			store: shop.name,
+			drm: drm.map(StringUtil.capitalize),
 			isFree: price_cut === 100,
 			discount: price_cut,
 			regular: ConverterUtil.formatCurrency(price_old),
