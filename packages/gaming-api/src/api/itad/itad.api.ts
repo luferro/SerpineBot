@@ -1,4 +1,4 @@
-import { ConverterUtil, DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
+import { ConverterUtil, DateUtil, FetchUtil, SleepUtil, StringUtil } from '@luferro/shared-utils';
 
 type Payload<T> = { data: T };
 type Game<T> = { [key: string]: T };
@@ -52,11 +52,12 @@ export const auth = {
 export const getPopularityChart = async () => {
 	let chart: PopularityChart[] = [];
 	const limit = 500;
-	for (let i = 0; i < 4; i++) {
+	for (let i = 0; i <= 5; i++) {
 		const offset = i * limit;
 		const url = `https://api.isthereanydeal.com/v01/stats/popularity/chart/?key=${auth.apiKey}&offset=${offset}&limit=${limit}`;
 		const { payload } = await FetchUtil.fetch<Payload<PopularityChart[]>>({ url });
 		chart = chart.concat(payload.data);
+		await SleepUtil.sleep(2000);
 	}
 	return chart;
 };
