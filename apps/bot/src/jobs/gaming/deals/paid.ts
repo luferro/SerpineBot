@@ -19,11 +19,13 @@ export const execute: JobExecute = async ({ client }) => {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
+		const deal = `**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`;
+		const activates = `*Activates on ${drm.join(', ')}*`;
+
 		const embed = new EmbedBuilder()
 			.setTitle(title)
 			.setURL(url)
-			.setDescription(`**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`)
-			.setFields([{ name: 'DRM', value: drm.map((platform) => `> ${platform}`).join('\n') }])
+			.setDescription(`${deal}\n${activates}`)
 			.setColor('Random');
 		if (expiry) embed.setFooter({ text: `Expires on ${expiry}` });
 
