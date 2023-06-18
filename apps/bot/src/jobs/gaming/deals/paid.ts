@@ -20,9 +20,10 @@ export const execute: JobExecute = async ({ client }) => {
 		if (!isSuccessful) continue;
 
 		const embed = new EmbedBuilder()
-			.setTitle(`${title} (${drm.join(', ')})`)
+			.setTitle(title)
 			.setURL(url)
 			.setDescription(`**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`)
+			.setFields([{ name: 'DRM', value: drm.map((platform) => `> ${platform}`).join('\n') }])
 			.setColor('Random');
 		if (expiry) embed.setFooter({ text: `Expires on ${expiry}` });
 
