@@ -65,7 +65,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 				},
 				{
 					name: '**Prepare a gift for**',
-					value: `**${receiver.user.tag}**`,
+					value: `**${receiver.user.username}**`,
 				},
 			])
 			.setFooter({ text: `A reminder for the gifts exchange has been created. ReminderId: ${reminderId}` })

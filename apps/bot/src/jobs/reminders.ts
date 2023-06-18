@@ -27,7 +27,7 @@ export const execute: JobExecute = async ({ client }) => {
 			await target.send({ embeds: [embed] });
 			await RemindersModel.deleteOne({ reminderId });
 
-			logger.info(`Notified **${target.tag}** about reminderId **${reminderId}**.`);
+			logger.info(`Notified **${target.username}** about reminderId **${reminderId}**.`);
 		} catch (error) {
 			logger.warn(`Failed to notify **${userId}** about reminderId **${reminderId}**. Reason: **${error}**`);
 		}

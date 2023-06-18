@@ -52,7 +52,7 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 			},
 			{
 				name: '**Created by**',
-				value: creator?.tag ?? 'N/A',
+				value: creator?.username ?? 'N/A',
 			},
 		])
 		.setThumbnail(guild.iconURL())

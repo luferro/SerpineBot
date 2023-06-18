@@ -27,12 +27,12 @@ export const execute: JobExecute = async ({ client }) => {
 
 			const embed = new EmbedBuilder()
 				.setTitle('🎉🥳🎂🥳🎉 Happy Birthday! 🎉🥳🎂🥳🎉')
-				.setDescription(`\`${target.tag}\` is now ${age} years old!`)
+				.setDescription(`\`${target.username}\` is now ${age} years old!`)
 				.setThumbnail(target.avatar);
 
 			await client.propageMessages({ category: 'Birthdays', everyone: true, embeds: [embed] });
 
-			logger.info(`Notified guild users about **${target.tag}** birthday.`);
+			logger.info(`Notified guild users about **${target.username}** birthday.`);
 		} catch (error) {
 			logger.warn(`Failed to notify guild users about **${userId}** birthday. Reason: **${error}**`);
 		}

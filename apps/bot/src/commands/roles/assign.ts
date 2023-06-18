@@ -13,9 +13,12 @@ export const execute: CommandExecute = async ({ interaction }) => {
 	const role = interaction.options.getRole('role', true) as Role;
 
 	const member = interaction.guild.members.cache.find(({ id }) => id === user.id)!;
-	if (member.roles.cache.has(role.id)) throw new Error(`${member.user.tag} already has role ${role.name}.`);
+	if (member.roles.cache.has(role.id)) throw new Error(`${member.user.username} already has role ${role.name}.`);
 	await member.roles.add(role);
 
-	const embed = new EmbedBuilder().setTitle(`Role ${role.name} has been added to ${user.tag}.`).setColor('Random');
+	const embed = new EmbedBuilder()
+		.setTitle(`Role ${role.name} has been added to ${user.username}.`)
+		.setColor('Random');
+
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

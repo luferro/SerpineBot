@@ -32,7 +32,7 @@ export const execute: CommandExecute = async ({ interaction }) => {
 	if (hiddenCount > 0) formattedWishlist.push(`And ${hiddenCount} more!`);
 
 	const embed = new EmbedBuilder()
-		.setTitle(`\`${user.tag}\`'s wishlist`)
+		.setTitle(`\`${user.username}\`'s wishlist`)
 		.setURL(`https://store.steampowered.com/wishlist/profiles/${profile.id}/#sort=order`)
 		.setDescription(formattedWishlist.join('\n'))
 		.setColor('Random');

@@ -31,7 +31,7 @@ const handleChatInputCommandInteraction = async ({ client, interaction }: ChatIn
 	const subcommand = interaction.options.getSubcommand(false);
 
 	const name = group ? `${command}.${group}.${subcommand}` : subcommand ? `${command}.${subcommand}` : command;
-	logger.info(`Command **${name}** used by **${interaction.user.tag}** in guild **${interaction.guild.name}**.`);
+	logger.info(`Command **${name}** used by **${interaction.user.username}** in guild **${interaction.guild.name}**.`);
 
 	try {
 		const execute = Bot.commands.execute.get(name);

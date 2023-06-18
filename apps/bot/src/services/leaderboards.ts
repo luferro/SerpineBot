@@ -37,7 +37,7 @@ export const getSteamLeaderboard = async (client: Bot) => {
 		.slice(0, 10)
 		.map(({ user, topPlayed }, index) => {
 			const position = Medals[index + 1] ?? `\`${index + 1}.\``;
-			const description = `**${user.tag}** with \`${topPlayed.hours}h\`\nTop played game was **[${topPlayed.name}](${topPlayed.url})**`;
+			const description = `**${user.username}** with \`${topPlayed.hours}h\`\nTop played game was **[${topPlayed.name}](${topPlayed.url})**`;
 			return `${position} ${description}`;
 		});
 };
@@ -63,7 +63,7 @@ export const getXboxLeaderboard = async (client: Bot) => {
 		.slice(0, 10)
 		.map(({ user, gamerscore }, index) => {
 			const position = Medals[index + 1] ?? `\`${index + 1}.\``;
-			const description = `**${user.tag}** with \`${gamerscore}G\``;
+			const description = `**${user.username}** with \`${gamerscore}G\``;
 			return `${position} ${description}`;
 		});
 };

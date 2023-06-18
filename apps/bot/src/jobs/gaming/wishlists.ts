@@ -134,7 +134,7 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 		const user = await client.users.fetch(userId);
 		await user.send({ embeds: [embed] });
 
-		logger.info(`Steam alerts sent to **${user.tag}** (${category} | ${queue.length} update(s)).`);
+		logger.info(`Steam alerts sent to **${user.username}** (**${category}** | **${queue.length}** update(s)).`);
 		logger.debug({ queue });
 	}
 };

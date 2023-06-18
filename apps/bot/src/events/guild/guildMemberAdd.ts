@@ -21,5 +21,5 @@ export const execute: EventExecute<Args> = async ({ rest: [member] }) => {
 
 	await member.roles.add(role);
 
-	logger.info(`**${member.user.tag}** has joined guild **${member.guild.name}**.`);
+	logger.info(`**${member.user.username}** has joined guild **${member.guild.name}**.`);
 };

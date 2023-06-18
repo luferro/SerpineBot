@@ -30,7 +30,9 @@ export const execute: CommandExecute = async ({ interaction }) => {
 
 		return firstDate.getTime() - secondDate.getTime();
 	});
-	const formattedBirthday = sortedBirthdays.map(({ birthday, user }) => `> **${birthday}** ${user.tag}`).join('\n');
+	const formattedBirthday = sortedBirthdays
+		.map(({ birthday, user }) => `> **${birthday}** ${user.username}`)
+		.join('\n');
 
 	const embed = new EmbedBuilder().setTitle('Birthdays').setDescription(formattedBirthday).setColor('Random');
 	await interaction.reply({ embeds: [embed] });

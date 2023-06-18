@@ -26,7 +26,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 			formatted += `\n${progress}`;
 		} else formatted += ` | **${currentTrack.duration}**`;
 
-		if (currentTrack.requestedBy) formatted += `\nRequest by \`${currentTrack.requestedBy.tag}\``;
+		if (currentTrack.requestedBy) formatted += `\nRequest by \`${currentTrack.requestedBy.username}\``;
 		return formatted;
 	};
 
