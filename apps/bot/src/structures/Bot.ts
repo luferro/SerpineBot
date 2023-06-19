@@ -41,10 +41,7 @@ export class Bot extends Client {
 		this.config = getSanitizedEnvConfig();
 		this.api = this.initializeApis();
 		this.player = this.initializePlayer();
-		this.cache = {
-			anime: { schedule: new Collection() },
-			deals: { chart: [] },
-		};
+		this.cache = { anime: { schedule: new Collection() }, deals: { chart: [] } };
 	}
 
 	private initializeApis() {
@@ -83,7 +80,6 @@ export class Bot extends Client {
 
 	private initializeSchedulers() {
 		for (const [name, job] of Bot.jobs.entries()) {
-			if (!job?.data) continue;
 			new CronJob(job.data.schedule, () =>
 				job.execute({ client: this }).catch((error) => {
 					error.message = `Job **${name}** failed. Reason: ${error.message}`;
