@@ -20,7 +20,7 @@ export const execute: JobExecute = async ({ client }) => {
 		if (!isSuccessful) continue;
 
 		const deal = `**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`;
-		const activates = `*Activates on ${drm.join(', ')}*`;
+		const activates = drm ? `*Activates on ${drm.join(', ')}*` : `DRM Free`;
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)

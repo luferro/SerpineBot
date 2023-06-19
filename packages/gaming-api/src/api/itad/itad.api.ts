@@ -115,7 +115,7 @@ export const getLatestDeals = async () => {
 			id: plain,
 			url: urls.buy,
 			store: shop.name,
-			drm: drm.map(StringUtil.capitalize),
+			drm: !drm.includes('DRM Free') ? drm.map(StringUtil.capitalize) : null,
 			isFree: price_cut === 100,
 			discount: price_cut,
 			regular: ConverterUtil.formatCurrency(price_old),
