@@ -13,7 +13,15 @@
 	},
 	"gaming": {
 		"permissions": null,
-		"description": "Manage your gaming integrations, check out deals, average playtime, leaderboards and much more."
+		"description": "Check out gaming deals, average playtime to beat a game, reviews and much more."
+	},
+	"integrations": {
+		"permissions": null,
+		"description": "Manage your Steam and Xbox integrations."
+	},
+	"leaderboards": {
+		"permissions": null,
+		"description": "Check out the Steam and Xbox leaderboard for the current week."
 	},
 	"memes": {
 		"permissions": null,
