@@ -12,10 +12,10 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const query = interaction.options.getString('query', true);
 
-	const { id } = await client.api.gaming.hltb.search(query);
+	const { id } = await client.api.gaming.playtimes.search(query);
 	if (!id) throw new Error(`No matches for ${query}.`);
 
-	const { name, image, playtimes } = await client.api.gaming.hltb.getGameById(id);
+	const { name, image, playtimes } = await client.api.gaming.playtimes.getGameById(id);
 	const { main, mainExtra, completionist } = playtimes;
 
 	const hasPlaytimes = main || mainExtra || completionist;

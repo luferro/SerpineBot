@@ -5,7 +5,7 @@ import type { JobData, JobExecute } from '../../../types/bot';
 export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const deals = await client.api.gaming.itad.getLatestDeals();
+	const deals = await client.api.gaming.deals.getLatestDeals();
 	const freeDeals = deals.filter(({ isFree }) => isFree);
 
 	const embeds = [];

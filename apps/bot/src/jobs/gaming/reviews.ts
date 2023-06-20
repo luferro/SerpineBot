@@ -16,7 +16,7 @@ export const execute: JobExecute = async ({ client }) => {
 	const embeds = [];
 	for (const result of results.reverse()) {
 		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
-			await client.api.gaming.opencritic.getReviewsForUrl(result.url);
+			await client.api.gaming.reviews.getReviewsForUrl(result.url);
 		if (!tier || !score) continue;
 
 		const isSuccessful = await client.state({ title: name, url });

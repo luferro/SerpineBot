@@ -13,13 +13,13 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const query = interaction.options.getString('query', true);
 
-	const { id, title } = await client.api.gaming.itad.search(query);
+	const { id, title } = await client.api.gaming.deals.search(query);
 	if (!id) throw new Error(`No matches for "${query}".`);
 
 	const subscriptions = await SubscriptionsModel.getMatches({ name: query });
 	const formattedSubscriptions = subscriptions.map(({ provider }) => `> **${provider}**`);
 
-	const { url, deal, historicalLow, bundles } = await client.api.gaming.itad.getDealById(id);
+	const { url, deal, historicalLow, bundles } = await client.api.gaming.deals.getDealById(id);
 
 	const formattedBundles = bundles.live.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
 

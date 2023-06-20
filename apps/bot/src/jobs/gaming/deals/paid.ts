@@ -8,7 +8,7 @@ export const data: JobData = { schedule: '0 */15 * * * *' };
 export const execute: JobExecute = async ({ client }) => {
 	if (client.cache.deals.chart.length === 0) await Bot.jobs.get('gaming.deals.chart')?.execute({ client });
 
-	const deals = await client.api.gaming.itad.getLatestDeals();
+	const deals = await client.api.gaming.deals.getLatestDeals();
 	const paidDeals = deals.filter(({ isFree }) => !isFree);
 
 	const embeds = [];
@@ -20,7 +20,7 @@ export const execute: JobExecute = async ({ client }) => {
 		if (!isSuccessful) continue;
 
 		const deal = `**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`;
-		const activates = drm ? `*Activates on ${drm.join(', ')}*` : `DRM Free`;
+		const activates = drm ? `*Activates on ${drm.join(', ')}*` : `*DRM Free*`;
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)

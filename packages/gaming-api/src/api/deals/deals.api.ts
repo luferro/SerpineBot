@@ -1,5 +1,7 @@
 import { ConverterUtil, DateUtil, FetchUtil, SleepUtil, StringUtil } from '@luferro/shared-utils';
 
+import { Feed, getDealsFeed } from './deals.feed';
+
 type Payload<T> = { data: T };
 type Game<T> = { [key: string]: T };
 type List<T> = { list: T };
@@ -115,7 +117,7 @@ export const getLatestDeals = async () => {
 			id: plain,
 			url: urls.buy,
 			store: shop.name,
-			drm: !drm.includes('DRM Free') ? drm.map(StringUtil.capitalize) : null,
+			drm: !drm.some((platform) => platform.includes('DRM Free')) ? drm.map(StringUtil.capitalize) : null,
 			isFree: price_cut === 100,
 			discount: price_cut,
 			regular: ConverterUtil.formatCurrency(price_old),
@@ -123,3 +125,7 @@ export const getLatestDeals = async () => {
 			expiry: expiry ? DateUtil.formatDate(expiry * 1000) : null,
 		}));
 };
+
+export const getLatestSales = async () => await getDealsFeed({ url: Feed.SALES });
+
+export const getLatestBundles = async () => await getDealsFeed({ url: Feed.BUNDLES });

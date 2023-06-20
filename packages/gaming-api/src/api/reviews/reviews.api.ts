@@ -1,7 +1,7 @@
 import { GoogleApi } from '@luferro/google-api';
 import { StringUtil, UrlUtil } from '@luferro/shared-utils';
 
-import { Endpoint, getReviewsDetails } from './opencritic.scraper';
+import { Endpoint, getReviewsDetails } from './reviews.scraper';
 
 const getUrlParameters = async (query: string) => {
 	const results = await GoogleApi.engine.search(`${query} site:https://opencritic.com/game`);

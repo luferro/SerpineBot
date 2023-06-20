@@ -1,7 +1,7 @@
 import { GoogleApi } from '@luferro/google-api';
 import { StringUtil } from '@luferro/shared-utils';
 
-import { Endpoint, getGameDetails } from './hltb.scraper';
+import { Endpoint, getGameDetails } from './playtimes.scraper';
 
 export const search = async (query: string) => {
 	const results = await GoogleApi.engine.search(`${query} site:https://howlongtobeat.com`);

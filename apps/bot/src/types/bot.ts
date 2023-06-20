@@ -45,5 +45,5 @@ export type Api = {
 
 export type Cache = {
 	anime: { schedule: Collection<number, ShowsApi.animeschedule.WeeklySchedule> };
-	deals: { chart: GamingApi.itad.PopularityChart[] };
+	deals: { chart: GamingApi.deals.PopularityChart[] };
 };
