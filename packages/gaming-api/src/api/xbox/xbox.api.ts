@@ -6,7 +6,7 @@ import { Endpoint, getGamertagDetails, getNewsList, getXboxList } from './xbox.s
 export const isGamertagValid = async (gamertag: string) => {
 	const url = StringUtil.format<Endpoint>(Endpoint.GAMERTAG, gamertag);
 	const html = await InteractiveScraper.getHtml({ url });
-	const $ = await StaticScraper.loadHtml({ html });
+	const $ = StaticScraper.loadHtml({ html });
 	return $('h1').first().text() !== "Gamertag doesn't exist";
 };
 

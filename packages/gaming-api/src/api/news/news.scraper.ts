@@ -6,7 +6,7 @@ export enum Endpoint {
 
 export const getNewsList = async (url: Endpoint) => {
 	const html = await InteractiveScraper.getHtml({ url });
-	const $ = await StaticScraper.loadHtml({ html });
+	const $ = StaticScraper.loadHtml({ html });
 
 	return $('div.post')
 		.get()

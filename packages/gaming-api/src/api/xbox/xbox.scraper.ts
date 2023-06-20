@@ -14,7 +14,7 @@ export enum Endpoint {
 
 export const getGamertagDetails = async (url: string) => {
 	const html = await InteractiveScraper.getHtml({ url });
-	const $ = await StaticScraper.loadHtml({ html });
+	const $ = StaticScraper.loadHtml({ html });
 
 	const name = $('h1').first().text();
 	const image = $('.avatar img').first().attr('src');
