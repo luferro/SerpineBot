@@ -15,8 +15,7 @@ export const getCatalogList = async (url: Endpoint) => {
 	const { browser, page } = await InteractiveScraper.load({ url });
 	await page.waitForTimeout(10_000);
 
-	const { cookies, list, pagination } = getSelectors(url);
-	if (cookies) await page.locator(cookies).click();
+	const { list, pagination } = getSelectors(url);
 
 	const catalog: Catalog[] = [];
 
@@ -49,7 +48,7 @@ export const getCatalogList = async (url: Endpoint) => {
 		if (!hasMore) break;
 
 		await nextPageButton.scrollIntoViewIfNeeded();
-		await nextPageButton.click();
+		await nextPageButton.click({ force: true });
 		currentPage++;
 	}
 	await InteractiveScraper.close({ browser });
@@ -65,7 +64,6 @@ const getSelectors = (url: Endpoint) => {
 				item: { name: 'h3', href: 'a', base: null },
 			},
 			pagination: { nth: 0, element: null, total: null, next: '.paginatenext:not(.pag-disabled) a' },
-			cookies: null,
 		},
 		[Endpoint.PC_GAME_PASS_CATALOG]: {
 			list: {
@@ -73,23 +71,19 @@ const getSelectors = (url: Endpoint) => {
 				item: { name: 'h3', href: 'a', base: null },
 			},
 			pagination: { nth: 0, element: null, total: null, next: '.paginatenext:not(.pag-disabled) a' },
-			cookies: null,
 		},
 		[Endpoint.EA_PLAY_CATALOG]: {
 			list: { element: 'ea-box-set ea-game-box', item: { name: 'a', href: 'a', base: 'https://www.ea.com' } },
 			pagination: { nth: 0, element: 'ea-pagination', total: 'total-pages', next: 'span[data-page-target=next]' },
-			cookies: null,
 		},
 		[Endpoint.EA_PLAY_PRO_CATALOG]: {
 			list: { element: 'ea-box-set ea-game-box', item: { name: 'a', href: 'a', base: 'https://www.ea.com' } },
 			pagination: { nth: 1, element: 'ea-pagination', total: 'total-pages', next: 'span[data-page-target=next]' },
-			cookies: null,
 		},
 
 		[Endpoint.UBISOFT_PLUS_CATALOG]: {
 			list: { element: 'div.game', item: { name: 'p.game-title', href: null, base: null } },
 			pagination: { nth: 0, element: null, total: null, next: '.game-list_wrapper ~ div button' },
-			cookies: '#privacy__modal__accept',
 		},
 	};
 	return options[url];
