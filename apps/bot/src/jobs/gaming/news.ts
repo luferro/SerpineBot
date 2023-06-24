@@ -1,4 +1,4 @@
-import { StringUtil } from '@luferro/shared-utils';
+import { logger, StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
 import { Bot } from '../../structures/Bot';
@@ -7,15 +7,20 @@ import type { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const data = [...(await getArticles(client)), ...(await getMedia(client))].sort(
+	const data = [...(await getArticles(client)), ...(await getEmbeddedMedia(client))].sort(
 		(a, b) => b.publishedAt.getTime() - a.publishedAt.getTime(),
 	);
 
 	const embeds = [];
 	for (const { title, url, image, isTwitterEmbed, isYoutubeEmbed } of data.reverse()) {
 		if (isYoutubeEmbed) {
-			const { channel } = await client.api.google.youtube.getVideoDetails(url);
-			if (typeof channel.subscribers === 'number' && channel.subscribers < 50_000) continue;
+			try {
+				const { channel } = await client.api.google.youtube.getVideoDetails(url);
+				if (channel.subscribers < 50_000) continue;
+			} catch (error) {
+				logger.warn(`Failed to fetch subscribers for ${url}`);
+				continue;
+			}
 		}
 
 		const isSuccessful = await client.state({ title, url });
@@ -32,6 +37,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.setURL(url)
 			.setThumbnail(image)
 			.setColor('Random');
+
 		embeds.push(embed);
 	}
 
@@ -49,7 +55,7 @@ const getArticles = async (client: Bot) => {
 	}));
 };
 
-const getMedia = async (client: Bot) => {
+const getEmbeddedMedia = async (client: Bot) => {
 	return (await client.api.reddit.getPosts('Games', 'new', 25))
 		.filter(({ isCrosspost, isSelf, hasEmbeddedMedia }) => !isCrosspost && !isSelf && hasEmbeddedMedia)
 		.map(({ title, url, embedType, publishedAt }) => ({
