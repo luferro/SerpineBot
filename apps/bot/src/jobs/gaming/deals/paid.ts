@@ -19,7 +19,7 @@ export const execute: JobExecute = async ({ client }) => {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
-		const deal = `**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`;
+		const deal = `**-${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`;
 		const activates = drm ? `*Activates on ${drm.join(', ')}*` : `*DRM Free*`;
 
 		const embed = new EmbedBuilder()

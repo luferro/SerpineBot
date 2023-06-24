@@ -9,14 +9,14 @@ export const execute: JobExecute = async ({ client }) => {
 	const freeDeals = deals.filter(({ isFree }) => isFree);
 
 	const embeds = [];
-	for (const { title, url, discount, regular, current, store, expiry } of freeDeals.reverse()) {
+	for (const { title, url, discount, regular, store, expiry } of freeDeals.reverse()) {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)
 			.setURL(url)
-			.setDescription(`**${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`)
+			.setDescription(`**-${discount}%** off! ~~${regular}~~ | **Free** @ **${store}**`)
 			.setColor('Random');
 		if (expiry) embed.setFooter({ text: `Expires on ${expiry}` });
 
