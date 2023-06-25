@@ -21,9 +21,12 @@ export const load = async ({ url }: { url: string }) => {
 
 export const getHtml = async ({ url }: { url: string }) => {
 	const { browser, page } = await load({ url });
-	const html = await page.content();
-	await close({ browser });
-	return html;
+	try {
+		const html = await page.content();
+		return html;
+	} finally {
+		await close({ browser });
+	}
 };
 
 export const close = async ({ browser }: { browser: Browser }) => {

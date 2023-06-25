@@ -13,47 +13,54 @@ export enum Endpoint {
 
 export const getCatalogList = async (url: Endpoint) => {
 	const { browser, page } = await InteractiveScraper.load({ url });
-	await page.waitForTimeout(10_000);
 
-	const { list, pagination } = getSelectors(url);
+	try {
+		await page.waitForTimeout(10_000);
 
-	const catalog: Catalog[] = [];
+		const catalog: Catalog[] = [];
+		const { list, pagination } = getSelectors(url);
 
-	let currentPage = 1;
-	while (true) {
-		await page.waitForTimeout(2000);
+		let currentPage = 1;
+		while (true) {
+			await page.waitForTimeout(2000);
 
-		const containers = await page.locator(list.element).elementHandles();
-		for (const container of containers) {
-			const name = await (await container.$(list.item.name))?.textContent();
-			const href = list.item.href ? await (await container.$(list.item.href))?.getAttribute('href') : null;
-			const url = list.item.base ? `${list.item.base}${href}` : href;
-			if (!name) continue;
+			const containers = await page.locator(list.element).elementHandles();
+			for (const container of containers) {
+				const name = await (await container.$(list.item.name))?.textContent();
+				const href = list.item.href ? await (await container.$(list.item.href))?.getAttribute('href') : null;
+				const url = list.item.base ? `${list.item.base}${href}` : href;
+				if (!name) continue;
 
-			// eslint-disable-next-line no-control-regex
-			const fixedName = name.replace(/[^\x00-\x7F]/g, '');
-			const isPresent = catalog.find((item) => item.name === fixedName);
-			if (isPresent) continue;
+				// eslint-disable-next-line no-control-regex
+				const fixedName = name.replace(/[^\x00-\x7F]/g, '');
+				const isPresent = catalog.find((item) => item.name === fixedName);
+				if (isPresent) continue;
 
-			catalog.push({ name: fixedName, slug: StringUtil.slug(name), url: url ?? null });
+				catalog.push({ name: fixedName, slug: StringUtil.slug(name), url: url ?? null });
+			}
+
+			const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
+			const totalPages =
+				pagination.element && pagination.total
+					? Number(
+							(await page
+								.locator(pagination.element)
+								.nth(pagination.nth)
+								.getAttribute(pagination.total))!,
+					  )
+					: null;
+
+			const hasMore = totalPages ? totalPages !== currentPage : (await nextPageButton.count()) > 0;
+			if (!hasMore) break;
+
+			await nextPageButton.scrollIntoViewIfNeeded();
+			await nextPageButton.click({ force: true });
+			currentPage++;
 		}
-
-		const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
-		const totalPages =
-			pagination.element && pagination.total
-				? Number((await page.locator(pagination.element).nth(pagination.nth).getAttribute(pagination.total))!)
-				: null;
-
-		const hasMore = totalPages ? totalPages !== currentPage : (await nextPageButton.count()) > 0;
-		if (!hasMore) break;
-
-		await nextPageButton.scrollIntoViewIfNeeded();
-		await nextPageButton.click({ force: true });
-		currentPage++;
+		return catalog;
+	} finally {
+		await InteractiveScraper.close({ browser });
 	}
-	await InteractiveScraper.close({ browser });
-
-	return catalog;
 };
 
 const getSelectors = (url: Endpoint) => {
