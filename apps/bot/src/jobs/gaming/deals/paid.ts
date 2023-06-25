@@ -35,6 +35,8 @@ export const execute: JobExecute = async ({ client }) => {
 			)
 		).filter((item): item is NonNullable<typeof item> => !!item);
 
+		if (formattedDeals.length === 0) continue;
+
 		const embed = new EmbedBuilder()
 			.setTitle(title)
 			.setURL(url)
