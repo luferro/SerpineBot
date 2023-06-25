@@ -12,22 +12,35 @@ export const execute: JobExecute = async ({ client }) => {
 	const paidDeals = deals.filter(({ isFree }) => !isFree);
 
 	const embeds = [];
-	for (const { id, title, url, discount, regular, current, store, drm, expiry } of paidDeals.reverse()) {
+	for (const { id, title, deals } of paidDeals.reverse()) {
 		const isPopular = client.cache.deals.chart.some((game) => game.plain === id);
 		if (!isPopular) continue;
 
-		const isSuccessful = await client.state({ title, url });
-		if (!isSuccessful) continue;
+		const isSingle = deals.length === 1;
+		const url = isSingle ? deals[0].url : null;
+		const footer = isSingle ? { text: `Expires on ${deals[0].expiry}` } : null;
 
-		const deal = `**-${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`;
-		const activates = drm ? `*Activates on ${drm.join(', ')}*` : `*DRM Free*`;
+		const formattedDeals = (
+			await Promise.all(
+				deals.map(async ({ url, discount, regular, current, store, drm }) => {
+					const isSuccessful = await client.state({ title, url });
+					if (!isSuccessful) return;
+
+					const deal = isSingle
+						? `**-${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`
+						: `**-${discount}%** off! ~~${regular}~~ | **${current}** @ **[${store}](${url})**`;
+					const activates = drm ? `*Activates on ${drm.join(', ')}*` : `*DRM Free*`;
+					return `${deal}\n${activates}`;
+				}),
+			)
+		).filter((item): item is NonNullable<typeof item> => !!item);
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)
 			.setURL(url)
-			.setDescription(`${deal}\n${activates}`)
+			.setDescription(formattedDeals.join('\n'))
+			.setFooter(footer)
 			.setColor('Random');
-		if (expiry) embed.setFooter({ text: `Expires on ${expiry}` });
 
 		embeds.push(embed);
 	}

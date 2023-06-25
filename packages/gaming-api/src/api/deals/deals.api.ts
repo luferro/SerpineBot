@@ -41,6 +41,21 @@ type Deal = {
 	urls: { buy: string; game: string };
 };
 
+type GroupedDeals = {
+	id: string;
+	title: string;
+	isFree: boolean;
+	deals: {
+		url: string;
+		discount: number;
+		regular: string;
+		current: string;
+		store: string;
+		expiry: string | null;
+		drm: string[] | null;
+	}[];
+};
+
 export const auth = {
 	apiKey: null as string | null,
 	setApiKey: function (API_KEY: string) {
@@ -123,7 +138,16 @@ export const getLatestDeals = async () => {
 			regular: ConverterUtil.formatCurrency(price_old),
 			current: ConverterUtil.formatCurrency(price_new),
 			expiry: expiry ? DateUtil.formatDate(expiry * 1000) : null,
-		}));
+		}))
+		.reduce((acc, { id, title, url, discount, regular, current, store, isFree, drm, expiry }) => {
+			const deal = { url, discount, regular, current, store, drm, expiry };
+
+			const storedEntryIndex = acc.findIndex((entry) => entry.title === title);
+			if (storedEntryIndex === -1 || isFree) acc.push({ id, title, isFree, deals: [deal] });
+			else acc[storedEntryIndex] = { id, title, isFree, deals: acc[storedEntryIndex].deals.concat(deal) };
+
+			return acc;
+		}, [] as GroupedDeals[]);
 };
 
 export const getLatestSales = async () => await getDealsFeed({ url: Feed.SALES });
