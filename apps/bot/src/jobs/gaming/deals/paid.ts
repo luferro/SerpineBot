@@ -16,19 +16,13 @@ export const execute: JobExecute = async ({ client }) => {
 		const isPopular = client.cache.deals.chart.some((game) => game.plain === id);
 		if (!isPopular) continue;
 
-		const isSingle = deals.length === 1;
-		const url = isSingle ? deals[0].url : null;
-		const footer = isSingle ? { text: `Expires on ${deals[0].expiry}` } : null;
-
 		const formattedDeals = (
 			await Promise.all(
 				deals.map(async ({ url, discount, regular, current, store, drm }) => {
 					const isSuccessful = await client.state({ title, url });
 					if (!isSuccessful) return;
 
-					const deal = isSingle
-						? `**-${discount}%** off! ~~${regular}~~ | **${current}** @ **${store}**`
-						: `**-${discount}%** off! ~~${regular}~~ | **${current}** @ **[${store}](${url})**`;
+					const deal = `**-${discount}%** off! ~~${regular}~~ | **${current}** @ **[${store}](${url})**`;
 					const activates = drm ? `*Activates on ${drm.join(', ')}*` : `*DRM Free*`;
 					return `${deal}\n${activates}`;
 				}),
@@ -37,11 +31,14 @@ export const execute: JobExecute = async ({ client }) => {
 
 		if (formattedDeals.length === 0) continue;
 
+		const isSingle = formattedDeals.length === 1;
+		const { url, expiry } = deals[0];
+
 		const embed = new EmbedBuilder()
 			.setTitle(title)
-			.setURL(url)
+			.setURL(isSingle ? url : null)
 			.setDescription(formattedDeals.join('\n'))
-			.setFooter(footer)
+			.setFooter(isSingle && expiry ? { text: `Expires on ${expiry}` } : null)
 			.setColor('Random');
 
 		embeds.push(embed);
