@@ -69,7 +69,7 @@ export const auth = {
 export const getPopularityChart = async () => {
 	let chart: PopularityChart[] = [];
 	const limit = 500;
-	for (let i = 0; i <= 5; i++) {
+	for (let i = 0; i < 3; i++) {
 		const offset = i * limit;
 		const url = `https://api.isthereanydeal.com/v01/stats/popularity/chart/?key=${auth.apiKey}&offset=${offset}&limit=${limit}`;
 		const { payload } = await FetchUtil.fetch<Payload<PopularityChart[]>>({ url });
