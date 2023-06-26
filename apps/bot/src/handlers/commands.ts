@@ -1,4 +1,4 @@
-import { FileUtil, logger } from '@luferro/shared-utils';
+import { FileUtil, logger, StringUtil } from '@luferro/shared-utils';
 import {
 	Client,
 	PermissionFlagsBits,
@@ -67,7 +67,7 @@ const buildSlashCommands = (map: Map<string, Map<string, CommandData[]>>) => {
 					? command
 					: new SlashCommandSubcommandGroupBuilder()
 							.setName(category)
-							.setDescription(`${category} group commands.`);
+							.setDescription(`${StringUtil.capitalize(category)} group commands for ${name}.`);
 
 			for (const option of options) {
 				const isSubcommand = option instanceof SlashCommandSubcommandBuilder;
