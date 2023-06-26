@@ -8,7 +8,9 @@ export const logger = createLogger({
 		timestamp(),
 		printf(({ timestamp, level, message, stack }) => {
 			const colorizedMessage =
-				level === 'debug' ? JSON.stringify(message) : message.replace(/\*\*(.*?)\*\*/g, '\x1b[36m$1\x1b[0m');
+				level === 'debug' && typeof message !== 'string'
+					? JSON.stringify(message)
+					: message.replace(/\*\*(.*?)\*\*/g, '\x1b[36m$1\x1b[0m');
 			const log = `${colorize().colorize(level, `[${timestamp}] ${level.toUpperCase()}:`)} ${colorizedMessage}`;
 			return stack && level === 'error' ? `${log}\n${stack}` : log;
 		}),
