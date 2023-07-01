@@ -18,9 +18,13 @@ export const getCatalogList = async (url: Endpoint) => {
 		await page.waitForTimeout(10_000);
 
 		const catalog: Catalog[] = [];
-		const { list, pagination, cookies } = getSelectors(url);
+		const { list, pagination, cookies, region } = getSelectors(url);
 
-		if (cookies) await page.locator(cookies).click();
+		const cookiesButton = cookies ? page.locator(cookies) : null;
+		if (cookiesButton && (await cookiesButton.isVisible())) await cookiesButton.click();
+
+		const regionButton = region ? page.locator(region) : null;
+		if (regionButton && (await regionButton?.isVisible())) await regionButton.click();
 
 		let currentPage = 1;
 		while (true) {
@@ -74,6 +78,7 @@ const getSelectors = (url: Endpoint) => {
 			},
 			pagination: { nth: 0, element: null, total: null, next: '.paginatenext:not(.pag-disabled) a' },
 			cookies: null,
+			region: null,
 		},
 		[Endpoint.PC_GAME_PASS_CATALOG]: {
 			list: {
@@ -82,22 +87,26 @@ const getSelectors = (url: Endpoint) => {
 			},
 			pagination: { nth: 0, element: null, total: null, next: '.paginatenext:not(.pag-disabled) a' },
 			cookies: null,
+			region: null,
 		},
 		[Endpoint.EA_PLAY_CATALOG]: {
 			list: { element: 'ea-box-set ea-game-box', item: { name: 'a', href: 'a', base: 'https://www.ea.com' } },
 			pagination: { nth: 0, element: 'ea-pagination', total: 'total-pages', next: 'span[data-page-target=next]' },
 			cookies: null,
+			region: null,
 		},
 		[Endpoint.EA_PLAY_PRO_CATALOG]: {
 			list: { element: 'ea-box-set ea-game-box', item: { name: 'a', href: 'a', base: 'https://www.ea.com' } },
 			pagination: { nth: 1, element: 'ea-pagination', total: 'total-pages', next: 'span[data-page-target=next]' },
 			cookies: null,
+			region: null,
 		},
 
 		[Endpoint.UBISOFT_PLUS_CATALOG]: {
 			list: { element: 'div.game', item: { name: 'p.game-title', href: null, base: null } },
 			pagination: { nth: 0, element: null, total: null, next: '.game-list_wrapper ~ div button' },
 			cookies: 'button#privacy__modal__accept',
+			region: 'button.stay-on-country-store',
 		},
 	};
 	return options[url];
