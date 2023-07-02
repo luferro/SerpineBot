@@ -10,23 +10,21 @@ export const data: JobData = {
 };
 
 export const execute: JobExecute = async ({ client }) => {
-	const leaderboard = await Leaderboards.getSteamLeaderboard(client);
+	try {
+		const leaderboard = await Leaderboards.getSteamLeaderboard(client);
 
-	const fromDate = DateUtil.formatDate(Date.now() - 7 * 24 * 60 * 60 * 1000);
-	const toDate = DateUtil.formatDate(Date.now());
+		const fromDate = DateUtil.formatDate(Date.now() - 7 * 24 * 60 * 60 * 1000);
+		const toDate = DateUtil.formatDate(Date.now());
 
-	const embed = new EmbedBuilder()
-		.setTitle(`Weekly Steam Leaderboard (${fromDate} - ${toDate})`)
-		.setDescription(leaderboard.join('\n'))
-		.setColor('Random');
+		const embed = new EmbedBuilder()
+			.setTitle(`Weekly Steam Leaderboard (${fromDate} - ${toDate})`)
+			.setDescription(leaderboard.join('\n'))
+			.setColor('Random');
 
-	await client.propageMessages({ category: 'Leaderboards', embeds: [embed] });
-	logger.info(`**Steam** leaderboard has been generated and sent to all guilds.`);
-
-	await resetLeaderboard();
-};
-
-const resetLeaderboard = async () => {
-	await IntegrationsModel.resetWeeklyHours();
-	logger.info('**Steam** leaderboard has been reset.');
+		await client.propageMessages({ category: 'Leaderboards', embeds: [embed] });
+		logger.info(`**Steam** leaderboard has been generated and sent to all guilds.`);
+	} finally {
+		await IntegrationsModel.resetWeeklyHours();
+		logger.info('**Steam** leaderboard has been reset.');
+	}
 };
