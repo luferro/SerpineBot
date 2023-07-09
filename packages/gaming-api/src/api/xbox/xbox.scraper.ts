@@ -1,5 +1,6 @@
 import { GoogleApi } from '@luferro/google-api';
 import { InteractiveScraper, StaticScraper } from '@luferro/scraper';
+import { DateUtil } from '@luferro/shared-utils';
 
 export enum Endpoint {
 	GAMERTAG = 'https://xboxgamertag.com/search/:gamertag',
@@ -34,6 +35,10 @@ export const getNewsList = async (url: string) => {
 
 	return $('.media.feed')
 		.get()
+		.filter((element) => {
+			const publishedAt = $(element).find('time[datetime]').first().attr('datetime');
+			return publishedAt && DateUtil.isDateToday(new Date(publishedAt));
+		})
 		.map((element) => {
 			const title = $(element).find('.media-body .feed__title a').text();
 			const url = $(element).find('.media-body .feed__title a').attr('href')!;

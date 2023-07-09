@@ -23,17 +23,15 @@ export const getLatestGamesWithGoldAdditions = async () => await getNewsList(End
 
 export const getLatestDealsWithGold = async () => await getNewsList(Endpoint.LATEST_DEALS_WITH_GOLD);
 
-export const getTopPlayed = async () => {
-	const topPlayedList = await getXboxList(Endpoint.TOP_PLAYED);
-	return topPlayedList.map(({ position, name, url }) => `\`${position}.\` **[${name}](${url})**`);
-};
+export const getTopPlayed = async () =>
+	(await getXboxList(Endpoint.TOP_PLAYED)).map(({ position, name, url }) => `\`${position}.\` **[${name}](${url})**`);
 
-export const getTopSellers = async () => {
-	const topSellersList = await getXboxList(Endpoint.TOP_SELLERS);
-	return topSellersList.map(({ position, name, url }) => `\`${position}.\` **[${name}](${url})**`);
-};
+export const getTopSellers = async () =>
+	(await getXboxList(Endpoint.TOP_SELLERS)).map(
+		({ position, name, url }) => `\`${position}.\` **[${name}](${url})**`,
+	);
 
-export const getUpcoming = async () => {
-	const upcomingList = await getXboxList(Endpoint.UPCOMING_GAMES);
-	return upcomingList.map(({ position, name, url }) => `\`${position}.\` **[${name}](${url})**`);
-};
+export const getUpcoming = async () =>
+	(await getXboxList(Endpoint.UPCOMING_GAMES)).map(
+		({ position, name, url }) => `\`${position}.\` **[${name}](${url})**`,
+	);
