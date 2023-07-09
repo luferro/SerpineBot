@@ -1,4 +1,4 @@
-import { getWeek, setDefaultOptions } from 'date-fns';
+import { getWeek, isToday, setDefaultOptions } from 'date-fns';
 import * as Locale from 'date-fns/locale';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -20,5 +20,7 @@ export const isValidDate = (str: string) => {
 export const getCurrentDate = () => new Date();
 
 export const getWeekNumber = () => getWeek(getCurrentDate());
+
+export const isDateToday = (date: Date | number) => isToday(date);
 
 export const formatDate = (date: Date | string | number) => formatInTimeZone(date, getTimezone(), 'dd/MM/yyyy HH:mm');
