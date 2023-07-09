@@ -1,7 +1,7 @@
-import { Endpoint, getBlogList } from './playstation.scraper';
+import { Feed, getPlaystationFeed } from './playstation.feed';
 
-export const getLatestPlusAdditions = async () => await getBlogList(Endpoint.LATEST_PLAYSTATION_PLUS);
+export const getLatestPlusAdditions = async () => await getPlaystationFeed({ url: Feed.PLAYSTATION_PLUS });
 
-export const getLatestStoreSales = async () => await getBlogList(Endpoint.LATEST_PLAYSTATION_STORE);
+export const getLatestStoreSales = async () => await getPlaystationFeed({ url: Feed.PLAYSTATION_STORE });
 
-export const getLatestStateOfPlayEvents = async () => await getBlogList(Endpoint.LATEST_STATE_OF_PLAY);
+export const getLatestStateOfPlayEvents = async () => await getPlaystationFeed({ url: Feed.STATE_OF_PLAY });
