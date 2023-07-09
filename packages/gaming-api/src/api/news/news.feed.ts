@@ -3,7 +3,7 @@ import { RSS, StaticScraper } from '@luferro/scraper';
 export enum Feed {
 	GAME_INFORMER = 'https://www.gameinformer.com/news.xml',
 	EUROGAMER = 'https://www.eurogamer.net/feed',
-	GAMESPOT = 'https://www.gamespot.com/feeds/game-news',
+	TECHRAPTOR = 'https://techraptor.net/gaming/feed',
 	IGN = 'http://feeds.feedburner.com/ign/games-all',
 	VERGE = 'https://www.theverge.com/rss/games/index.xml',
 	ROCK_PAPER_SHOTGUN = 'https://www.rockpapershotgun.com/feed/news',
