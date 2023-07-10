@@ -74,4 +74,6 @@ const handleEventEnd = async ({ event }: { event: GuildScheduledEvent }) => {
 	for (const { 1: subscriber } of subscribers) {
 		subscriber.member.roles.remove(role);
 	}
+
+	await guild.roles.delete(role);
 };
