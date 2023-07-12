@@ -30,7 +30,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.addFields([
 				{
 					name: '**Release date**',
-					value: releaseDate,
+					value: releaseDate ?? 'Soon',
 				},
 				{
 					name: '**Available on**',
@@ -43,7 +43,7 @@ export const execute: JobExecute = async ({ client }) => {
 				},
 				{
 					name: '**Reviews count**',
-					value: count?.toString() ?? 'N/A',
+					value: count ?? 'N/A',
 					inline: true,
 				},
 				{
