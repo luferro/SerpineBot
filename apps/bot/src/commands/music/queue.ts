@@ -32,7 +32,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const formattedQueue = tracks
 		.toArray()
-		.slice(0, 10)
+		.slice(0, 5)
 		.map((track, index) => `\`${index + 1}.\` ${getFormattedTrack(track)}`);
 
 	const embed = new EmbedBuilder()
