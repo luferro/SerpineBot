@@ -27,7 +27,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.addFields([
 			{
 				name: '**Release date**',
-				value: releaseDate,
+				value: releaseDate ?? 'Soon',
 			},
 			{
 				name: '**Available on**',
@@ -35,12 +35,12 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 			},
 			{
 				name: '**Score**',
-				value: score,
+				value: score ?? 'N/A',
 				inline: true,
 			},
 			{
 				name: '**Reviews count**',
-				value: count?.toString() ?? 'N/A',
+				value: count ?? 'N/A',
 				inline: true,
 			},
 			{
