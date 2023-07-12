@@ -20,6 +20,6 @@
 	},
 	"dependencies": {
 		"@luferro/shared-utils": "workspace:^",
-		"mongoose": "^7.3.2"
+		"mongoose": "^7.3.3"
 	}
 }
