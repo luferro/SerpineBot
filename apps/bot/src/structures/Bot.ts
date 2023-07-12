@@ -1,3 +1,4 @@
+import { SpotifyExtractor, YouTubeExtractor } from '@discord-player/extractor';
 import { ComicsApi } from '@luferro/comics-api';
 import { Database, SettingsModel, StateModel, WebhookType } from '@luferro/database';
 import { GamingApi } from '@luferro/gaming-api';
@@ -63,8 +64,10 @@ export class Bot extends Client {
 
 	private initializePlayer() {
 		const player = new Player(this);
-		player.extractors.loadDefault();
+		player.extractors.register(YouTubeExtractor, {});
+		player.extractors.register(SpotifyExtractor, {});
 		player.events.on('error', (_queue, error) => logger.error('Player failed.', error));
+		player.events.on('playerError', (_queue, error) => logger.error('Player failed.', error));
 		logger.debug(player.scanDeps());
 		return player;
 	}
