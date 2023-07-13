@@ -28,7 +28,7 @@ export const execute: JobExecute = async ({ client }) => {
 			const embed = new EmbedBuilder()
 				.setTitle('🎉🥳🎂🥳🎉 Happy Birthday! 🎉🥳🎂🥳🎉')
 				.setDescription(`\`${target.username}\` is now ${age} years old!`)
-				.setThumbnail(target.avatar);
+				.setThumbnail(target.avatarURL());
 
 			await client.propageMessages({ category: 'Birthdays', everyone: true, embeds: [embed] });
 
