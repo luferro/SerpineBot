@@ -15,13 +15,13 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.4.1",
+		"@types/node": "^20.4.2",
 		"typescript": "^5.1.6"
 	},
 	"dependencies": {
 		"@luferro/shared-utils": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
-		"playwright-chromium": "^1.36.0",
+		"playwright-chromium": "^1.36.1",
 		"playwright-extra": "^4.3.6",
 		"puppeteer-extra-plugin-stealth": "^2.11.2",
 		"rss-parser": "^3.13.0"
