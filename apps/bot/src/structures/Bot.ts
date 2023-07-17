@@ -67,7 +67,14 @@ export class Bot extends Client {
 		player.extractors.register(YouTubeExtractor, {});
 		player.extractors.register(SpotifyExtractor, {});
 		player.extractors.register(AppleMusicExtractor, {});
-		player.events.on('error', (_queue, error) => logger.error('Player failed.', error));
+		player.events.on('error', (queue, error) => {
+			logger.warn(`Player queue error. Reason: ${error.message}`);
+			if (queue.node.queue.tracks.size > 0) queue.node.skip();
+		});
+		player.events.on('playerError', (queue, error) => {
+			logger.warn(`Player stream error. Reason: ${error.message}`);
+			if (queue.node.queue.tracks.size > 0) queue.node.skip();
+		});
 		logger.debug(player.scanDeps());
 		return player;
 	}
