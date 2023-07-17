@@ -23,8 +23,8 @@ export const execute: JobExecute = async ({ client }) => {
 
 		const { score, season, trackers } = await client.api.shows.animeschedule.getAnimeById(id);
 
-		const formattedTracking = trackers.map(({ tracker, url }) => `> **[${translate(tracker)}](${url})**`);
-		const formattedStreams = streams.map(({ stream, url }) => `> **[${translate(stream)}](${url})**`);
+		const formattedTracking = trackers?.map(({ tracker, url }) => `> **[${translate(tracker)}](${url})**`);
+		const formattedStreams = streams?.map(({ stream, url }) => `> **[${translate(stream)}](${url})**`);
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)
