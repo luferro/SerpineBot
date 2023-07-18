@@ -11,6 +11,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	if (!queue) throw new Error('Cannot revive queue.');
 
 	queue.revive();
+	queue.node.play();
 
 	const embed = new EmbedBuilder().setTitle('Player queue has been revived.').setColor('Random');
 	await interaction.reply({ embeds: [embed] });
