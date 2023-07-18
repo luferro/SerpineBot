@@ -9,6 +9,5 @@ export const data: EventData = { type: 'on', isPlayer: true };
 
 export const execute: EventExecute<Args> = async ({ rest: [queue, error] }) => {
 	logger.warn(`General player error event: ${error.message}.`);
-	if (queue.tracks.size > 0) queue.node.skip();
-	else queue.delete();
+	queue.revive();
 };

@@ -16,7 +16,9 @@ import { Bot } from './structures/Bot';
 			GatewayIntentBits.GuildScheduledEvents,
 		],
 	});
-	['SIGINT', 'SIGTERM'].forEach((event) => process.on(event, client.stop));
+	await client.start();
 
-	await client.start().catch(client.handleError);
+	process.on('uncaughtException', client.handleError);
+	process.on('SIGINT', client.stop);
+	process.on('SIGTERM', client.stop);
 })();
