@@ -71,7 +71,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.addFields([
 			{
 				name: '**Position in queue**',
-				value: queue.tracks.size === 0 ? 'Currently playing' : queue.tracks.size.toString(),
+				value: queue.isEmpty() ? 'Currently playing' : queue.tracks.size.toString(),
 				inline: true,
 			},
 			{

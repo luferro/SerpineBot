@@ -9,7 +9,7 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 export const execute: CommandExecute = async ({ client, interaction }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error('Cannot skip track.');
-	if (queue.tracks.size === 0) throw new Error('No more tracks to skip to.');
+	if (queue.isEmpty()) throw new Error('No more tracks to skip to.');
 
 	queue.node.skip();
 
