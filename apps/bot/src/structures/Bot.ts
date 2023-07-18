@@ -171,9 +171,5 @@ export class Bot extends Client {
 	handleError(error: Error) {
 		if (error instanceof FetchError) logger.warn(error);
 		else logger.error(error);
-
-		for (const { 1: queue } of this.player.nodes.cache) {
-			queue.revive();
-		}
 	}
 }
