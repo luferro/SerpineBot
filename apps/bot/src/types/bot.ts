@@ -26,7 +26,7 @@ export type CommandData = Exclude<MetadataBuilder, 'SlashCommandOption'> | Slash
 export type CommandExecute = { (args: CommandArgs): Promise<void> };
 export type Command = { execute: Collection<string, CommandExecute>; metadata: SlashCommandBuilder[] };
 
-export type EventData = { type: 'on' | 'once' };
+export type EventData = { type: 'on' | 'once'; isPlayer?: boolean };
 export type EventExecute<T = void> = { (args: EventArgs<T>): Promise<void> };
 export type Event = { data: EventData; execute: EventExecute<unknown[]> };
 

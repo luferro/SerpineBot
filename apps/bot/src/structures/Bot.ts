@@ -11,7 +11,7 @@ import { CronJob } from 'cron';
 import crypto from 'crypto';
 import { ClientOptions, Guild } from 'discord.js';
 import { Client, Collection, EmbedBuilder } from 'discord.js';
-import { Player } from 'discord-player';
+import { GuildQueueEvents, Player } from 'discord-player';
 
 import { getSanitizedEnvConfig } from '../config/environment';
 import * as CommandsHandler from '../handlers/commands';
@@ -67,24 +67,25 @@ export class Bot extends Client {
 		player.extractors.register(YouTubeExtractor, {});
 		player.extractors.register(SpotifyExtractor, {});
 		player.extractors.register(AppleMusicExtractor, {});
-		player.events.on('error', (queue, error) => {
-			logger.warn(`Player queue error. Reason: ${error.message}`);
-			if (queue.node.queue.tracks.size > 0) queue.node.skip();
-		});
-		player.events.on('playerError', (queue, error) => {
-			logger.warn(`Player stream error. Reason: ${error.message}`);
-			if (queue.node.queue.tracks.size > 0) queue.node.skip();
-		});
 		logger.debug(player.scanDeps());
 		return player;
 	}
 
 	private initializeListeners() {
-		for (const [name, event] of Bot.events.entries()) {
-			this[event.data.type](name, (...args: unknown[]) =>
-				event.execute({ client: this, rest: args }).catch(this.handleError),
+		for (const [name, { data, execute }] of Bot.events.entries()) {
+			if (data.isPlayer) {
+				const eventName = name as unknown as keyof GuildQueueEvents<unknown>;
+				this.player.events[data.type](eventName, (...args: unknown[]) =>
+					execute({ client: this, rest: args }).catch(this.handleError),
+				);
+				logger.info(`**Player** is listening ${data.type} **${name}**.`);
+				continue;
+			}
+
+			this[data.type](name, (...args: unknown[]) =>
+				execute({ client: this, rest: args }).catch(this.handleError),
 			);
-			logger.info(`Event listener is listening ${event.data.type} **${name}**.`);
+			logger.info(`**Client** is listening ${data.type} **${name}**.`);
 		}
 	}
 
@@ -98,11 +99,6 @@ export class Bot extends Client {
 			).start();
 			logger.info(`Job **${name}** is set to run. Schedule: **(${job.data.schedule})**.`);
 		}
-	}
-
-	private handleError(error: Error) {
-		if (error instanceof FetchError) logger.warn(error);
-		else logger.error(error);
 	}
 
 	async start() {
@@ -170,5 +166,10 @@ export class Bot extends Client {
 		logger.info('Stopping SerpineBot.');
 		Database.disconnect();
 		process.exit(1);
+	}
+
+	handleError(error: Error) {
+		if (error instanceof FetchError) logger.warn(error);
+		else logger.error(error);
 	}
 }
