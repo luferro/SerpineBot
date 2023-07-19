@@ -168,12 +168,14 @@ export class Bot extends Client {
 		process.exit(1);
 	}
 
-	handleError(error: Error) {
+	handleError(error: Error, instance?: Bot) {
 		if (error instanceof FetchError) logger.warn(error);
 		else logger.error(error);
 
-		for (const [guildId] of this.guilds.cache) {
-			const queue = this.player?.nodes.get(guildId);
+		if (!instance) return;
+
+		for (const [guildId] of instance.guilds.cache) {
+			const queue = this.player.nodes.get(guildId);
 			if (!queue) continue;
 
 			queue.revive();

@@ -18,7 +18,7 @@ import { Bot } from './structures/Bot';
 	});
 	await client.start();
 
-	process.on('uncaughtException', client.handleError);
+	process.on('uncaughtException', (error) => client.handleError(error, client));
 	process.on('SIGINT', client.stop);
 	process.on('SIGTERM', client.stop);
 })();
