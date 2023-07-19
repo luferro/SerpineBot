@@ -101,6 +101,17 @@ export class Bot extends Client {
 		}
 	}
 
+	private handlePlayerError = (client?: Bot) => {
+		if (!client) return;
+		for (const [guildId] of client.guilds.cache) {
+			const queue = this.player.nodes.get(guildId);
+			if (!queue) continue;
+
+			queue.revive();
+			queue.node.play();
+		}
+	};
+
 	async start() {
 		logger.info(`Starting SerpineBot in **${this.config.NODE_ENV.trim()}**.`);
 
@@ -168,18 +179,13 @@ export class Bot extends Client {
 		process.exit(1);
 	}
 
-	handleError(error: Error, instance?: Bot) {
-		if (error instanceof FetchError) logger.warn(error);
-		else logger.error(error);
+	handleError(error: Error, client?: Bot) {
+		const isPlayerError = error.stack?.includes('discord-player');
+		const isFetchError = error instanceof FetchError;
 
-		if (!instance) return;
+		const isWarning = isPlayerError || isFetchError;
+		logger[isWarning ? 'warn' : 'error'](error);
 
-		for (const [guildId] of instance.guilds.cache) {
-			const queue = this.player.nodes.get(guildId);
-			if (!queue) continue;
-
-			queue.revive();
-			queue.node.play();
-		}
+		if (isPlayerError) this.handlePlayerError(client);
 	}
 }
