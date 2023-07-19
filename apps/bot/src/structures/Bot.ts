@@ -171,5 +171,13 @@ export class Bot extends Client {
 	handleError(error: Error) {
 		if (error instanceof FetchError) logger.warn(error);
 		else logger.error(error);
+
+		for (const [guildId] of this.guilds.cache) {
+			const queue = this.player?.nodes.get(guildId);
+			if (!queue) continue;
+
+			queue.revive();
+			queue.node.play();
+		}
 	}
 }
