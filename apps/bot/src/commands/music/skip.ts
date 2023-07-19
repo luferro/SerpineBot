@@ -8,14 +8,17 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('Cannot skip track.');
+	if (!queue || !queue.currentTrack) throw new Error('Cannot skip track.');
 	if (queue.isEmpty()) throw new Error('No more tracks to skip to.');
+
+	const { currentTrack } = queue;
+	const nextTrack = queue.tracks.at(0)!;
 
 	queue.node.skip();
 
 	const embed = new EmbedBuilder()
-		.setTitle(`Skipped \`${queue.currentTrack}\`.`)
-		.setDescription(`Now playing \`${queue.tracks.at(0)}\`.`)
+		.setTitle(`Skipped \`[${currentTrack}](${queue.currentTrack.url})\`.`)
+		.setDescription(`Now playing \`[${nextTrack}](${nextTrack.url})\`.`)
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });

@@ -17,9 +17,9 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const position = interaction.options.getInteger('position', true);
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error(`Cannot remove position ${position} from queue.`);
+	if (!queue || queue.isEmpty()) throw new Error(`Cannot remove position ${position} from queue.`);
 
-	queue.node.remove(position);
+	queue.node.remove(position - 1);
 
 	const execute = Bot.commands.execute.get('music.queue');
 	if (!execute) throw new Error('Cannot display guild queue.');
