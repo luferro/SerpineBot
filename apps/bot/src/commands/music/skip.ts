@@ -17,8 +17,8 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	queue.node.skip();
 
 	const embed = new EmbedBuilder()
-		.setTitle(`Skipped \`[${currentTrack}](${queue.currentTrack.url})\`.`)
-		.setDescription(`Now playing \`[${nextTrack}](${nextTrack.url})\`.`)
+		.setTitle(`Skipped \`${currentTrack}\`.`)
+		.setDescription(`Now playing \`${nextTrack}\`.`)
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });
