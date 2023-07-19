@@ -9,7 +9,7 @@ export const getReviewsDetails = async (url: string) => {
 	const $ = await StaticScraper.loadUrl({ url });
 
 	const name = $('app-game-overview h1').first().text();
-	const image = $('app-game-overview img').first().attr('src');
+	const image = $('app-game-overview .top-container img').first().attr('src');
 	const [date] = $('.platforms').text().split('-');
 	const tierDisplay = $('app-tier-display').first().find('img');
 	const tier = tierDisplay.attr('data-cfsrc') ?? tierDisplay.attr('src');
