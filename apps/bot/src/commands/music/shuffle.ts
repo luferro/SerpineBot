@@ -13,7 +13,5 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	queue.tracks.shuffle();
 
-	const execute = Bot.commands.execute.get('music.queue');
-	if (!execute) throw new Error('Cannot display guild queue.');
-	await execute({ client, interaction });
+	await Bot.commands.execute.get('music.queue')!({ client, interaction });
 };
