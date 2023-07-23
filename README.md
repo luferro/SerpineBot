@@ -16,7 +16,7 @@ SerpineBot is a monorepo that consists in two applications: **bot** and **web**.
         -   Feed text channels with data on news, deals, anime episodes, manga chapters, memes and more!
         -   Generate a weekly Steam and Xbox leaderboard.
         -   Notify you when an item on your Steam wishlist is released, goes on sale or is added to / removed from a gaming subscription.
-        -   Notify users about your birthday.
+        -   Notify users about registered birthdays.
         -   Remind you about any reminders you set.
         -   And much more!
 
