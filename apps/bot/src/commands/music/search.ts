@@ -11,8 +11,6 @@ import { QueryType, Track } from 'discord-player';
 import type { CommandData, CommandExecute } from '../../types/bot';
 import { ExtendedStringSelectMenuInteraction } from '../../types/interaction';
 
-type StringSelectMenuHandler = Parameters<typeof execute>[0] & { uuid: string; tracks: Track[] };
-
 export const data: CommandData = new SlashCommandSubcommandBuilder()
 	.setName('search')
 	.setDescription('Search the top 10 results for a given query.')
@@ -61,7 +59,12 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	await handleStringSelectMenu({ client, interaction, uuid, tracks: filteredTracks });
 };
 
-const handleStringSelectMenu = async ({ client, interaction, uuid, tracks }: StringSelectMenuHandler) => {
+const handleStringSelectMenu = async ({
+	client,
+	interaction,
+	uuid,
+	tracks,
+}: Parameters<typeof execute>[0] & { uuid: string; tracks: Track[] }) => {
 	const selectMenuInteraction = (await interaction.channel?.awaitMessageComponent({
 		time: 60 * 1000,
 		componentType: ComponentType.StringSelect,
@@ -83,19 +86,17 @@ const handleStringSelectMenu = async ({ client, interaction, uuid, tracks }: Str
 	queue.addTrack(track);
 	if (!queue.node.isPlaying()) await queue.node.play();
 
+	const position = queue.node.getTrackPosition(track) + 1;
+
 	const embed = new EmbedBuilder()
+		.setAuthor({ name: track.author })
 		.setTitle(track.title)
 		.setURL(track.url)
 		.setThumbnail(track.thumbnail)
 		.addFields([
 			{
-				name: '**Position in queue**',
-				value: queue.isEmpty() ? 'Currently playing' : queue.tracks.size.toString(),
-				inline: true,
-			},
-			{
-				name: '**Channel**',
-				value: track.author,
+				name: '**Position**',
+				value: position === 0 ? 'Currently playing' : position.toString(),
 				inline: true,
 			},
 			{
