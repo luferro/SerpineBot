@@ -13,75 +13,33 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const query = interaction.options.getString('query', true);
 
-	const queue = await forceJoin({ client, interaction });
-
 	const { tracks, playlist } = await client.player.search(query, {
 		requestedBy: interaction.user,
 		searchEngine: QueryType.AUTO,
 	});
 	const filteredTracks = tracks.filter(({ duration }) => !/0?0:00/.test(duration));
-	if (filteredTracks.length === 0 && !playlist) throw new Error(`No matches for "${query}".`);
+	if (!playlist && filteredTracks.length === 0) throw new Error(`No matches for "${query}".`);
 
-	if (playlist) {
-		queue.addTrack(playlist);
-		if (!queue.node.isPlaying()) await queue.node.play();
-
-		const playlistPositionStart = queue.node.getTrackPosition(playlist.tracks[0]) + 1;
-		const playlistPositionEnd = queue.node.getTrackPosition(playlist.tracks[playlist.tracks.length - 1]) + 1;
-
-		const embed = new EmbedBuilder()
-			.setTitle(playlist.title)
-			.setURL(playlist.url)
-			.addFields([
-				{
-					name: '**Start position**',
-					value: playlistPositionStart === 0 ? 'Currently playing' : playlistPositionStart.toString(),
-					inline: true,
-				},
-				{
-					name: '**End position**',
-					value: playlistPositionEnd.toString(),
-					inline: true,
-				},
-				{
-					name: '**Channel**',
-					value: playlist.author.name,
-					inline: true,
-				},
-				{
-					name: '**Count**',
-					value: playlist.tracks.length.toString(),
-					inline: true,
-				},
-			])
-			.setColor('Random');
-
-		await interaction.editReply({ embeds: [embed] });
-		return;
-	}
-
-	const { 0: track } = filteredTracks;
-	queue.addTrack(track);
+	const queue = await forceJoin({ client, interaction });
+	queue.addTrack(playlist ?? filteredTracks[0]);
 	if (!queue.node.isPlaying()) await queue.node.play();
 
+	const position = queue.node.getTrackPosition(playlist?.tracks[0] ?? filteredTracks[0]) + 1;
+
 	const embed = new EmbedBuilder()
-		.setTitle(track.title)
-		.setURL(track.url)
-		.setThumbnail(track.thumbnail)
+		.setAuthor({ name: playlist?.author.name ?? filteredTracks[0].author })
+		.setTitle(playlist?.title ?? filteredTracks[0].title)
+		.setURL(playlist?.url ?? filteredTracks[0].url)
+		.setThumbnail(playlist?.thumbnail ?? filteredTracks[0].thumbnail)
 		.addFields([
 			{
-				name: '**Position in queue**',
-				value: queue.isEmpty() ? 'Currently playing' : queue.tracks.size.toString(),
-				inline: true,
-			},
-			{
-				name: '**Channel**',
-				value: track.author,
+				name: '**Position**',
+				value: position === 0 ? 'Currently playing' : position.toString(),
 				inline: true,
 			},
 			{
 				name: '**Duration**',
-				value: track.duration,
+				value: playlist?.durationFormatted ?? filteredTracks[0].duration,
 				inline: true,
 			},
 		])
