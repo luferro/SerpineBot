@@ -1,8 +1,12 @@
 import styled from '@emotion/styled';
 
 export const StyledEmbed = styled.div`
-	box-shadow: 0 1px 1px hsl(0deg 0% 0% / 0.075), 0 2px 2px hsl(0deg 0% 0% / 0.075), 0 4px 4px hsl(0deg 0% 0% / 0.075),
-		0 8px 8px hsl(0deg 0% 0% / 0.075), 0 16px 16px hsl(0deg 0% 0% / 0.075);
+	box-shadow:
+		0 1px 1px hsl(0deg 0% 0% / 0.075),
+		0 2px 2px hsl(0deg 0% 0% / 0.075),
+		0 4px 4px hsl(0deg 0% 0% / 0.075),
+		0 8px 8px hsl(0deg 0% 0% / 0.075),
+		0 16px 16px hsl(0deg 0% 0% / 0.075);
 	max-width: 516px;
 	background: #2f3136;
 	padding: 0.5rem 1rem 1rem 0.75rem;
