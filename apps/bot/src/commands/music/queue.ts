@@ -1,5 +1,5 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { Track } from 'discord-player';
+import { PlayerTimestamp, Track } from 'discord-player';
 
 import type { CommandData, CommandExecute } from '../../types/bot';
 
@@ -13,27 +13,28 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const { currentTrack, tracks } = queue;
 
-	const getFormattedTrack = (currentTrack: Track) => {
-		let row = `**[${currentTrack.title}](${currentTrack.url})**`;
-		const timestamp = queue.node.getTimestamp();
+	const getFormattedTrack = ({ track, timestamp }: { track: Track; timestamp?: PlayerTimestamp | null }) => {
+		const formattedTrack = [];
+		const isPlaying = !!timestamp;
 
-		if (timestamp) {
-			const progress = getProgressBar({
-				progress: timestamp.progress,
-				current: timestamp.current.label,
-				total: timestamp.total.label,
-			});
-			row += `\n${progress}`;
-		} else row += ` | **${currentTrack.duration}**`;
+		const baseTrackData = `**[${track.title}](${track.url})**`;
+		const additionalTrackData = isPlaying ? `, *${track.author}*` : ` | **${track.duration}**`;
+		formattedTrack.push(`${baseTrackData}${additionalTrackData}`);
 
-		if (currentTrack.requestedBy) row += `\nRequest by \`${currentTrack.requestedBy.username}\``;
-		return row;
+		if (isPlaying) {
+			const { current, progress, total } = timestamp;
+			const progressBar = getProgressBar({ progress, current: current.label, total: total.label });
+			formattedTrack.push(progressBar);
+		}
+
+		formattedTrack.push(`Request by \`${track.requestedBy?.username ?? 'unknown'}\``);
+		return formattedTrack.join('\n');
 	};
 
 	const formattedQueue = tracks
 		.toArray()
 		.slice(0, 5)
-		.map((track, index) => `\`${index + 1}.\` ${getFormattedTrack(track)}`);
+		.map((track, index) => `\`${index + 1}.\` ${getFormattedTrack({ track })}`);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Queue for ${interaction.guild.name}`)
@@ -41,7 +42,9 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.addFields([
 			{
 				name: '**Now playing**',
-				value: currentTrack ? getFormattedTrack(currentTrack) : 'Nothing is playing.',
+				value: currentTrack
+					? getFormattedTrack({ track: currentTrack, timestamp: queue.node.getTimestamp() })
+					: 'Nothing is playing.',
 			},
 			{
 				name: '**Queue**',
