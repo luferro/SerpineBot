@@ -1,10 +1,10 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { Bot } from '../../structures/Bot';
-import type { CommandData, CommandExecute } from '../../types/bot';
+import { Bot } from '../../../structures/Bot';
+import type { CommandData, CommandExecute } from '../../../types/bot';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()
-	.setName('clear')
+	.setName('all')
 	.setDescription('Removes every track in the queue.');
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
@@ -13,7 +13,5 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	queue.tracks.clear();
 
-	const execute = Bot.commands.execute.get('music.queue');
-	if (!execute) throw new Error('Cannot display guild queue.');
-	await execute({ client, interaction });
+	await Bot.commands.execute.get('music.queue')!({ client, interaction });
 };
