@@ -1,5 +1,5 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { PlayerTimestamp, Track } from 'discord-player';
+import { Track } from 'discord-player';
 
 import type { CommandData, CommandExecute } from '../../types/bot';
 
@@ -12,10 +12,10 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	if (!queue) throw new Error('Cannot display guild queue.');
 
 	const { currentTrack, tracks } = queue;
-	const timestamp = queue.node.getTimestamp();
 
-	const getFormattedTrack = (currentTrack: Track, timestamp?: PlayerTimestamp) => {
-		let formatted = `**[${currentTrack.title}](${currentTrack.url})**`;
+	const getFormattedTrack = (currentTrack: Track) => {
+		let row = `**[${currentTrack.title}](${currentTrack.url})**`;
+		const timestamp = queue.node.getTimestamp();
 
 		if (timestamp) {
 			const progress = getProgressBar({
@@ -23,11 +23,11 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 				current: timestamp.current.label,
 				total: timestamp.total.label,
 			});
-			formatted += `\n${progress}`;
-		} else formatted += ` | **${currentTrack.duration}**`;
+			row += `\n${progress}`;
+		} else row += ` | **${currentTrack.duration}**`;
 
-		if (currentTrack.requestedBy) formatted += `\nRequest by \`${currentTrack.requestedBy.username}\``;
-		return formatted;
+		if (currentTrack.requestedBy) row += `\nRequest by \`${currentTrack.requestedBy.username}\``;
+		return row;
 	};
 
 	const formattedQueue = tracks
@@ -41,11 +41,11 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.addFields([
 			{
 				name: '**Now playing**',
-				value: currentTrack && timestamp ? getFormattedTrack(currentTrack, timestamp) : 'Nothing is playing.',
+				value: currentTrack ? getFormattedTrack(currentTrack) : 'Nothing is playing.',
 			},
 			{
 				name: '**Queue**',
-				value: formattedQueue.join('\n') || 'Queue is empty.',
+				value: formattedQueue.join('\n') || 'Empty.',
 			},
 		])
 		.setFooter({ text: `${queue.size} item(s) in queue.` })
