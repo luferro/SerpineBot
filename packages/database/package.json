@@ -15,11 +15,11 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.4.2",
+		"@types/node": "^20.4.4",
 		"typescript": "^5.1.6"
 	},
 	"dependencies": {
 		"@luferro/shared-utils": "workspace:^",
-		"mongoose": "^7.3.4"
+		"mongoose": "^7.4.0"
 	}
 }
