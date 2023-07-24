@@ -16,7 +16,8 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	if (!queue) throw new Error('Cannot jump to track.');
 
 	const nextTrack = queue.tracks.at(position - 1);
-	queue.node.jump(position - 1);
+	const isSuccessful = queue.node.jump(position - 1);
+	if (!isSuccessful) throw new Error(`No track found in position \`${position}\`.`);
 
 	const embed = new EmbedBuilder().setTitle(`Jumped to \`${nextTrack}\`.`).setColor('Random');
 	await interaction.reply({ embeds: [embed] });

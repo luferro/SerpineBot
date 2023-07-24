@@ -17,8 +17,8 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const currentTrack = queue.currentTrack;
 	const nextTrack = queue.tracks.at(position ? position - 1 : 0);
 
-	if (position) queue.node.skipTo(position - 1);
-	else queue.node.skip();
+	const isSuccessful = position ? queue.node.skipTo(position - 1) : queue.node.skip();
+	if (!isSuccessful) throw new Error(`No track found in position \`${position}\`.`);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Skipped \`${currentTrack}\`.`)
