@@ -7,7 +7,6 @@ type Args = [queue: GuildQueue<unknown>, error: Error];
 
 export const data: EventData = { type: 'on', isPlayer: true };
 
-export const execute: EventExecute<Args> = async ({ rest: [queue, error] }) => {
+export const execute: EventExecute<Args> = async ({ rest: [, error] }) => {
 	logger.warn(`Player error event: ${error.message}.`);
-	queue.delete();
 };
