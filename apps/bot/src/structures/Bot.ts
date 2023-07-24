@@ -108,7 +108,7 @@ export class Bot extends Client {
 			if (!queue) continue;
 
 			queue.revive();
-			queue.node.play();
+			if (queue.currentTrack || !queue.isEmpty()) queue.node.play();
 		}
 	};
 
