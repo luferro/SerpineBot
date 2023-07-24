@@ -4,7 +4,7 @@ import { Bot } from '../../../structures/Bot';
 import type { CommandData, CommandExecute } from '../../../types/bot';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()
-	.setName('all')
+	.setName('clear')
 	.setDescription('Removes every track in the queue.');
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
@@ -13,5 +13,5 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	queue.tracks.clear();
 
-	await Bot.commands.execute.get('music.queue')!({ client, interaction });
+	await Bot.commands.execute.get('music.queue.list')!({ client, interaction });
 };

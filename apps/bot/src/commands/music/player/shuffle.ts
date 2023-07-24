@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { Bot } from '../../structures/Bot';
-import type { CommandData, CommandExecute } from '../../types/bot';
+import { Bot } from '../../../structures/Bot';
+import type { CommandData, CommandExecute } from '../../../types/bot';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()
 	.setName('shuffle')
@@ -13,5 +13,5 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	queue.tracks.shuffle();
 
-	await Bot.commands.execute.get('music.queue')!({ client, interaction });
+	await Bot.commands.execute.get('music.queue.list')!({ client, interaction });
 };

@@ -1,7 +1,7 @@
 import { ConverterUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import type { CommandData, CommandExecute } from '../../types/bot';
+import type { CommandData, CommandExecute } from '../../../types/bot';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()
 	.setName('seek')

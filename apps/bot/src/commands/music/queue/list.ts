@@ -1,10 +1,10 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { PlayerTimestamp, Track } from 'discord-player';
+import { Track } from 'discord-player';
 
-import type { CommandData, CommandExecute } from '../../types/bot';
+import type { CommandData, CommandExecute } from '../../../types/bot';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()
-	.setName('queue')
+	.setName('list')
 	.setDescription('Lists the guild queue.');
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
@@ -13,17 +13,17 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const { currentTrack, tracks } = queue;
 
-	const getFormattedTrack = ({ track, timestamp }: { track: Track; timestamp?: PlayerTimestamp | null }) => {
+	const getFormattedTrack = ({ track }: { track: Track }) => {
 		const formattedTrack = [];
-		const isPlaying = !!timestamp;
+
+		const isPlaying = track.id === queue.currentTrack?.id;
 
 		const baseTrackData = `**[${track.title}](${track.url})**`;
 		const additionalTrackData = isPlaying ? `, *${track.author}*` : ` | **${track.duration}**`;
 		formattedTrack.push(`${baseTrackData}${additionalTrackData}`);
 
 		if (isPlaying) {
-			const { current, progress, total } = timestamp;
-			const progressBar = getProgressBar({ progress, current: current.label, total: total.label });
+			const progressBar = queue.node.createProgressBar();
 			formattedTrack.push(progressBar);
 		}
 
@@ -42,9 +42,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.addFields([
 			{
 				name: '**Now playing**',
-				value: currentTrack
-					? getFormattedTrack({ track: currentTrack, timestamp: queue.node.getTimestamp() })
-					: 'Nothing is playing.',
+				value: currentTrack ? getFormattedTrack({ track: currentTrack }) : 'Nothing is playing.',
 			},
 			{
 				name: '**Queue**',
@@ -55,10 +53,4 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });
-};
-
-const getProgressBar = ({ progress, current, total }: { progress: number; current: string; total: string }) => {
-	const array = Array.from({ length: 20 });
-	const bar = `[${array.map((_, index) => ((index * 100) / 20 < progress ? '=' : '-')).join('')}]`;
-	return `\`${current}\` **${bar}** \`${total}\``;
 };

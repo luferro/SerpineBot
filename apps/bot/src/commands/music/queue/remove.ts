@@ -8,14 +8,33 @@ import {
 } from 'discord.js';
 import { Playlist } from 'discord-player';
 
+import { Bot } from '../../../structures/Bot';
 import type { CommandData, CommandExecute } from '../../../types/bot';
 import { ExtendedStringSelectMenuInteraction } from '../../../types/interaction';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()
-	.setName('playlist')
-	.setDescription('Removes all playlist tracks from the queue.');
+	.setName('remove')
+	.setDescription('Removes a track or playlist from the queue.')
+	.addIntegerOption((option) => option.setName('position').setDescription('Queue track position').setMinValue(1));
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
+	const position = interaction.options.getInteger('position');
+
+	if (position) removeTrack({ client, interaction, position });
+	else removePlaylist({ client, interaction });
+};
+
+const removeTrack = async ({ client, interaction, position }: Parameters<typeof execute>[0] & { position: number }) => {
+	const queue = client.player.nodes.get(interaction.guild.id);
+	if (!queue) throw new Error('Cannot remove tracks.');
+
+	const removedTrack = queue.node.remove(position - 1);
+	if (!removedTrack) throw new Error(`No track found in position \`${position}\`.`);
+
+	await Bot.commands.execute.get('music.queue.list')!({ client, interaction });
+};
+
+const removePlaylist = async ({ client, interaction }: Parameters<typeof execute>[0]) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error('Cannot remove playlists.');
 
