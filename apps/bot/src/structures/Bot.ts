@@ -11,7 +11,7 @@ import { CronJob } from 'cron';
 import crypto from 'crypto';
 import { ClientOptions, Guild } from 'discord.js';
 import { Client, Collection, EmbedBuilder } from 'discord.js';
-import { GuildQueueEvents, Player } from 'discord-player';
+import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
 
 import { getSanitizedEnvConfig } from '../config/environment';
 import * as CommandsHandler from '../handlers/commands';
@@ -73,19 +73,13 @@ export class Bot extends Client {
 
 	private initializeListeners() {
 		for (const [name, { data, execute }] of Bot.events.entries()) {
-			if (data.isPlayer) {
-				const eventName = name as unknown as keyof GuildQueueEvents<unknown>;
-				this.player.events[data.type](eventName, (...args: unknown[]) =>
-					execute({ client: this, rest: args }).catch(this.handleError),
-				);
-				logger.info(`**Player** is listening ${data.type} **${name}**.`);
-				continue;
-			}
+			const callback = (...args: unknown[]) => execute({ client: this, rest: args }).catch(this.handleError);
 
-			this[data.type](name, (...args: unknown[]) =>
-				execute({ client: this, rest: args }).catch(this.handleError),
-			);
-			logger.info(`**Client** is listening ${data.type} **${name}**.`);
+			const isPlayer = Object.values(GuildQueueEvent).some((event) => event === name);
+			if (isPlayer) this.player.events[data.type](name as keyof GuildQueueEvents, callback);
+			else this[data.type](name, callback);
+
+			logger.info(`**${isPlayer ? 'Player' : 'Client'}** is listening ${data.type} **${name}**.`);
 		}
 	}
 
