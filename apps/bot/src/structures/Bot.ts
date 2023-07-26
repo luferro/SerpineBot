@@ -10,7 +10,7 @@ import { ShowsApi } from '@luferro/shows-api';
 import { CronJob } from 'cron';
 import crypto from 'crypto';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
-import { GuildQueueEvents, Player } from 'discord-player';
+import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
 
 import { getSanitizedEnvConfig } from '../config/environment';
 import * as CommandsHandler from '../handlers/commands';
@@ -75,10 +75,13 @@ export class Bot extends Client {
 			const callback = (...args: unknown[]) => execute({ client: this, rest: args }).catch(this.handleError);
 
 			const isClient = EnumUtil.enumKeysToArray(Events).some((key) => Events[key] === name);
-			if (isClient) this[data.type](name, callback);
+			const isPlayer = EnumUtil.enumKeysToArray(GuildQueueEvent).some((key) => GuildQueueEvent[key] === name);
+			const isClientEvent = isClient || (!isClient && !isPlayer);
+
+			if (isClientEvent) this[data.type](name, callback);
 			else this.player.events[data.type](name as keyof GuildQueueEvents, callback);
 
-			logger.info(`**${isClient ? 'Client' : 'Player'}** is listening ${data.type} **${name}**.`);
+			logger.info(`**${isClientEvent ? 'Client' : 'Player'}** is listening ${data.type} **${name}**.`);
 		}
 	}
 
