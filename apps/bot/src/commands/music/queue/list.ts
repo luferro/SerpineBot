@@ -11,30 +11,12 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error('Cannot display guild queue.');
 
-	const { currentTrack, tracks } = queue;
+	const formatTrack = (track: Track) => `**[${track.title}](${track.url})** | **${track.duration}**`;
 
-	const getFormattedTrack = ({ track }: { track: Track }) => {
-		const formattedTrack = [];
-
-		const isPlaying = track.id === queue.currentTrack?.id;
-
-		const baseTrackData = `**[${track.title}](${track.url})**`;
-		const additionalTrackData = isPlaying ? `, *${track.author}*` : ` | **${track.duration}**`;
-		formattedTrack.push(`${baseTrackData}${additionalTrackData}`);
-
-		if (isPlaying) {
-			const progressBar = queue.node.createProgressBar();
-			formattedTrack.push(progressBar);
-		}
-
-		formattedTrack.push(`Request by \`${track.requestedBy?.username ?? 'unknown'}\``);
-		return formattedTrack.join('\n');
-	};
-
-	const formattedQueue = tracks
+	const formattedQueue = queue.tracks
 		.toArray()
-		.slice(0, 5)
-		.map((track, index) => `\`${index + 1}.\` ${getFormattedTrack({ track })}`);
+		.slice(0, 10)
+		.map((track, index) => `\`${index + 1}.\` ${formatTrack(track)}`);
 
 	const embed = new EmbedBuilder()
 		.setTitle(`Queue for ${interaction.guild.name}`)
@@ -42,7 +24,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.addFields([
 			{
 				name: '**Now playing**',
-				value: currentTrack ? getFormattedTrack({ track: currentTrack }) : 'Nothing is playing.',
+				value: queue.currentTrack ? formatTrack(queue.currentTrack) : 'Nothing is playing.',
 			},
 			{
 				name: '**Queue**',
