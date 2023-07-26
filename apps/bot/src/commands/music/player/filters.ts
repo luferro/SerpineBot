@@ -1,6 +1,6 @@
 import { EnumUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { GuildQueue, QueueFilters } from 'discord-player';
+import { FiltersName } from 'discord-player';
 
 import type { CommandData, CommandExecute } from '../../../types/bot';
 
@@ -14,8 +14,6 @@ enum Filters {
 	VIBRATO = 'vibrato',
 	REVERSE = 'reverse',
 	TREBLE = 'treble',
-	NORMALIZER = 'normalizer',
-	NORMALIZER2 = 'normalizer2',
 	SURROUNDING = 'surrounding',
 	PULSATOR = 'pulsator',
 	KARAOKE = 'karaoke',
@@ -23,9 +21,6 @@ enum Filters {
 	COMPRESSOR = 'compressor',
 	EXPANDER = 'expander',
 	SOFT_LIMITER = 'softlimiter',
-	CHORUS = 'chorus',
-	CHORUS_2D = 'chorus2d',
-	CHORUS_3D = 'chorus3d',
 	FADE_IN = 'fadein',
 	DIM = 'dim',
 	EAR_RAPE = 'earrape',
@@ -41,30 +36,24 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 			.setDescription('Player filter.')
 			.addChoices(
 				...EnumUtil.enumKeysToArray(Filters).map((filter) => ({ name: filter, value: Filters[filter] })),
+				{ name: 'Off', value: 'off' },
 			),
 	);
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
 	interaction.deferReply({ ephemeral: true });
 
-	const filter = interaction.options.getString('filter') as keyof QueueFilters;
+	const filter = interaction.options.getString('filter') as FiltersName | 'off';
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error(`Cannot toggle \`${filter}\` filter.`);
+	if (!queue || !queue.currentTrack || !queue.filters.ffmpeg) throw new Error(`Cannot toggle \`${filter}\` filter.`);
 
-	if (!filter) await resetFilters({ queue });
-	else await queue.filters.ffmpeg.toggle(filter);
+	if (filter === 'off') await queue.filters.ffmpeg.setFilters(false);
+	else await queue.filters.ffmpeg.toggle(filter.includes('bassboost') ? [filter, 'normalizer'] : filter);
 
 	const embed = new EmbedBuilder()
-		.setTitle(filter ? `Filter \`${filter}\` has been toggled.` : 'Disabled all filters.')
+		.setTitle(filter !== 'off' ? `Filter \`${filter}\` has been toggled.` : 'Disabled all filters.')
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });
-};
-
-const resetFilters = async ({ queue }: { queue: GuildQueue }) => {
-	const enabledFilters = queue.filters.ffmpeg.getFiltersEnabled();
-	for (const enabledFilter of enabledFilters) {
-		await queue.filters.ffmpeg.toggle(enabledFilter);
-	}
 };
