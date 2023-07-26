@@ -20,17 +20,15 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const isValidTimestamp = /([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?/g.test(timestamp);
 	if (!isValidTimestamp) throw new Error('Invalid timestamp format.');
+	if (!queue.currentTrack?.duration) throw new Error('Could not fetch track duration.');
 
-	const duration = queue.currentTrack?.duration;
-	if (!duration) throw new Error('Could not fetch track duration.');
+	const duration = getMilliseconds(timestamp);
+	const totalDuration = getMilliseconds(queue.currentTrack.duration);
 
-	const seekMilliseconds = getMilliseconds(timestamp);
-	const durationMilliseconds = getMilliseconds(duration);
+	const isSeekValid = duration > 0 && duration < totalDuration;
+	if (!isSeekValid) throw new Error(`Seeking beyond limit. [0 - ${queue.currentTrack.duration}]`);
 
-	const isSeekValid = seekMilliseconds > 0 && seekMilliseconds < durationMilliseconds;
-	if (!isSeekValid) throw new Error(`Seeking beyond limit. [0 - ${duration}]`);
-
-	await queue.node.seek(seekMilliseconds);
+	await queue.node.seek(duration);
 
 	const embed = new EmbedBuilder().setTitle(`Playback jumped to timestamp \`${timestamp}\`.`).setColor('Random');
 	await interaction.editReply({ embeds: [embed] });
@@ -46,6 +44,5 @@ const getMilliseconds = (timestampToConvert: string) => {
 			if (index === 1) totalMilliseconds += ConverterUtil.toMilliseconds(Number(time), 'Minutes');
 			if (index === 2) totalMilliseconds += ConverterUtil.toMilliseconds(Number(time), 'Hours');
 		});
-
 	return totalMilliseconds;
 };
