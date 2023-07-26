@@ -5,13 +5,12 @@ import { GamingApi } from '@luferro/gaming-api';
 import { GoogleApi } from '@luferro/google-api';
 import { NewsApi } from '@luferro/news-api';
 import { RedditApi } from '@luferro/reddit-api';
-import { ArrayUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
+import { ArrayUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
 import { ShowsApi } from '@luferro/shows-api';
 import { CronJob } from 'cron';
 import crypto from 'crypto';
-import { ClientOptions, Guild } from 'discord.js';
-import { Client, Collection, EmbedBuilder } from 'discord.js';
-import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
+import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
+import { GuildQueueEvents, Player } from 'discord-player';
 
 import { getSanitizedEnvConfig } from '../config/environment';
 import * as CommandsHandler from '../handlers/commands';
@@ -75,11 +74,11 @@ export class Bot extends Client {
 		for (const [name, { data, execute }] of Bot.events.entries()) {
 			const callback = (...args: unknown[]) => execute({ client: this, rest: args }).catch(this.handleError);
 
-			const isPlayer = Object.values(GuildQueueEvent).some((event) => event === name);
-			if (isPlayer) this.player.events[data.type](name as keyof GuildQueueEvents, callback);
-			else this[data.type](name, callback);
+			const isClient = EnumUtil.enumKeysToArray(Events).some((key) => Events[key] === name);
+			if (isClient) this[data.type](name, callback);
+			else this.player.events[data.type](name as keyof GuildQueueEvents, callback);
 
-			logger.info(`**${isPlayer ? 'Player' : 'Client'}** is listening ${data.type} **${name}**.`);
+			logger.info(`**${isClient ? 'Client' : 'Player'}** is listening ${data.type} **${name}**.`);
 		}
 	}
 
