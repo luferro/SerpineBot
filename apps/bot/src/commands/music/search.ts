@@ -5,35 +5,31 @@ import {
 	EmbedBuilder,
 	SlashCommandSubcommandBuilder,
 	StringSelectMenuBuilder,
+	TextBasedChannel,
 } from 'discord.js';
 import { QueryType, Track } from 'discord-player';
 
+import { Bot } from '../../structures/Bot';
 import type { CommandData, CommandExecute } from '../../types/bot';
 import { ExtendedStringSelectMenuInteraction } from '../../types/interaction';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()
 	.setName('search')
-	.setDescription('Search the top 10 results for a given query.')
-	.addStringOption((option) => option.setName('query').setDescription('Youtube search query.').setRequired(true));
+	.setDescription('Searches and plays / enqueues track.')
+	.addStringOption((option) =>
+		option.setName('query').setDescription('Track query.').setRequired(true).setAutocomplete(true),
+	);
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
 
 	const query = interaction.options.getString('query', true);
 
-	const { tracks } = await client.player.search(query, {
-		requestedBy: interaction.user,
-		searchEngine: QueryType.AUTO,
-	});
-	const filteredTracks = tracks.filter(({ duration }) => !/0?0:00/.test(duration)).slice(0, 10);
-	if (filteredTracks.length === 0) throw new Error(`No matches for ${query}.`);
+	const results = await client.player.search(query, { searchEngine: QueryType.AUTO });
+	if (!results.hasTracks()) throw new Error(`No tracks found matching \`${query}\`.`);
 
 	const options = [
-		...filteredTracks.map(({ title, duration, url }, index) => ({
-			label: `${index + 1}. ${title}`,
-			description: duration,
-			value: url,
-		})),
+		...results.tracks.map(({ title, url }) => ({ label: title, value: url })),
 		{ label: 'Cancel', description: `Stop searching for ${query}`, value: 'CANCEL' },
 	];
 
@@ -44,47 +40,53 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		.addOptions(options);
 	const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(stringSelectMenu);
 
-	const formattedResults = filteredTracks.map(
-		({ title, url, duration }, index) => `\`${index + 1}.\` **[${title}](${url})** | \`${duration}\``,
-	);
-
 	const embed = new EmbedBuilder()
-		.setTitle(`Search results for \`${query}\``)
-		.setDescription(formattedResults.join('\n'))
-		.setFooter({ text: 'Select "Cancel" from the selection menu to stop searching.' })
+		.setTitle('Pick a track from the select menu below.')
+		.setFooter({ text: 'Select "Cancel" to stop searching.' })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed], components: [component] });
 
-	await handleStringSelectMenu({ client, interaction, uuid, tracks: filteredTracks });
+	await handleStringSelectMenu({ client, channel: interaction.channel!, uuid, tracks: results.tracks });
 };
 
 const handleStringSelectMenu = async ({
 	client,
-	interaction,
+	channel,
 	uuid,
 	tracks,
-}: Parameters<typeof execute>[0] & { uuid: string; tracks: Track[] }) => {
-	const selectMenuInteraction = (await interaction.channel?.awaitMessageComponent({
+}: {
+	client: Bot;
+	channel: TextBasedChannel;
+	uuid: string;
+	tracks: Track[];
+}) => {
+	const interaction = (await channel.awaitMessageComponent({
 		time: 60 * 1000,
 		componentType: ComponentType.StringSelect,
-		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
+		filter: ({ customId }) => customId === uuid,
 	})) as ExtendedStringSelectMenuInteraction;
-	if (!selectMenuInteraction) throw new Error('Search timeout.');
+	if (!interaction) throw new Error('Search timeout.');
 
-	const isSearchValid = selectMenuInteraction.values.length > 0 && selectMenuInteraction.values[0] !== 'CANCEL';
-	if (!isSearchValid) {
-		const embed = new EmbedBuilder().setTitle('Search has been canceled.').setColor('Random');
-		await selectMenuInteraction.update({ embeds: [embed], components: [] });
-		return;
-	}
+	const isSearchValid = interaction.values.length > 0 && interaction.values[0] !== 'CANCEL';
+	if (!isSearchValid) throw new Error('Search has been canceled.');
 
-	const track = tracks.find(({ url }) => url === selectMenuInteraction.values[0]);
-	if (!track) throw new Error('Cannot find selected track.');
+	const selectedTrack = tracks.find(({ url }) => url === interaction.values[0]);
+	if (!selectedTrack) throw new Error('Cannot find selected track.');
 
-	const queue = await forceJoin({ client, interaction });
-	queue.addTrack(track);
-	if (!queue.node.isPlaying()) await queue.node.play();
+	const voiceChannel = interaction.member.voice.channel;
+	if (!voiceChannel) throw new Error('You are not in a voice channel.');
+
+	const { track, queue } = await client.player.play(voiceChannel, selectedTrack, {
+		requestedBy: interaction.user,
+		searchEngine: QueryType.AUTO,
+		nodeOptions: {
+			metadata: interaction.channel,
+			leaveOnEmpty: true,
+			leaveOnEmptyCooldown: 1000 * 60 * 5,
+			leaveOnEnd: false,
+		},
+	});
 
 	const position = queue.node.getTrackPosition(track) + 1;
 
@@ -107,17 +109,5 @@ const handleStringSelectMenu = async ({
 		])
 		.setColor('Random');
 
-	await selectMenuInteraction.update({ embeds: [embed], components: [] });
-};
-
-const forceJoin = async ({ client, interaction }: Parameters<typeof execute>[0]) => {
-	let queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) {
-		const memberVoiceChannel = interaction.member.voice.channel;
-		if (!memberVoiceChannel) throw new Error('You are not in a voice channel.');
-
-		queue = client.player.nodes.create(interaction.guild.id, { leaveOnEmptyCooldown: 1000 * 60 * 5 });
-		await queue.connect(memberVoiceChannel);
-	}
-	return queue;
+	await interaction.update({ embeds: [embed], components: [] });
 };
