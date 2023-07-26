@@ -1,3 +1,4 @@
+import { EnumUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { QueueRepeatMode } from 'discord-player';
 
@@ -12,17 +13,18 @@ export const data: CommandData = new SlashCommandSubcommandBuilder()
 			.setDescription('Loop mode.')
 			.setRequired(true)
 			.addChoices(
-				{ name: 'Off', value: QueueRepeatMode.OFF },
-				{ name: 'Track', value: QueueRepeatMode.TRACK },
-				{ name: 'Queue', value: QueueRepeatMode.QUEUE },
+				...EnumUtil.enumKeysToArray(QueueRepeatMode).map((mode) => ({
+					name: mode,
+					value: QueueRepeatMode[mode],
+				})),
 			),
 	);
 
 export const execute: CommandExecute = async ({ client, interaction }) => {
-	const mode = interaction.options.getInteger('mode', true) as Exclude<QueueRepeatMode, QueueRepeatMode.AUTOPLAY>;
+	const mode = interaction.options.getInteger('mode', true) as QueueRepeatMode;
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('Cannot toggle loop.');
+	if (!queue || !queue.currentTrack) throw new Error('Cannot change loop mode.');
 
 	queue.setRepeatMode(mode);
 
