@@ -76,10 +76,9 @@ export class Bot extends Client {
 		const leopard = resolve('models\\leopard');
 		const porcupine = resolve('models\\porcupine');
 
-		const isCustomWakeWord = existsSync(`${porcupine}\\wake-word.ppn`);
-		const wakeWord = isCustomWakeWord
-			? `${porcupine}\\wake-word-${process.platform === 'win32' ? 'windows' : 'linux'}.ppn`
-			: BuiltinKeyword.BUMBLEBEE;
+		const wakeWordFilename = `wake-word-${process.platform === 'win32' ? 'windows' : 'linux'}`;
+		const isCustomWakeWord = existsSync(`${porcupine}\\${wakeWordFilename}.ppn`);
+		const wakeWord = isCustomWakeWord ? `${porcupine}\\${wakeWordFilename}.ppn` : BuiltinKeyword.BUMBLEBEE;
 		const wakeWordModel = isCustomWakeWord ? `${porcupine}\\model.pv` : undefined;
 
 		return {
