@@ -73,17 +73,17 @@ export class Bot extends Client {
 	}
 
 	private initializeAITools() {
-		const leopard = resolve('models\\leopard');
-		const porcupine = resolve('models\\porcupine');
+		const leopard = resolve('models/leopard');
+		const porcupine = resolve('models/porcupine');
 
 		const wakeWordFilename = `wake-word-${process.platform === 'win32' ? 'windows' : 'linux'}`;
-		const isCustomWakeWord = existsSync(`${porcupine}\\${wakeWordFilename}.ppn`);
-		const wakeWord = isCustomWakeWord ? `${porcupine}\\${wakeWordFilename}.ppn` : BuiltinKeyword.BUMBLEBEE;
-		const wakeWordModel = isCustomWakeWord ? `${porcupine}\\model.pv` : undefined;
+		const isCustomWakeWord = existsSync(`${porcupine}/${wakeWordFilename}.ppn`);
+		const wakeWord = isCustomWakeWord ? `${porcupine}/${wakeWordFilename}.ppn` : BuiltinKeyword.BUMBLEBEE;
+		const wakeWordModel = isCustomWakeWord ? `${porcupine}/model.pv` : undefined;
 
 		return {
 			wakeWord: new Porcupine(this.config.PICOVOICE_ACCESS_TOKEN, [wakeWord], [0.8], wakeWordModel),
-			speechToText: new Leopard(this.config.PICOVOICE_ACCESS_TOKEN, { modelPath: `${leopard}\\model.pv` }),
+			speechToText: new Leopard(this.config.PICOVOICE_ACCESS_TOKEN, { modelPath: `${leopard}/model.pv` }),
 		};
 	}
 
@@ -146,7 +146,7 @@ export class Bot extends Client {
 			await CommandsHandler.registerCommands();
 
 			this.initializeListeners();
-			// this.initializeSchedulers();
+			this.initializeSchedulers();
 
 			this.emit('ready', this as Client);
 		} catch (error) {

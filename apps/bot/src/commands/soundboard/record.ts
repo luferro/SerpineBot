@@ -40,15 +40,15 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const recordings = resolve('recordings');
 	if (!existsSync('recordings')) mkdirSync('recordings');
-	if (existsSync(`recordings\\${filename}.mp3`)) {
+	if (existsSync(`recordings/${filename}.mp3`)) {
 		stream.destroy();
 		throw new Error(`Sound \`${filename}\` already exists.`);
 	}
 
-	const input = `${recordings}\\${filename}.pcm`;
+	const input = `${recordings}/${filename}.pcm`;
 	const writer = stream.pipe(createWriteStream(input));
 	writer.once('finish', async () => {
-		const output = `${recordings}\\${filename}.mp3`;
+		const output = `${recordings}/${filename}.mp3`;
 		const args = ['-f', 's16le', '-ar', '44.1k', '-ac', '2', '-i', input, '-strict', '-2', output];
 
 		spawn('ffmpeg', args).on('exit', async () => {
