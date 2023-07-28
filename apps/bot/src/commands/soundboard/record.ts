@@ -19,15 +19,15 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const channel = interaction.member.voice.channel;
 	if (!channel) throw new Error('You are not in a voice channel.');
 
+	const recordings = resolve('recordings');
+	if (!existsSync('recordings')) mkdirSync('recordings');
+	if (existsSync(`recordings/${filename}.mp3`)) throw new Error(`Sound \`${filename}\` already exists.`);
+
 	let queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) {
 		queue = client.player.nodes.create(interaction.guild.id, {
 			metadata: interaction.channel,
-			leaveOnEmpty: true,
-			leaveOnEmptyCooldown: 1000 * 60 * 5,
-			leaveOnEnd: false,
-			selfDeaf: false,
-			bufferingTimeout: 0,
+			...client.connection.config,
 		});
 		await queue.connect(channel, { deaf: false });
 	}
@@ -37,13 +37,6 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		end: EndBehaviorType.AfterSilence,
 	});
 	if (!stream) throw new Error('Could not record your sound.');
-
-	const recordings = resolve('recordings');
-	if (!existsSync('recordings')) mkdirSync('recordings');
-	if (existsSync(`recordings/${filename}.mp3`)) {
-		stream.destroy();
-		throw new Error(`Sound \`${filename}\` already exists.`);
-	}
 
 	const input = `${recordings}/${filename}.pcm`;
 	const writer = stream.pipe(createWriteStream(input));
