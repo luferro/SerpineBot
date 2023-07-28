@@ -82,10 +82,7 @@ const handleStringSelectMenu = async ({
 		searchEngine: QueryType.AUTO,
 		nodeOptions: {
 			metadata: interaction.channel,
-			leaveOnEmpty: true,
-			leaveOnEmptyCooldown: 1000 * 60 * 5,
-			leaveOnEnd: false,
-			selfDeaf: false,
+			...client.connection.config,
 		},
 	});
 

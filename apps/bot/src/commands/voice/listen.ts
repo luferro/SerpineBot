@@ -24,11 +24,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	if (!queue) {
 		queue = client.player.nodes.create(interaction.guild.id, {
 			metadata: interaction.channel,
-			leaveOnEmpty: true,
-			leaveOnEmptyCooldown: 1000 * 60 * 5,
-			leaveOnEnd: false,
-			selfDeaf: false,
-			bufferingTimeout: 0,
+			...client.connection.config,
 		});
 		await queue.connect(channel);
 	}
