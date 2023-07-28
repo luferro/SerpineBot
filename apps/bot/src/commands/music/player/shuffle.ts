@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { Bot } from '../../../structures/Bot';
+import { Bot } from '../../../Bot';
 import type { CommandData, CommandExecute } from '../../../types/bot';
 
 export const data: CommandData = new SlashCommandSubcommandBuilder()

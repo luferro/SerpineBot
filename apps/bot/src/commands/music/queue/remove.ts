@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import { Playlist } from 'discord-player';
 
-import { Bot } from '../../../structures/Bot';
+import { Bot } from '../../../Bot';
 import type { CommandData, CommandExecute } from '../../../types/bot';
 import { ExtendedStringSelectMenuInteraction } from '../../../types/interaction';
 

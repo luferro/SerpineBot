@@ -12,6 +12,6 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	await queue.history.previous();
 
-	const embed = new EmbedBuilder().setTitle(`Replaying \`${queue.history.previousTrack}\`.`).setColor('Random');
+	const embed = new EmbedBuilder().setTitle(`Replaying \`${queue.history.currentTrack}\`.`).setColor('Random');
 	await interaction.reply({ embeds: [embed] });
 };

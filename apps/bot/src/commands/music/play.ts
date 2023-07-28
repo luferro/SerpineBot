@@ -13,14 +13,14 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const query = interaction.options.getString('query', true);
 
-	const channel = interaction.member.voice.channel;
-	if (!channel) throw new Error('You are not in a voice channel.');
+	const voiceChannel = interaction.member.voice.channel;
+	if (!voiceChannel) throw new Error('You are not in a voice channel.');
 
 	const {
 		track,
 		queue,
 		searchResult: { playlist },
-	} = await client.player.play(channel, query, {
+	} = await client.player.play(voiceChannel, query, {
 		requestedBy: interaction.user,
 		searchEngine: QueryType.AUTO,
 		nodeOptions: {
@@ -28,6 +28,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 			leaveOnEmpty: true,
 			leaveOnEmptyCooldown: 1000 * 60 * 5,
 			leaveOnEnd: false,
+			selfDeaf: false,
 		},
 	});
 

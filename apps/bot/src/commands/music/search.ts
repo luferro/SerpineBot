@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 import { QueryType, Track } from 'discord-player';
 
-import { Bot } from '../../structures/Bot';
+import { Bot } from '../../Bot';
 import type { CommandData, CommandExecute } from '../../types/bot';
 import { ExtendedStringSelectMenuInteraction } from '../../types/interaction';
 
@@ -85,6 +85,7 @@ const handleStringSelectMenu = async ({
 			leaveOnEmpty: true,
 			leaveOnEmptyCooldown: 1000 * 60 * 5,
 			leaveOnEnd: false,
+			selfDeaf: false,
 		},
 	});
 
