@@ -1,4 +1,9 @@
-import { AppleMusicExtractor, SpotifyExtractor, YouTubeExtractor } from '@discord-player/extractor';
+import {
+	AppleMusicExtractor,
+	AttachmentExtractor,
+	SpotifyExtractor,
+	YouTubeExtractor,
+} from '@discord-player/extractor';
 import { ComicsApi } from '@luferro/comics-api';
 import { Database, SettingsModel, StateModel, WebhookType } from '@luferro/database';
 import { GamingApi } from '@luferro/gaming-api';
@@ -7,16 +12,20 @@ import { NewsApi } from '@luferro/news-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { ArrayUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
 import { ShowsApi } from '@luferro/shows-api';
+import { Leopard } from '@picovoice/leopard-node';
+import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
 import { CronJob } from 'cron';
 import crypto from 'crypto';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
 
-import { getSanitizedEnvConfig } from '../config/environment';
-import * as CommandsHandler from '../handlers/commands';
-import * as EventsHandler from '../handlers/events';
-import * as JobsHandler from '../handlers/jobs';
-import type { Api, Cache, Command, Event, Job } from '../types/bot';
+import { getSanitizedEnvConfig } from './config/environment';
+import * as CommandsHandler from './handlers/commands';
+import * as EventsHandler from './handlers/events';
+import * as JobsHandler from './handlers/jobs';
+import type { AITools, Api, Cache, Command, Event, Job } from './types/bot';
 
 type StateArgs = { title: string; url: string };
 type WebhookArgs = { guild: Guild; category: WebhookType };
@@ -34,12 +43,14 @@ export class Bot extends Client {
 	api: Api;
 	cache: Cache;
 	player: Player;
+	ai: AITools;
 	config: ReturnType<typeof getSanitizedEnvConfig>;
 
 	constructor(options: ClientOptions) {
 		super(options);
 		this.config = getSanitizedEnvConfig();
 		this.api = this.initializeApis();
+		this.ai = this.initializeAITools();
 		this.player = this.initializePlayer();
 		this.cache = { anime: { schedule: new Collection() }, deals: { chart: [] } };
 	}
@@ -61,11 +72,28 @@ export class Bot extends Client {
 		};
 	}
 
+	private initializeAITools() {
+		const leopard = resolve('models\\leopard');
+		const porcupine = resolve('models\\porcupine');
+
+		const isCustomWakeWord = existsSync(`${porcupine}\\wake-word.ppn`);
+		const wakeWord = isCustomWakeWord
+			? `${porcupine}\\wake-word-${process.platform === 'win32' ? 'windows' : 'linux'}.ppn`
+			: BuiltinKeyword.BUMBLEBEE;
+		const wakeWordModel = isCustomWakeWord ? `${porcupine}\\model.pv` : undefined;
+
+		return {
+			wakeWord: new Porcupine(this.config.PICOVOICE_ACCESS_TOKEN, [wakeWord], [0.8], wakeWordModel),
+			speechToText: new Leopard(this.config.PICOVOICE_ACCESS_TOKEN, { modelPath: `${leopard}\\model.pv` }),
+		};
+	}
+
 	private initializePlayer() {
 		const player = new Player(this);
 		player.extractors.register(YouTubeExtractor, {});
 		player.extractors.register(SpotifyExtractor, {});
 		player.extractors.register(AppleMusicExtractor, {});
+		player.extractors.register(AttachmentExtractor, {});
 		logger.debug(player.scanDeps());
 		return player;
 	}
@@ -119,7 +147,7 @@ export class Bot extends Client {
 			await CommandsHandler.registerCommands();
 
 			this.initializeListeners();
-			this.initializeSchedulers();
+			// this.initializeSchedulers();
 
 			this.emit('ready', this as Client);
 		} catch (error) {

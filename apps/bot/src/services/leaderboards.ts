@@ -1,6 +1,6 @@
 import { IntegrationsModel, SteamIntegration, XboxIntegration } from '@luferro/database';
 
-import type { Bot } from '../structures/Bot';
+import type { Bot } from '../Bot';
 
 enum Medals {
 	'🥇' = 1,

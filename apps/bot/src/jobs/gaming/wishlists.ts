@@ -2,7 +2,7 @@ import { IntegrationsModel, SteamIntegration, SubscriptionsModel, WishlistEntry 
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import type { Bot } from '../../structures/Bot';
+import type { Bot } from '../../Bot';
 import type { JobData, JobExecute } from '../../types/bot';
 
 enum Alert {

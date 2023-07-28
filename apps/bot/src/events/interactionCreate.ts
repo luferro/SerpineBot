@@ -1,7 +1,7 @@
 import { FetchError, logger } from '@luferro/shared-utils';
 import { DiscordAPIError, EmbedBuilder } from 'discord.js';
 
-import { Bot } from '../structures/Bot';
+import { Bot } from '../Bot';
 import type { EventData, EventExecute } from '../types/bot';
 import type {
 	ExtendedChatInputCommandInteraction,

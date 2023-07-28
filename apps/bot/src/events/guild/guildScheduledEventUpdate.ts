@@ -1,7 +1,7 @@
 import { DateUtil } from '@luferro/shared-utils';
 import { BaseGuildVoiceChannel, EmbedBuilder, GuildScheduledEvent } from 'discord.js';
 
-import { Bot } from '../../structures/Bot';
+import { Bot } from '../../Bot';
 import type { EventData, EventExecute } from '../../types/bot';
 
 type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent: GuildScheduledEvent];

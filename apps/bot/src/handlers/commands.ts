@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 import path from 'path';
 
-import { Bot } from '../structures/Bot';
+import { Bot } from '../Bot';
 import type { CommandData, CommandExecute, MetadataBuilder } from '../types/bot';
 import CommandsMetadata from './metadata/commands.json';
 

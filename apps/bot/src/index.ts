@@ -2,7 +2,7 @@ import 'dotenv/config';
 
 import { GatewayIntentBits } from 'discord.js';
 
-import { Bot } from './structures/Bot';
+import { Bot } from './Bot';
 
 (async () => {
 	const client = new Bot({
