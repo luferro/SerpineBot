@@ -9,6 +9,9 @@ const getEnvConfig = () => ({
 	// DATABASE URI
 	MONGO_URI: process.env.MONGO_URI ?? null,
 
+	// PICOVOICE
+	PICOVOICE_ACCESS_TOKEN: process.env.PICOVOICE_ACCESS_TOKEN ?? null,
+
 	// API KEYS
 	STEAM_API_KEY: process.env.STEAM_API_KEY ?? null,
 	GNEWS_API_KEY: process.env.GNEWS_API_KEY ?? null,

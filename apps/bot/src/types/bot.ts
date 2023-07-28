@@ -4,6 +4,8 @@ import type { GoogleApi } from '@luferro/google-api';
 import type { NewsApi } from '@luferro/news-api';
 import type { RedditApi } from '@luferro/reddit-api';
 import type { ShowsApi } from '@luferro/shows-api';
+import { Leopard } from '@picovoice/leopard-node';
+import { Porcupine } from '@picovoice/porcupine-node';
 import type {
 	Collection,
 	SlashCommandBuilder,
@@ -13,7 +15,7 @@ import type {
 	SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
 
-import type { Bot } from '../structures/Bot';
+import type { Bot } from '../Bot';
 import type { ExtendedChatInputCommandInteraction } from './interaction';
 
 type CommandArgs = { client: Bot; interaction: ExtendedChatInputCommandInteraction };
@@ -41,6 +43,11 @@ export type Api = {
 	news: typeof NewsApi;
 	reddit: typeof RedditApi;
 	shows: typeof ShowsApi;
+};
+
+export type AITools = {
+	speechToText: Leopard;
+	wakeWord: Porcupine;
 };
 
 export type Cache = {
