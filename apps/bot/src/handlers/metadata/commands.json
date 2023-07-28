@@ -59,6 +59,10 @@
 		"permissions": "ManageWebhooks",
 		"description": "Manage guild webhooks."
 	},
+	"voice": {
+		"permissions": null,
+		"description": "Listen to voice commands."
+	},
 	"youtube": {
 		"permissions": null,
 		"description": "Get the Youtube URL that matches your query."
