@@ -8,7 +8,8 @@ type Args = [queue: GuildQueue<TextBasedChannel>, track: Track];
 export const data: EventData = { type: 'on' };
 
 export const execute: EventExecute<Args> = async ({ rest: [queue, track] }) => {
-	const channel = queue.metadata;
+	const { metadata, history, currentTrack } = queue;
+	if (currentTrack?.id === history.currentTrack?.id) return;
 
 	const embed = new EmbedBuilder()
 		.setAuthor({
@@ -20,5 +21,5 @@ export const execute: EventExecute<Args> = async ({ rest: [queue, track] }) => {
 		.setThumbnail(track.thumbnail)
 		.setColor('Random');
 
-	channel.send({ embeds: [embed] });
+	metadata.send({ embeds: [embed] });
 };
