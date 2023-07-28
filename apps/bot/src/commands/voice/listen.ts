@@ -16,7 +16,8 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 	const stop = interaction.options.getBoolean('stop');
 
-	const channel = interaction.member.voice.channel;
+	const member = interaction.member;
+	const channel = member.voice.channel;
 	if (!channel) throw new Error('You are not in a voice channel.');
 
 	let queue = client.player.nodes.get(interaction.guild.id);
@@ -35,11 +36,16 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const receiver = queue.connection?.receiver;
 	if (!receiver) throw new Error('Could not retrieve connection receiver.');
 
+	client.connection.listeningTo.set(member.guild.id, member.user);
+
 	const handleUserSpeaking = async (userId: string) => {
+		const listeningTo = client.connection.listeningTo.get(member.guild.id);
+		if (listeningTo?.id !== userId) return;
+
 		const buffer = await getSpeechBuffer({ client, receiver, userId });
 		if (buffer.length === 0) return;
 
-		const { transcript, words } = client.ai.speechToText.process(bufferToInt16(buffer));
+		const { transcript, words } = client.tools.speechToText.process(bufferToInt16(buffer));
 		logger.debug(`Transcript for ${userId}: ${transcript}`);
 		logger.debug(words);
 
@@ -100,11 +106,11 @@ const getSpeechBuffer = async ({
 			}
 
 			frames = frames.concat(...bufferToInt16(chunk));
-			const normalizedFrames = ArrayUtil.splitIntoChunks(frames, client.ai.wakeWord.frameLength);
-			if (normalizedFrames.at(-1)?.length !== client.ai.wakeWord.frameLength) frames = normalizedFrames.pop()!;
+			const normalizedFrames = ArrayUtil.splitIntoChunks(frames, client.tools.wakeWord.frameLength);
+			if (normalizedFrames.at(-1)?.length !== client.tools.wakeWord.frameLength) frames = normalizedFrames.pop()!;
 
 			for (const frame of normalizedFrames) {
-				const isWakeWord = client.ai.wakeWord.process(frame as unknown as Int16Array) !== -1;
+				const isWakeWord = client.tools.wakeWord.process(frame as unknown as Int16Array) !== -1;
 				if (isWakeWord) buffer.push(chunk);
 			}
 		});

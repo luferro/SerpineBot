@@ -16,7 +16,7 @@ import { Leopard } from '@picovoice/leopard-node';
 import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
 import { CronJob } from 'cron';
 import crypto from 'crypto';
-import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
+import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild, User } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
@@ -25,7 +25,7 @@ import { getSanitizedEnvConfig } from './config/environment';
 import * as CommandsHandler from './handlers/commands';
 import * as EventsHandler from './handlers/events';
 import * as JobsHandler from './handlers/jobs';
-import type { AITools, Api, Cache, Command, Event, Job } from './types/bot';
+import type { Api, Cache, Command, Connection, Event, Job, Tools } from './types/bot';
 
 type StateArgs = { title: string; url: string };
 type WebhookArgs = { guild: Guild; category: WebhookType };
@@ -43,14 +43,16 @@ export class Bot extends Client {
 	api: Api;
 	cache: Cache;
 	player: Player;
-	ai: AITools;
+	tools: Tools;
+	connection: Connection;
 	config: ReturnType<typeof getSanitizedEnvConfig>;
 
 	constructor(options: ClientOptions) {
 		super(options);
 		this.config = getSanitizedEnvConfig();
 		this.api = this.initializeApis();
-		this.ai = this.initializeAITools();
+		this.tools = this.initializeTools();
+		this.connection = this.initializeVoiceConfig();
 		this.player = this.initializePlayer();
 		this.cache = { anime: { schedule: new Collection() }, deals: { chart: [] } };
 	}
@@ -72,7 +74,20 @@ export class Bot extends Client {
 		};
 	}
 
-	private initializeAITools() {
+	private initializeVoiceConfig() {
+		return {
+			listeningTo: new Collection<string, User>(),
+			config: {
+				leaveOnEmpty: true,
+				leaveOnEmptyCooldown: 1000 * 60 * 5,
+				leaveOnEnd: false,
+				selfDeaf: false,
+				bufferingTimeout: 0,
+			},
+		};
+	}
+
+	private initializeTools() {
 		const leopard = resolve('models/leopard');
 		const porcupine = resolve('models/porcupine');
 

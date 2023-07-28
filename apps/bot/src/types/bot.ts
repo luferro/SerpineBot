@@ -13,6 +13,7 @@ import type {
 	SlashCommandStringOption,
 	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandGroupBuilder,
+	User,
 } from 'discord.js';
 
 import type { Bot } from '../Bot';
@@ -45,9 +46,20 @@ export type Api = {
 	shows: typeof ShowsApi;
 };
 
-export type AITools = {
+export type Tools = {
 	speechToText: Leopard;
 	wakeWord: Porcupine;
+};
+
+export type Connection = {
+	listeningTo: Collection<string, User>;
+	config: {
+		leaveOnEmpty: boolean;
+		leaveOnEmptyCooldown: number;
+		leaveOnEnd: boolean;
+		selfDeaf: boolean;
+		bufferingTimeout: number;
+	};
 };
 
 export type Cache = {
