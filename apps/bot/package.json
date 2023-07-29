@@ -38,6 +38,7 @@
 		"@luferro/shows-api": "workspace:^",
 		"@picovoice/leopard-node": "^1.2.0",
 		"@picovoice/porcupine-node": "^2.2.1",
+		"@picovoice/rhino-node": "^2.2.1",
 		"cron": "^2.4.0",
 		"discord-player": "^6.6.1",
 		"discord.js": "^14.11.0",

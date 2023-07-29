@@ -38,6 +38,7 @@ importers:
       '@luferro/shows-api': workspace:^
       '@picovoice/leopard-node': ^1.2.0
       '@picovoice/porcupine-node': ^2.2.1
+      '@picovoice/rhino-node': ^2.2.1
       '@types/cron': ^2.0.1
       '@types/node': ^20.4.4
       cron: ^2.4.0
@@ -64,6 +65,7 @@ importers:
       '@luferro/shows-api': link:../../packages/shows-api
       '@picovoice/leopard-node': 1.2.0
       '@picovoice/porcupine-node': 2.2.1
+      '@picovoice/rhino-node': 2.2.1
       cron: 2.4.0
       discord-player: 6.6.1_zv7jgkmudysjxmxbkinm2hn4sq
       discord.js: 14.11.0
@@ -1173,6 +1175,12 @@ packages:
 
   /@picovoice/porcupine-node/2.2.1:
     resolution: {integrity: sha512-+sc3uY2ZdZabUW7kYZ2wDezg2CZYy729Xy387fMuNw8fa2aoHuU9pcpaUR2KfLDRC+s2hbWdAqnxjCuSvt/NYw==}
+    engines: {node: '>=12.0.0'}
+    cpu: ['!ia32', '!mips', '!ppc', '!ppc64']
+    dev: false
+
+  /@picovoice/rhino-node/2.2.1:
+    resolution: {integrity: sha512-Alh3FrfWxzu4k2rrkls1YZGZVuKHfXiRtXJXh5IBDosvSgBFKYQ/eCclTw/reSr03Cl7BmZaBmISmGIoU1Hwqg==}
     engines: {node: '>=12.0.0'}
     cpu: ['!ia32', '!mips', '!ppc', '!ppc64']
     dev: false

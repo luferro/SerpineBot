@@ -14,11 +14,11 @@ import { ArrayUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/sha
 import { ShowsApi } from '@luferro/shows-api';
 import { Leopard } from '@picovoice/leopard-node';
 import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
+import { Rhino } from '@picovoice/rhino-node';
 import { CronJob } from 'cron';
 import crypto from 'crypto';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild, User } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
-import { existsSync } from 'fs';
 import { resolve } from 'path';
 
 import { getSanitizedEnvConfig } from './config/environment';
@@ -90,15 +90,17 @@ export class Bot extends Client {
 	private initializeTools() {
 		const leopard = resolve('models/leopard');
 		const porcupine = resolve('models/porcupine');
-
-		const wakeWordFilename = `wake-word-${process.platform === 'win32' ? 'windows' : 'linux'}`;
-		const isCustomWakeWord = existsSync(`${porcupine}/${wakeWordFilename}.ppn`);
-		const wakeWord = isCustomWakeWord ? `${porcupine}/${wakeWordFilename}.ppn` : BuiltinKeyword.ALEXA;
-		const wakeWordModel = isCustomWakeWord ? `${porcupine}/model.pv` : undefined;
+		const rhino = resolve('models/rhino');
 
 		return {
-			wakeWord: new Porcupine(this.config.PICOVOICE_ACCESS_TOKEN, [wakeWord], [0.8], wakeWordModel),
-			speechToText: new Leopard(this.config.PICOVOICE_ACCESS_TOKEN, { modelPath: `${leopard}/model.pv` }),
+			wakeWord: new Porcupine(
+				this.config.PICOVOICE_API_KEY,
+				[BuiltinKeyword.BUMBLEBEE],
+				[0.8],
+				`${porcupine}/model_en.pv`,
+			),
+			speechToIntent: new Rhino(this.config.PICOVOICE_API_KEY, `${rhino}/model_en_win32.rhn`),
+			speechToText: new Leopard(this.config.PICOVOICE_API_KEY, { modelPath: `${leopard}/model_en.pv` }),
 		};
 	}
 

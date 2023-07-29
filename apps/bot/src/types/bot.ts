@@ -6,6 +6,7 @@ import type { RedditApi } from '@luferro/reddit-api';
 import type { ShowsApi } from '@luferro/shows-api';
 import { Leopard } from '@picovoice/leopard-node';
 import { Porcupine } from '@picovoice/porcupine-node';
+import { Rhino } from '@picovoice/rhino-node';
 import type {
 	Collection,
 	SlashCommandBuilder,
@@ -47,8 +48,9 @@ export type Api = {
 };
 
 export type Tools = {
-	speechToText: Leopard;
 	wakeWord: Porcupine;
+	speechToIntent: Rhino;
+	speechToText: Leopard;
 };
 
 export type Connection = {
