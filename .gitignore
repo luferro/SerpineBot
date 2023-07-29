@@ -10,6 +10,11 @@ coverage
 dist
 .next
 
+# models
+*.pv
+*.ppn
+*.rhn
+
 # turborepo
 .turbo
 
