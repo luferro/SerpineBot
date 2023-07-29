@@ -32,16 +32,18 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	const receiver = queue.connection?.receiver;
 	if (!receiver) throw new Error('Could not retrieve connection receiver.');
 
+	const listeningToUser = client.connection.listeningTo.get(member.guild.id);
 	client.connection.listeningTo.set(member.guild.id, member.user);
 
 	const handleUserSpeaking = async (userId: string) => {
-		const listeningTo = client.connection.listeningTo.get(member.guild.id);
-		if (listeningTo?.id !== userId) return;
+		const user = client.connection.listeningTo.get(member.guild.id);
+		if (user?.id !== userId) return;
 
-		const buffer = await getSpeechBuffer({ client, receiver, userId });
+		const buffer = await getAudioBuffer({ client, receiver, userId });
 		if (buffer.length === 0) return;
 
-		const { transcript, words } = client.tools.speechToText.process(bufferToInt16(buffer));
+		const { speechToText } = client.tools;
+		const { transcript, words } = speechToText.process(bufferToInt16(buffer));
 		logger.debug(`Transcript for ${userId}: ${transcript}`);
 		logger.debug(words);
 
@@ -51,7 +53,10 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 
 		const queue = client.player.nodes.get(interaction.guild.id)!;
 		const commands: Record<string, () => unknown> = {
-			play: () => queue.player.play(queue.channel!, query, { nodeOptions: { metadata: interaction.channel } }),
+			play: () =>
+				queue.channel && query
+					? queue.player.play(queue.channel, query, { nodeOptions: { metadata: interaction.channel } })
+					: null,
 			skip: () => (!queue.isEmpty() ? queue.node.skip() : null),
 			pause: () => queue.node.pause(),
 			resume: () => queue.node.resume(),
@@ -70,6 +75,8 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		return;
 	}
 
+	if (listeningToUser?.id !== interaction.user.id) receiver.speaking.removeListener('start', handleUserSpeaking);
+
 	const isAlreadyListening = receiver.speaking.listeners('start').length > 0;
 	if (isAlreadyListening) throw new Error('Already listening for voice commands.');
 
@@ -78,7 +85,7 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 	await interaction.editReply({ embeds: [embed] });
 };
 
-const getSpeechBuffer = async ({
+const getAudioBuffer = async ({
 	client,
 	receiver,
 	userId,
@@ -88,38 +95,46 @@ const getSpeechBuffer = async ({
 	userId: string;
 }) => {
 	return new Promise((resolve, reject) => {
-		const buffer: Buffer[] = [];
+		const chunks: Buffer[] = [];
 		const stream = receiver.subscribe(userId, { end: { behavior: EndBehaviorType.AfterSilence, duration: 750 } });
 
 		const decodedStream = new prism.opus.Decoder({ rate: 16000, channels: 1, frameSize: 640 });
 		stream.pipe(decodedStream);
 
-		let frames: number[] = [];
-		decodedStream.on('data', (chunk) => {
-			if (buffer.length > 0) {
-				buffer.push(chunk);
-				return;
-			}
-
-			frames = frames.concat(...bufferToInt16(chunk));
-			const normalizedFrames = ArrayUtil.splitIntoChunks(frames, client.tools.wakeWord.frameLength);
-			if (normalizedFrames.at(-1)?.length !== client.tools.wakeWord.frameLength) frames = normalizedFrames.pop()!;
-
-			for (const frame of normalizedFrames) {
-				const isWakeWord = client.tools.wakeWord.process(frame as unknown as Int16Array) !== -1;
-				if (isWakeWord) buffer.push(chunk);
-			}
-		});
+		const { wakeWord } = client.tools;
 
 		decodedStream.on('error', (error) => reject(error.message));
-		decodedStream.on('end', () => resolve(Buffer.concat(buffer)));
+		decodedStream.on('data', (chunk) => chunks.push(chunk));
+		decodedStream.on('end', () => {
+			const buffer: Buffer[] = [];
+
+			let keywordDetected = false;
+			for (const frame of getFrames(bufferToInt16(Buffer.concat(chunks)), wakeWord.frameLength)) {
+				if (keywordDetected) {
+					buffer.push(Buffer.from(frame.buffer));
+					continue;
+				}
+
+				keywordDetected = wakeWord.process(frame as unknown as Int16Array) !== -1;
+			}
+
+			resolve(Buffer.concat(buffer));
+		});
 	}) as Promise<Buffer>;
 };
 
+const getFrames = (array: Int16Array, frameLength: number) => {
+	const frames = ArrayUtil.splitIntoChunks(array as unknown as number[], frameLength);
+	if (frames.at(-1)?.length !== frameLength) {
+		frames.pop();
+	}
+	return frames as unknown as Int16Array[];
+};
+
 const bufferToInt16 = (buffer: Buffer) => {
-	const int16Array = [];
+	const int16Array = new Array(buffer.length / 2);
 	for (let i = 0; i < buffer.length; i += 2) {
-		int16Array.push(buffer.readInt16LE(i));
+		int16Array[i / 2] = buffer.readInt16LE(i);
 	}
 	return new Int16Array(int16Array);
 };
