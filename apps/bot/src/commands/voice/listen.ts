@@ -55,7 +55,10 @@ export const execute: CommandExecute = async ({ client, interaction }) => {
 		const commands: Record<string, () => unknown> = {
 			play: () =>
 				queue.channel && query
-					? queue.player.play(queue.channel, query, { nodeOptions: { metadata: interaction.channel } })
+					? queue.player.play(queue.channel, query, {
+							requestedBy: user,
+							nodeOptions: { metadata: interaction.channel },
+					  })
 					: null,
 			skip: () => (!queue.isEmpty() ? queue.node.skip() : null),
 			pause: () => queue.node.pause(),
