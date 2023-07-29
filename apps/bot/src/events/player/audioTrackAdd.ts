@@ -9,7 +9,7 @@ export const data: EventData = { type: 'on' };
 
 export const execute: EventExecute<Args> = async ({ rest: [queue, track] }) => {
 	const { metadata, history, currentTrack } = queue;
-	if (currentTrack?.id === history.currentTrack?.id) return;
+	if (!!currentTrack && currentTrack.id === history.currentTrack?.id) return;
 
 	const embed = new EmbedBuilder()
 		.setAuthor({
