@@ -10,7 +10,7 @@ const getEnvConfig = () => ({
 	MONGO_URI: process.env.MONGO_URI ?? null,
 
 	// PICOVOICE
-	PICOVOICE_ACCESS_TOKEN: process.env.PICOVOICE_ACCESS_TOKEN ?? null,
+	PICOVOICE_API_KEY: process.env.PICOVOICE_API_KEY ?? null,
 
 	// API KEYS
 	STEAM_API_KEY: process.env.STEAM_API_KEY ?? null,
