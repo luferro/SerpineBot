@@ -166,7 +166,7 @@ export class Bot extends Client {
 			await CommandsHandler.registerCommands();
 
 			this.initializeListeners();
-			// this.initializeSchedulers();
+			this.initializeSchedulers();
 
 			this.emit('ready', this as Client);
 		} catch (error) {
