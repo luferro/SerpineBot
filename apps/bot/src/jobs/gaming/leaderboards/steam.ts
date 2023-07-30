@@ -2,8 +2,8 @@ import { IntegrationsModel } from '@luferro/database';
 import { DateUtil, logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
-import * as Leaderboards from '../../../services/leaderboards';
 import type { JobData, JobExecute } from '../../../types/bot';
+import * as Leaderboards from '../../../utils/leaderboards';
 
 export const data: JobData = {
 	schedule: '0 0 0 * * 0',
