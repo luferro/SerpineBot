@@ -9,31 +9,42 @@ import { Porcupine } from '@picovoice/porcupine-node';
 import { Rhino } from '@picovoice/rhino-node';
 import type {
 	Collection,
+	GuildMember,
 	SlashCommandBuilder,
 	SlashCommandIntegerOption,
 	SlashCommandStringOption,
 	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandGroupBuilder,
-	User,
 } from 'discord.js';
 
 import type { Bot } from '../Bot';
 import type { ExtendedChatInputCommandInteraction } from './interaction';
 
-type CommandArgs = { client: Bot; interaction: ExtendedChatInputCommandInteraction };
-type EventArgs<T> = Pick<CommandArgs, 'client'> & { rest: T };
-type JobArgs = Pick<CommandArgs, 'client'>;
+type Client = { client: Bot };
 
 export type SlashCommandOption = SlashCommandStringOption | SlashCommandIntegerOption;
 export type MetadataBuilder = SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder | SlashCommandOption;
-export type CommandData = Exclude<MetadataBuilder, 'SlashCommandOption'> | SlashCommandOption[];
-export type CommandExecute = { (args: CommandArgs): Promise<void> };
-export type Command = { execute: Collection<string, CommandExecute>; metadata: SlashCommandBuilder[] };
 
+type VoiceCommandArgs<T> = Client & { guildId: string; slots: Record<string, string>; rest: T };
+export type VoiceCommandExecute<T = unknown> = { (args: VoiceCommandArgs<T>): Promise<void> };
+export type VoiceCommand = { execute: VoiceCommandExecute };
+
+type InteractionCommandArgs = Client & { interaction: ExtendedChatInputCommandInteraction };
+export type InteractionCommandData = Exclude<MetadataBuilder, 'SlashCommandOption'> | SlashCommandOption[];
+export type InteractionCommandExecute = { (args: InteractionCommandArgs): Promise<void> };
+export type InteractionCommand = {
+	metadata: SlashCommandBuilder[];
+	execute: Collection<string, InteractionCommandExecute>;
+};
+
+export type Commands = { voice: Collection<string, VoiceCommand>; interactions: InteractionCommand };
+
+type EventArgs<T> = Client & { rest: T };
 export type EventData = { type: 'on' | 'once' };
 export type EventExecute<T = void> = { (args: EventArgs<T>): Promise<void> };
 export type Event = { data: EventData; execute: EventExecute<unknown[]> };
 
+type JobArgs = Client;
 export type JobData = { schedule: string | Date };
 export type JobExecute = { (args: JobArgs): Promise<void> };
 export type Job = { data: JobData; execute: JobExecute };
@@ -54,7 +65,7 @@ export type Tools = {
 };
 
 export type Connection = {
-	listeningTo: Collection<string, User>;
+	listeningTo: Collection<string, GuildMember>;
 	config: {
 		leaveOnEmpty: boolean;
 		leaveOnEmptyCooldown: number;

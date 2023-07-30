@@ -34,7 +34,7 @@ const handleChatInputCommandInteraction = async ({ client, interaction }: ChatIn
 	logger.info(`Command **${name}** used by **${interaction.user.username}** in guild **${interaction.guild.name}**.`);
 
 	try {
-		const execute = Bot.commands.execute.get(name);
+		const execute = Bot.commands.interactions.execute.get(name);
 		if (!execute) throw new Error(`Slash command "${name}" is not registered.`);
 		await execute({ client, interaction });
 	} catch (error) {

@@ -9,24 +9,41 @@ import {
 	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
-import path from 'path';
+import { resolve } from 'path';
 
 import { Bot } from '../Bot';
-import type { CommandData, CommandExecute, MetadataBuilder } from '../types/bot';
-import CommandsMetadata from './metadata/commands.json';
+import { InteractionCommandData, InteractionCommandExecute, MetadataBuilder, VoiceCommand } from '../types/bot';
+import Metadata from './metadata.json';
 
-type RawCommand = { data: CommandData; execute: CommandExecute };
+type RawInteractionCommand = { data: InteractionCommandData; execute: InteractionCommandExecute };
 type Key<T> = keyof T;
 
 export const registerCommands = async () => {
-	const files = FileUtil.getFiles(path.resolve(__dirname, '../commands'));
+	await registerVoiceCommands();
+	await registerInteractionCommands();
+};
+
+const registerVoiceCommands = async () => {
+	const files = FileUtil.getFiles(resolve(__dirname, '../commands/voice'));
+	for (const file of files) {
+		const name = FileUtil.getRelativePath(file, 'voice');
+		if (!name) continue;
+
+		const command: VoiceCommand = await import(file);
+		Bot.commands.voice.set(name, command);
+	}
+	logger.info(`Commands handler registered **${files.length}** voice command(s).`);
+};
+
+const registerInteractionCommands = async () => {
+	const files = FileUtil.getFiles(resolve(__dirname, '../commands/interactions'));
 
 	const metadata = new Map<string, Map<string, MetadataBuilder[]>>();
 	for (const file of files) {
-		const name = FileUtil.getRelativePath(file, 'commands');
+		const name = FileUtil.getRelativePath(file, 'interactions');
 		if (!name) continue;
 
-		const { data, execute }: RawCommand = await import(file);
+		const { data, execute }: RawInteractionCommand = await import(file);
 		const options = Array.isArray(data) ? data : [data];
 
 		const matches = name.split('.');
@@ -42,16 +59,16 @@ export const registerCommands = async () => {
 		if (storedMetadata) storedMetadata.get(category)?.push(...options) ?? storedMetadata.set(category, options);
 		else metadata.set(command, new Map([[category, options]]));
 
-		Bot.commands.execute.set(name, execute);
+		Bot.commands.interactions.execute.set(name, execute);
 	}
-	logger.info(`Commands handler registered **${files.length}** command(s).`);
+	logger.info(`Commands handler registered **${files.length}** interaction command(s).`);
 
 	buildSlashCommands(metadata);
 };
 
-const buildSlashCommands = (map: Map<string, Map<string, CommandData[]>>) => {
+const buildSlashCommands = (map: Map<string, Map<string, InteractionCommandData[]>>) => {
 	for (const [name, metadata] of map.entries()) {
-		const { description, permissions } = CommandsMetadata[name as Key<typeof CommandsMetadata>] ?? {
+		const { description, permissions } = Metadata[name as Key<typeof Metadata>] ?? {
 			permissions: 'Administrator',
 			description: 'Sample command description.',
 		};
@@ -87,13 +104,13 @@ const buildSlashCommands = (map: Map<string, Map<string, CommandData[]>>) => {
 			if (isSubcommandGroup) command.addSubcommandGroup(builder);
 		}
 
-		Bot.commands.metadata.push(command);
+		Bot.commands.interactions.metadata.push(command);
 	}
 	logger.info(`Command handler built **${map.size}** slash command(s).`);
 };
 
 export const deployCommands = async (client: Bot) => {
-	const commands = Bot.commands.metadata.map((metadata) => metadata.toJSON());
+	const commands = Bot.commands.interactions.metadata.map((metadata) => metadata.toJSON());
 
 	if (client.config.NODE_ENV === 'PRODUCTION') {
 		await deployGuildCommands(client, []);
