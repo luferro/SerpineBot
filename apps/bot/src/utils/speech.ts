@@ -10,7 +10,8 @@ type Args = { client: Bot; pcm: Int16Array };
 export const infereIntent = async ({ client, pcm }: Args) => {
 	const { speechToIntent } = client.tools;
 	return new Promise((resolve) => {
-		for (const _pcm of [pcm, bufferToInt16(Buffer.alloc(2 * pcm.length, 0xffff))]) {
+		const silentFrames = bufferToInt16(Buffer.alloc(pcm.length, 0xffff));
+		for (const _pcm of [silentFrames, pcm, silentFrames]) {
 			let intentDetected = false;
 			for (const frame of getFrames(_pcm, speechToIntent.frameLength)) {
 				intentDetected = speechToIntent.process(frame);
