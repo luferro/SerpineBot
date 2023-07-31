@@ -7,8 +7,6 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setDescription('Stop listening for voice commands.');
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	await interaction.deferReply({ ephemeral: true });
-
 	const member = interaction.member;
 	const voiceChannel = member.voice.channel;
 	if (!voiceChannel) throw new Error('You are not in a voice channel.');
@@ -25,5 +23,5 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	receiver.speaking.removeAllListeners('start');
 
 	const embed = new EmbedBuilder().setTitle('Stopped listening for voice commands.');
-	await interaction.editReply({ embeds: [embed] });
+	await interaction.reply({ embeds: [embed] });
 };
