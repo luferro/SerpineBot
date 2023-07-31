@@ -2,7 +2,7 @@ import { EnumUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { QueueRepeatMode } from 'discord-player';
 
-import type { InteractionCommandExecute, InteractionCommandData } from '../../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName('loop')
@@ -24,7 +24,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const mode = interaction.options.getInteger('mode', true) as QueueRepeatMode;
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue || !queue.currentTrack) throw new Error('Cannot change loop mode.');
+	if (!queue?.currentTrack) throw new Error('No track is playing.');
 
 	queue.setRepeatMode(mode);
 

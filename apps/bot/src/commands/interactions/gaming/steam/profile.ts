@@ -2,7 +2,7 @@ import { IntegrationsModel, SteamIntegration } from '@luferro/database';
 import { DateUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { InteractionCommandExecute, InteractionCommandData } from '../../../../types/bot';
+import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName('profile')

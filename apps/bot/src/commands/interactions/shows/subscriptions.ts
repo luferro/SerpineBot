@@ -1,7 +1,7 @@
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import type { InteractionCommandExecute, InteractionCommandData } from '../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName('subscriptions')

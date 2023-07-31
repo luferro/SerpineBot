@@ -1,6 +1,6 @@
-import { SlashCommandSubcommandBuilder } from 'discord.js';
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import type { InteractionCommandExecute, InteractionCommandData } from '../../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName('destroy')
@@ -12,5 +12,6 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	queue.delete();
 
-	await interaction.reply({ content: 'Guild player destroyed.', ephemeral: true });
+	const embed = new EmbedBuilder().setTitle('Player destroyed.').setColor('Random');
+	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

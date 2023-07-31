@@ -22,6 +22,6 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	queue.node.setVolume(volume);
 
-	const embed = new EmbedBuilder().setTitle(`Volume has been set to ${volume}%.`).setColor('Random');
+	const embed = new EmbedBuilder().setTitle(`Volume set to ${volume}%.`).setColor('Random');
 	await interaction.reply({ embeds: [embed] });
 };

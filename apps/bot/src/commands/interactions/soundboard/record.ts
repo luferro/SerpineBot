@@ -4,7 +4,7 @@ import { SlashCommandSubcommandBuilder } from 'discord.js';
 import { createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 
-import type { InteractionCommandExecute, InteractionCommandData } from '../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName('record')

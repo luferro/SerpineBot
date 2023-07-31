@@ -2,7 +2,7 @@ import { RemindersModel } from '@luferro/database';
 import { ConverterUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import type { InteractionCommandExecute, InteractionCommandData } from '../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 type TimeUnit = Parameters<typeof ConverterUtil.toMilliseconds>[1];
 

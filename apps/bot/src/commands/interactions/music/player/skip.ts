@@ -12,7 +12,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue || !queue.currentTrack) throw new Error('Cannot skip track.');
-	if (queue.isEmpty()) throw new Error('No more tracks to skip to.');
+	if (queue.isEmpty()) throw new Error('Queue is empty.');
 
 	const currentTrack = queue.currentTrack;
 	const nextTrack = queue.tracks.at(position ? position - 1 : 0);

@@ -2,7 +2,7 @@ import { EnumUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { FiltersName } from 'discord-player';
 
-import type { InteractionCommandExecute, InteractionCommandData } from '../../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 enum Filters {
 	BASSBOOST_LOW = 'bassboost_low',
@@ -46,7 +46,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const filter = interaction.options.getString('filter') as FiltersName | 'off';
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue || !queue.currentTrack || !queue.filters.ffmpeg) throw new Error(`Cannot toggle \`${filter}\` filter.`);
+	if (!queue?.currentTrack || !queue.filters.ffmpeg) throw new Error(`Cannot toggle \`${filter}\` filter.`);
 
 	if (filter === 'off') await queue.filters.ffmpeg.setFilters(false);
 	else await queue.filters.ffmpeg.toggle(filter.includes('bassboost') ? [filter, 'normalizer'] : filter);

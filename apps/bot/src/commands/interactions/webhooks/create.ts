@@ -1,7 +1,7 @@
 import { SettingsModel, WebhookType } from '@luferro/database';
 import { ChannelType, EmbedBuilder, SlashCommandSubcommandBuilder, TextChannel } from 'discord.js';
 
-import type { InteractionCommandExecute, InteractionCommandData } from '../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName('create')

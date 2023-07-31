@@ -8,7 +8,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('Cannot resume track.');
+	if (!queue?.currentTrack) throw new Error('No track is playing.');
 
 	queue.node.setPaused(false);
 
