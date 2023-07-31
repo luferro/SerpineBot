@@ -9,6 +9,6 @@ services:
             dockerfile: ./apps/bot/Dockerfile
             args:
                 - CONCURRENCY=${CONCURRENCY:-5}
-            volumes:
-                - ~/shared:/usr/src/shared
+        volumes:
+            - ~/shared:/usr/src/shared
         restart: always
