@@ -1,13 +1,14 @@
-import { logger } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
 
 import type { VoiceCommandExecute } from '../../../../types/bot';
 
-export const execute: VoiceCommandExecute = async ({ client, guildId, slots }) => {
-	const queue = client.player.nodes.get(guildId);
-	if (!queue || !queue.currentTrack) throw new Error('Cannot remove track.');
+export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
+	if (!queue.currentTrack) throw new Error('Cannot remove track.');
 
 	const position = Number(slots['position']);
-	queue.node.remove(position - 1);
+	const removedTrack = queue.node.remove(position - 1);
+	if (!removedTrack) throw new Error(`No track found in position \`${position}\`.`);
 
-	logger.debug(`Voice command: remove track.`);
+	const embed = new EmbedBuilder().setTitle(`Track \`${removedTrack.title}\` removed.`).setColor('Random');
+	queue.metadata.send({ embeds: [embed] });
 };

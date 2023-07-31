@@ -1,13 +1,15 @@
-import { logger } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
 
 import type { VoiceCommandExecute } from '../../../../types/bot';
 
-export const execute: VoiceCommandExecute = async ({ client, guildId, slots }) => {
-	const queue = client.player.nodes.get(guildId);
-	if (!queue) throw new Error('Cannot jump to track.');
+export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
+	const position = Number(slots['position']);
 
-	const position = Number(slots['position']!);
-	queue.node.jump(position - 1);
+	const nextTrack = queue.tracks.at(position - 1);
+	if (!nextTrack) throw new Error(`No track found in position \`${position}\`.`);
 
-	logger.debug(`Voice command: jump to position ${position}.`);
+	queue.node.jump(nextTrack);
+
+	const embed = new EmbedBuilder().setTitle(`Jumped to \`${nextTrack}\`.`).setColor('Random');
+	await queue.metadata.send({ embeds: [embed] });
 };

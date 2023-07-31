@@ -1,19 +1,18 @@
-import { logger } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
 import { QueueRepeatMode } from 'discord-player';
 
 import type { VoiceCommandExecute } from '../../../../types/bot';
 
-export const execute: VoiceCommandExecute = async ({ client, guildId, slots }) => {
-	const queue = client.player.nodes.get(guildId);
-	if (!queue || queue.isEmpty()) throw new Error('Cannot toggle loop mode.');
-
+export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
 	const repeatMode: Record<string, QueueRepeatMode> = {
-		OFF: QueueRepeatMode.OFF,
-		TRACK: QueueRepeatMode.TRACK,
-		QUEUE: QueueRepeatMode.QUEUE,
-		AUTOPLAY: QueueRepeatMode.AUTOPLAY,
+		'OFF': QueueRepeatMode.OFF,
+		'TRACK': QueueRepeatMode.TRACK,
+		'QUEUE': QueueRepeatMode.QUEUE,
+		'AUTO PLAY': QueueRepeatMode.AUTOPLAY,
 	};
-	queue.setRepeatMode(repeatMode[slots['position']]);
+	const mode = slots['mode'];
+	queue.setRepeatMode(repeatMode[mode]);
 
-	logger.debug(`Voice command: toggle loop.`);
+	const embed = new EmbedBuilder().setTitle(`Loop mode set to ${mode}`).setColor('Random');
+	await queue.metadata.send({ embeds: [embed] });
 };

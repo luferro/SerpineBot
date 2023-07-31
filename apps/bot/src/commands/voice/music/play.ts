@@ -1,24 +1,17 @@
-import { logger } from '@luferro/shared-utils';
-import { TextBasedChannel, VoiceBasedChannel } from 'discord.js';
 import { QueryType } from 'discord-player';
 
 import type { VoiceCommandExecute } from '../../../types/bot';
 
-type Args = [userId: string, voiceChannel: VoiceBasedChannel, textChannel: TextBasedChannel];
+type Args = [userId: string];
 
-export const execute: VoiceCommandExecute<Args> = async ({
-	client,
-	slots,
-	rest: [userId, voiceChannel, textChannel],
-}) => {
+export const execute: VoiceCommandExecute<Args> = async ({ client, queue, slots, rest: [userId] }) => {
 	const user = client.users.cache.get(userId);
 
 	const query = slots['query'];
-	const { track } = await client.player.play(voiceChannel, query, {
-		requestedBy: user,
-		searchEngine: QueryType.AUTO,
-		nodeOptions: { metadata: textChannel, ...client.connection.config },
-	});
+	if (!query) throw new Error('No query provided.');
 
-	logger.debug(`Voice command: added ${track.title}`);
+	const channel = queue.channel;
+	if (!channel) throw new Error('No voice channel associated with guild queue.');
+
+	await client.player.play(channel, query, { searchEngine: QueryType.AUTO, requestedBy: user });
 };

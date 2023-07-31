@@ -1,14 +1,23 @@
-import { logger } from '@luferro/shared-utils';
+import { EmbedBuilder } from 'discord.js';
 
 import type { VoiceCommandExecute } from '../../../../types/bot';
 
-export const execute: VoiceCommandExecute = async ({ client, guildId, slots }) => {
-	const queue = client.player.nodes.get(guildId);
-	if (!queue || queue.isEmpty()) throw new Error('Cannot skip track.');
+export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
+	if (!queue.currentTrack) throw new Error('Nothing is playing.');
+	if (queue.isEmpty()) throw new Error('Queue is empty');
 
 	const position = Number(slots['position']);
-	if (position) queue.node.skipTo(position - 1);
-	else queue.node.skip();
 
-	logger.debug(`Voice command: skipped track.`);
+	const currentTrack = queue.currentTrack;
+	const nextTrack = queue.tracks.at(position ? position - 1 : 0);
+
+	const isSuccessful = position ? queue.node.skipTo(position - 1) : queue.node.skip();
+	if (!isSuccessful) throw new Error(`No track found in position \`${position}\`.`);
+
+	const embed = new EmbedBuilder()
+		.setTitle(`Skipped \`${currentTrack}\`.`)
+		.setDescription(`Now playing \`${nextTrack}\`.`)
+		.setColor('Random');
+
+	await queue.metadata.send({ embeds: [embed] });
 };
