@@ -12,8 +12,6 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setDescription('Listen for voice commands.');
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	await interaction.deferReply({ ephemeral: true });
-
 	const member = interaction.member;
 	const guildId = member.guild.id;
 	const textChannel = interaction.channel;
@@ -37,7 +35,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	receiver.speaking.on('start', (userId) => handleUserVoice({ client, guildId, userId, receiver }));
 	const embed = new EmbedBuilder().setTitle('Started listening for voice commands.');
-	await interaction.editReply({ embeds: [embed] });
+	await interaction.reply({ embeds: [embed] });
 };
 
 const handleUserVoice = async ({
@@ -57,11 +55,8 @@ const handleUserVoice = async ({
 	if (buffer.length === 0) return;
 	const pcm = bufferToInt16(buffer);
 
-	if (client.connection.lockedIn.get(guildId)) return;
-	client.connection.lockedIn.set(guildId, true);
 	const intentResult = await infereIntent({ client, pcm });
 	const transcribeResult = !intentResult ? await transcribe({ client, pcm }) : null;
-	client.connection.lockedIn.set(guildId, false);
 
 	const intent = intentResult?.intent ?? transcribeResult?.intent;
 	const slots = intentResult?.slots ?? transcribeResult?.slots ?? {};

@@ -68,7 +68,6 @@ export type Tools = {
 };
 
 export type Connection = {
-	lockedIn: Collection<string, boolean>;
 	config: {
 		leaveOnEmpty: boolean;
 		leaveOnEmptyCooldown: number;

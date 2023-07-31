@@ -80,7 +80,6 @@ export class Bot extends Client {
 
 	private initializeVoiceConfig() {
 		return {
-			lockedIn: new Collection<string, boolean>(),
 			config: {
 				leaveOnEmpty: true,
 				leaveOnEmptyCooldown: 1000 * 60 * 5,
