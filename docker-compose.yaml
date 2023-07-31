@@ -3,9 +3,12 @@ services:
     bot:
         container_name: bot
         image: bot:latest
+        env_file: /apps/bot/.env
         build:
             context: .
             dockerfile: ./apps/bot/Dockerfile
             args:
                 - CONCURRENCY=${CONCURRENCY:-5}
+            volumes:
+                - ~/shared:/usr/src/shared
         restart: always
