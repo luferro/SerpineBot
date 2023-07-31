@@ -103,7 +103,13 @@ export class Bot extends Client {
 				[0.8],
 				`${porcupine}/model_en.pv`,
 			),
-			speechToIntent: new Rhino(this.config.PICOVOICE_API_KEY, `${rhino}/model_en_${process.platform}.rhn`),
+			speechToIntent: new Rhino(
+				this.config.PICOVOICE_API_KEY,
+				`${rhino}/model_en_${process.platform}.rhn`,
+				0.8,
+				0.5,
+				false,
+			),
 			speechToText: new Leopard(this.config.PICOVOICE_API_KEY, { modelPath: `${leopard}/model_en.pv` }),
 			textToSpeech: new TextToSpeechClient(),
 		};
