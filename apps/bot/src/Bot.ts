@@ -4,6 +4,7 @@ import {
 	SpotifyExtractor,
 	YouTubeExtractor,
 } from '@discord-player/extractor';
+import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { ComicsApi } from '@luferro/comics-api';
 import { Database, SettingsModel, StateModel, WebhookType } from '@luferro/database';
 import { GamingApi } from '@luferro/gaming-api';
@@ -17,7 +18,7 @@ import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
 import { Rhino } from '@picovoice/rhino-node';
 import { CronJob } from 'cron';
 import crypto from 'crypto';
-import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild, GuildMember } from 'discord.js';
+import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
 import { resolve } from 'path';
 
@@ -79,7 +80,7 @@ export class Bot extends Client {
 
 	private initializeVoiceConfig() {
 		return {
-			listeningTo: new Collection<string, GuildMember>(),
+			lockedIn: new Collection<string, boolean>(),
 			config: {
 				leaveOnEmpty: true,
 				leaveOnEmptyCooldown: 1000 * 60 * 5,
@@ -104,6 +105,7 @@ export class Bot extends Client {
 			),
 			speechToIntent: new Rhino(this.config.PICOVOICE_API_KEY, `${rhino}/model_en_${process.platform}.rhn`),
 			speechToText: new Leopard(this.config.PICOVOICE_API_KEY, { modelPath: `${leopard}/model_en.pv` }),
+			textToSpeech: new TextToSpeechClient(),
 		};
 	}
 

@@ -1,11 +1,13 @@
+import { createAudioResource } from '@discordjs/voice';
 import { logger } from '@luferro/shared-utils';
+import { Readable } from 'stream';
 
 import { Bot } from '../Bot';
 import { bufferToInt16, getFrames } from './audio';
 
-type SpeechArgs = { client: Bot; pcm: Int16Array };
+type Args = { client: Bot; pcm: Int16Array };
 
-export const infereIntent = async ({ client, pcm }: SpeechArgs) => {
+export const infereIntent = async ({ client, pcm }: Args) => {
 	const { speechToIntent } = client.tools;
 	return new Promise((resolve) => {
 		for (const _pcm of [pcm, bufferToInt16(Buffer.alloc(2 * pcm.length, 0xffff))]) {
@@ -24,7 +26,7 @@ export const infereIntent = async ({ client, pcm }: SpeechArgs) => {
 	}) as Promise<{ intent: string; slots: Record<string, string> } | null>;
 };
 
-export const transcribe = async ({ client, pcm }: SpeechArgs) => {
+export const transcribe = async ({ client, pcm }: Args) => {
 	const { speechToText } = client.tools;
 	return new Promise((resolve) => {
 		const { words: sttWords, transcript } = speechToText.process(pcm);
@@ -42,4 +44,15 @@ export const transcribe = async ({ client, pcm }: SpeechArgs) => {
 		if (intent) resolve({ intent, slots, transcript });
 		else resolve(null);
 	}) as Promise<{ intent: string; slots: Record<string, string>; transcript: string } | null>;
+};
+
+export const synthesize = async ({ client, text }: Pick<Args, 'client'> & { text: string }) => {
+	const [{ audioContent }] = await client.tools.textToSpeech.synthesizeSpeech({
+		input: { text },
+		voice: { name: 'en-US-Standard-J', languageCode: 'en-US', ssmlGender: 'MALE' },
+		audioConfig: { audioEncoding: 'OGG_OPUS' },
+	});
+	if (!audioContent) throw new Error('Canno synthesize speech.');
+
+	return createAudioResource(Readable.from(audioContent));
 };
