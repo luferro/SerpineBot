@@ -12,8 +12,7 @@ export const isOutOfVocabularyIntents = (intent: string) => ['music.play'].some(
 export const infereIntent = async ({ client, pcm }: Args) => {
 	const { speechToIntent } = client.tools;
 	return new Promise((resolve) => {
-		const silentFrames = bufferToInt16(Buffer.alloc(pcm.length / 2, 0xffff));
-
+		const silentFrames = bufferToInt16(Buffer.alloc(pcm.length, 0xffff));
 		for (const _pcm of [silentFrames, pcm, silentFrames]) {
 			let intentDetected = false;
 			for (const frame of getFrames(_pcm, speechToIntent.frameLength)) {

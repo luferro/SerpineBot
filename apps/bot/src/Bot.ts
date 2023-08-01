@@ -4,7 +4,6 @@ import {
 	SpotifyExtractor,
 	YouTubeExtractor,
 } from '@discord-player/extractor';
-import { SpeechClient } from '@google-cloud/speech';
 import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { ComicsApi } from '@luferro/comics-api';
 import { Database, SettingsModel, StateModel, WebhookType } from '@luferro/database';
@@ -14,6 +13,7 @@ import { NewsApi } from '@luferro/news-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { ArrayUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
 import { ShowsApi } from '@luferro/shows-api';
+import { Leopard } from '@picovoice/leopard-node';
 import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
 import { Rhino } from '@picovoice/rhino-node';
 import { CronJob } from 'cron';
@@ -103,7 +103,7 @@ export class Bot extends Client {
 				0.5,
 				false,
 			),
-			speechToText: new SpeechClient(),
+			speechToText: new Leopard(this.config.PICOVOICE_API_KEY, { modelPath: `${leopard}/model_en.pv` }),
 			textToSpeech: new TextToSpeechClient(),
 		};
 	}
