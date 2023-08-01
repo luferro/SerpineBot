@@ -10,7 +10,8 @@ type Args = { client: Bot; pcm: Int16Array };
 export const infereIntent = async ({ client, pcm }: Args) => {
 	const { speechToIntent } = client.tools;
 	return new Promise((resolve) => {
-		const silentFrames = bufferToInt16(Buffer.alloc(pcm.length, 0xffff));
+		const silentFrames = bufferToInt16(Buffer.alloc(pcm.length / 2, 0xffff));
+
 		for (const _pcm of [silentFrames, pcm, silentFrames]) {
 			let intentDetected = false;
 			for (const frame of getFrames(_pcm, speechToIntent.frameLength)) {
@@ -28,23 +29,40 @@ export const infereIntent = async ({ client, pcm }: Args) => {
 };
 
 export const transcribe = async ({ client, pcm }: Args) => {
-	const { speechToText } = client.tools;
-	return new Promise((resolve) => {
-		const { words: sttWords, transcript } = speechToText.process(pcm);
-		const words = sttWords.map(({ word }) => word);
-		logger.debug(`Transcript: ${transcript}`);
+	// const { speechToText } = client.tools;
+	// return new Promise((resolve) => {
+	// 	const { words: sttWords, transcript } = speechToText.process(pcm);
+	// 	const words = sttWords.map(({ word }) => word);
+	// 	logger.debug(`Transcript: ${transcript}`);
+	// 	const intents: Record<string, string> = {
+	// 		play: 'music.play',
+	// 	};
+	// 	const action = words.shift();
+	// 	const intent = action ? intents[action] : null;
+	// 	const slots: Record<string, string> = { query: words.join(' ') };
+	// 	if (intent) resolve({ intent, slots, transcript });
+	// 	else resolve(null);
+	// }) as Promise<{ intent: string; slots: Record<string, string>; transcript: string } | null>;
 
-		const intents: Record<string, string> = {
-			play: 'music.play',
-		};
+	const [{ results, totalBilledTime }] = await client.tools.speechToText.recognize({
+		audio: { content: new Uint8Array(pcm.buffer) },
+		config: { encoding: 'LINEAR16', sampleRateHertz: 16000, languageCode: 'en-US' },
+	});
+	logger.debug(`Billed time: ${totalBilledTime?.seconds} seconds`);
+	const result = results?.[0].alternatives?.[0];
+	if (!result) return;
 
-		const action = words.shift();
-		const intent = action ? intents[action] : null;
-		const slots: Record<string, string> = { query: words.join(' ') };
+	const transcript = result.transcript!;
+	const words = transcript.split(' ');
 
-		if (intent) resolve({ intent, slots, transcript });
-		else resolve(null);
-	}) as Promise<{ intent: string; slots: Record<string, string>; transcript: string } | null>;
+	const intents: Record<string, string> = {
+		play: 'music.play',
+	};
+
+	const intent = intents[words.shift()!];
+	const slots: Record<string, string> = { query: words.join() };
+
+	return { intent, slots, transcript };
 };
 
 export const synthesize = async ({ client, text }: Pick<Args, 'client'> & { text: string }) => {

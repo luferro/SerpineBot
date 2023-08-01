@@ -1,3 +1,4 @@
+import { SpeechClient } from '@google-cloud/speech';
 import type { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import type { ComicsApi } from '@luferro/comics-api';
 import type { GamingApi } from '@luferro/gaming-api';
@@ -5,7 +6,6 @@ import type { GoogleApi } from '@luferro/google-api';
 import type { NewsApi } from '@luferro/news-api';
 import type { RedditApi } from '@luferro/reddit-api';
 import type { ShowsApi } from '@luferro/shows-api';
-import { Leopard } from '@picovoice/leopard-node';
 import { Porcupine } from '@picovoice/porcupine-node';
 import { Rhino } from '@picovoice/rhino-node';
 import type {
@@ -63,7 +63,7 @@ export type Api = {
 export type Tools = {
 	wakeWord: Porcupine;
 	speechToIntent: Rhino;
-	speechToText: Leopard;
+	speechToText: SpeechClient;
 	textToSpeech: TextToSpeechClient;
 };
 
