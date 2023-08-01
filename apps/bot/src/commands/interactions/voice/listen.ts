@@ -5,7 +5,7 @@ import { EmbedBuilder, SlashCommandSubcommandBuilder, TextBasedChannel } from 'd
 import { Bot } from '../../../Bot';
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 import { bufferToInt16, getAudioBuffer } from '../../../utils/audio';
-import { infereIntent, transcribe } from '../../../utils/speech';
+import { infereIntent, isOutOfVocabularyIntents, transcribe } from '../../../utils/speech';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName('listen')
@@ -56,11 +56,13 @@ const handleUserVoice = async ({
 	const pcm = bufferToInt16(buffer);
 
 	const intentResult = await infereIntent({ client, pcm });
-	const transcribeResult = !intentResult ? await transcribe({ client, pcm }) : null;
+	if (!intentResult) throw new Error('Could not recognize intent.');
 
-	const intent = intentResult?.intent ?? transcribeResult?.intent;
-	const slots = intentResult?.slots ?? transcribeResult?.slots ?? {};
-	if (!intent) return;
+	const isOutOfVocabularyIntent = isOutOfVocabularyIntents(intentResult.intent);
+	const transcribeResult = isOutOfVocabularyIntent ? await transcribe({ client, pcm }) : null;
+
+	const intent = intentResult.intent;
+	const slots = transcribeResult?.slots ?? intentResult.slots;
 
 	const command = Bot.commands.voice.get(intent);
 	if (!command) return;
@@ -74,6 +76,7 @@ const handleUserVoice = async ({
 			.setTitle(`Voice command with intent \`${intent}\` failed.`)
 			.setDescription((error as Error).message)
 			.setColor('Random');
+
 		queue.metadata.send({ embeds: [embed] });
 	});
 };
