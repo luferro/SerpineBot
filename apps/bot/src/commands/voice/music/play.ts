@@ -10,8 +10,8 @@ export const execute: VoiceCommandExecute<Args> = async ({ client, queue, slots,
 	const query = slots['query'];
 	if (!query) throw new Error('No query provided.');
 
-	const channel = queue.channel;
-	if (!channel) throw new Error('No voice channel associated with guild queue.');
+	const result = await client.player.search(query, { searchEngine: QueryType.AUTO, requestedBy: user });
+	if (result.isEmpty()) throw new Error(`No results for \`${query}\``);
 
-	await client.player.play(channel, query, { searchEngine: QueryType.AUTO, requestedBy: user });
+	await queue.node.play(result.tracks[0]);
 };
