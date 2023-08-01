@@ -91,17 +91,15 @@ export class Bot extends Client {
 	}
 
 	private initializeTools() {
+		const leopard = resolve('models/leopard');
+		const rhino = resolve('models/rhino');
+
 		return {
-			wakeWord: new Porcupine(
-				this.config.PICOVOICE_API_KEY,
-				[BuiltinKeyword.BUMBLEBEE],
-				[0.8],
-				resolve('models/porcupine/model_en.pv'),
-			),
+			wakeWord: new Porcupine(this.config.PICOVOICE_API_KEY, [BuiltinKeyword.BUMBLEBEE], [0.8]),
 			speechToIntent: new Rhino(
 				this.config.PICOVOICE_API_KEY,
-				resolve(`models/rhino/model_en_${process.platform}.rhn`),
-				0.35,
+				`${rhino}/model_en_${process.platform}.rhn`,
+				0.5,
 				0.5,
 				false,
 			),
