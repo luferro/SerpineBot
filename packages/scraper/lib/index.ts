@@ -1,3 +1,9 @@
+// Search engine
+export * as SearchEngine from './engine/search';
+
+// Youtube
+export * as Youtube from './youtube/video';
+
 // RSS
 export * as RSS from './rss/feed';
 
