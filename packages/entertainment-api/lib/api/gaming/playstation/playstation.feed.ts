@@ -1,4 +1,4 @@
-import { RSS } from '@luferro/scraper/lib';
+import { RSS } from '@luferro/scraper';
 import { DateUtil } from '@luferro/shared-utils';
 
 import { getBlogPostImage } from './playstation.scraper';

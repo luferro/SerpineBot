@@ -1,4 +1,4 @@
-import { StaticScraper } from '@luferro/scraper/lib';
+import { StaticScraper } from '@luferro/scraper';
 
 export const getBlogPostImage = async (url: string) => {
 	const $ = await StaticScraper.loadUrl({ url });

@@ -1,4 +1,4 @@
-import { StaticScraper } from '@luferro/scraper/lib';
+import { StaticScraper } from '@luferro/scraper';
 import { ConverterUtil } from '@luferro/shared-utils';
 
 type Payload<T> = { props: { pageProps: { game: { data: { game: T } } } } };

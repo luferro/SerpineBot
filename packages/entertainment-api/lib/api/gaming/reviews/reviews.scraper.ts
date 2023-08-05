@@ -1,4 +1,4 @@
-import { StaticScraper } from '@luferro/scraper/lib';
+import { StaticScraper } from '@luferro/scraper';
 import { DateUtil } from '@luferro/shared-utils';
 
 export enum Endpoint {

@@ -1,4 +1,4 @@
-import { StaticScraper } from '@luferro/scraper/lib';
+import { StaticScraper } from '@luferro/scraper';
 
 export enum Endpoint {
 	NEXT_SALES = 'https://prepareyourwallet.com',

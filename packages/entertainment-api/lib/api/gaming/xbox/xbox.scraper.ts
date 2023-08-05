@@ -1,5 +1,5 @@
 import { Youtube } from '@luferro/scraper';
-import { InteractiveScraper, StaticScraper } from '@luferro/scraper/lib';
+import { InteractiveScraper, StaticScraper } from '@luferro/scraper';
 import { DateUtil } from '@luferro/shared-utils';
 
 export enum Endpoint {

@@ -1,4 +1,4 @@
-import { InteractiveScraper } from '@luferro/scraper/lib';
+import { InteractiveScraper } from '@luferro/scraper';
 import { StringUtil } from '@luferro/shared-utils';
 
 type Catalog = { name: string; slug: string; url: string | null };

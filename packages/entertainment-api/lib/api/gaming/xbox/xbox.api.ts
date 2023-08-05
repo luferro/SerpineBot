@@ -1,4 +1,4 @@
-import { InteractiveScraper, StaticScraper } from '@luferro/scraper/lib';
+import { InteractiveScraper, StaticScraper } from '@luferro/scraper';
 import { StringUtil } from '@luferro/shared-utils';
 
 import { Endpoint, getGamertagDetails, getNewsList, getXboxList } from './xbox.scraper';

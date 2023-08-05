@@ -1,4 +1,4 @@
-import { StaticScraper } from '@luferro/scraper/lib';
+import { StaticScraper } from '@luferro/scraper';
 
 export enum Endpoint {
 	GARFIELD_COMIC = 'https://www.gocomics.com/random/garfield',

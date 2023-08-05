@@ -1,4 +1,4 @@
-import { RSS, StaticScraper } from '@luferro/scraper/lib';
+import { RSS, StaticScraper } from '@luferro/scraper';
 
 export enum Feed {
 	SALES = 'https://gg.deals/news/deals/feed',

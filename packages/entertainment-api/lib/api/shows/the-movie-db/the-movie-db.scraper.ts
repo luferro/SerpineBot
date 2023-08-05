@@ -1,4 +1,4 @@
-import { StaticScraper } from '@luferro/scraper/lib';
+import { StaticScraper } from '@luferro/scraper';
 import { UrlUtil } from '@luferro/shared-utils';
 
 type ProviderType = 'Stream' | 'Buy' | 'Rent';
