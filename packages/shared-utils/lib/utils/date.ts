@@ -23,4 +23,5 @@ export const getWeekNumber = () => getWeek(getCurrentDate());
 
 export const isDateToday = (date: Date | number) => isToday(date);
 
-export const formatDate = (date: Date | string | number) => formatInTimeZone(date, getTimezone(), 'dd/MM/yyyy HH:mm');
+export const formatDate = (date: Date | string | number, format = 'dd/MM/yyyy HH:mm') =>
+	formatInTimeZone(date, getTimezone(), format);
