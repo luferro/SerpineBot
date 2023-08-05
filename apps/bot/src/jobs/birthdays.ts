@@ -7,23 +7,21 @@ import type { JobData, JobExecute } from '../types/bot';
 export const data: JobData = { schedule: '0 0 0 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const birthdays = await BirthdaysModel.getBirthdays();
+	const birthdays = await BirthdaysModel.getUpcomingBirthdays();
 	for (const { userId, date } of birthdays) {
 		const currentDate = new Date();
 		currentDate.setHours(0, 0, 0, 0);
 
-		const { 1: month, 2: day } = date.split('-').map(Number);
-		const birthdayDate = new Date(new Date().getFullYear(), month - 1, day);
-		birthdayDate.setHours(0, 0, 0, 0);
+		date.setFullYear(currentDate.getFullYear());
+		date.setHours(0, 0, 0, 0);
 
-		if (currentDate.getTime() !== birthdayDate.getTime()) continue;
+		if (currentDate.getTime() !== date.getTime()) continue;
 
 		try {
 			const target = await client.users.fetch(userId);
 			if (!target) throw new Error(`No userId ${userId} found.`);
 
-			const { 0: year } = date.split('-').map(Number);
-			const age = new Date().getFullYear() - year;
+			const age = currentDate.getFullYear() - date.getFullYear();
 
 			const embed = new EmbedBuilder()
 				.setTitle('🎉🥳🎂🥳🎉 Happy Birthday! 🎉🥳🎂🥳🎉')

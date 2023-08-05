@@ -1,39 +1,44 @@
 import { BirthdaysModel } from '@luferro/database';
+import { DateUtil, StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
+
+type GroupedBirthdays = { month: string; birthdays: Awaited<ReturnType<typeof BirthdaysModel.getAllBirthdays>> };
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName('list')
 	.setDescription('Lists all registered birthdays.');
 
 export const execute: InteractionCommandExecute = async ({ interaction }) => {
-	const birthdaysList = await BirthdaysModel.getBirthdays();
-	const birthdays = await Promise.all(
-		birthdaysList.map(async ({ userId, date }) => {
-			const { 1: month, 2: day } = date.split('-');
-			const user = await interaction.client.users.fetch(userId);
-			const birthday = `${day.padStart(2, '0')}/${month.padStart(2, '0')}`;
+	const birthdaysList = await BirthdaysModel.getAllBirthdays();
+	const groupedBirthdays = birthdaysList
+		.sort((a, b) => a.date.getDate() - b.date.getDate() && a.date.getMonth() - b.date.getMonth())
+		.reduce((acc, birthday) => {
+			const month = StringUtil.capitalize(DateUtil.formatDate(birthday.date, 'MMMM'));
 
-			return { user, birthday };
+			const monthIndex = acc.findIndex((entry) => entry.month === month);
+			if (monthIndex === -1) acc.push({ month, birthdays: [birthday] });
+			else acc[monthIndex] = { month, birthdays: acc[monthIndex].birthdays.concat(birthday) };
+
+			return acc;
+		}, [] as GroupedBirthdays[]);
+	if (groupedBirthdays.length === 0) throw new Error('No birthdays have been registered.');
+
+	const fields = await Promise.all(
+		groupedBirthdays.map(async ({ month, birthdays }) => {
+			const formattedBirthdays = await Promise.all(
+				birthdays.map(async ({ userId, date }) => {
+					const user = await interaction.client.users.fetch(userId);
+					const birthday = DateUtil.formatDate(date, 'dd/MM');
+					return `**${birthday}** ${user.username}`;
+				}),
+			);
+
+			return { name: month, value: formattedBirthdays.join('\n'), inline: true };
 		}),
 	);
-	if (birthdays.length === 0) throw new Error('No birthdays have been registered.');
 
-	const sortedBirthdays = birthdays.sort((a, b) => {
-		const { 0: firstDateDay, 1: firstDateMonth } = a.birthday.split('/');
-		const { 0: secondDateDay, 1: secondDateMonth } = b.birthday.split('/');
-
-		const date = new Date();
-		const firstDate = new Date(date.getFullYear(), Number(firstDateMonth) - 1, Number(firstDateDay));
-		const secondDate = new Date(date.getFullYear(), Number(secondDateMonth) - 1, Number(secondDateDay));
-
-		return firstDate.getTime() - secondDate.getTime();
-	});
-	const formattedBirthday = sortedBirthdays
-		.map(({ birthday, user }) => `> **${birthday}** ${user.username}`)
-		.join('\n');
-
-	const embed = new EmbedBuilder().setTitle('Birthdays').setDescription(formattedBirthday).setColor('Random');
+	const embed = new EmbedBuilder().setTitle('Birthdays').setFields(fields).setColor('Random');
 	await interaction.reply({ embeds: [embed] });
 };

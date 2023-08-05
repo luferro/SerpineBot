@@ -16,13 +16,12 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 	const month = interaction.options.getInteger('month', true);
 	const year = interaction.options.getInteger('year', true);
 
-	const date = `${year}-${month}-${day}`;
-	if (!DateUtil.isValidDate(date)) throw new Error('Invalid date.');
+	if (!DateUtil.isValidDate(year, month, day)) throw new Error('Invalid date.');
 
 	const isBirthdayRegistered = await BirthdaysModel.isBirthdayRegistered({ userId: interaction.user.id });
 	if (isBirthdayRegistered) throw new Error('Birthday is already registered.');
 
-	await BirthdaysModel.createBirthday({ userId: interaction.user.id, date });
+	await BirthdaysModel.createBirthday({ userId: interaction.user.id, date: new Date(year, month - 1, day) });
 
 	const embed = new EmbedBuilder().setTitle(`Your birthday has been registered.`).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });
