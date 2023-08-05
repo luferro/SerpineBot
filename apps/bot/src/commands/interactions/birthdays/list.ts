@@ -35,7 +35,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 				}),
 			);
 
-			return { name: month, value: formattedBirthdays.join('\n'), inline: true };
+			return { name: month, value: formattedBirthdays.join('\n') };
 		}),
 	);
 
