@@ -1,10 +1,8 @@
 import type { TextToSpeechClient } from '@google-cloud/text-to-speech';
-import type { ComicsApi } from '@luferro/comics-api';
-import type { GamingApi } from '@luferro/gaming-api';
-import type { GoogleApi } from '@luferro/google-api';
+import { AnimeApi, ComicsApi, GamingApi, MangadexApi, ShowsApi } from '@luferro/entertainment-api';
 import type { NewsApi } from '@luferro/news-api';
 import type { RedditApi } from '@luferro/reddit-api';
-import type { ShowsApi } from '@luferro/shows-api';
+import { InteractiveScraper, SearchEngine, StaticScraper, Youtube } from '@luferro/scraper';
 import { Leopard } from '@picovoice/leopard-node';
 import { Porcupine } from '@picovoice/porcupine-node';
 import { Rhino } from '@picovoice/rhino-node';
@@ -51,10 +49,18 @@ export type JobData = { schedule: string | Date };
 export type JobExecute = { (args: JobArgs): Promise<void> };
 export type Job = { data: JobData; execute: JobExecute };
 
+export type Scraper = {
+	interactive: typeof InteractiveScraper;
+	static: typeof StaticScraper;
+	searchEngine: typeof SearchEngine;
+	youtube: typeof Youtube;
+};
+
 export type Api = {
+	anime: typeof AnimeApi;
 	comics: typeof ComicsApi;
+	mangadex: typeof MangadexApi;
 	gaming: typeof GamingApi;
-	google: typeof GoogleApi;
 	news: typeof NewsApi;
 	reddit: typeof RedditApi;
 	shows: typeof ShowsApi;
@@ -78,6 +84,6 @@ export type Connection = {
 };
 
 export type Cache = {
-	anime: { schedule: Collection<number, ShowsApi.animeschedule.WeeklySchedule> };
+	anime: { schedule: Collection<number, AnimeApi.schedule.WeeklySchedule> };
 	deals: { chart: GamingApi.deals.PopularityChart[] };
 };

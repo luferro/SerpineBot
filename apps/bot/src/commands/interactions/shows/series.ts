@@ -12,14 +12,14 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString('query', true);
 
-	const { id } = await client.api.shows.tmdb.search('tv', query);
+	const { id } = await client.api.shows.search('tv', query);
 	if (!id) throw new Error(`No matches for "${query}".`);
 
-	const { stream } = await client.api.shows.tmdb.getProvidersForId('tv', id);
+	const { stream } = await client.api.shows.getProvidersForId('tv', id);
 	const formattedStream = stream.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
 
 	const { name, description, url, status, firstEpisode, nextEpisode, seasons, image, score, runtime, genres } =
-		await client.api.shows.tmdb.getSeriesById(id);
+		await client.api.shows.getSeriesById(id);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)

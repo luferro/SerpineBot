@@ -9,7 +9,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 	for (const { title, url } of articles.reverse()) {
 		const isSuccessful = await client.state({ title, url });
-		if (!isSuccessful || !client.api.google.youtube.isVideo(url)) continue;
+		if (!isSuccessful || !client.scraper.youtube.isVideo(url)) continue;
 
 		const content = `**${StringUtil.truncate(title)}**\n${url}`;
 		await client.propageMessage({ category: 'Xbox', content });

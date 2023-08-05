@@ -13,7 +13,7 @@ export const execute: JobExecute = async ({ client }) => {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
-		if (client.api.google.youtube.isVideo(url)) {
+		if (client.scraper.youtube.isVideo(url)) {
 			const content = `**${StringUtil.truncate(title)}**\n${url}`;
 			await client.propageMessage({ category: 'Xbox', content });
 			continue;

@@ -12,16 +12,17 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString('query', true);
 
-	const { id } = await client.api.shows.tmdb.search('movie', query);
+	const { id } = await client.api.shows.search('movie', query);
 	if (!id) throw new Error(`No matches for "${query}".`);
 
-	const { stream, buy, rent } = await client.api.shows.tmdb.getProvidersForId('movie', id);
+	const { stream, buy, rent } = await client.api.shows.getProvidersForId('movie', id);
 	const formattedStream = stream.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
 	const formattedBuy = buy.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
 	const formattedRent = rent.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
 
-	const { name, description, url, releaseDate, image, score, runtime, genres } =
-		await client.api.shows.tmdb.getMovieById(id);
+	const { name, description, url, releaseDate, image, score, runtime, genres } = await client.api.shows.getMovieById(
+		id,
+	);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)

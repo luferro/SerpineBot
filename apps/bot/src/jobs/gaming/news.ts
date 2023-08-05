@@ -31,7 +31,7 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const { title, url, image, isTwitterEmbed, isYoutubeEmbed } of data.reverse()) {
 		if (isYoutubeEmbed) {
 			try {
-				const { channel } = await client.api.google.youtube.getVideoDetails(url);
+				const { channel } = await client.scraper.youtube.getVideoInfo(url);
 				if (channel.subscribers < 50_000) continue;
 			} catch (error) {
 				logger.warn(`Failed to fetch subscribers for **${url}**.`);

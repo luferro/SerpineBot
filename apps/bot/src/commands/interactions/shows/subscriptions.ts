@@ -21,7 +21,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const category = interaction.options.getString('category', true) as 'tv' | 'movie';
 	const query = interaction.options.getString('query', true);
 
-	const subscriptions = await client.api.shows.tmdb.getCatalogMatches(category, query);
+	const subscriptions = await client.api.shows.getCatalogMatches(category, query);
 	if (subscriptions.length === 0) throw new Error(`No subscription service including "${query}" was found.`);
 
 	const formattedSubscriptions = subscriptions.map(({ provider, entry }) =>

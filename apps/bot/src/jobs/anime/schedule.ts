@@ -9,7 +9,7 @@ export const execute: JobExecute = async ({ client }) => {
 	client.cache.anime.schedule.clear();
 
 	const schedule: typeof client.cache.anime.schedule = new Collection();
-	for (const anime of await client.api.shows.animeschedule.getWeeklySchedule()) {
+	for (const anime of await client.api.anime.schedule.getWeeklySchedule()) {
 		const weekDay = new Date(anime.episodes.current.date).getDay();
 
 		const cache = schedule.get(weekDay);

@@ -5,14 +5,12 @@ import {
 	YouTubeExtractor,
 } from '@discord-player/extractor';
 import { TextToSpeechClient } from '@google-cloud/text-to-speech';
-import { ComicsApi } from '@luferro/comics-api';
 import { Database, SettingsModel, StateModel, WebhookType } from '@luferro/database';
-import { GamingApi } from '@luferro/gaming-api';
-import { GoogleApi } from '@luferro/google-api';
+import { AnimeApi, ComicsApi, GamingApi, MangadexApi, ShowsApi } from '@luferro/entertainment-api';
 import { NewsApi } from '@luferro/news-api';
 import { RedditApi } from '@luferro/reddit-api';
+import { InteractiveScraper, SearchEngine, StaticScraper, Youtube } from '@luferro/scraper';
 import { ArrayUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
-import { ShowsApi } from '@luferro/shows-api';
 import { Leopard } from '@picovoice/leopard-node';
 import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
 import { Rhino } from '@picovoice/rhino-node';
@@ -26,7 +24,7 @@ import { getSanitizedEnvConfig } from './config/environment';
 import * as CommandsHandler from './handlers/commands';
 import * as EventsHandler from './handlers/events';
 import * as JobsHandler from './handlers/jobs';
-import type { Api, Cache, Commands, Connection, Event, Job, Tools } from './types/bot';
+import type { Api, Cache, Commands, Connection, Event, Job, Scraper, Tools } from './types/bot';
 
 type StateArgs = { title: string; url: string };
 type WebhookArgs = { guild: Guild; category: WebhookType };
@@ -45,6 +43,7 @@ export class Bot extends Client {
 	};
 
 	api: Api;
+	scraper: Scraper;
 	cache: Cache;
 	player: Player;
 	tools: Tools;
@@ -55,6 +54,7 @@ export class Bot extends Client {
 		super(options);
 		this.config = getSanitizedEnvConfig();
 		this.api = this.initializeApis();
+		this.scraper = this.initializeScraper();
 		this.tools = this.initializeTools();
 		this.connection = this.initializeVoiceConfig();
 		this.player = this.initializePlayer();
@@ -65,17 +65,22 @@ export class Bot extends Client {
 		NewsApi.auth.setApiKey(this.config.GNEWS_API_KEY);
 		GamingApi.steam.auth.setApiKey(this.config.STEAM_API_KEY);
 		GamingApi.deals.auth.setApiKey(this.config.ITAD_API_KEY);
-		ShowsApi.tmdb.auth.setApiKey(this.config.THE_MOVIE_DB_API_KEY);
-		ShowsApi.animeschedule.auth.setApiKey(this.config.ANIME_SCHEDULE_API_KEY);
+		ShowsApi.auth.setApiKey(this.config.THE_MOVIE_DB_API_KEY);
+		AnimeApi.schedule.auth.setApiKey(this.config.ANIME_SCHEDULE_API_KEY);
 
 		return {
+			anime: AnimeApi,
 			comics: ComicsApi,
+			mangadex: MangadexApi,
 			gaming: GamingApi,
-			google: GoogleApi,
 			news: NewsApi,
 			reddit: RedditApi,
 			shows: ShowsApi,
 		};
+	}
+
+	private initializeScraper() {
+		return { interactive: InteractiveScraper, static: StaticScraper, searchEngine: SearchEngine, youtube: Youtube };
 	}
 
 	private initializeVoiceConfig() {

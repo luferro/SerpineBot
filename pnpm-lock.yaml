@@ -27,16 +27,13 @@ importers:
       '@discord-player/extractor': ^4.4.1
       '@discordjs/opus': ^0.9.0
       '@discordjs/voice': ^0.16.0
-      '@ffmpeg-installer/ffmpeg': ^1.1.0
       '@google-cloud/text-to-speech': ^4.2.3
-      '@luferro/comics-api': workspace:^
       '@luferro/database': workspace:^
-      '@luferro/gaming-api': workspace:^
-      '@luferro/google-api': workspace:^
+      '@luferro/entertainment-api': workspace:^
       '@luferro/news-api': workspace:^
       '@luferro/reddit-api': workspace:^
+      '@luferro/scraper': workspace:^
       '@luferro/shared-utils': workspace:^
-      '@luferro/shows-api': workspace:^
       '@picovoice/leopard-node': ^1.2.0
       '@picovoice/porcupine-node': ^2.2.1
       '@picovoice/rhino-node': ^2.2.1
@@ -50,21 +47,17 @@ importers:
       prism-media: ^1.3.5
       typescript: ^5.1.6
       youtube-sr: ^4.3.4
-      ytdl-core: ^4.11.5
     dependencies:
       '@discord-player/extractor': 4.4.1
       '@discordjs/opus': 0.9.0
       '@discordjs/voice': 0.16.0_@discordjs+opus@0.9.0
-      '@ffmpeg-installer/ffmpeg': 1.1.0
       '@google-cloud/text-to-speech': 4.2.3
-      '@luferro/comics-api': link:../../packages/comics-api
       '@luferro/database': link:../../packages/database
-      '@luferro/gaming-api': link:../../packages/gaming-api
-      '@luferro/google-api': link:../../packages/google-api
+      '@luferro/entertainment-api': link:../../packages/entertainment-api
       '@luferro/news-api': link:../../packages/news-api
       '@luferro/reddit-api': link:../../packages/reddit-api
+      '@luferro/scraper': link:../../packages/scraper
       '@luferro/shared-utils': link:../../packages/shared-utils
-      '@luferro/shows-api': link:../../packages/shows-api
       '@picovoice/leopard-node': 1.2.0
       '@picovoice/porcupine-node': 2.2.1
       '@picovoice/rhino-node': 2.2.1
@@ -75,7 +68,6 @@ importers:
       mongoose: 7.4.1
       prism-media: 1.3.5_@discordjs+opus@0.9.0
       youtube-sr: 4.3.4
-      ytdl-core: 4.11.5
     devDependencies:
       '@types/cron': 2.0.1
       '@types/node': 20.4.5
@@ -128,19 +120,6 @@ importers:
       eslint-config-next: 13.4.12_7haavtekmro7ptbnqmctjaodju
       typescript: 5.1.6
 
-  packages/comics-api:
-    specifiers:
-      '@luferro/scraper': workspace:^
-      '@luferro/shared-utils': workspace:^
-      '@types/node': ^20.4.5
-      typescript: ^5.1.6
-    dependencies:
-      '@luferro/scraper': link:../scraper
-      '@luferro/shared-utils': link:../shared-utils
-    devDependencies:
-      '@types/node': 20.4.5
-      typescript: 5.1.6
-
   packages/database:
     specifiers:
       '@luferro/shared-utils': workspace:^
@@ -154,38 +133,15 @@ importers:
       '@types/node': 20.4.5
       typescript: 5.1.6
 
-  packages/gaming-api:
-    specifiers:
-      '@luferro/google-api': workspace:^
-      '@luferro/scraper': workspace:^
-      '@luferro/shared-utils': workspace:^
-      '@types/node': ^20.4.5
-      typescript: ^5.1.6
-    dependencies:
-      '@luferro/google-api': link:../google-api
-      '@luferro/scraper': link:../scraper
-      '@luferro/shared-utils': link:../shared-utils
-    devDependencies:
-      '@types/node': 20.4.5
-      typescript: 5.1.6
-
-  packages/google-api:
+  packages/entertainment-api:
     specifiers:
       '@luferro/scraper': workspace:^
       '@luferro/shared-utils': workspace:^
-      '@types/node': ^20.4.5
       typescript: ^5.1.6
-      ytdl-core: ^4.11.5
-      ytpl: ^2.3.0
-      ytsr: ^3.8.2
     dependencies:
       '@luferro/scraper': link:../scraper
       '@luferro/shared-utils': link:../shared-utils
-      ytdl-core: 4.11.5
-      ytpl: 2.3.0
-      ytsr: 3.8.2
     devDependencies:
-      '@types/node': 20.4.5
       typescript: 5.1.6
 
   packages/news-api:
@@ -220,6 +176,7 @@ importers:
       puppeteer-extra-plugin-stealth: ^2.11.2
       rss-parser: ^3.13.0
       typescript: ^5.1.6
+      ytdl-core: ^4.11.5
     dependencies:
       '@luferro/shared-utils': link:../shared-utils
       cheerio: 1.0.0-rc.12
@@ -227,6 +184,7 @@ importers:
       playwright-extra: 4.3.6
       puppeteer-extra-plugin-stealth: 2.11.2_playwright-extra@4.3.6
       rss-parser: 3.13.0
+      ytdl-core: 4.11.5
     devDependencies:
       '@types/node': 20.4.5
       typescript: 5.1.6
@@ -250,19 +208,6 @@ importers:
       '@types/node': 20.4.5
       date-fns: 2.30.0
       date-fns-tz: 2.0.0_date-fns@2.30.0
-      typescript: 5.1.6
-
-  packages/shows-api:
-    specifiers:
-      '@luferro/scraper': workspace:^
-      '@luferro/shared-utils': workspace:^
-      '@types/node': ^20.4.5
-      typescript: ^5.1.6
-    dependencies:
-      '@luferro/scraper': link:../scraper
-      '@luferro/shared-utils': link:../shared-utils
-    devDependencies:
-      '@types/node': 20.4.5
       typescript: 5.1.6
 
 packages:
@@ -803,83 +748,6 @@ packages:
     resolution: {integrity: sha512-a8TLtmPi8xzPkCbp/OGFUo5yhRkHM2Ko9kOWP4znJr0WAhWyThaw3PnwX4vOTWOAMsV2uRt32PPDcEz63esSaA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
-
-  /@ffmpeg-installer/darwin-arm64/4.1.5:
-    resolution: {integrity: sha512-hYqTiP63mXz7wSQfuqfFwfLOfwwFChUedeCVKkBtl/cliaTM7/ePI9bVzfZ2c+dWu3TqCwLDRWNSJ5pqZl8otA==}
-    cpu: [arm64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffmpeg-installer/darwin-x64/4.1.0:
-    resolution: {integrity: sha512-Z4EyG3cIFjdhlY8wI9aLUXuH8nVt7E9SlMVZtWvSPnm2sm37/yC2CwjUzyCQbJbySnef1tQwGG2Sx+uWhd9IAw==}
-    cpu: [x64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffmpeg-installer/ffmpeg/1.1.0:
-    resolution: {integrity: sha512-Uq4rmwkdGxIa9A6Bd/VqqYbT7zqh1GrT5/rFwCwKM70b42W5gIjWeVETq6SdcL0zXqDtY081Ws/iJWhr1+xvQg==}
-    optionalDependencies:
-      '@ffmpeg-installer/darwin-arm64': 4.1.5
-      '@ffmpeg-installer/darwin-x64': 4.1.0
-      '@ffmpeg-installer/linux-arm': 4.1.3
-      '@ffmpeg-installer/linux-arm64': 4.1.4
-      '@ffmpeg-installer/linux-ia32': 4.1.0
-      '@ffmpeg-installer/linux-x64': 4.1.0
-      '@ffmpeg-installer/win32-ia32': 4.1.0
-      '@ffmpeg-installer/win32-x64': 4.1.0
-    dev: false
-
-  /@ffmpeg-installer/linux-arm/4.1.3:
-    resolution: {integrity: sha512-NDf5V6l8AfzZ8WzUGZ5mV8O/xMzRag2ETR6+TlGIsMHp81agx51cqpPItXPib/nAZYmo55Bl2L6/WOMI3A5YRg==}
-    cpu: [arm]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffmpeg-installer/linux-arm64/4.1.4:
-    resolution: {integrity: sha512-dljEqAOD0oIM6O6DxBW9US/FkvqvQwgJ2lGHOwHDDwu/pX8+V0YsDL1xqHbj1DMX/+nP9rxw7G7gcUvGspSoKg==}
-    cpu: [arm64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffmpeg-installer/linux-ia32/4.1.0:
-    resolution: {integrity: sha512-0LWyFQnPf+Ij9GQGD034hS6A90URNu9HCtQ5cTqo5MxOEc7Rd8gLXrJvn++UmxhU0J5RyRE9KRYstdCVUjkNOQ==}
-    cpu: [ia32]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffmpeg-installer/linux-x64/4.1.0:
-    resolution: {integrity: sha512-Y5BWhGLU/WpQjOArNIgXD3z5mxxdV8c41C+U15nsE5yF8tVcdCGet5zPs5Zy3Ta6bU7haGpIzryutqCGQA/W8A==}
-    cpu: [x64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffmpeg-installer/win32-ia32/4.1.0:
-    resolution: {integrity: sha512-FV2D7RlaZv/lrtdhaQ4oETwoFUsUjlUiasiZLDxhEUPdNDWcH1OU9K1xTvqz+OXLdsmYelUDuBS/zkMOTtlUAw==}
-    cpu: [ia32]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffmpeg-installer/win32-x64/4.1.0:
-    resolution: {integrity: sha512-Drt5u2vzDnIONf4ZEkKtFlbvwj6rI3kxw1Ck9fpudmtgaZIHD4ucsWB2lCZBXRxJgXR+2IMSti+4rtM4C4rXgg==}
-    cpu: [x64]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
 
   /@floating-ui/core/1.3.1:
     resolution: {integrity: sha512-Bu+AMaXNjrpjh41znzHqaz3r2Nr8hHuHZT6V2LBKMhyMl0FgKA62PNYbqnfgmzOhoWZj70Zecisbo4H1rotP5g==}
@@ -4282,11 +4150,6 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /miniget/4.2.2:
-    resolution: {integrity: sha512-a7voNL1N5lDMxvTMExOkg+Fq89jM2vY8pAi9ZEWzZtfNmdfP6RXkvUtFnCAXoCv2T9k1v/fUJVaAEuepGcvLYA==}
-    engines: {node: '>=12'}
-    dev: false
-
   /miniget/4.2.3:
     resolution: {integrity: sha512-SjbDPDICJ1zT+ZvQwK0hUcRY4wxlhhNpHL9nJOB2MEAXRGagTljsO8MEDzQMTFf0Q8g4QNi8P9lEm/g7e+qgzA==}
     engines: {node: '>=12'}
@@ -6223,20 +6086,6 @@ packages:
       m3u8stream: 0.8.6
       miniget: 4.2.3
       sax: 1.2.4
-    dev: false
-
-  /ytpl/2.3.0:
-    resolution: {integrity: sha512-Cfw2rxq3PFK6qgWr2Z8gsRefVahEzbn9XEuiJldqdXHE6GhO7kTfEvbZKdfXing1SmgW635uJ/UL2g8r0fvu2Q==}
-    engines: {node: '>=8'}
-    dependencies:
-      miniget: 4.2.2
-    dev: false
-
-  /ytsr/3.8.2:
-    resolution: {integrity: sha512-J+t+a1Ic6jL0Hd0zGX8eFn3uEKtXTf6naa96KO0q7H00GKBfCG8aXW55NAMnaBeUi9Hni6u1xKnf8xZF2F0E/A==}
-    engines: {node: '>=8'}
-    dependencies:
-      miniget: 4.2.2
     dev: false
 
   /zod/3.21.4:

@@ -11,8 +11,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString('query', true);
 
-	const results = await client.api.google.youtube.search(query);
-	if (results.length === 0) throw new Error(`No results found for "${query}".`);
+	const results = await client.player.search(query);
+	if (results.isEmpty()) throw new Error(`No results found for "${query}".`);
 
-	await interaction.editReply({ content: results[0].url });
+	await interaction.editReply({ content: results.tracks[0].url });
 };
