@@ -1,6 +1,7 @@
 import { IntegrationsModel, XboxIntegration } from '@luferro/database';
 import { DateUtil, logger, SleepUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { JobData, JobExecute } from '../../../types/bot';
 import * as Leaderboards from '../../../utils/leaderboards';
@@ -13,11 +14,11 @@ export const execute: JobExecute = async ({ client }) => {
 	try {
 		const leaderboard = await Leaderboards.getXboxLeaderboard(client);
 
-		const fromDate = DateUtil.formatDate(Date.now() - 7 * 24 * 60 * 60 * 1000);
-		const toDate = DateUtil.formatDate(Date.now());
+		const from = DateUtil.formatDate(Date.now() - 7 * 24 * 60 * 60 * 1000);
+		const to = DateUtil.formatDate(Date.now());
 
 		const embed = new EmbedBuilder()
-			.setTitle(`Weekly Xbox Leaderboard (${fromDate} - ${toDate})`)
+			.setTitle(t('gaming.leaderboards.xbox.embed.title', { from, to }))
 			.setDescription(leaderboard.join('\n'))
 			.setColor('Random');
 

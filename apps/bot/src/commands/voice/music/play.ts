@@ -1,4 +1,5 @@
 import { QueryType } from 'discord-player';
+import { t } from 'i18next';
 
 import type { VoiceCommandExecute } from '../../../types/bot';
 
@@ -8,10 +9,10 @@ export const execute: VoiceCommandExecute<Args> = async ({ client, queue, slots,
 	const user = client.users.cache.get(userId);
 
 	const query = slots['query'];
-	if (!query) throw new Error('No query provided.');
+	if (!query) throw new Error(t('errors.search.query'));
 
 	const channel = queue.channel;
-	if (!channel) throw new Error('No voice channel associated with guild queue.');
+	if (!channel) throw new Error(t('errors.player.channel'));
 
 	await client.player.play(channel, query, { searchEngine: QueryType.AUTO, requestedBy: user });
 };

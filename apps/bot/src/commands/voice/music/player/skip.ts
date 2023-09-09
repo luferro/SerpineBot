@@ -1,10 +1,11 @@
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { VoiceCommandExecute } from '../../../../types/bot';
 
 export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
-	if (!queue.currentTrack) throw new Error('Nothing is playing.');
-	if (queue.isEmpty()) throw new Error('Queue is empty');
+	if (!queue.currentTrack) throw new Error(t('errors.player.playback.nothing'));
+	if (queue.isEmpty()) throw new Error(t('errors.player.queue.empty'));
 
 	const position = Number(slots['position']);
 
@@ -12,11 +13,10 @@ export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
 	const nextTrack = queue.tracks.at(position ? position - 1 : 0);
 
 	const isSuccessful = position ? queue.node.skipTo(position - 1) : queue.node.skip();
-	if (!isSuccessful) throw new Error(`No track found in position \`${position}\`.`);
-
+	if (!isSuccessful) throw new Error(t('errors.player.queue.tracks.position', { position: `\`${position}\`` }));
 	const embed = new EmbedBuilder()
-		.setTitle(`Skipped \`${currentTrack}\`.`)
-		.setDescription(`Now playing \`${nextTrack}\`.`)
+		.setTitle(t('interactions.music.player.skip.embed.title', { track: `\`${currentTrack}\`` }))
+		.setDescription(t('interactions.music.player.skip.embed.description', { track: `\`${nextTrack}\`` }))
 		.setColor('Random');
 
 	await queue.metadata.send({ embeds: [embed] });

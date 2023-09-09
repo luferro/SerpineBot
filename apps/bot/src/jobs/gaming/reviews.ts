@@ -1,4 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { JobData, JobExecute } from '../../types/bot';
 
@@ -28,26 +29,26 @@ export const execute: JobExecute = async ({ client }) => {
 			.setImage(image)
 			.addFields([
 				{
-					name: '**Release date**',
-					value: releaseDate ?? 'Soon',
+					name: `**${t('jobs.gaming.reviews.embed.fields.0.name')}**`,
+					value: releaseDate ?? t('jobs.gaming.reviews.embed.fields.0.value'),
 				},
 				{
-					name: '**Available on**',
-					value: platforms.join('\n') || 'N/A',
+					name: `**${t('jobs.gaming.reviews.embed.fields.1.name')}**`,
+					value: platforms.join('\n') || t('common.unavailable'),
 				},
 				{
-					name: '**Score**',
-					value: score ?? 'N/A',
+					name: `**${t('jobs.gaming.reviews.embed.fields.2.name')}**`,
+					value: score ?? t('common.unavailable'),
 					inline: true,
 				},
 				{
-					name: '**Reviews count**',
-					value: count ?? 'N/A',
+					name: `**${t('jobs.gaming.reviews.embed.fields.3.name')}**`,
+					value: count ?? t('common.unavailable'),
 					inline: true,
 				},
 				{
-					name: '**Critics Recommended**',
-					value: recommended ?? 'N/A',
+					name: `**${t('jobs.gaming.reviews.embed.fields.4.name')}**`,
+					value: recommended ?? t('common.unavailable'),
 					inline: true,
 				},
 			])

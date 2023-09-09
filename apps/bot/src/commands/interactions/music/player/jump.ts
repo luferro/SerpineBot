@@ -1,25 +1,33 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('jump')
-	.setDescription('Jump to specific track.')
+	.setName(t('interactions.music.player.jump.name'))
+	.setDescription(t('interactions.music.player.jump.description'))
 	.addIntegerOption((option) =>
-		option.setName('position').setDescription('Queue track position').setMinValue(1).setRequired(true),
+		option
+			.setName(t('interactions.music.player.jump.options.0.name'))
+			.setDescription(t('interactions.music.player.jump.options.0.description'))
+			.setMinValue(1)
+			.setRequired(true),
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const position = interaction.options.getInteger('position', true);
+	const position = interaction.options.getInteger(t('interactions.music.player.jump.options.0.name'), true);
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('Cannot jump to track.');
+	if (!queue) throw new Error(t('errors.player.node'));
 
 	const nextTrack = queue.tracks.at(position - 1);
-	if (!nextTrack) throw new Error(`No track found in position \`${position}\`.`);
+	if (!nextTrack) throw new Error(t('errors.player.queue.tracks.position', { position: `\`${position}\`` }));
 
 	queue.node.jump(nextTrack);
 
-	const embed = new EmbedBuilder().setTitle(`Jumped to \`${nextTrack}\`.`).setColor('Random');
+	const embed = new EmbedBuilder()
+		.setTitle(t('interactions.music.player.jump.embed.title', { track: `\`${nextTrack}\`` }))
+		.setColor('Random');
+
 	await interaction.reply({ embeds: [embed] });
 };

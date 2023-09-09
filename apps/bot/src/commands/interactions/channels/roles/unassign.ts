@@ -1,15 +1,16 @@
 import { SettingsModel } from '@luferro/database';
 import { ChannelType, EmbedBuilder, SlashCommandSubcommandBuilder, TextChannel } from 'discord.js';
+import { t } from 'i18next';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('unassign')
-	.setDescription('Unassign a bot message from a text channel.')
+	.setName(t('interactions.channels.roles.unassign.name'))
+	.setDescription(t('interactions.channels.roles.unassign.description'))
 	.addChannelOption((option) =>
 		option
-			.setName('channel')
-			.setDescription('Text channel to be unassigned from the message category.')
+			.setName(t('interactions.channels.roles.unassign.options.0.name'))
+			.setDescription(t('interactions.channels.roles.unassign.options.0.description'))
 			.addChannelTypes(ChannelType.GuildText)
 			.setRequired(true),
 	);
@@ -19,6 +20,9 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 
 	await SettingsModel.updateRoleMessage({ guildId: interaction.guild.id, channelId: null, options: [] });
 
-	const embed = new EmbedBuilder().setTitle(`Message unassigned from ${channel.name}.`).setColor('Random');
+	const embed = new EmbedBuilder()
+		.setTitle(t('interactions.channels.roles.unassign.options.embed.title', { channel: `\`${channel.name}\`` }))
+		.setColor('Random');
+
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

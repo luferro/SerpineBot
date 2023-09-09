@@ -1,4 +1,4 @@
-import { FileUtil, logger, StringUtil } from '@luferro/shared-utils';
+import { FileUtil, logger } from '@luferro/shared-utils';
 import {
 	Client,
 	PermissionFlagsBits,
@@ -9,14 +9,13 @@ import {
 	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
+import { t } from 'i18next';
 import { resolve } from 'path';
 
 import { Bot } from '../Bot';
 import { InteractionCommandData, InteractionCommandExecute, MetadataBuilder, VoiceCommand } from '../types/bot';
-import Metadata from './metadata.json';
 
 type RawInteractionCommand = { data: InteractionCommandData; execute: InteractionCommandExecute };
-type Key<T> = keyof T;
 
 export const registerCommands = async () => {
 	await registerVoiceCommands();
@@ -66,25 +65,28 @@ const registerInteractionCommands = async () => {
 	buildSlashCommands(metadata);
 };
 
+const getSlashCommandPermission = (key: string) => {
+	const permissions: Record<string, bigint> = {
+		prune: PermissionFlagsBits.ManageMessages,
+		channels: PermissionFlagsBits.ManageChannels,
+		webhooks: PermissionFlagsBits.ManageWebhooks,
+	};
+	return permissions[key] ?? null;
+};
+
 const buildSlashCommands = (map: Map<string, Map<string, InteractionCommandData[]>>) => {
-	for (const [name, metadata] of map.entries()) {
-		const { description, permissions } = Metadata[name as Key<typeof Metadata>] ?? {
-			permissions: 'Administrator',
-			description: 'Sample command description.',
-		};
-
+	for (const [key, metadata] of map.entries()) {
 		const command = new SlashCommandBuilder()
-			.setName(name)
-			.setDescription(description)
-			.setDefaultMemberPermissions(PermissionFlagsBits[permissions as Key<typeof PermissionFlagsBits>] ?? null);
-
+			.setName(t(`${key}.name`))
+			.setDescription(t(`${key}.description`))
+			.setDefaultMemberPermissions(getSlashCommandPermission(key));
 		for (const [category, options] of metadata.entries()) {
 			const builder =
-				name === category
+				category === key
 					? command
 					: new SlashCommandSubcommandGroupBuilder()
-							.setName(category)
-							.setDescription(`${StringUtil.capitalize(category)} group commands for ${name}.`);
+							.setName(t(`${key}.${category}.name`))
+							.setDescription(t(`${key}.${category}.description`));
 
 			for (const option of options) {
 				const isSubcommand = option instanceof SlashCommandSubcommandBuilder;

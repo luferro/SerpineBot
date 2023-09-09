@@ -1,0 +1,94 @@
+{
+	"anime": {
+		"episode": {
+			"embed": {
+				"title": "{{anime}} - Episode {{episode}}",
+				"fields": [
+					{ "name": "Alternative title" },
+					{ "name": "Total", "value": "{{episodes}} episodes" },
+					{ "name": "Duration", "value": "{{duration}} min per episode" },
+					{ "name": "Score" },
+					{ "name": "Where to watch?" },
+					{ "name": "Where to track?" }
+				]
+			}
+		}
+	},
+	"birthdays": {
+		"embed": {
+			"title": "🎉🥳🎂🥳🎉 Happy Birthday! 🎉🥳🎂🥳🎉",
+			"description": "{{username}} is now {{age}} years old!"
+		}
+	},
+	"gaming": {
+		"deals": {
+			"free": {
+				"embed": {
+					"description": "{{discount}} off! {{regular}} | {{current}} @ {{store}}",
+					"footer": { "text": "Expires on {{expiry}}" }
+				}
+			},
+			"paid": {
+				"embed": {
+					"description": "{{discount}} off! {{regular}} | {{current}} @ {{store}}\n{{activation}}",
+					"footer": { "text": "Expires on {{expiry}}" }
+				}
+			}
+		},
+		"leaderboards": {
+			"steam": {
+				"embed": {
+					"title": "Weekly Steam Leaderboard ({{from}} - {{to}})"
+				}
+			},
+			"xbox": {
+				"embed": {
+					"title": "Weekly Xbox Leaderboard ({{from}} - {{to}})"
+				}
+			}
+		},
+		"reviews": {
+			"embed": {
+				"fields": [
+					{ "name": "Release date", "value": "Soon" },
+					{ "name": "Available on" },
+					{ "name": "Score" },
+					{ "name": "Reviews count" },
+					{ "name": "Critics Recommended" }
+				]
+			}
+		},
+		"wishlists": {
+			"sale": {
+				"embed": {
+					"title": "{{size}} item(s) from your wishlist on sale.",
+					"description": "{{item}} is {{discount}} off! {{regular}} | {{discounted}}"
+				}
+			},
+			"released": {
+				"embed": {
+					"title": "{{size}} item(s) from your wishlist now available for purchase.",
+					"description": "{{item}} is now available for {{price}}"
+				}
+			},
+			"addedTo": {
+				"embed": {
+					"title": "{{size}} item(s) from your wishlist now included with a subscription service.",
+					"description": "{{item}} has been added to:\n{{subscriptions}}"
+				}
+			},
+			"removedFrom": {
+				"embed": {
+					"title": "{{size}} item(s) from your wishlist removed from a subscription service.",
+					"description": "{{item}} has been removed from:\n{{subscriptions}}"
+				}
+			}
+		}
+	},
+	"reminders": {
+		"embed": {
+			"title": "Reminder set on {{date}}",
+			"fields": [{ "name": "Message" }]
+		}
+	}
+}

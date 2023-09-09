@@ -1,6 +1,7 @@
 import { VoiceReceiver } from '@discordjs/voice';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder, TextBasedChannel } from 'discord.js';
+import { t } from 'i18next';
 
 import { Bot } from '../../../Bot';
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
@@ -8,15 +9,15 @@ import { bufferToInt16, getAudioBuffer } from '../../../utils/audio';
 import { infereIntent, isOutOfVocabularyIntents, transcribe } from '../../../utils/speech';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('listen')
-	.setDescription('Listen for voice commands.');
+	.setName(t('interactions.voice.listen.name'))
+	.setDescription(t('interactions.voice.listen.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const member = interaction.member;
 	const guildId = member.guild.id;
 	const textChannel = interaction.channel;
 	const voiceChannel = member.voice.channel;
-	if (!voiceChannel) throw new Error('You are not in a voice channel.');
+	if (!voiceChannel) throw new Error(t('errors.voice.member.channel'));
 
 	let queue = client.player.nodes.get<TextBasedChannel>(interaction.guild.id);
 	if (!queue) {
@@ -28,13 +29,14 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	}
 
 	const receiver = queue.connection?.receiver;
-	if (!receiver) throw new Error('Could not retrieve connection receiver.');
+	if (!receiver) throw new Error(t('errors.voice.receiver.none'));
 
 	const isAlreadyListening = receiver.speaking.listeners('start').length > 0;
-	if (isAlreadyListening) throw new Error('Already listening for voice commands.');
+	if (isAlreadyListening) throw new Error(t('errors.voice.listening'));
 
 	receiver.speaking.on('start', (userId) => handleUserVoice({ client, guildId, userId, receiver }));
-	const embed = new EmbedBuilder().setTitle('Started listening for voice commands.');
+
+	const embed = new EmbedBuilder().setTitle(t('interactions.voice.listen.embeds.0.title'));
 	await interaction.reply({ embeds: [embed] });
 };
 
@@ -56,7 +58,7 @@ const handleUserVoice = async ({
 	const pcm = bufferToInt16(buffer);
 
 	const intentResult = await infereIntent({ client, pcm });
-	if (!intentResult) throw new Error('Could not recognize intent.');
+	if (!intentResult) throw new Error(t('errors.voice.intent'));
 
 	const isOutOfVocabularyIntent = isOutOfVocabularyIntents(intentResult.intent);
 	const transcribeResult = isOutOfVocabularyIntent ? await transcribe({ client, pcm }) : null;
@@ -73,7 +75,7 @@ const handleUserVoice = async ({
 
 	await command.execute({ client, queue, slots, rest: [userId] }).catch((error) => {
 		const embed = new EmbedBuilder()
-			.setTitle(`Voice command with intent \`${intent}\` failed.`)
+			.setTitle(t('interactions.voice.listen.embeds.1.title', { intent: `\`${intent}\`` }))
 			.setDescription((error as Error).message)
 			.setColor('Random');
 

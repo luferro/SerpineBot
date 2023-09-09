@@ -1,28 +1,39 @@
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('subscriptions')
-	.setDescription('Checks in which subscriptions a movie / tv is available.')
+	.setName(t('interactions.shows.subscriptions.name'))
+	.setDescription(t('interactions.shows.subscriptions.description'))
 	.addStringOption((option) =>
 		option
-			.setName('category')
-			.setDescription('Shows category.')
+			.setName(t('interactions.shows.subscriptions.options.0.name'))
+			.setDescription(t('interactions.shows.subscriptions.options.0.description'))
 			.setRequired(true)
-			.addChoices({ name: 'Series', value: 'tv' }, { name: 'Movies', value: 'movie' }),
+			.addChoices(
+				{ name: t('shows.subscriptions.options.0.choices.0.name'), value: 'tv' },
+				{ name: t('shows.subscriptions.options.0.choices.1.name'), value: 'movie' },
+			),
 	)
-	.addStringOption((option) => option.setName('query').setDescription('Movie / Series title').setRequired(true));
+	.addStringOption((option) =>
+		option
+			.setName(t('interactions.shows.subscriptions.options.1.name'))
+			.setDescription(t('interactions.shows.subscriptions.options.1.description'))
+			.setRequired(true),
+	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
-	const category = interaction.options.getString('category', true) as 'tv' | 'movie';
-	const query = interaction.options.getString('query', true);
+	const category = interaction.options.getString(t('interactions.shows.subscriptions.options.0.name'), true) as
+		| 'tv'
+		| 'movie';
+	const query = interaction.options.getString(t('interactions.shows.subscriptions.options.1.name'), true);
 
 	const subscriptions = await client.api.shows.getCatalogMatches(category, query);
-	if (subscriptions.length === 0) throw new Error(`No subscription service including "${query}" was found.`);
+	if (subscriptions.length === 0) throw new Error(t('errors.search.lookup', { query }));
 
 	const formattedSubscriptions = subscriptions.map(({ provider, entry }) =>
 		entry.url ? `**[${provider}](${entry.url})**` : `**${provider}**`,
@@ -32,11 +43,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setTitle(StringUtil.truncate(subscriptions[0].entry.name))
 		.addFields([
 			{
-				name: `Available in **${subscriptions.length}** subscription(s)`,
+				name: t('shows.subscriptions.embed.title', { size: `**${subscriptions.length}**` }),
 				value: formattedSubscriptions.join('\n'),
 			},
 		])
-		.setFooter({ text: 'Data provided by JustWatch.' })
+		.setFooter({ text: t('shows.subscriptions.embed.footer.text') })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

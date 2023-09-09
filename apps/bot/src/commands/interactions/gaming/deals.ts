@@ -1,20 +1,26 @@
 import { SubscriptionsModel } from '@luferro/database';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('deals')
-	.setDescription('Best PC deals in official stores and keyshops.')
-	.addStringOption((option) => option.setName('query').setDescription('Game title').setRequired(true));
+	.setName(t('interactions.gaming.deals.name'))
+	.setDescription(t('interactions.gaming.deals.description'))
+	.addStringOption((option) =>
+		option
+			.setName(t('interactions.gaming.deals.options.0.name'))
+			.setDescription(t('interactions.gaming.deals.options.0.description'))
+			.setRequired(true),
+	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
-	const query = interaction.options.getString('query', true);
+	const query = interaction.options.getString(t('interactions.gaming.deals.options.0.name'), true);
 
 	const { id, title } = await client.api.gaming.deals.search(query);
-	if (!id) throw new Error(`No matches for "${query}".`);
+	if (!id) throw new Error(t('errors.search.lookup', { query }));
 
 	const subscriptions = await SubscriptionsModel.getMatches({ name: query });
 	const formattedSubscriptions = subscriptions.map(({ provider }) => `> **${provider}**`);
@@ -28,24 +34,24 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setURL(url)
 		.addFields([
 			{
-				name: '**Historical Low**',
+				name: `**${t('gaming.deals.embed.fields.0.name')}**`,
 				value: `**${historicalLow.price}** @ ${
 					historicalLow.url ? `[${historicalLow.store}](${historicalLow.url})` : historicalLow.store
 				}\n*${historicalLow.on}*`,
 				inline: true,
 			},
 			{
-				name: '**Best deal**',
+				name: `**${t('gaming.deals.embed.fields.1.name')}**`,
 				value: `**${deal.price}** @ [${deal.store}](${deal.url})`,
 				inline: true,
 			},
 			{
-				name: '**Live bundles**',
-				value: formattedBundles.join('\n') || 'N/A',
+				name: `**${t('gaming.deals.embed.fields.2.name')}**`,
+				value: formattedBundles.join('\n') || t('common.unavailable'),
 			},
 			{
-				name: '**Subscriptions**',
-				value: formattedSubscriptions.join('\n') || 'N/A',
+				name: `**${t('gaming.deals.embed.fields.3.name')}**`,
+				value: formattedSubscriptions.join('\n') || t('common.unavailable'),
 			},
 		])
 		.setColor('Random');

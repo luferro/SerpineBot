@@ -9,6 +9,9 @@ const getEnvConfig = () => ({
 	// DATABASE URI
 	MONGO_URI: process.env.MONGO_URI ?? null,
 
+	// Region
+	LOCALE: process.env.LOCALE ?? 'en-US',
+
 	// PICOVOICE
 	PICOVOICE_API_KEY: process.env.PICOVOICE_API_KEY ?? null,
 

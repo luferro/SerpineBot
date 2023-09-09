@@ -1,15 +1,16 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { Bot } from '../../../../Bot';
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('shuffle')
-	.setDescription('Shuffles the queue.');
+	.setName(t('interactions.music.player.shuffle.name'))
+	.setDescription(t('interactions.music.player.shuffle.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue || queue.isEmpty()) throw new Error('Cannot shuffle queue.');
+	if (!queue || queue.isEmpty()) throw new Error(t('errors.player.node'));
 
 	queue.tracks.shuffle();
 

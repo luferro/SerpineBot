@@ -9,16 +9,17 @@ import {
 	StringSelectMenuBuilder,
 	TextChannel,
 } from 'discord.js';
+import { t } from 'i18next';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('assign')
-	.setDescription('Assign the claim-your-roles message to a text channel.')
+	.setName(t('interactions.channels.roles.assign.name'))
+	.setDescription(t('interactions.channels.roles.assign.description'))
 	.addChannelOption((option) =>
 		option
-			.setName('channel')
-			.setDescription('Text channel.')
+			.setName(t('interactions.channels.roles.assign.options.0.name'))
+			.setDescription(t('interactions.channels.roles.assign.options.0.description'))
 			.addChannelTypes(ChannelType.GuildText)
 			.setRequired(true),
 	);
@@ -26,21 +27,22 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const channel = interaction.options.getChannel('channel', true) as TextChannel;
 
+	const uuid = randomUUID();
 	const options = [...interaction.guild.roles.cache.values()]
 		.sort((a, b) => a.position - b.position)
 		.filter(({ id }) => id !== interaction.guild.roles.everyone.id)
 		.map((role) => ({ label: role.name, value: role.id }));
-	if (options.length === 0) throw new Error('Select at least one option from the menu.');
 
-	const uuid = randomUUID();
 	const channelSelectMenu = new StringSelectMenuBuilder()
 		.setCustomId(uuid)
-		.setPlaceholder('Nothing selected.')
+		.setPlaceholder(t('interactions.channels.roles.assign.options.menu.placeholder'))
 		.setMaxValues(options.length)
 		.addOptions(options);
 	const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(channelSelectMenu);
 
-	const embed = new EmbedBuilder().setTitle('Which roles should be included in the message?').setColor('Random');
+	const embed = new EmbedBuilder()
+		.setTitle(t('interactions.channels.roles.assign.options.menu.title'))
+		.setColor('Random');
 	await interaction.reply({ embeds: [embed], components: [component], ephemeral: true });
 
 	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
@@ -48,7 +50,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		componentType: ComponentType.StringSelect,
 		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
 	});
-	if (!selectMenuInteraction) throw new Error('Channel selection timeout.');
+	if (!selectMenuInteraction) throw new Error(t('errors.interaction.timeout'));
 
 	await SettingsModel.updateRoleMessage({
 		guildId: interaction.guild.id,
@@ -57,7 +59,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	});
 
 	const updatedEmbed = new EmbedBuilder()
-		.setTitle(`Roles message has been assigned to \`${channel.name}\` channel.`)
+		.setTitle(t('interactions.channels.roles.assign.options.embed.title', { channel: `\`${channel.name}\`` }))
 		.setColor('Random');
 	await selectMenuInteraction.update({ embeds: [updatedEmbed], components: [] });
 

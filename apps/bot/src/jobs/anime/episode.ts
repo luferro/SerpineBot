@@ -1,5 +1,6 @@
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { Bot } from '../../Bot';
 import type { JobData, JobExecute } from '../../types/bot';
@@ -16,7 +17,10 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const { id, titles, url, image, episodes, streams, isDelayed } of cache) {
 		if (Date.now() < new Date(episodes.current.date).getTime() || isDelayed) continue;
 
-		const title = `${StringUtil.truncate(titles.default, 240)} - Episode ${episodes.current.number}`;
+		const title = t('jobs.anime.episode.embed.title', {
+			anime: StringUtil.truncate(titles.default, 240),
+			episode: episodes.current.number,
+		});
 
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
@@ -33,32 +37,36 @@ export const execute: JobExecute = async ({ client }) => {
 			.setThumbnail(image)
 			.addFields([
 				{
-					name: '**Alternative title**',
-					value: titles.alternative ?? 'N/A',
+					name: `**${t('jobs.anime.episode.embed.fields.0.name')}**`,
+					value: titles.alternative ?? t('common.unavailable'),
 				},
 				{
-					name: '**Total**',
-					value: episodes.total ? `${episodes.total} episodes` : 'N/A',
+					name: `**${t('jobs.anime.episode.embed.fields.1.name')}**`,
+					value: episodes.total
+						? t('jobs.anime.episode.embed.fields.1.value', { episodes: episodes.total })
+						: t('common.unavailable'),
 					inline: true,
 				},
 				{
-					name: '**Duration**',
-					value: episodes.duration ? `${episodes.duration} min per episode` : 'N/A',
+					name: `**${t('jobs.anime.episode.embed.fields.2.name')}**`,
+					value: episodes.duration
+						? t('jobs.anime.episode.embed.fields.2.value', { duration: episodes.duration })
+						: t('common.unavailable'),
 					inline: true,
 				},
 				{
-					name: '**Score**',
-					value: score?.toString() ?? 'N/A',
+					name: `**${t('jobs.anime.episode.embed.fields.3.name')}**`,
+					value: score?.toString() ?? t('common.unavailable'),
 					inline: true,
 				},
 				{
-					name: '**Where to watch?**',
-					value: formattedStreams.join('\n') || 'N/A',
+					name: `**${t('jobs.anime.episode.embed.fields.4.name')}**`,
+					value: formattedStreams.join('\n') || t('common.unavailable'),
 					inline: true,
 				},
 				{
-					name: '**Where to track?**',
-					value: formattedTracking.join('\n') || 'N/A',
+					name: `**${t('jobs.anime.episode.embed.fields.5.name')}**`,
+					value: formattedTracking.join('\n') || t('common.unavailable'),
 					inline: true,
 				},
 			])

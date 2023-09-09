@@ -1,21 +1,22 @@
 import { IntegrationsModel, SteamIntegration } from '@luferro/database';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('sync')
-	.setDescription('Manually synchronize your Steam integration.');
+	.setName(t('interactions.integrations.steam.sync.name'))
+	.setDescription(t('interactions.integrations.steam.sync.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
 
 	const userId = interaction.user.id;
 	const integration = await IntegrationsModel.getIntegration<SteamIntegration>({ userId, category: 'Steam' });
-	if (!integration) throw new Error('No Steam integration in place.');
+	if (!integration) throw new Error(t('errors.unprocessable'));
 
 	const wishlist = await client.api.gaming.steam.getWishlist(integration.profile.id);
-	if (!wishlist) throw new Error('Steam wishlist is either private or empty.');
+	if (!wishlist) throw new Error(t('errors.steam.wishlist.private'));
 
 	const updatedWishlist = wishlist.map((game) => {
 		const storedItem = integration.wishlist.find(({ id: nestedStoredItemId }) => nestedStoredItemId === game.id);
@@ -23,6 +24,6 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	});
 	await IntegrationsModel.updateWishlist({ userId, wishlist: updatedWishlist });
 
-	const embed = new EmbedBuilder().setTitle('Steam integration synced successfully.').setColor('Random');
+	const embed = new EmbedBuilder().setTitle(t('interactions.integrations.steam.sync.embed.title')).setColor('Random');
 	await interaction.editReply({ embeds: [embed] });
 };

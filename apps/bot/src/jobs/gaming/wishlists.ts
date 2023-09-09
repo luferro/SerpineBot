@@ -1,6 +1,7 @@
 import { IntegrationsModel, SteamIntegration, SubscriptionsModel, WishlistEntry } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { Bot } from '../../Bot';
 import type { JobData, JobExecute } from '../../types/bot';
@@ -75,35 +76,6 @@ export const execute: JobExecute = async ({ client }) => {
 	}
 };
 
-const getTitle = (category: Alert, totalItems: number) => {
-	const select: Record<typeof category, string> = {
-		[Alert.Sale]: `**${totalItems}** items from your wishlist on sale.`,
-		[Alert.Released]: `**${totalItems}** item(s) from your wishlist now available for purchase.`,
-		[Alert.AddedTo]: `**${totalItems}** item(s) from your wishlist now included with a subscription service.`,
-		[Alert.RemovedFrom]: `**${totalItems}** item(s) from your wishlist removed from a subscription service.`,
-	};
-	return select[category];
-};
-
-const getDescription = (category: Alert, items: SteamAlert[]) => {
-	const select: Record<typeof category, string[]> = {
-		[Alert.Sale]: items.map(
-			({ name, url, discount, regular, discounted }) =>
-				`> **[${name}](${url})** is ***${discount}%*** off! ~~${regular}~~ | **${discounted}**`,
-		),
-		[Alert.Released]: items.map(
-			({ name, url, discounted }) => `> **[${name}](${url})** available for **${discounted}**`,
-		),
-		[Alert.AddedTo]: items.map(
-			({ name, url, addedTo }) => `> **[${name}](${url})** added to:\n${(addedTo ?? []).join('\n')}`,
-		),
-		[Alert.RemovedFrom]: items.map(
-			({ name, url, removedFrom }) => `> **[${name}](${url})** removed from:\n${(removedFrom ?? []).join('\n')}`,
-		),
-	};
-	return select[category].join('\n');
-};
-
 const getSubscriptionChanges = (newGame: WishlistEntry, oldGame?: WishlistEntry) => {
 	const addedTo = [];
 	const removedFrom = [];
@@ -126,10 +98,23 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 	for (const [category, queue] of Object.entries(alerts) as unknown as Entries<typeof alerts>) {
 		if (queue.length === 0) continue;
 
-		const embed = new EmbedBuilder()
-			.setTitle(getTitle(category, queue.length))
-			.setDescription(getDescription(category, queue.slice(0, 10)))
-			.setColor('Random');
+		const title = t(`job.gaming.wishlists.${category}.embed.title`, { size: queue.length });
+		const description = queue
+			.slice(0, 10)
+			.map(
+				({ name, url, discount, discounted, regular, addedTo, removedFrom }) =>
+					`> ${t(`job.gaming.wishlists.${category}.embed.description`, {
+						item: `**[${name}](${url})**`,
+						discount: `***${discount}%***`,
+						regular: `~~${regular}~~`,
+						discounted: `**${discounted}**`,
+						addedTo: (addedTo ?? []).join('\n'),
+						removedFrom: (removedFrom ?? []).join('\n'),
+					})}`,
+			)
+			.join('\n');
+
+		const embed = new EmbedBuilder().setTitle(title).setDescription(description).setColor('Random');
 
 		const user = await client.users.fetch(userId);
 		await user.send({ embeds: [embed] });

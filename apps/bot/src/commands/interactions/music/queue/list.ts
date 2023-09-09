@@ -1,15 +1,16 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { Track } from 'discord-player';
+import { t } from 'i18next';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('list')
-	.setDescription('Lists the guild queue.');
+	.setName(t('interactions.music.queue.list.name'))
+	.setDescription(t('interactions.music.queue.list.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('Cannot display guild queue.');
+	if (!queue) throw new Error(t('errors.player.node'));
 
 	const formatTrack = (track: Track) => `**[${track.title}](${track.url})** | **${track.duration}**`;
 
@@ -19,19 +20,19 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.map((track, index) => `\`${index + 1}.\` ${formatTrack(track)}`);
 
 	const embed = new EmbedBuilder()
-		.setTitle(`Queue for ${interaction.guild.name}`)
+		.setTitle(t('interactions.music.queue.list.embed.title', { guild: interaction.guild.name }))
 		.setThumbnail(interaction.guild.iconURL())
 		.addFields([
 			{
-				name: '**Now playing**',
-				value: queue.currentTrack ? formatTrack(queue.currentTrack) : 'Nothing is playing.',
+				name: `**${t('music.queue.list.embed.fields.0.name')}**`,
+				value: queue.currentTrack ? formatTrack(queue.currentTrack) : t('common.player.playback.nothing'),
 			},
 			{
-				name: '**Queue**',
-				value: formattedQueue.join('\n') || 'Empty.',
+				name: `**${t('music.queue.list.embed.fields.1.name')}**`,
+				value: formattedQueue.join('\n') || t('common.player.queue.empty'),
 			},
 		])
-		.setFooter({ text: `${queue.size} item(s) in queue.` })
+		.setFooter({ text: t('music.queue.list.embed.footer.text', { size: queue.size }) })
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });

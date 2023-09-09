@@ -1,27 +1,33 @@
 import { IntegrationsModel, SteamIntegration, SubscriptionsModel } from '@luferro/database';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('import')
-	.setDescription('Create your Steam integration.')
-	.addStringOption((option) => option.setName('profile').setDescription('Steam profile url.').setRequired(true));
+	.setName(t('interactions.integrations.steam.import.name'))
+	.setDescription(t('interactions.integrations.steam.import.description'))
+	.addStringOption((option) =>
+		option
+			.setName(t('interactions.integrations.steam.import.options.0.name'))
+			.setDescription(t('interactions.integrations.steam.import.options.0.description'))
+			.setRequired(true),
+	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
 
-	const profile = interaction.options.getString('profile', true);
+	const profile = interaction.options.getString(t('interactions.integrations.steam.import.options.0.name'), true);
 
 	const url = profile.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
-	if (!url) throw new Error('Invalid Steam profile url.');
+	if (!url) throw new Error(t('errors.steam.profile.url'));
 
 	const { 1: type, 2: id } = url;
 	const steamId = type === 'id' ? await client.api.gaming.steam.getSteamId64(id) : id;
-	if (!steamId) throw new Error('No SteamId64 was found.');
+	if (!steamId) throw new Error(t('errors.steam.steamId64'));
 
 	const rawWishlist = await client.api.gaming.steam.getWishlist(steamId);
-	if (!rawWishlist) throw new Error('Steam wishlist is either private or empty.');
+	if (!rawWishlist) throw new Error(t('errors.steam.wishlist.private'));
 
 	const recentlyPlayed = await client.api.gaming.steam.getRecentlyPlayed(steamId);
 	const wishlist = await Promise.all(
@@ -45,13 +51,12 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			wishlist,
 			recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })),
 			notifications: true,
-			profile: {
-				id: steamId,
-				url: `https://steamcommunity.com/profiles/${steamId}`,
-			},
+			profile: { id: steamId, url: `https://steamcommunity.com/profiles/${steamId}` },
 		},
 	});
 
-	const embed = new EmbedBuilder().setTitle('Steam account imported successfully.').setColor('Random');
+	const embed = new EmbedBuilder()
+		.setTitle(t('interactions.integrations.steam.import.embed.title'))
+		.setColor('Random');
 	await interaction.editReply({ embeds: [embed] });
 };

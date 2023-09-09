@@ -1,4 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { JobData, JobExecute } from '../../../types/bot';
 
@@ -17,9 +18,16 @@ export const execute: JobExecute = async ({ client }) => {
 			const embed = new EmbedBuilder()
 				.setTitle(title)
 				.setURL(url)
-				.setDescription(`**-${discount}%** off! ~~${regular}~~ | **Free** @ **${store}**`)
+				.setDescription(
+					t('gaming.deals.free.embed.description', {
+						discount: `**-${discount}%**`,
+						regular: `~~${regular}~~`,
+						current: '**Free**',
+						store: `**${store}**`,
+					}),
+				)
 				.setColor('Random');
-			if (expiry) embed.setFooter({ text: `Expires on ${expiry}` });
+			if (expiry) embed.setFooter({ text: t('gaming.deals.free.embed.footer.text', { expiry }) });
 
 			embeds.push(embed);
 		}

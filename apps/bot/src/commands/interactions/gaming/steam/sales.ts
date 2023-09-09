@@ -1,24 +1,25 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('sales')
-	.setDescription("Steam's next sales.");
+	.setName(t('interactions.gaming.steam.sales.name'))
+	.setDescription(t('interactions.gaming.steam.sales.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
 	const { sale, status, upcoming } = await client.api.gaming.steam.getNextSales();
-	if (!sale) throw new Error('No dates were found for the next steam sales.');
+	if (!sale) throw new Error(t('errors.search.none'));
 
 	const embed = new EmbedBuilder()
-		.setTitle('When is the next Steam sale?')
+		.setTitle(t('interactions.gaming.steam.sales.embed.title'))
 		.setDescription(`*${status || ''}*\n**${sale}**`)
 		.addFields([
 			{
-				name: '**Upcoming Sales**',
-				value: upcoming.join('\n') || 'N/A',
+				name: `**${t('gaming.steam.sales.embed.fields.0.name')}**`,
+				value: upcoming.join('\n') || t('common.unavailable'),
 			},
 		])
 		.setColor('Random');

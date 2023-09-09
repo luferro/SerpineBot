@@ -1,19 +1,25 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('movies')
-	.setDescription('Movie overview.')
-	.addStringOption((option) => option.setName('query').setDescription('Movie title.').setRequired(true));
+	.setName(t('interactions.shows.movies.name'))
+	.setDescription(t('interactions.shows.movies.description'))
+	.addStringOption((option) =>
+		option
+			.setName(t('interactions.shows.movies.options.0.name'))
+			.setDescription(t('interactions.shows.movies.options.0.description'))
+			.setRequired(true),
+	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
-	const query = interaction.options.getString('query', true);
+	const query = interaction.options.getString(t('interactions.shows.movies.options.0.name'), true);
 
 	const { id } = await client.api.shows.search('movie', query);
-	if (!id) throw new Error(`No matches for "${query}".`);
+	if (!id) throw new Error(t('errors.search.lookup', { query }));
 
 	const { stream, buy, rent } = await client.api.shows.getProvidersForId('movie', id);
 	const formattedStream = stream.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
@@ -31,41 +37,41 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: '**Release date**',
-				value: releaseDate ?? 'N/A',
+				name: `**${t('shows.movies.embed.fields.0.name')}**`,
+				value: releaseDate ?? t('common.unavailable'),
 			},
 			{
-				name: '**Score**',
-				value: score ?? 'N/A',
+				name: `**${t('shows.movies.embed.fields.1.name')}**`,
+				value: score ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: '**Runtime**',
-				value: runtime ?? 'N/A',
+				name: `**${t('shows.movies.embed.fields.2.name')}**`,
+				value: runtime ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: '**Genres**',
-				value: genres.join('\n') || 'N/A',
+				name: `**${t('shows.movies.embed.fields.3.name')}**`,
+				value: genres.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: '**Buy**',
-				value: formattedBuy.join('\n') || 'N/A',
+				name: `**${t('shows.movies.embed.fields.4.name')}**`,
+				value: formattedBuy.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: '**Rent**',
-				value: formattedRent.join('\n') || 'N/A',
+				name: `**${t('shows.movies.embed.fields.5.name')}**`,
+				value: formattedRent.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: '**Stream**',
-				value: formattedStream.join('\n') || 'N/A',
+				name: `**${t('shows.movies.embed.fields.6.name')}**`,
+				value: formattedStream.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 		])
-		.setFooter({ text: 'Buy, Rent and Stream data provided by JustWatch.' })
+		.setFooter({ text: t('shows.movies.embed.footer.text') })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

@@ -1,16 +1,17 @@
 import { EnumUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { QueueRepeatMode } from 'discord-player';
+import { t } from 'i18next';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('loop')
-	.setDescription('Sets a loop mode for the current track.')
+	.setName(t('interactions.music.player.loop.name'))
+	.setDescription(t('interactions.music.player.loop.description'))
 	.addIntegerOption((option) =>
 		option
-			.setName('mode')
-			.setDescription('Loop mode.')
+			.setName(t('interactions.music.player.loop.options.0.name'))
+			.setDescription(t('interactions.music.player.loop.options.0.description'))
 			.setRequired(true)
 			.addChoices(
 				...EnumUtil.enumKeysToArray(QueueRepeatMode).map((mode) => ({
@@ -21,13 +22,19 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const mode = interaction.options.getInteger('mode', true) as QueueRepeatMode;
+	const mode = interaction.options.getInteger(
+		t('interactions.music.player.loop.options.0.name'),
+		true,
+	) as QueueRepeatMode;
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue?.currentTrack) throw new Error('No track is playing.');
+	if (!queue?.currentTrack) throw new Error(t('errors.player.playback.nothing'));
 
 	queue.setRepeatMode(mode);
 
-	const embed = new EmbedBuilder().setTitle(`Loop mode set to ${QueueRepeatMode[mode]}`).setColor('Random');
+	const embed = new EmbedBuilder()
+		.setTitle(t('interactions.music.player.loop.embed.title', { mode: QueueRepeatMode[mode] }))
+		.setColor('Random');
+
 	await interaction.reply({ embeds: [embed] });
 };

@@ -1,27 +1,28 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('stop')
-	.setDescription('Stop listening for voice commands.');
+	.setName(t('interactions.voice.stop.name'))
+	.setDescription(t('interactions.voice.stop.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const member = interaction.member;
 	const voiceChannel = member.voice.channel;
-	if (!voiceChannel) throw new Error('You are not in a voice channel.');
+	if (!voiceChannel) throw new Error(t('errors.voice.member.channel'));
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('No queue.');
+	if (!queue) throw new Error(t('errors.player.node'));
 
 	const receiver = queue.connection?.receiver;
-	if (!receiver) throw new Error('Could not retrieve connection receiver.');
+	if (!receiver) throw new Error(t('errors.voice.receiver.none'));
 
 	const isListening = receiver.speaking.listeners('start').length > 0;
-	if (!isListening) throw new Error('Not listening to voice commands.');
+	if (!isListening) throw new Error(t('errors.voice.standby'));
 
 	receiver.speaking.removeAllListeners('start');
 
-	const embed = new EmbedBuilder().setTitle('Stopped listening for voice commands.');
+	const embed = new EmbedBuilder().setTitle(t('interactions.voice.stop.embed.title'));
 	await interaction.reply({ embeds: [embed] });
 };

@@ -18,6 +18,7 @@ import { CronJob } from 'cron';
 import crypto from 'crypto';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
+import i18next from 'i18next';
 import { resolve } from 'path';
 
 import { getSanitizedEnvConfig } from './config/environment';
@@ -25,6 +26,7 @@ import * as CommandsHandler from './handlers/commands';
 import * as EventsHandler from './handlers/events';
 import * as JobsHandler from './handlers/jobs';
 import type { Api, Cache, Commands, Connection, Event, Job, Scraper, Tools } from './types/bot';
+import { getInitConfig } from './utils/i18n';
 
 type StateArgs = { title: string; url: string };
 type WebhookArgs = { guild: Guild; category: WebhookType };
@@ -150,21 +152,12 @@ export class Bot extends Client {
 		}
 	}
 
-	private handlePlayerError = (client?: Bot) => {
-		if (!client) return;
-		for (const [guildId] of client.guilds.cache) {
-			const queue = this.player.nodes.get(guildId);
-			if (!queue) continue;
-
-			queue.revive();
-			if (queue.currentTrack || !queue.isEmpty()) queue.node.play();
-		}
-	};
-
 	async start() {
 		logger.info(`Starting SerpineBot in **${this.config.NODE_ENV.trim()}**.`);
 
 		try {
+			i18next.init(await getInitConfig(this.config.LOCALE));
+
 			await this.login(this.config.BOT_TOKEN);
 			await Database.connect(this.config.MONGO_URI);
 			await JobsHandler.registerJobs();
@@ -235,6 +228,6 @@ export class Bot extends Client {
 		const isWarning = isPlayerError || isFetchError;
 		logger[isWarning ? 'warn' : 'error'](error);
 
-		if (isPlayerError) this.handlePlayerError(client);
+		if (isPlayerError) this.emit('recoverFromError', { client });
 	}
 }

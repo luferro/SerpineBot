@@ -1,4 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { Bot } from '../../../Bot';
 import type { JobData, JobExecute } from '../../../types/bot';
@@ -22,9 +23,13 @@ export const execute: JobExecute = async ({ client }) => {
 					const isSuccessful = await client.state({ title, url });
 					if (!isSuccessful) return;
 
-					const deal = `**-${discount}%** off! ~~${regular}~~ | **${current}** @ **[${store}](${url})**`;
-					const activates = drm ? `*Activates on ${drm.join(', ')}*` : `*DRM Free*`;
-					return `${deal}\n${activates}`;
+					return t('gaming.deals.paid.embed.description', {
+						discount: `**-${discount}%**`,
+						regular: `~~${regular}~~`,
+						current: `**${current}**`,
+						store: `**[${store}](${url})**`,
+						activates: drm ? `*Activates on ${drm.join(', ')}*` : `*DRM Free*`,
+					});
 				}),
 			)
 		).filter((item): item is NonNullable<typeof item> => !!item);
@@ -38,7 +43,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.setTitle(title)
 			.setURL(isSingle ? url : null)
 			.setDescription(formattedDeals.join('\n'))
-			.setFooter(isSingle && expiry ? { text: `Expires on ${expiry}` } : null)
+			.setFooter(isSingle && expiry ? { text: t('gaming.deals.paid.embed.footer.text', { expiry }) } : null)
 			.setColor('Random');
 
 		embeds.push(embed);

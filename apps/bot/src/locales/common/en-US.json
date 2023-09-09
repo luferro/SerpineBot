@@ -1,0 +1,10 @@
+{
+	"unavailable": "n/a",
+	"on": "on",
+	"off": "off",
+	"list": { "footer": "And {{size}} more!" },
+	"player": {
+		"playback": { "playing": "Currently playing.", "nothing": "Nothing is playing." },
+		"queue": { "empty": "Empty." }
+	}
+}

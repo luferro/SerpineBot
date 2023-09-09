@@ -1,6 +1,7 @@
 import { BirthdaysModel } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { JobData, JobExecute } from '../types/bot';
 
@@ -17,22 +18,17 @@ export const execute: JobExecute = async ({ client }) => {
 
 		if (currentDate.getTime() !== date.getTime()) continue;
 
-		try {
-			const target = await client.users.fetch(userId);
-			if (!target) throw new Error(`No userId ${userId} found.`);
+		const target = await client.users.fetch(userId);
 
-			const age = currentDate.getFullYear() - date.getFullYear();
+		const age = currentDate.getFullYear() - date.getFullYear();
 
-			const embed = new EmbedBuilder()
-				.setTitle('🎉🥳🎂🥳🎉 Happy Birthday! 🎉🥳🎂🥳🎉')
-				.setDescription(`\`${target.username}\` is now ${age} years old!`)
-				.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL);
+		const embed = new EmbedBuilder()
+			.setTitle(t('jobs.birthday.embed.title'))
+			.setDescription(t('jobs.birthday.embed.description', { username: `\`${target.username}\``, age }))
+			.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL);
 
-			await client.propageMessages({ category: 'Birthdays', everyone: true, embeds: [embed] });
+		await client.propageMessages({ category: 'Birthdays', everyone: true, embeds: [embed] });
 
-			logger.info(`Notified guild users about **${target.username}** birthday.`);
-		} catch (error) {
-			logger.warn(`Failed to notify guild users about **${userId}** birthday. Reason: **${error}**`);
-		}
+		logger.info(`Notified guild users about **${target.username}** birthday.`);
 	}
 };

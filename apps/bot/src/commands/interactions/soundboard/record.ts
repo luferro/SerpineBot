@@ -1,27 +1,25 @@
 import { EndBehaviorType } from '@discordjs/voice';
 import { spawn } from 'child_process';
+import { randomUUID } from 'crypto';
 import { SlashCommandSubcommandBuilder } from 'discord.js';
 import { createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
+import { t } from 'i18next';
 import { resolve } from 'path';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('record')
-	.setDescription('Create a recording of yourself.')
-	.addStringOption((option) => option.setName('name').setDescription('Recording name.').setRequired(true));
+	.setName(t('interactions.soundboard.record.name'))
+	.setDescription(t('interactions.soundboard.record.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
 
-	const filename = interaction.options.getString('name', true);
-
 	const channel = interaction.member.voice.channel;
-	if (!channel) throw new Error('You are not in a voice channel.');
+	if (!channel) throw new Error(t('errors.voice.member.channel'));
 
 	const recordings = resolve('recordings');
 	if (!existsSync('recordings')) mkdirSync('recordings');
-	if (existsSync(`recordings/${filename}.mp3`)) throw new Error(`Sound \`${filename}\` already exists.`);
 
 	let queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) {
@@ -35,18 +33,22 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const stream = queue.voiceReceiver?.recordUser(interaction.user.id, {
 		mode: 'pcm',
 		end: EndBehaviorType.AfterSilence,
+		silenceDuration: 1000,
 	});
-	if (!stream) throw new Error('Could not record your sound.');
+	if (!stream) throw new Error(t('errors.voice.receiver.record'));
 
-	const input = `${recordings}/${filename}.pcm`;
+	const uuid = randomUUID();
+	const input = `${recordings}/${uuid}.pcm`;
 	const writer = stream.pipe(createWriteStream(input));
 	writer.once('finish', async () => {
-		const output = `${recordings}/${filename}.mp3`;
+		const output = `${recordings}/${uuid}.mp3`;
 		const args = ['-f', 's16le', '-ar', '44.1k', '-ac', '2', '-i', input, '-strict', '-2', output];
 
-		spawn('ffmpeg', args).on('exit', async () => {
-			unlinkSync(input);
-			await interaction.editReply({ files: [output] });
+		spawn('ffmpeg', args).on('exit', () => {
+			interaction.editReply({ files: [output] }).then(() => {
+				[input, output].forEach((file) => unlinkSync(file));
+				stream.destroy();
+			});
 		});
 	});
 };

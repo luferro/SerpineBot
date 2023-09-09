@@ -7,18 +7,24 @@ import {
 	StringSelectMenuBuilder,
 } from 'discord.js';
 import { Playlist } from 'discord-player';
+import { t } from 'i18next';
 
 import { Bot } from '../../../../Bot';
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 import { ExtendedStringSelectMenuInteraction } from '../../../../types/interaction';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('remove')
-	.setDescription('Removes a track or playlist from the queue.')
-	.addIntegerOption((option) => option.setName('position').setDescription('Queue track position').setMinValue(1));
+	.setName(t('interactions.music.queue.remove.name'))
+	.setDescription(t('interactions.music.queue.remove.description'))
+	.addIntegerOption((option) =>
+		option
+			.setName(t('interactions.music.queue.remove.options.0.name'))
+			.setDescription(t('interactions.music.queue.remove.options.0.description'))
+			.setMinValue(1),
+	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const position = interaction.options.getInteger('position');
+	const position = interaction.options.getInteger(t('interactions.music.queue.remove.options.0.name'));
 
 	if (position) removeTrack({ client, interaction, position });
 	else removePlaylist({ client, interaction });
@@ -26,17 +32,17 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 const removeTrack = async ({ client, interaction, position }: Parameters<typeof execute>[0] & { position: number }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('Cannot remove tracks.');
+	if (!queue) throw new Error(t('errors.player.node'));
 
 	const removedTrack = queue.node.remove(position - 1);
-	if (!removedTrack) throw new Error(`No track found in position \`${position}\`.`);
+	if (!removedTrack) throw new Error(t('errors.player.queue.tracks.position', { position: `\`${position}\`` }));
 
 	await Bot.commands.interactions.execute.get('music.queue.list')!({ client, interaction });
 };
 
 const removePlaylist = async ({ client, interaction }: Parameters<typeof execute>[0]) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('Cannot remove playlists.');
+	if (!queue) throw new Error(t('errors.player.node'));
 
 	const options = queue.tracks
 		.toArray()
@@ -52,17 +58,17 @@ const removePlaylist = async ({ client, interaction }: Parameters<typeof execute
 			description: author.name,
 			value: id,
 		}));
-	if (options.length === 0) throw new Error('There are no playlists in the queue.');
+	if (options.length === 0) throw new Error(t('errors.player.playlists.none'));
 
 	const uuid = randomUUID();
 	const stringSelectMenu = new StringSelectMenuBuilder()
 		.setCustomId(uuid)
-		.setPlaceholder('Nothing selected.')
+		.setPlaceholder(t('interactions.music.queue.remove.menu.placeholder'))
 		.addOptions(options)
 		.setMaxValues(options.length);
 	const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(stringSelectMenu);
 
-	const embed = new EmbedBuilder().setTitle('Select which playlist to remove from the queue.').setColor('Random');
+	const embed = new EmbedBuilder().setTitle(t('interactions.music.queue.remove.embeds.0.title')).setColor('Random');
 	await interaction.reply({ embeds: [embed], components: [component] });
 	await handleStringSelectMenu({ client, interaction, uuid });
 };
@@ -77,10 +83,10 @@ const handleStringSelectMenu = async ({
 		componentType: ComponentType.StringSelect,
 		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
 	})) as ExtendedStringSelectMenuInteraction;
-	if (!selectMenuInteraction) throw new Error('Playlist removal timeout.');
+	if (!selectMenuInteraction) throw new Error(t('errors.interaction.timeout'));
 
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue) throw new Error('No queue in place.');
+	if (!queue) throw new Error(t('errors.player.node'));
 
 	for (const playlistId of selectMenuInteraction.values) {
 		const tracks = queue.tracks.filter((track) => track.playlist?.id === playlistId);
@@ -90,7 +96,9 @@ const handleStringSelectMenu = async ({
 	}
 
 	const embed = new EmbedBuilder()
-		.setTitle(`${selectMenuInteraction.values.length} playlist(s) removed.`)
+		.setTitle(
+			t('interactions.music.queue.remove.embeds.1.title', { size: `**${selectMenuInteraction.values.length}**` }),
+		)
 		.setColor('Random');
 
 	await selectMenuInteraction.update({ embeds: [embed], components: [] });

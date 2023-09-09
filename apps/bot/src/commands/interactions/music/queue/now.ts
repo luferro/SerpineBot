@@ -1,14 +1,15 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('now')
-	.setDescription('Lists track currently playing.');
+	.setName(t('interactions.music.queue.now.name'))
+	.setDescription(t('interactions.music.queue.now.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
-	if (!queue?.currentTrack) throw new Error('Cannot display current track.');
+	if (!queue?.currentTrack) throw new Error(t('errors.player.node'));
 
 	const { previousTrack, currentTrack } = queue.history;
 	const { author, title, url, thumbnail, requestedBy } = currentTrack!;
@@ -21,12 +22,17 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setDescription(queue.node.createProgressBar())
 		.setFooter({
 			iconURL: requestedBy?.avatarURL() ?? requestedBy?.defaultAvatarURL,
-			text: `Requested by ${requestedBy?.username}`,
+			text: t('music.queue.now.embed.footer.text', { requestedBy: requestedBy?.username }),
 		})
 		.setColor('Random');
 
 	if (previousTrack) {
-		embed.addFields([{ name: '**Previous track**', value: `**[${previousTrack.title}](${previousTrack.url})**` }]);
+		embed.addFields([
+			{
+				name: `**${t('music.queue.now.embed.fields.0.name')}**`,
+				value: `**[${previousTrack.title}](${previousTrack.url})**`,
+			},
+		]);
 	}
 
 	await interaction.reply({ embeds: [embed] });

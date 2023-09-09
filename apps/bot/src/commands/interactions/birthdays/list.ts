@@ -1,14 +1,15 @@
 import { BirthdaysModel } from '@luferro/database';
 import { DateUtil, StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
 type GroupedBirthdays = { month: string; birthdays: Awaited<ReturnType<typeof BirthdaysModel.getAllBirthdays>> };
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('list')
-	.setDescription('Lists all registered birthdays.');
+	.setName(t('interactions.birthdays.list.name'))
+	.setDescription(t('interactions.birthdays.list.description'));
 
 export const execute: InteractionCommandExecute = async ({ interaction }) => {
 	const birthdaysList = await BirthdaysModel.getAllBirthdays();
@@ -23,7 +24,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 
 			return acc;
 		}, [] as GroupedBirthdays[]);
-	if (groupedBirthdays.length === 0) throw new Error('No birthdays have been registered.');
+	if (groupedBirthdays.length === 0) throw new Error(t('errors.search.none'));
 
 	const fields = await Promise.all(
 		groupedBirthdays.map(async ({ month, birthdays }) => {
@@ -39,6 +40,9 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 		}),
 	);
 
-	const embed = new EmbedBuilder().setTitle('Birthdays').setFields(fields).setColor('Random');
+	const embed = new EmbedBuilder()
+		.setTitle(t('interactions.birthdays.list.embed.title'))
+		.setFields(fields)
+		.setColor('Random');
 	await interaction.reply({ embeds: [embed] });
 };

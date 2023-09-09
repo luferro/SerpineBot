@@ -1,19 +1,20 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName('top')
-	.setDescription("Xbox's top played games.");
+	.setName(t('interactions.gaming.xbox.top.name'))
+	.setDescription(t('interactions.gaming.xbox.top.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
 	const topPlayed = await client.api.gaming.xbox.getTopPlayed();
-	if (topPlayed.length === 0) throw new Error("No games were found in Xbox's top played list.");
+	if (topPlayed.length === 0) throw new Error(t('errors.search.none'));
 
 	const embed = new EmbedBuilder()
-		.setTitle("Xbox's Top Played")
+		.setTitle(t('interactions.gaming.xbox.top.embed.title'))
 		.setDescription(topPlayed.join('\n'))
 		.setColor('Random');
 
