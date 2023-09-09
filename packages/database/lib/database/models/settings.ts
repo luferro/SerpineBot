@@ -7,6 +7,25 @@ type RoleConfig = { channelId: string | null; options: string[] };
 type WebhookConfig = { webhook: Webhook };
 type Settings = { guildId: string; roles: RoleConfig; webhooks: Map<WebhookType, Webhook> };
 
+export const webhooks: WebhookType[] = [
+	'Anime',
+	'Birthdays',
+	'Events',
+	'Free Games',
+	'Game Deals',
+	'Game Reviews',
+	'Gaming News',
+	'Leaderboards',
+	'Manga',
+	'Memes',
+	'Nintendo',
+	'Nsfw',
+	'PlayStation',
+	'Portugal News',
+	'World News',
+	'Xbox',
+];
+
 interface SettingsModel extends Model<Settings> {
 	createSettings: (args: Settings) => Promise<void>;
 	getSettingsByGuildId: (args: Pick<Settings, 'guildId'>) => Promise<Omit<Settings, 'guildId'> | null>;
