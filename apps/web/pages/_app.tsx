@@ -1,8 +1,5 @@
 import { MantineProvider } from '@mantine/core';
-import { marked } from 'marked';
 import type { AppProps } from 'next/app';
-
-marked.setOptions({ mangle: false, headerIds: false });
 
 const App = ({ Component, pageProps }: AppProps) => {
 	return (
