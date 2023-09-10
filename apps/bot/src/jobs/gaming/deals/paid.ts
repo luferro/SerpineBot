@@ -28,7 +28,9 @@ export const execute: JobExecute = async ({ client }) => {
 						regular: `~~${regular}~~`,
 						current: `**${current}**`,
 						store: `**[${store}](${url})**`,
-						activates: drm ? `*Activates on ${drm.join(', ')}*` : `*DRM Free*`,
+						activation: drm
+							? `*${t('jobs.gaming.deals.paid.activation.drm', { drm: drm.join(', ') })}*`
+							: `*${t('jobs.gaming.deals.paid.activation.none')}*`,
 					});
 				}),
 			)
