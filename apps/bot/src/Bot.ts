@@ -1,9 +1,3 @@
-import {
-	AppleMusicExtractor,
-	AttachmentExtractor,
-	SpotifyExtractor,
-	YouTubeExtractor,
-} from '@discord-player/extractor';
 import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { Database, SettingsModel, StateModel, WebhookType } from '@luferro/database';
 import { AnimeApi, ComicsApi, GamingApi, MangadexApi, ShowsApi } from '@luferro/entertainment-api';
@@ -33,15 +27,11 @@ type PropageArgs = { category: WebhookType; content: string; embeds: EmbedBuilde
 
 export class Bot extends Client {
 	private static readonly MAX_EMBEDS_SIZE = 10;
-
 	static readonly ROLES_MESSAGE_ID = 'CLAIM_YOUR_ROLES';
 
 	static jobs: Collection<string, Job> = new Collection();
 	static events: Collection<string, Event> = new Collection();
-	static commands: Commands = {
-		voice: new Collection(),
-		interactions: { metadata: [], execute: new Collection() },
-	};
+	static commands: Commands = { voice: new Collection(), interactions: { metadata: [], execute: new Collection() } };
 
 	api: Api;
 	scraper: Scraper;
@@ -97,11 +87,16 @@ export class Bot extends Client {
 	}
 
 	private initializeTools() {
+		const porcupine = resolve('models/porcupine');
 		const leopard = resolve('models/leopard');
 		const rhino = resolve('models/rhino');
 
 		return {
-			wakeWord: new Porcupine(this.config.PICOVOICE_API_KEY, [BuiltinKeyword.BUMBLEBEE], [0.8]),
+			wakeWord: new Porcupine(
+				this.config.PICOVOICE_API_KEY,
+				[`${porcupine}/wakeword_en_${process.platform}.ppn`, BuiltinKeyword.BUMBLEBEE],
+				[0.8, 0.5],
+			),
 			speechToIntent: new Rhino(
 				this.config.PICOVOICE_API_KEY,
 				`${rhino}/model_en_${process.platform}.rhn`,
@@ -116,10 +111,7 @@ export class Bot extends Client {
 
 	private initializePlayer() {
 		const player = new Player(this);
-		player.extractors.register(YouTubeExtractor, {});
-		player.extractors.register(SpotifyExtractor, {});
-		player.extractors.register(AppleMusicExtractor, {});
-		player.extractors.register(AttachmentExtractor, {});
+		player.extractors.loadDefault();
 		logger.debug(player.scanDeps());
 		return player;
 	}
@@ -221,9 +213,7 @@ export class Bot extends Client {
 	handleError(error: Error, client?: Bot) {
 		const isPlayerError = error.stack?.includes('discord-player');
 		const isFetchError = error instanceof FetchError;
-
-		const isWarning = isPlayerError || isFetchError;
-		logger[isWarning ? 'warn' : 'error'](error);
+		logger[isPlayerError || isFetchError ? 'warn' : 'error'](error);
 
 		if (isPlayerError) this.emit('recoverFromError', { client });
 	}
