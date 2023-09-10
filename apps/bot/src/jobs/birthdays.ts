@@ -13,6 +13,8 @@ export const execute: JobExecute = async ({ client }) => {
 		const currentDate = new Date();
 		currentDate.setHours(0, 0, 0, 0);
 
+		const age = currentDate.getFullYear() - date.getFullYear();
+
 		date.setFullYear(currentDate.getFullYear());
 		date.setHours(0, 0, 0, 0);
 
@@ -20,11 +22,9 @@ export const execute: JobExecute = async ({ client }) => {
 
 		const target = await client.users.fetch(userId);
 
-		const age = currentDate.getFullYear() - date.getFullYear();
-
 		const embed = new EmbedBuilder()
-			.setTitle(t('jobs.birthday.embed.title'))
-			.setDescription(t('jobs.birthday.embed.description', { username: `\`${target.username}\``, age }))
+			.setTitle(t('jobs.birthdays.embed.title'))
+			.setDescription(t('jobs.birthdays.embed.description', { username: `\`${target.username}\``, age }))
 			.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL);
 
 		await client.propageMessages({ category: 'Birthdays', everyone: true, embeds: [embed] });

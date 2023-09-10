@@ -98,12 +98,12 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 	for (const [category, queue] of Object.entries(alerts) as unknown as Entries<typeof alerts>) {
 		if (queue.length === 0) continue;
 
-		const title = t(`job.gaming.wishlists.${category}.embed.title`, { size: queue.length });
+		const title = t(`jobs.gaming.wishlists.${category}.embed.title`, { size: queue.length });
 		const description = queue
 			.slice(0, 10)
 			.map(
 				({ name, url, discount, discounted, regular, addedTo, removedFrom }) =>
-					`> ${t(`job.gaming.wishlists.${category}.embed.description`, {
+					`> ${t(`jobs.gaming.wishlists.${category}.embed.description`, {
 						item: `**[${name}](${url})**`,
 						discount: `***${discount}%***`,
 						regular: `~~${regular}~~`,
