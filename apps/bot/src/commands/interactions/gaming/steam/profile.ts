@@ -34,20 +34,20 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('gaming.steam.profile.embed.fields.0.name')}**`,
+				name: `**${t('interactions.gaming.steam.profile.embed.fields.0.name')}**`,
 				value: profile.id,
 			},
 			{
-				name: `**${t('gaming.steam.profile.embed.fields.1.name')}**`,
+				name: `**${t('interactions.gaming.steam.profile.embed.fields.1.name')}**`,
 				value: status,
 			},
 			{
-				name: `**${t('gaming.steam.profile.embed.fields.2.name')}**`,
+				name: `**${t('interactions.gaming.steam.profile.embed.fields.2.name')}**`,
 				value: DateUtil.formatDate(createdAt),
 				inline: true,
 			},
 			{
-				name: `**${t('gaming.steam.profile.embed.fields.3.name')}**`,
+				name: `**${t('interactions.gaming.steam.profile.embed.fields.3.name')}**`,
 				value: DateUtil.formatDate(logoutAt),
 				inline: true,
 			},

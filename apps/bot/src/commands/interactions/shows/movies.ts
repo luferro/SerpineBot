@@ -26,9 +26,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const formattedBuy = buy.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
 	const formattedRent = rent.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
 
-	const { name, description, url, releaseDate, image, score, runtime, genres } = await client.api.shows.getMovieById(
-		id,
-	);
+	const { name, description, url, releaseDate, image, score, runtime, genres } =
+		await client.api.shows.getMovieById(id);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
@@ -37,36 +36,36 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('shows.movies.embed.fields.0.name')}**`,
+				name: `**${t('interactions.shows.movies.embed.fields.0.name')}**`,
 				value: releaseDate ?? t('common.unavailable'),
 			},
 			{
-				name: `**${t('shows.movies.embed.fields.1.name')}**`,
+				name: `**${t('interactions.shows.movies.embed.fields.1.name')}**`,
 				value: score ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('shows.movies.embed.fields.2.name')}**`,
+				name: `**${t('interactions.shows.movies.embed.fields.2.name')}**`,
 				value: runtime ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('shows.movies.embed.fields.3.name')}**`,
+				name: `**${t('interactions.shows.movies.embed.fields.3.name')}**`,
 				value: genres.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('shows.movies.embed.fields.4.name')}**`,
+				name: `**${t('interactions.shows.movies.embed.fields.4.name')}**`,
 				value: formattedBuy.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('shows.movies.embed.fields.5.name')}**`,
+				name: `**${t('interactions.shows.movies.embed.fields.5.name')}**`,
 				value: formattedRent.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('shows.movies.embed.fields.6.name')}**`,
+				name: `**${t('interactions.shows.movies.embed.fields.6.name')}**`,
 				value: formattedStream.join('\n') || t('common.unavailable'),
 				inline: true,
 			},

@@ -32,11 +32,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('gaming.xbox.profile.embed.fields.0.name')}**`,
+				name: `**${t('interactions.gaming.xbox.profile.embed.fields.0.name')}**`,
 				value: gamerscore.toString(),
 			},
 			{
-				name: `**${t('gaming.xbox.profile.embed.fields.1.name')}**`,
+				name: `**${t('interactions.gaming.xbox.profile.embed.fields.1.name')}**`,
 				value: gamesPlayed.toString(),
 			},
 		])

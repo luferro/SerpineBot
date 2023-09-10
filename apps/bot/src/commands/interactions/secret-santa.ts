@@ -57,19 +57,19 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 			.setTitle(t('interactions.secret-santa.embeds.1.title', { year: eventDate.getFullYear() }))
 			.addFields([
 				{
-					name: `**${t('secret-santa.embeds.1.fields.0.name')}**`,
+					name: `**${t('interactions.secret-santa.embeds.1.fields.0.name')}**`,
 					value: `**${DateUtil.formatDate(eventDate)}**`,
 				},
 				{
-					name: `**${t('secret-santa.embeds.1.fields.1.name')}**`,
+					name: `**${t('interactions.secret-santa.embeds.1.fields.1.name')}**`,
 					value: `**${value}€**`,
 				},
 				{
-					name: `**${t('secret-santa.embeds.1.fields.2.name')}**`,
+					name: `**${t('interactions.secret-santa.embeds.1.fields.2.name')}**`,
 					value: `**${receiver.user.username}**`,
 				},
 			])
-			.setFooter({ text: t('secret-santa.embeds.1.footer.text', { reminderId }) })
+			.setFooter({ text: t('interactions.secret-santa.embeds.1.footer.text', { reminderId }) })
 			.setColor('Random');
 
 		gifter.user.send({ embeds: [embed] });

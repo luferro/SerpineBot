@@ -40,12 +40,12 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(playlist?.thumbnail ?? track.thumbnail)
 		.addFields([
 			{
-				name: `**${t('music.play.embeds.1.fields.0.name')}**`,
+				name: `**${t('interactions.music.play.embeds.1.fields.0.name')}**`,
 				value: position === 0 ? t('common.player.playback.playing') : position.toString(),
 				inline: true,
 			},
 			{
-				name: `**${t('music.play.embeds.1.fields.1.name')}**`,
+				name: `**${t('interactions.music.play.embeds.1.fields.1.name')}**`,
 				value: playlist?.durationFormatted ?? track.duration,
 				inline: true,
 			},

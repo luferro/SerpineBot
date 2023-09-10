@@ -34,23 +34,23 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setURL(url)
 		.addFields([
 			{
-				name: `**${t('gaming.deals.embed.fields.0.name')}**`,
+				name: `**${t('interactions.gaming.deals.embed.fields.0.name')}**`,
 				value: `**${historicalLow.price}** @ ${
 					historicalLow.url ? `[${historicalLow.store}](${historicalLow.url})` : historicalLow.store
 				}\n*${historicalLow.on}*`,
 				inline: true,
 			},
 			{
-				name: `**${t('gaming.deals.embed.fields.1.name')}**`,
+				name: `**${t('interactions.gaming.deals.embed.fields.1.name')}**`,
 				value: `**${deal.price}** @ [${deal.store}](${deal.url})`,
 				inline: true,
 			},
 			{
-				name: `**${t('gaming.deals.embed.fields.2.name')}**`,
+				name: `**${t('interactions.gaming.deals.embed.fields.2.name')}**`,
 				value: formattedBundles.join('\n') || t('common.unavailable'),
 			},
 			{
-				name: `**${t('gaming.deals.embed.fields.3.name')}**`,
+				name: `**${t('interactions.gaming.deals.embed.fields.3.name')}**`,
 				value: formattedSubscriptions.join('\n') || t('common.unavailable'),
 			},
 		])

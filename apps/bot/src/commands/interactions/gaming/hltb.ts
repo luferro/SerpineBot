@@ -33,17 +33,17 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('gaming.hltb.embed.fields.0.name')}**`,
+				name: `**${t('interactions.gaming.hltb.embed.fields.0.name')}**`,
 				value: main ? `~${main}` : t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('gaming.hltb.embed.fields.1.name')}**`,
+				name: `**${t('interactions.gaming.hltb.embed.fields.1.name')}**`,
 				value: mainExtra ? `~${mainExtra}` : t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('gaming.hltb.embed.fields.2.name')}**`,
+				name: `**${t('interactions.gaming.hltb.embed.fields.2.name')}**`,
 				value: completionist ? `~${completionist}` : t('common.unavailable'),
 				inline: true,
 			},

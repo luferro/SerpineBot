@@ -101,12 +101,12 @@ const handleStringSelectMenu = async ({
 		.setThumbnail(track.thumbnail)
 		.addFields([
 			{
-				name: `**${t('music.search.embeds.1.fields.0.name')}**`,
+				name: `**${t('interactions.music.search.embeds.1.fields.0.name')}**`,
 				value: position === 0 ? t('common.player.playback.playing') : position.toString(),
 				inline: true,
 			},
 			{
-				name: `**${t('music.search.embeds.1.fields.1.name')}**`,
+				name: `**${t('interactions.music.search.embeds.1.fields.1.name')}**`,
 				value: track.duration,
 				inline: true,
 			},

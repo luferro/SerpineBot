@@ -24,11 +24,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(interaction.guild.iconURL())
 		.addFields([
 			{
-				name: `**${t('music.queue.list.embed.fields.0.name')}**`,
+				name: `**${t('interactions.music.queue.list.embed.fields.0.name')}**`,
 				value: queue.currentTrack ? formatTrack(queue.currentTrack) : t('common.player.playback.nothing'),
 			},
 			{
-				name: `**${t('music.queue.list.embed.fields.1.name')}**`,
+				name: `**${t('interactions.music.queue.list.embed.fields.1.name')}**`,
 				value: formattedQueue.join('\n') || t('common.player.queue.empty'),
 			},
 		])
