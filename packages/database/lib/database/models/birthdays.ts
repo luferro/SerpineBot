@@ -33,8 +33,13 @@ schema.statics.getAllBirthdays = async function () {
 schema.statics.getUpcomingBirthdays = async function () {
 	return await this.find({
 		$expr: {
-			$and: [
-				{ $gte: [{ $dayOfMonth: '$date' }, new Date().getDate()] },
+			$or: [
+				{
+					$and: [
+						{ $gte: [{ $dayOfMonth: '$date' }, new Date().getDate()] },
+						{ $eq: [{ $month: '$date' }, new Date().getMonth() + 1] },
+					],
+				},
 				{ $gte: [{ $month: '$date' }, new Date().getMonth() + 1] },
 			],
 		},
