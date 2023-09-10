@@ -76,13 +76,11 @@ const getSlashCommandPermission = (key: string) => {
 
 const buildSlashCommands = (map: Map<string, Map<string, InteractionCommandData[]>>) => {
 	for (const [key, metadata] of map.entries()) {
-		console.log(t(`interactions.${key}.name`));
 		const command = new SlashCommandBuilder()
 			.setName(t(`interactions.${key}.name`))
 			.setDescription(t(`interactions.${key}.description`))
 			.setDefaultMemberPermissions(getSlashCommandPermission(key));
 		for (const [category, options] of metadata.entries()) {
-			console.log(t(`interactions.${key}.${category}.name`));
 			const builder =
 				category === key
 					? command
