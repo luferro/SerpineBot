@@ -76,17 +76,19 @@ const getSlashCommandPermission = (key: string) => {
 
 const buildSlashCommands = (map: Map<string, Map<string, InteractionCommandData[]>>) => {
 	for (const [key, metadata] of map.entries()) {
+		console.log(t(`interactions.${key}.name`));
 		const command = new SlashCommandBuilder()
-			.setName(t(`${key}.name`))
-			.setDescription(t(`${key}.description`))
+			.setName(t(`interactions.${key}.name`))
+			.setDescription(t(`interactions.${key}.description`))
 			.setDefaultMemberPermissions(getSlashCommandPermission(key));
 		for (const [category, options] of metadata.entries()) {
+			console.log(t(`interactions.${key}.${category}.name`));
 			const builder =
 				category === key
 					? command
 					: new SlashCommandSubcommandGroupBuilder()
-							.setName(t(`${key}.${category}.name`))
-							.setDescription(t(`${key}.${category}.description`));
+							.setName(t(`interactions.${key}.${category}.name`))
+							.setDescription(t(`interactions.${key}.${category}.description`));
 
 			for (const option of options) {
 				const isSubcommand = option instanceof SlashCommandSubcommandBuilder;
