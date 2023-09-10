@@ -25,6 +25,6 @@
 		"playwright-extra": "^4.3.6",
 		"puppeteer-extra-plugin-stealth": "^2.11.2",
 		"rss-parser": "^3.13.0",
-		"ytdl-core": "^4.11.5"
+		"ytdl-core": "4.10.0"
 	}
 }
