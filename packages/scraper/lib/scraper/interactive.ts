@@ -1,37 +1,27 @@
-import { Browser, Route } from 'playwright-chromium';
+import { Page, Route } from 'playwright-chromium';
 import { chromium } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 chromium.use(StealthPlugin());
 
-export const load = async ({ url }: { url: string }) => {
+type Url = { url: string };
+export type Callback<T = unknown> = (page: Page) => Promise<T>;
+
+export const load = async <T = unknown>({ url, cb }: Url & { cb: Callback<T> }) => {
 	const browser = await chromium.launch();
-	const context = await browser.newContext();
-	await context.clearCookies();
+	const page = await browser.newPage();
 
-	const page = await context.newPage();
-	await page.route('**/*', (route: Route) => {
-		const hasResource = ['font', 'image'].some((resource) => resource === route.request().resourceType());
-		return hasResource ? route.abort() : route.continue();
-	});
-	await page.goto(url, { waitUntil: 'networkidle' });
-
-	return { browser, page };
-};
-
-export const getHtml = async ({ url }: { url: string }) => {
-	const { browser, page } = await load({ url });
 	try {
-		const html = await page.content();
-		return html;
+		await page.route('**/*', (route: Route) => {
+			const hasResource = ['font', 'image'].some((resource) => resource === route.request().resourceType());
+			return hasResource ? route.abort() : route.continue();
+		});
+		await page.goto(url, { waitUntil: 'networkidle' });
+		return await cb(page);
 	} finally {
-		await close({ browser });
+		await page.close();
+		await browser.close();
 	}
 };
 
-export const close = async ({ browser }: { browser: Browser }) => {
-	for (const context of browser.contexts()) {
-		await context.close();
-	}
-	await browser.close();
-};
+export const getHtml = async ({ url }: Url) => await load({ url, cb: async (page) => await page.content() });

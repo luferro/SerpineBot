@@ -11,63 +11,63 @@ export enum Endpoint {
 	UBISOFT_PLUS_CATALOG = 'https://store.ubisoft.com/ie/Ubisoftplus/games',
 }
 
-export const getCatalogList = async (url: Endpoint) => {
-	const { browser, page } = await InteractiveScraper.load({ url });
+export const getCatalogList = async (url: Endpoint) =>
+	await InteractiveScraper.load({
+		url,
+		cb: async (page) => {
+			await page.waitForTimeout(5000);
 
-	try {
-		await page.waitForTimeout(10_000);
+			const catalog: Catalog[] = [];
+			const { list, pagination, cookies, region } = getSelectors(page.url() as Endpoint);
 
-		const catalog: Catalog[] = [];
-		const { list, pagination, cookies, region } = getSelectors(url);
+			const cookiesButton = cookies ? page.locator(cookies) : null;
+			if (cookiesButton && (await cookiesButton.isVisible())) await cookiesButton.click();
 
-		const cookiesButton = cookies ? page.locator(cookies) : null;
-		if (cookiesButton && (await cookiesButton.isVisible())) await cookiesButton.click();
+			const regionButton = region ? page.locator(region) : null;
+			if (regionButton && (await regionButton?.isVisible())) await regionButton.click();
 
-		const regionButton = region ? page.locator(region) : null;
-		if (regionButton && (await regionButton?.isVisible())) await regionButton.click();
+			let currentPage = 1;
+			while (true) {
+				await page.waitForTimeout(2000);
 
-		let currentPage = 1;
-		while (true) {
-			await page.waitForTimeout(2000);
+				const containers = await page.locator(list.element).elementHandles();
+				for (const container of containers) {
+					const name = await (await container.$(list.item.name))?.textContent();
+					const href = list.item.href
+						? await (await container.$(list.item.href))?.getAttribute('href')
+						: null;
+					const url = list.item.base ? `${list.item.base}${href}` : href;
+					if (!name) continue;
 
-			const containers = await page.locator(list.element).elementHandles();
-			for (const container of containers) {
-				const name = await (await container.$(list.item.name))?.textContent();
-				const href = list.item.href ? await (await container.$(list.item.href))?.getAttribute('href') : null;
-				const url = list.item.base ? `${list.item.base}${href}` : href;
-				if (!name) continue;
+					// eslint-disable-next-line no-control-regex
+					const fixedName = name.replace(/[^\x00-\x7F]/g, '');
+					const isPresent = catalog.find((item) => item.name === fixedName);
+					if (isPresent) continue;
 
-				// eslint-disable-next-line no-control-regex
-				const fixedName = name.replace(/[^\x00-\x7F]/g, '');
-				const isPresent = catalog.find((item) => item.name === fixedName);
-				if (isPresent) continue;
+					catalog.push({ name: fixedName, slug: StringUtil.slug(name), url: url ?? null });
+				}
 
-				catalog.push({ name: fixedName, slug: StringUtil.slug(name), url: url ?? null });
+				const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
+				const totalPages =
+					pagination.element && pagination.total
+						? Number(
+								(await page
+									.locator(pagination.element)
+									.nth(pagination.nth)
+									.getAttribute(pagination.total))!,
+						  )
+						: null;
+
+				const hasMore = totalPages ? totalPages !== currentPage : (await nextPageButton.count()) > 0;
+				if (!hasMore) break;
+
+				await nextPageButton.scrollIntoViewIfNeeded();
+				await nextPageButton.click();
+				currentPage++;
 			}
-
-			const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
-			const totalPages =
-				pagination.element && pagination.total
-					? Number(
-							(await page
-								.locator(pagination.element)
-								.nth(pagination.nth)
-								.getAttribute(pagination.total))!,
-					  )
-					: null;
-
-			const hasMore = totalPages ? totalPages !== currentPage : (await nextPageButton.count()) > 0;
-			if (!hasMore) break;
-
-			await nextPageButton.scrollIntoViewIfNeeded();
-			await nextPageButton.click();
-			currentPage++;
-		}
-		return catalog;
-	} finally {
-		await InteractiveScraper.close({ browser });
-	}
-};
+			return catalog;
+		},
+	});
 
 const getSelectors = (url: Endpoint) => {
 	const options = {
