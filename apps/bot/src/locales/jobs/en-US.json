@@ -29,6 +29,7 @@
 				}
 			},
 			"paid": {
+				"activation": { "drm": "Activates on {{drm}}", "none": "DRM Free" },
 				"embed": {
 					"description": "{{discount}} off! {{regular}} | {{current}} @ {{store}}\n{{activation}}",
 					"footer": { "text": "Expires on {{expiry}}" }
