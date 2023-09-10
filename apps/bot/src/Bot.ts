@@ -10,12 +10,11 @@ import { AnimeApi, ComicsApi, GamingApi, MangadexApi, ShowsApi } from '@luferro/
 import { NewsApi } from '@luferro/news-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { InteractiveScraper, SearchEngine, StaticScraper, Youtube } from '@luferro/scraper';
-import { ArrayUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
+import { ArrayUtil, EnumUtil, FetchError, logger } from '@luferro/shared-utils';
 import { Leopard } from '@picovoice/leopard-node';
 import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
 import { Rhino } from '@picovoice/rhino-node';
 import { CronJob } from 'cron';
-import crypto from 'crypto';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
 import i18next from 'i18next';
@@ -174,10 +173,8 @@ export class Bot extends Client {
 		}
 	}
 
-	async state({ title, url }: StateArgs) {
-		await SleepUtil.sleep(2000);
-		const hash = crypto.createHash('sha256').update(JSON.stringify({ title, url })).digest('hex');
-		return await StateModel.createEntry({ hash });
+	async state(entry: StateArgs) {
+		return await StateModel.createEntry(entry);
 	}
 
 	async webhook({ guild, category }: WebhookArgs) {
