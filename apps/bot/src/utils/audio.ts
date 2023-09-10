@@ -1,5 +1,5 @@
-import { EndBehaviorType, VoiceReceiver } from '@discordjs/voice';
 import { ArrayUtil } from '@luferro/shared-utils';
+import { EndBehaviorType, VoiceReceiver } from 'discord-voip';
 import prism from 'prism-media';
 
 import { Bot } from '../Bot';

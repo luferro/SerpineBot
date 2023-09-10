@@ -1,5 +1,5 @@
-import { createAudioResource } from '@discordjs/voice';
 import { logger } from '@luferro/shared-utils';
+import { createAudioResource } from 'discord-voip';
 import { Readable } from 'stream';
 
 import { Bot } from '../Bot';

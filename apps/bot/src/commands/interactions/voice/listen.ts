@@ -1,6 +1,6 @@
-import { VoiceReceiver } from '@discordjs/voice';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder, TextBasedChannel } from 'discord.js';
+import { VoiceReceiver } from 'discord-voip';
 import { t } from 'i18next';
 
 import { Bot } from '../../../Bot';
