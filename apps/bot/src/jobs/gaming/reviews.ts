@@ -8,7 +8,7 @@ export const data: JobData = { schedule: '0 */30 * * * *' };
 export const execute: JobExecute = async ({ client }) => {
 	const interval = { start: Date.now() };
 	const results = await client.scraper.searchEngine.search({ query: `reviews site:opencritic.com/game`, interval });
-	const reviews = results.map((result) => {
+	const reviews = (results ?? []).map((result) => {
 		const [url] = result.url.match(/https?:\/\/opencritic.com\/game\/\d+\/(\w|-)+/)!;
 		return { name: result.name, url };
 	});
