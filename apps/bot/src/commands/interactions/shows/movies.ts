@@ -70,7 +70,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 				inline: true,
 			},
 		])
-		.setFooter({ text: t('shows.movies.embed.footer.text') })
+		.setFooter({ text: t('interactions.shows.movies.embed.footer.text') })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

@@ -22,13 +22,13 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setDescription(t('interactions.reminders.create.options.1.description'))
 			.setRequired(true)
 			.addChoices(
-				{ name: t('reminders.create.options.1.choices.0.name'), value: 'Seconds' },
-				{ name: t('reminders.create.options.1.choices.1.name'), value: 'Minutes' },
-				{ name: t('reminders.create.options.1.choices.2.name'), value: 'Hours' },
-				{ name: t('reminders.create.options.1.choices.3.name'), value: 'Days' },
-				{ name: t('reminders.create.options.1.choices.4.name'), value: 'Weeks' },
-				{ name: t('reminders.create.options.1.choices.5.name'), value: 'Months' },
-				{ name: t('reminders.create.options.1.choices.6.name'), value: 'Years' },
+				{ name: t('interactions.reminders.create.options.1.choices.0.name'), value: 'Seconds' },
+				{ name: t('interactions.reminders.create.options.1.choices.1.name'), value: 'Minutes' },
+				{ name: t('interactions.reminders.create.options.1.choices.2.name'), value: 'Hours' },
+				{ name: t('interactions.reminders.create.options.1.choices.3.name'), value: 'Days' },
+				{ name: t('interactions.reminders.create.options.1.choices.4.name'), value: 'Weeks' },
+				{ name: t('interactions.reminders.create.options.1.choices.5.name'), value: 'Months' },
+				{ name: t('interactions.reminders.create.options.1.choices.6.name'), value: 'Years' },
 			),
 	)
 	.addStringOption((option) =>
@@ -57,7 +57,12 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 	const embed = new EmbedBuilder()
 		.setTitle(t('interactions.reminders.create.embed.title', { reminderId: `**${reminderId}**` }))
 		.setDescription(
-			t('reminders.create.embed.description', { user, message, time, unit: unit.toLocaleLowerCase() }),
+			t('interactions.reminders.create.embed.description', {
+				user,
+				message,
+				time,
+				unit: unit.toLocaleLowerCase(),
+			}),
 		)
 		.setColor('Random');
 

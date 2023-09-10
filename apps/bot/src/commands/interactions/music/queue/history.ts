@@ -27,7 +27,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 				value: formattedHistory.join('\n') || t('common.player.queue.empty'),
 			},
 		])
-		.setFooter({ text: t('music.queue.history.embed.footer.text', { size: history.tracks.size }) })
+		.setFooter({ text: t('interactions.music.queue.history.embed.footer.text', { size: history.tracks.size }) })
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });

@@ -13,8 +13,8 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setDescription(t('interactions.shows.subscriptions.options.0.description'))
 			.setRequired(true)
 			.addChoices(
-				{ name: t('shows.subscriptions.options.0.choices.0.name'), value: 'tv' },
-				{ name: t('shows.subscriptions.options.0.choices.1.name'), value: 'movie' },
+				{ name: t('interactions.shows.subscriptions.options.0.choices.0.name'), value: 'tv' },
+				{ name: t('interactions.shows.subscriptions.options.0.choices.1.name'), value: 'movie' },
 			),
 	)
 	.addStringOption((option) =>
@@ -43,11 +43,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setTitle(StringUtil.truncate(subscriptions[0].entry.name))
 		.addFields([
 			{
-				name: t('shows.subscriptions.embed.title', { size: `**${subscriptions.length}**` }),
+				name: t('interactions.shows.subscriptions.embed.title', { size: `**${subscriptions.length}**` }),
 				value: formattedSubscriptions.join('\n'),
 			},
 		])
-		.setFooter({ text: t('shows.subscriptions.embed.footer.text') })
+		.setFooter({ text: t('interactions.shows.subscriptions.embed.footer.text') })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

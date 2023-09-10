@@ -18,7 +18,7 @@ export const execute: JobExecute = async ({ client }) => {
 		const to = DateUtil.formatDate(Date.now());
 
 		const embed = new EmbedBuilder()
-			.setTitle(t('gaming.leaderboards.xbox.embed.title', { from, to }))
+			.setTitle(t('interactions.gaming.leaderboards.xbox.embed.title', { from, to }))
 			.setDescription(leaderboard.join('\n'))
 			.setColor('Random');
 

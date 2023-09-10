@@ -19,7 +19,7 @@ export const execute: JobExecute = async ({ client }) => {
 				.setTitle(title)
 				.setURL(url)
 				.setDescription(
-					t('gaming.deals.free.embed.description', {
+					t('interactions.gaming.deals.free.embed.description', {
 						discount: `**-${discount}%**`,
 						regular: `~~${regular}~~`,
 						current: '**Free**',
@@ -27,7 +27,7 @@ export const execute: JobExecute = async ({ client }) => {
 					}),
 				)
 				.setColor('Random');
-			if (expiry) embed.setFooter({ text: t('gaming.deals.free.embed.footer.text', { expiry }) });
+			if (expiry) embed.setFooter({ text: t('interactions.gaming.deals.free.embed.footer.text', { expiry }) });
 
 			embeds.push(embed);
 		}

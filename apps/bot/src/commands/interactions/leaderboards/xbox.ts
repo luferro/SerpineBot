@@ -17,7 +17,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const embed = new EmbedBuilder()
 		.setTitle(t('interactions.leaderboards.xbox.embed.title'))
 		.setDescription(leaderboard.join('\n'))
-		.setFooter({ text: t('leaderboards.xbox.embed.footer.text') })
+		.setFooter({ text: t('interactions.leaderboards.xbox.embed.footer.text') })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

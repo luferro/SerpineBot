@@ -18,7 +18,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 	const messages = await (interaction.channel as TextChannel).bulkDelete(quantity, true);
 
 	await interaction.reply({
-		content: t('prune.embed.title', { deleted: messages.size, ignored: quantity - messages.size }),
+		content: t('interactions.prune.embed.title', { deleted: messages.size, ignored: quantity - messages.size }),
 		ephemeral: true,
 	});
 };

@@ -23,7 +23,7 @@ export const execute: JobExecute = async ({ client }) => {
 					const isSuccessful = await client.state({ title, url });
 					if (!isSuccessful) return;
 
-					return t('gaming.deals.paid.embed.description', {
+					return t('interactions.gaming.deals.paid.embed.description', {
 						discount: `**-${discount}%**`,
 						regular: `~~${regular}~~`,
 						current: `**${current}**`,
@@ -43,7 +43,9 @@ export const execute: JobExecute = async ({ client }) => {
 			.setTitle(title)
 			.setURL(isSingle ? url : null)
 			.setDescription(formattedDeals.join('\n'))
-			.setFooter(isSingle && expiry ? { text: t('gaming.deals.paid.embed.footer.text', { expiry }) } : null)
+			.setFooter(
+				isSingle && expiry ? { text: t('interactions.gaming.deals.paid.embed.footer.text', { expiry }) } : null,
+			)
 			.setColor('Random');
 
 		embeds.push(embed);

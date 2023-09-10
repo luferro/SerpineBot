@@ -50,7 +50,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 			userId: gifter.user.id,
 			timeStart: Date.now(),
 			timeEnd: eventDate.getTime(),
-			message: t('secret-santa.reminder.message', { year: eventDate.getFullYear() }),
+			message: t('interactions.secret-santa.reminder.message', { year: eventDate.getFullYear() }),
 		});
 
 		const embed = new EmbedBuilder()

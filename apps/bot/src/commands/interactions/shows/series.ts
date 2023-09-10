@@ -72,7 +72,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 				value: formattedStream.join('\n') || t('common.unavailable'),
 			},
 		])
-		.setFooter({ text: t('shows.series.embed.footer.text') })
+		.setFooter({ text: t('interactions.shows.series.embed.footer.text') })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

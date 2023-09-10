@@ -36,8 +36,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const options = [
 		...results.tracks.map(({ title, url }) => ({ label: title, value: url })),
 		{
-			label: t('music.search.menu.option.label'),
-			description: t('music.search.menu.option.description', { query }),
+			label: t('interactions.music.search.menu.option.label'),
+			description: t('interactions.music.search.menu.option.description', { query }),
 			value: 'CANCEL',
 		},
 	];
@@ -51,7 +51,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const embed = new EmbedBuilder()
 		.setTitle(t('interactions.music.search.embeds.0.title'))
-		.setFooter({ text: t('music.search.embeds.0.footer.text') })
+		.setFooter({ text: t('interactions.music.search.embeds.0.footer.text') })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed], components: [component] });
