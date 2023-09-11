@@ -88,7 +88,7 @@
 	},
 	"manga": {
 		"embed": {
-			"fields": [{ "name": "Alternative title" }, { "name": "Tags" }, { "name": "New chapters" }]
+			"fields": [{ "name": "Tags" }, { "name": "New chapters" }]
 		}
 	},
 	"reminders": {

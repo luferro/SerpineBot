@@ -20,7 +20,6 @@ type Manga = {
 	id: string;
 	attributes: {
 		title: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string };
-		altTitles: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string }[];
 		status: string;
 		year: number;
 		tags: { attributes: { name: { en: string } } }[];
@@ -42,7 +41,7 @@ export const getMangaById = async (id: string) => {
 		},
 	} = await FetchUtil.fetch<Payload<Manga>>({ url });
 
-	const { title, altTitles, status, year, tags } = attributes;
+	const { title, status, year, tags } = attributes;
 	const coverArt = relationships.find(({ type }) => type === 'cover_art');
 	const image = coverArt ? `https://uploads.mangadex.org/covers/${id}/${coverArt.attributes.fileName}` : null;
 	const release = year ? `${year}, ` : null;
@@ -51,7 +50,7 @@ export const getMangaById = async (id: string) => {
 	return {
 		id,
 		image,
-		titles: { default: title.en ?? title['ja-ro'] ?? title.ja ?? title.jp, alternative: altTitles[0]?.en ?? null },
+		title: title.en ?? title['ja-ro'] ?? title.ja ?? title.jp,
 		url: `https://mangadex.org/title/${id}`,
 		publication: release || publication ? `${release ?? ''} ${publication ?? ''}`.trim() : null,
 		tags: tags.map((tag) => tag.attributes.name.en),
