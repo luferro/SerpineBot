@@ -18,11 +18,8 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const [mangaId, chapters] of chaptersByManga) {
 		for (const { chapter } of chapters) {
 			const isSuccessful = await client.state({ title: chapter.id, url: chapter.url });
-			if (!isSuccessful) continue;
-
-			const chapterIndex = chapters.findIndex((currentChapter) => currentChapter.chapter.id === chapter.id);
-			chapters.splice(chapterIndex);
-			break;
+			if (isSuccessful) continue;
+			chapters.splice(chapters.findIndex((currentChapter) => currentChapter.chapter.id === chapter.id));
 		}
 		if (chapters.length === 0) continue;
 
