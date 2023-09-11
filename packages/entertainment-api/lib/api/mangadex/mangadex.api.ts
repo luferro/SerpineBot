@@ -20,7 +20,7 @@ type Manga = {
 	id: string;
 	attributes: {
 		title: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string };
-		contentRating: string;
+		altTitles: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string }[];
 		status: string;
 		year: number;
 		tags: { attributes: { name: { en: string } } }[];
@@ -42,17 +42,18 @@ export const getMangaById = async (id: string) => {
 		},
 	} = await FetchUtil.fetch<Payload<Manga>>({ url });
 
-	const { title, contentRating, status, year, tags } = attributes;
+	const { title, altTitles, status, year, tags } = attributes;
 	const coverArt = relationships.find(({ type }) => type === 'cover_art');
 	const image = coverArt ? `https://uploads.mangadex.org/covers/${id}/${coverArt.attributes.fileName}` : null;
+	const release = year ? `${year}, ` : null;
+	const publication = status ? StringUtil.capitalize(status) : null;
 
 	return {
 		id,
 		image,
-		title: title.en ?? title.ja ?? title.jp ?? title['ja-ro'],
+		titles: { default: title.en ?? title['ja-ro'] ?? title.ja ?? title.jp, alternative: altTitles[0]?.en ?? null },
 		url: `https://mangadex.org/title/${id}`,
-		publication: `${year}, ${StringUtil.capitalize(status)}`,
-		contentRating: StringUtil.capitalize(contentRating),
+		publication: release || publication ? `${release ?? ''} ${publication ?? ''}`.trim() : null,
 		tags: tags.map((tag) => tag.attributes.name.en),
 	};
 };

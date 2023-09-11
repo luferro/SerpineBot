@@ -26,8 +26,8 @@ export const execute: JobExecute = async ({ client }) => {
 		}
 		if (chapters.length === 0) continue;
 
-		const { title, url, image, publication, tags, contentRating } = await client.api.mangadex.getMangaById(mangaId);
-		if (!title && !url) continue;
+		const { titles, url, image, publication, tags } = await client.api.mangadex.getMangaById(mangaId);
+		if (!titles.default && !url) continue;
 
 		const formattedChapters = chapters
 			.slice(0, 10)
@@ -37,26 +37,21 @@ export const execute: JobExecute = async ({ client }) => {
 		if (hiddenChaptersCount > 0) formattedChapters.push(`And ${hiddenChaptersCount} more!`);
 
 		const embed = new EmbedBuilder()
-			.setTitle(StringUtil.truncate(title))
+			.setTitle(StringUtil.truncate(titles.default))
 			.setURL(url)
 			.setThumbnail(image)
+			.setDescription(`*${publication}*`)
 			.addFields([
 				{
 					name: `**${t('jobs.manga.embed.fields.0.name')}**`,
-					value: publication,
+					value: titles.alternative ?? t('common.unavailable'),
 				},
 				{
 					name: `**${t('jobs.manga.embed.fields.1.name')}**`,
-					value: contentRating ?? t('common.unavailable'),
-					inline: true,
+					value: tags.map((tag) => `\`${tag}\``).join(),
 				},
 				{
 					name: `**${t('jobs.manga.embed.fields.2.name')}**`,
-					value: tags.map((tag) => `\`${tag}\``).join(),
-					inline: true,
-				},
-				{
-					name: `**${t('jobs.manga.embed.fields.3.name')}**`,
 					value: formattedChapters.join('\n'),
 				},
 			])
