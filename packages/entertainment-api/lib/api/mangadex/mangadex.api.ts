@@ -1,15 +1,15 @@
-import { FetchUtil } from '@luferro/shared-utils';
+import { FetchUtil, StringUtil } from '@luferro/shared-utils';
 
 type Payload<T> = { data: T };
 
 type Search = { id: number };
 
-type Relationship = {
+type Relationship<T = unknown> = {
 	id: string;
-	type: string;
-	related?: string;
-	attributes: { description: string; volume: string; fileName: string };
+	type: 'manga' | 'cover_art';
+	attributes: T;
 };
+
 type Chapter = {
 	id: string;
 	attributes: { volume: string | null; chapter: string; title: string; externalUrl: string };
@@ -18,8 +18,14 @@ type Chapter = {
 
 type Manga = {
 	id: string;
-	attributes: { title: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string } };
-	relationships: Relationship[];
+	attributes: {
+		title: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string };
+		contentRating: string;
+		status: string;
+		year: number;
+		tags: { attributes: { name: { en: string } } }[];
+	};
+	relationships: Relationship<{ fileName: string }>[];
 };
 
 export const search = async (query: string) => {
@@ -36,33 +42,31 @@ export const getMangaById = async (id: string) => {
 		},
 	} = await FetchUtil.fetch<Payload<Manga>>({ url });
 
-	const { en, ja, jp, 'ja-ro': romaji } = attributes.title;
+	const { title, contentRating, status, year, tags } = attributes;
 	const coverArt = relationships.find(({ type }) => type === 'cover_art');
 	const image = coverArt ? `https://uploads.mangadex.org/covers/${id}/${coverArt.attributes.fileName}` : null;
 
 	return {
 		id,
 		image,
-		title: en ?? ja ?? jp ?? romaji,
+		title: title.en ?? title.ja ?? title.jp ?? title['ja-ro'],
 		url: `https://mangadex.org/title/${id}`,
+		publication: `${year}, ${StringUtil.capitalize(status)}`,
+		contentRating: StringUtil.capitalize(contentRating),
+		tags: tags.map((tag) => tag.attributes.name.en),
 	};
 };
 
-export const getLastestChapters = async (limit = 20) => {
-	const url = `https://api.mangadex.org/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&limit=${limit}`;
+export const getLatestChapters = async (limit = 20) => {
+	const url = `https://api.mangadex.org/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&includes[]=manga&limit=${limit}`;
 	const { payload } = await FetchUtil.fetch<Payload<Chapter[]>>({ url });
 
-	return payload.data.map(({ id, attributes: { title, chapter, externalUrl }, relationships }) => {
-		const manga = relationships.find(({ type }) => type === 'manga')!;
-
-		const chapterNumber = chapter ? `Ch. ${chapter}` : '';
-		const chapterTitle = title ?? '';
-
-		return {
-			mangaId: manga.id,
-			chapterId: id,
-			title: !chapter && !title ? 'Oneshot' : `${chapterNumber} ${chapterTitle}`.trim(),
+	return payload.data.map(({ id, attributes: { title, chapter, externalUrl }, relationships }) => ({
+		mangaId: relationships.find(({ type }) => type === 'manga')!.id,
+		chapter: {
+			id,
+			title: chapter || title ? `${chapter ? `Ch. ${chapter}` : ''} ${title ?? ''}`.trim() : 'Oneshot',
 			url: externalUrl ?? `https://mangadex.org/chapter/${id}`,
-		};
-	});
+		},
+	}));
 };

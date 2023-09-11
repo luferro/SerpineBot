@@ -86,6 +86,16 @@
 			}
 		}
 	},
+	"manga": {
+		"embed": {
+			"fields": [
+				{ "name": "Publication" },
+				{ "name": "Content rating" },
+				{ "name": "Tags" },
+				{ "name": "New chapters" }
+			]
+		}
+	},
 	"reminders": {
 		"embed": {
 			"title": "Reminder set on {{date}}",
