@@ -4,7 +4,7 @@ import { t } from 'i18next';
 
 import type { JobData, JobExecute } from '../types/bot';
 
-export const data: JobData = { schedule: new Date(Date.now() + 1000 * 30) };
+export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const latestChapters = await client.api.mangadex.getLatestChapters();
