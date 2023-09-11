@@ -36,7 +36,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 				`\`${index + 1}.\` **[${name}](${url})** | ${discounted || (free && 'Free') || 'N/A'}`,
 		);
 	const hiddenCount = wishlist.length - formattedWishlist.length;
-	if (hiddenCount > 0) formattedWishlist.push(t('common.list.footer', { size: hiddenCount }));
+	if (hiddenCount > 0) formattedWishlist.push(t('common.list.more', { size: hiddenCount }));
 
 	const embed = new EmbedBuilder()
 		.setTitle(t('interactions.gaming.steam.wishlist.embed.title', { username: `\`${user.username}\`` }))

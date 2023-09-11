@@ -17,7 +17,7 @@ export const execute: JobExecute = async ({ client }) => {
 	const embeds = [];
 	for (const [mangaId, chapters] of chaptersByManga) {
 		for (const { chapter } of chapters) {
-			const isSuccessful = await client.state({ title: `${mangaId}:${chapter.id}`, url: chapter.url });
+			const isSuccessful = await client.state({ title: chapter.id, url: chapter.url });
 			if (!isSuccessful) continue;
 
 			const chapterIndex = chapters.findIndex((currentChapter) => currentChapter.chapter.id === chapter.id);
@@ -34,7 +34,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.reverse()
 			.map(({ chapter }) => `**[${chapter.title}](${chapter.url})**`);
 		const hiddenChaptersCount = chapters.length - formattedChapters.length;
-		if (hiddenChaptersCount > 0) formattedChapters.push(`And ${hiddenChaptersCount} more!`);
+		if (hiddenChaptersCount > 0) formattedChapters.push(t('common.list.more', { size: hiddenChaptersCount }));
 
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title))
