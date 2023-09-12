@@ -34,16 +34,15 @@ export const search = async (query: string) => {
 };
 
 export const getMangaById = async (id: string) => {
-	const url = `https://api.mangadex.org/manga/${id}?includes[]=cover_art`;
+	const url = `https://api.mangadex.org/manga/${id}`;
 	const {
 		payload: {
-			data: { attributes, relationships },
+			data: { attributes },
 		},
 	} = await FetchUtil.fetch<Payload<Manga>>({ url });
 
 	const { title, status, year, tags } = attributes;
-	const coverArt = relationships.find(({ type }) => type === 'cover_art');
-	const image = coverArt ? `https://uploads.mangadex.org/covers/${id}/${coverArt.attributes.fileName}` : null;
+	const image = `https://og.mangadex.org/og-image/manga/${id}`;
 	const release = year ? `${year}, ` : null;
 	const publication = status ? StringUtil.capitalize(status) : null;
 
