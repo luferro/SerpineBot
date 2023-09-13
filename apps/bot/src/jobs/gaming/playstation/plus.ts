@@ -6,7 +6,7 @@ import type { JobData, JobExecute } from '../../../types/bot';
 export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const articles = await client.api.gaming.playstation.getLatestStateOfPlayEvents();
+	const articles = await client.api.gaming.playstation.getLatestPlusAdditions();
 
 	const embeds = [];
 	for (const { title, url, image } of articles) {
