@@ -1,4 +1,4 @@
-import { ConverterUtil, DateUtil, FetchUtil, SleepUtil, StringUtil } from '@luferro/shared-utils';
+import { ConverterUtil, DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
 
 import { Feed, getDealsFeed } from './deals.feed';
 
@@ -41,46 +41,13 @@ type Deal = {
 	urls: { buy: string; game: string };
 };
 
-type GroupedDeals = {
-	id: string;
-	title: string;
-	isFree: boolean;
-	deals: {
-		url: string;
-		discount: number;
-		regular: string;
-		current: string;
-		store: string;
-		expiry: string | null;
-		drm: string[] | null;
-	}[];
-};
-
-export const auth = {
-	apiKey: null as string | null,
-	setApiKey: function (API_KEY: string) {
-		this.apiKey = API_KEY;
-	},
-	validate: function () {
-		if (!this.apiKey) throw new Error('ITAD API key is not set.');
-	},
-};
-
-export const getPopularityChart = async () => {
-	let chart: PopularityChart[] = [];
-	const limit = 500;
-	for (let i = 0; i < 3; i++) {
-		const offset = i * limit;
-		const url = `https://api.isthereanydeal.com/v01/stats/popularity/chart/?key=${auth.apiKey}&offset=${offset}&limit=${limit}`;
-		const { payload } = await FetchUtil.fetch<Payload<PopularityChart[]>>({ url });
-		chart = chart.concat(payload.data);
-		await SleepUtil.sleep(2000);
-	}
-	return chart;
+const getApiKey = () => {
+	if (!process.env.ITAD_API_KEY) throw new Error('ITAD_API_KEY is not set.');
+	return process.env.ITAD_API_KEY;
 };
 
 export const search = async (query: string) => {
-	const url = `https://api.isthereanydeal.com/v02/search/search/?key=${auth.apiKey}&q=${query}&limit=20&strict=0`;
+	const url = `https://api.isthereanydeal.com/v02/search/search/?key=${getApiKey()}&q=${query}&limit=20&strict=0`;
 	const { payload } = await FetchUtil.fetch<Payload<Search>>({ url });
 	return {
 		id: payload.data.results[0]?.plain ?? null,
@@ -89,7 +56,7 @@ export const search = async (query: string) => {
 };
 
 export const getDealById = async (id: string) => {
-	const url = `https://api.isthereanydeal.com/v01/game/overview/?key=${auth.apiKey}&region=eu1&country=PT&plains=${id}`;
+	const url = `https://api.isthereanydeal.com/v01/game/overview/?key=${getApiKey()}&region=eu1&country=PT&plains=${id}`;
 	const { payload } = await FetchUtil.fetch<Payload<Game<Overview>>>({ url });
 	if (!payload.data[id].price && !payload.data[id].lowest) throw new Error(`No deal was found for ${id}.`);
 
@@ -121,33 +88,23 @@ export const getDealById = async (id: string) => {
 	};
 };
 
-export const getLatestDeals = async () => {
-	const url = `https://api.isthereanydeal.com/v01/deals/list/?key=${auth.apiKey}&region=eu1&country=PT&limit=50`;
+export const getLatestFreebies = async () => {
+	const url = `https://api.isthereanydeal.com/v01/deals/list/?key=${getApiKey()}&region=eu1&country=PT&limit=50`;
 	const { payload } = await FetchUtil.fetch<Payload<List<Deal[]>>>({ url });
 
 	return payload.data.list
-		.filter(({ drm }) => drm.length > 0)
+		.filter(({ price_cut }) => price_cut === 100)
 		.map(({ title, plain, price_new, price_old, price_cut, shop, drm, expiry, urls }) => ({
 			title,
 			id: plain,
 			url: urls.buy,
 			store: shop.name,
-			drm: !drm.some((platform) => platform.includes('DRM Free')) ? drm.map(StringUtil.capitalize) : null,
-			isFree: price_cut === 100,
+			drm: drm.every((platform) => !platform.includes('DRM Free')) ? drm.map(StringUtil.capitalize) : null,
 			discount: price_cut,
 			regular: ConverterUtil.formatCurrency(price_old),
 			current: ConverterUtil.formatCurrency(price_new),
 			expiry: expiry ? DateUtil.formatDate(expiry * 1000) : null,
-		}))
-		.reduce((acc, { id, title, url, discount, regular, current, store, isFree, drm, expiry }) => {
-			const deal = { url, discount, regular, current, store, drm, expiry };
-
-			const storedEntryIndex = acc.findIndex((entry) => entry.title === title);
-			if (storedEntryIndex === -1 || isFree) acc.push({ id, title, isFree, deals: [deal] });
-			else acc[storedEntryIndex] = { id, title, isFree, deals: acc[storedEntryIndex].deals.concat(deal) };
-
-			return acc;
-		}, [] as GroupedDeals[]);
+		}));
 };
 
 export const getLatestSales = async () => await getDealsFeed({ url: Feed.SALES });
