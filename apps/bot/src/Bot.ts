@@ -1,18 +1,13 @@
-import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { Database, SettingsModel, StateModel, WebhookType } from '@luferro/database';
 import { AnimeApi, ComicsApi, GamingApi, MangadexApi, ShowsApi } from '@luferro/entertainment-api';
 import { NewsApi } from '@luferro/news-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { InteractiveScraper, SearchEngine, StaticScraper, Youtube } from '@luferro/scraper';
 import { ArrayUtil, EnumUtil, FetchError, logger } from '@luferro/shared-utils';
-import { Leopard } from '@picovoice/leopard-node';
-import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
-import { Rhino } from '@picovoice/rhino-node';
 import { CronJob } from 'cron';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
 import i18next from 'i18next';
-import { resolve } from 'path';
 
 import { getSanitizedEnvConfig } from './config/environment';
 import * as CommandsHandler from './handlers/commands';
@@ -20,6 +15,7 @@ import * as EventsHandler from './handlers/events';
 import * as JobsHandler from './handlers/jobs';
 import type { Api, Cache, Commands, Connection, Event, Job, Scraper, Tools } from './types/bot';
 import { getInitConfig } from './utils/i18n';
+import { initializeLeopard, initializePorcupine, initializeRhino, initializeTextToSpeech } from './utils/speech';
 
 type StateArgs = { title: string; url: string };
 type WebhookArgs = { guild: Guild; category: WebhookType };
@@ -53,12 +49,6 @@ export class Bot extends Client {
 	}
 
 	private initializeApis() {
-		NewsApi.auth.setApiKey(this.config.GNEWS_API_KEY);
-		GamingApi.steam.auth.setApiKey(this.config.STEAM_API_KEY);
-		GamingApi.deals.auth.setApiKey(this.config.ITAD_API_KEY);
-		ShowsApi.auth.setApiKey(this.config.THE_MOVIE_DB_API_KEY);
-		AnimeApi.schedule.auth.setApiKey(this.config.ANIME_SCHEDULE_API_KEY);
-
 		return {
 			anime: AnimeApi,
 			comics: ComicsApi,
@@ -87,25 +77,11 @@ export class Bot extends Client {
 	}
 
 	private initializeTools() {
-		const porcupine = resolve('models/porcupine');
-		const leopard = resolve('models/leopard');
-		const rhino = resolve('models/rhino');
-
 		return {
-			wakeWord: new Porcupine(
-				this.config.PICOVOICE_API_KEY,
-				[`${porcupine}/wakeword_en_${process.platform}.ppn`, BuiltinKeyword.BUMBLEBEE],
-				[0.8, 0.5],
-			),
-			speechToIntent: new Rhino(
-				this.config.PICOVOICE_API_KEY,
-				`${rhino}/model_en_${process.platform}.rhn`,
-				0.5,
-				0.5,
-				false,
-			),
-			speechToText: new Leopard(this.config.PICOVOICE_API_KEY, { modelPath: `${leopard}/model_en.pv` }),
-			textToSpeech: new TextToSpeechClient(),
+			textToSpeech: initializeTextToSpeech(),
+			speechToText: initializeLeopard({ apiKey: this.config.PICOVOICE_API_KEY }),
+			speechToIntent: initializeRhino({ apiKey: this.config.PICOVOICE_API_KEY }),
+			wakeWord: initializePorcupine({ apiKey: this.config.PICOVOICE_API_KEY }),
 		};
 	}
 

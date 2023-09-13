@@ -36,26 +36,19 @@ type Wishlist = {
 type App = { appid: number; name: string; playtime_2weeks: number; playtime_forever: number };
 type RecentlyPlayed = { total_count?: number; games?: App[] };
 
-export const auth = {
-	apiKey: null as string | null,
-	setApiKey: function (API_KEY: string) {
-		this.apiKey = API_KEY;
-	},
-	validate: function () {
-		if (!this.apiKey) throw new Error('Steam API key is not set.');
-	},
+const getApiKey = () => {
+	if (!process.env.STEAM_API_KEY) throw new Error('STEAM_API_KEY is not set.');
+	return process.env.STEAM_API_KEY;
 };
 
 export const getSteamId64 = async (customId: string) => {
-	auth.validate();
-	const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${auth.apiKey}&vanityurl=${customId}`;
+	const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${getApiKey()}&vanityurl=${customId}`;
 	const { payload } = await FetchUtil.fetch<Payload<SteamId64>>({ url });
 	return payload.response?.steamid ?? null;
 };
 
 export const getProfile = async (steamId: string) => {
-	auth.validate();
-	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${auth.apiKey}&steamids=${steamId}`;
+	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${getApiKey()}&steamids=${steamId}`;
 	const { payload } = await FetchUtil.fetch<Payload<Payload<Profile[]>>>({ url });
 
 	if (payload.response.players.length === 0) throw new Error(`Cannot find a profile for steamId ${steamId}.`);
@@ -71,8 +64,7 @@ export const getProfile = async (steamId: string) => {
 };
 
 export const getRecentlyPlayed = async (steamId: string) => {
-	auth.validate();
-	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${auth.apiKey}&steamid=${steamId}&format=json`;
+	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${getApiKey()}&steamid=${steamId}&format=json`;
 	const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed>>({ url });
 
 	return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({

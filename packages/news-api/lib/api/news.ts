@@ -14,28 +14,22 @@ type Article = {
 	source: { name: string; url: string };
 };
 
-export const auth = {
-	apiKey: null as string | null,
-	setApiKey: function (API_KEY: string) {
-		this.apiKey = API_KEY;
-	},
-	validate: function () {
-		if (!this.apiKey) throw new Error('GNews API key is not set.');
-	},
+const getApiKey = () => {
+	if (!process.env.GNEWS_API_KEY) throw new Error('GNEWS_API_KEY is not set.');
+	return process.env.GNEWS_API_KEY;
 };
 
 export const getNews = async () => {
-	const url = `https://gnews.io/api/v4/top-headlines?token=${auth.apiKey}&topic=breaking-news&lang=en&max=100`;
+	const url = `https://gnews.io/api/v4/top-headlines?token=${getApiKey()}&topic=breaking-news&lang=en&max=100`;
 	return await getNewsList(url);
 };
 
 export const getNewsByCountry = async (country: Country) => {
-	const url = `https://gnews.io/api/v4/top-headlines?token=${auth.apiKey}&topic=breaking-news&country=${country}&max=100`;
+	const url = `https://gnews.io/api/v4/top-headlines?token=${getApiKey()}&topic=breaking-news&country=${country}&max=100`;
 	return await getNewsList(url, country);
 };
 
 const getNewsList = async (url: string, country?: Country) => {
-	auth.validate();
 	const { payload } = await FetchUtil.fetch<Payload<Article[]>>({ url });
 	return payload.articles.map(({ title, description, content, url, image, publishedAt, source }) => ({
 		country,

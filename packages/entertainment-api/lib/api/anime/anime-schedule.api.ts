@@ -51,21 +51,15 @@ type Schedule = {
 
 export type WeeklySchedule = Awaited<ReturnType<typeof getWeeklySchedule>>;
 
-export const auth = {
-	apiKey: null as string | null,
-	setApiKey: function (API_KEY: string) {
-		this.apiKey = API_KEY;
-	},
-	validate: function () {
-		if (!this.apiKey) throw new Error('AnimeSchedule API key is not set.');
-	},
+const getApiKey = () => {
+	if (!process.env.ANIME_SCHEDULE_API_KEY) throw new Error('ANIME_SCHEDULE_API_KEY is not set.');
+	return process.env.ANIME_SCHEDULE_API_KEY;
 };
 
 export const getAnimeById = async (id: string) => {
-	auth.validate();
 	const { payload } = await FetchUtil.fetch<Anime>({
 		url: `https://animeschedule.net/api/v3/anime/${id}`,
-		authorization: auth.apiKey!,
+		authorization: getApiKey(),
 	});
 
 	const { mal, aniList, animePlanet, kitsu } = payload.websites;
@@ -105,10 +99,9 @@ export const getAnimeById = async (id: string) => {
 };
 
 export const getWeeklySchedule = async () => {
-	auth.validate();
 	const { payload } = await FetchUtil.fetch<Schedule[]>({
 		url: `https://animeschedule.net/api/v3/timetables/sub?year=${DateUtil.getCurrentDate().getFullYear()}&week=${DateUtil.getWeekNumber()}&tz=${DateUtil.getTimezone()}`,
-		authorization: auth.apiKey!,
+		authorization: getApiKey(),
 	});
 
 	return payload

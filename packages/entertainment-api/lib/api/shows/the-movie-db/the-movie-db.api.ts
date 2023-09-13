@@ -46,26 +46,19 @@ type Providers = {
 	};
 };
 
-export const auth = {
-	apiKey: null as string | null,
-	setApiKey: function (API_KEY: string) {
-		this.apiKey = API_KEY;
-	},
-	validate: function () {
-		if (!this.apiKey) throw new Error('TMDB API key is not set.');
-	},
+const getApiKey = () => {
+	if (!process.env.THE_MOVIE_DB_API_KEY) throw new Error('THE_MOVIE_DB_API_KEY is not set.');
+	return process.env.THE_MOVIE_DB_API_KEY;
 };
 
 export const search = async (type: ShowType, query: string) => {
-	auth.validate();
-	const url = `https://api.themoviedb.org/3/search/${type}?query=${query}&api_key=${auth.apiKey}`;
+	const url = `https://api.themoviedb.org/3/search/${type}?query=${query}&api_key=${getApiKey()}`;
 	const { payload } = await FetchUtil.fetch<Search>({ url });
 	return { id: payload.results[0]?.id.toString() ?? null };
 };
 
 export const getMovieById = async (id: string) => {
-	auth.validate();
-	const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${auth.apiKey}`;
+	const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${getApiKey()}`;
 	const { payload } = await FetchUtil.fetch<Movie>({ url });
 
 	return {
@@ -83,8 +76,7 @@ export const getMovieById = async (id: string) => {
 };
 
 export const getSeriesById = async (id: string) => {
-	auth.validate();
-	const url = `https://api.themoviedb.org/3/tv/${id}?api_key=${auth.apiKey}`;
+	const url = `https://api.themoviedb.org/3/tv/${id}?api_key=${getApiKey()}`;
 	const { payload } = await FetchUtil.fetch<Series>({ url });
 
 	return {
@@ -109,8 +101,7 @@ export const getSeriesById = async (id: string) => {
 };
 
 export const getProvidersForId = async (type: ShowType, id: string) => {
-	auth.validate();
-	const url = `https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${auth.apiKey}`;
+	const url = `https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${getApiKey()}`;
 	const {
 		payload: {
 			results: { PT },
