@@ -114,9 +114,8 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 			)
 			.join('\n');
 
-		const embed = new EmbedBuilder().setTitle(title).setDescription(description).setColor('Random');
-
 		const user = await client.users.fetch(userId);
+		const embed = new EmbedBuilder().setTitle(title).setDescription(description).setColor('Random');
 		await user.send({ embeds: [embed] });
 
 		logger.info(`Steam alerts sent to **${user.username}** (**${category}** | **${queue.length}** update(s)).`);

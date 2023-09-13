@@ -6,31 +6,28 @@ import type { JobData, JobExecute } from '../../../types/bot';
 export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const deals = await client.api.gaming.deals.getLatestDeals();
-	const freeDeals = deals.filter(({ isFree }) => isFree);
+	const freebies = await client.api.gaming.deals.getLatestFreebies();
 
 	const embeds = [];
-	for (const { title, deals } of freeDeals.reverse()) {
-		for (const { url, discount, regular, store, expiry } of deals) {
-			const isSuccessful = await client.state({ title, url });
-			if (!isSuccessful) continue;
+	for (const { title, url, discount, regular, store, expiry } of freebies.reverse()) {
+		const isSuccessful = await client.state({ title, url });
+		if (!isSuccessful) continue;
 
-			const embed = new EmbedBuilder()
-				.setTitle(title)
-				.setURL(url)
-				.setDescription(
-					t('jobs.gaming.deals.free.embed.description', {
-						discount: `**-${discount}%**`,
-						regular: `~~${regular}~~`,
-						current: '**Free**',
-						store: `**${store}**`,
-					}),
-				)
-				.setColor('Random');
-			if (expiry) embed.setFooter({ text: t('jobs.gaming.deals.free.embed.footer.text', { expiry }) });
+		const embed = new EmbedBuilder()
+			.setTitle(title)
+			.setURL(url)
+			.setDescription(
+				t('jobs.gaming.deals.free.embed.description', {
+					discount: `**-${discount}%**`,
+					regular: `~~${regular}~~`,
+					current: '**Free**',
+					store: `**${store}**`,
+				}),
+			)
+			.setColor('Random');
+		if (expiry) embed.setFooter({ text: t('jobs.gaming.deals.free.embed.footer.text', { expiry }) });
 
-			embeds.push(embed);
-		}
+		embeds.push(embed);
 	}
 
 	await client.propageMessages({ category: 'Free Games', embeds });

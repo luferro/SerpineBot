@@ -11,8 +11,6 @@ export const execute: JobExecute = async ({ client }) => {
 	const reminders = await RemindersModel.getReminders();
 	const filteredReminders = reminders.filter(({ timeEnd }) => Date.now() >= timeEnd);
 	for (const { reminderId, userId, timeStart, message } of filteredReminders) {
-		const target = await client.users.fetch(userId);
-
 		const embed = new EmbedBuilder()
 			.setTitle(t('jobs.reminders.embed.title', { date: DateUtil.formatDate(timeStart) }))
 			.addFields([
@@ -23,6 +21,7 @@ export const execute: JobExecute = async ({ client }) => {
 			])
 			.setColor('Random');
 
+		const target = await client.users.fetch(userId);
 		await target.send({ embeds: [embed] });
 		await RemindersModel.deleteOne({ reminderId });
 

@@ -10,13 +10,9 @@ export const execute: JobExecute = async ({ client }) => {
 		const posts = await client.api.reddit.getPosts(subreddit, 'hot', 25);
 
 		const embeds = [];
-		for (const { title, url, selfurl, gallery, fallback, embedType, hasEmbeddedMedia } of posts.reverse()) {
-			const isRedGifsEmbed = embedType === 'redgifs.com';
-			const redGifsUrl = fallback?.reddit_video_preview?.fallback_url;
-			if (isRedGifsEmbed && !redGifsUrl) continue;
-
+		for (const { title, url, selfurl, gallery, hasEmbeddedMedia } of posts.reverse()) {
 			const galleryMediaId = gallery?.items[0].media_id;
-			const nsfwUrl = galleryMediaId ? `https://i.redd.it/${galleryMediaId}.jpg` : redGifsUrl ?? url;
+			const nsfwUrl = galleryMediaId ? `https://i.redd.it/${galleryMediaId}.jpg` : url;
 
 			const isSuccessful = await client.state({ title, url: nsfwUrl });
 			if (!isSuccessful) continue;
