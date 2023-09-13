@@ -60,7 +60,7 @@ const handleUserVoice = async ({
 	const intentResult = await infereIntent({ client, pcm });
 	if (!intentResult) throw new Error(t('errors.voice.intent'));
 
-	const isOutOfVocabularyIntent = isOutOfVocabularyIntents(intentResult.intent);
+	const isOutOfVocabularyIntent = isOutOfVocabularyIntents({ intent: intentResult.intent });
 	const transcribeResult = isOutOfVocabularyIntent ? await transcribe({ client, pcm }) : null;
 
 	const intent = intentResult.intent;

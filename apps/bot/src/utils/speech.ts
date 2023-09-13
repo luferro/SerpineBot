@@ -1,15 +1,40 @@
+import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { logger } from '@luferro/shared-utils';
+import { Leopard } from '@picovoice/leopard-node';
+import { BuiltinKeyword, Porcupine } from '@picovoice/porcupine-node';
+import { Rhino } from '@picovoice/rhino-node';
 import { createAudioResource } from 'discord-voip';
+import { resolve } from 'path';
 import { Readable } from 'stream';
 
 import { Bot } from '../Bot';
 import { bufferToInt16, getFrames } from './audio';
 
-type Args = { client: Bot; pcm: Int16Array };
+type SpeechClient = { apiKey: string };
+type Intent = { intent: string };
+type Audio = { pcm: Int16Array };
+type Text = { text: string };
 
-export const isOutOfVocabularyIntents = (intent: string) => ['music.play'].some((_intent) => _intent === intent);
+export const initializeTextToSpeech = () => new TextToSpeechClient();
 
-export const infereIntent = async ({ client, pcm }: Args) => {
+export const initializePorcupine = ({ apiKey }: SpeechClient) => {
+	const keywords = [`${resolve('models/porcupine')}/wakeword_en_${process.platform}.ppn`, BuiltinKeyword.BUMBLEBEE];
+	return new Porcupine(apiKey, keywords, [0.8, 0.5]);
+};
+
+export const initializeRhino = ({ apiKey }: SpeechClient) => {
+	const model = `${resolve('models/rhino')}/model_en_${process.platform}.rhn`;
+	return new Rhino(apiKey, model, 0.5, 0.5, false);
+};
+
+export const initializeLeopard = ({ apiKey }: SpeechClient) => {
+	const model = `${resolve('models/leopard')}/model_en.pv`;
+	return new Leopard(apiKey, { modelPath: model });
+};
+
+export const isOutOfVocabularyIntents = ({ intent }: Intent) => ['music.play'].some((_intent) => _intent === intent);
+
+export const infereIntent = async ({ client, pcm }: { client: Bot } & Audio) => {
 	const { speechToIntent } = client.tools;
 	return new Promise((resolve) => {
 		const silentFrames = bufferToInt16(Buffer.alloc(pcm.length, 0xffff));
@@ -29,7 +54,7 @@ export const infereIntent = async ({ client, pcm }: Args) => {
 	}) as Promise<{ intent: string; slots: Record<string, string> } | null>;
 };
 
-export const transcribe = async ({ client, pcm }: Args) => {
+export const transcribe = async ({ client, pcm }: { client: Bot } & Audio) => {
 	const { speechToText } = client.tools;
 	return new Promise((resolve) => {
 		const { words, transcript } = speechToText.process(pcm);
@@ -46,13 +71,13 @@ export const transcribe = async ({ client, pcm }: Args) => {
 	}) as Promise<{ slots: Record<string, string>; transcript: string }>;
 };
 
-export const synthesize = async ({ client, text }: Pick<Args, 'client'> & { text: string }) => {
+export const synthesize = async ({ client, text }: { client: Bot } & Text) => {
 	const [{ audioContent }] = await client.tools.textToSpeech.synthesizeSpeech({
 		input: { text },
 		voice: { name: 'en-US-Standard-J', languageCode: 'en-US', ssmlGender: 'MALE' },
 		audioConfig: { audioEncoding: 'OGG_OPUS' },
 	});
-	if (!audioContent) throw new Error('Canno synthesize speech.');
+	if (!audioContent) throw new Error('Cannot synthesize speech.');
 
 	return createAudioResource(Readable.from(audioContent));
 };
