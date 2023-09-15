@@ -4,12 +4,12 @@
 			"embed": {
 				"title": "{{anime}} - Episode {{episode}}",
 				"fields": [
-					{ "name": "Alternative title" },
-					{ "name": "Total", "value": "{{episodes}} episodes" },
-					{ "name": "Duration", "value": "{{duration}} min per episode" },
-					{ "name": "Score" },
-					{ "name": "Where to watch?" },
-					{ "name": "Where to track?" }
+					{ "name": "**Alternative title**" },
+					{ "name": "**Total**", "value": "{{episodes}} episodes" },
+					{ "name": "**Duration**", "value": "{{duration}} min per episode" },
+					{ "name": "**Score**" },
+					{ "name": "**Where to watch?**" },
+					{ "name": "**Where to track?**" }
 				]
 			}
 		}
@@ -24,14 +24,7 @@
 		"deals": {
 			"free": {
 				"embed": {
-					"description": "{{discount}} off! {{regular}} | {{current}} @ {{store}}",
-					"footer": { "text": "Expires on {{expiry}}" }
-				}
-			},
-			"paid": {
-				"activation": { "drm": "Activates on {{drm}}", "none": "DRM Free" },
-				"embed": {
-					"description": "{{discount}} off! {{regular}} | {{current}} @ {{store}}\n{{activation}}",
+					"description": "{{discount}} off! {{regular}} | **Free** @ {{store}}",
 					"footer": { "text": "Expires on {{expiry}}" }
 				}
 			}
@@ -51,11 +44,11 @@
 		"reviews": {
 			"embed": {
 				"fields": [
-					{ "name": "Release date", "value": "Soon" },
-					{ "name": "Available on" },
-					{ "name": "Score" },
-					{ "name": "Reviews count" },
-					{ "name": "Critics Recommended" }
+					{ "name": "**Release date**", "value": "Soon" },
+					{ "name": "**Available on**" },
+					{ "name": "**Score**" },
+					{ "name": "**Reviews count**" },
+					{ "name": "**Critics Recommended**" }
 				]
 			}
 		},
@@ -69,7 +62,7 @@
 			"released": {
 				"embed": {
 					"title": "{{size}} item(s) from your wishlist now available for purchase.",
-					"description": "{{item}} is now available for {{price}}"
+					"description": "{{item}} is now available for {{discounted}}"
 				}
 			},
 			"addedTo": {
@@ -88,13 +81,13 @@
 	},
 	"manga": {
 		"embed": {
-			"fields": [{ "name": "Tags" }, { "name": "New chapters" }]
+			"fields": [{ "name": "**Tags**" }, { "name": "**New chapters**" }]
 		}
 	},
 	"reminders": {
 		"embed": {
 			"title": "Reminder set on {{date}}",
-			"fields": [{ "name": "Message" }]
+			"fields": [{ "name": "**Message**" }]
 		}
 	}
 }

@@ -40,11 +40,11 @@ export const execute: JobExecute = async ({ client }) => {
 			.setDescription(`*${publication}*`)
 			.addFields([
 				{
-					name: `**${t('jobs.manga.embed.fields.0.name')}**`,
+					name: t('jobs.manga.embed.fields.0.name'),
 					value: tags.map((tag) => `\`${tag}\``).join(),
 				},
 				{
-					name: `**${t('jobs.manga.embed.fields.1.name')}**`,
+					name: t('jobs.manga.embed.fields.1.name'),
 					value: formattedChapters.join('\n'),
 				},
 			])

@@ -18,7 +18,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setDescription(`*${status || ''}*\n**${sale}**`)
 		.addFields([
 			{
-				name: `**${t('interactions.gaming.steam.sales.embed.fields.0.name')}**`,
+				name: t('interactions.gaming.steam.sales.embed.fields.0.name'),
 				value: upcoming.join('\n') || t('common.unavailable'),
 			},
 		])

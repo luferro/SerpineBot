@@ -29,7 +29,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (previousTrack) {
 		embed.addFields([
 			{
-				name: `**${t('interactions.music.queue.now.embed.fields.0.name')}**`,
+				name: t('interactions.music.queue.now.embed.fields.0.name'),
 				value: `**[${previousTrack.title}](${previousTrack.url})**`,
 			},
 		]);

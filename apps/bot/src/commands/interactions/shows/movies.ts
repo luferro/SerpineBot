@@ -36,36 +36,36 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('interactions.shows.movies.embed.fields.0.name')}**`,
+				name: t('interactions.shows.movies.embed.fields.0.name'),
 				value: releaseDate ?? t('common.unavailable'),
 			},
 			{
-				name: `**${t('interactions.shows.movies.embed.fields.1.name')}**`,
+				name: t('interactions.shows.movies.embed.fields.1.name'),
 				value: score ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.movies.embed.fields.2.name')}**`,
+				name: t('interactions.shows.movies.embed.fields.2.name'),
 				value: runtime ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.movies.embed.fields.3.name')}**`,
+				name: t('interactions.shows.movies.embed.fields.3.name'),
 				value: genres.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.movies.embed.fields.4.name')}**`,
+				name: t('interactions.shows.movies.embed.fields.4.name'),
 				value: formattedBuy.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.movies.embed.fields.5.name')}**`,
+				name: t('interactions.shows.movies.embed.fields.5.name'),
 				value: formattedRent.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.movies.embed.fields.6.name')}**`,
+				name: t('interactions.shows.movies.embed.fields.6.name'),
 				value: formattedStream.join('\n') || t('common.unavailable'),
 				inline: true,
 			},

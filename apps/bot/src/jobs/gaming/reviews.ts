@@ -33,25 +33,25 @@ export const execute: JobExecute = async ({ client }) => {
 			.setImage(image)
 			.addFields([
 				{
-					name: `**${t('jobs.gaming.reviews.embed.fields.0.name')}**`,
+					name: t('jobs.gaming.reviews.embed.fields.0.name'),
 					value: releaseDate ?? t('jobs.gaming.reviews.embed.fields.0.value'),
 				},
 				{
-					name: `**${t('jobs.gaming.reviews.embed.fields.1.name')}**`,
+					name: t('jobs.gaming.reviews.embed.fields.1.name'),
 					value: platforms.join('\n') || t('common.unavailable'),
 				},
 				{
-					name: `**${t('jobs.gaming.reviews.embed.fields.2.name')}**`,
+					name: t('jobs.gaming.reviews.embed.fields.2.name'),
 					value: score ?? t('common.unavailable'),
 					inline: true,
 				},
 				{
-					name: `**${t('jobs.gaming.reviews.embed.fields.3.name')}**`,
+					name: t('jobs.gaming.reviews.embed.fields.3.name'),
 					value: count ?? t('common.unavailable'),
 					inline: true,
 				},
 				{
-					name: `**${t('jobs.gaming.reviews.embed.fields.4.name')}**`,
+					name: t('jobs.gaming.reviews.embed.fields.4.name'),
 					value: recommended ?? t('common.unavailable'),
 					inline: true,
 				},

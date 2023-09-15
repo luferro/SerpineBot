@@ -23,7 +23,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(interaction.guild.iconURL())
 		.addFields([
 			{
-				name: `**${t('interactions.music.queue.history.embed.fields.0.name')}**`,
+				name: t('interactions.music.queue.history.embed.fields.0.name'),
 				value: formattedHistory.join('\n') || t('common.player.queue.empty'),
 			},
 		])

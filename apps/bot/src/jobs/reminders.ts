@@ -15,7 +15,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.setTitle(t('jobs.reminders.embed.title', { date: DateUtil.formatDate(timeStart) }))
 			.addFields([
 				{
-					name: `**${t('jobs.reminders.embed.fields.0.name')}**`,
+					name: t('jobs.reminders.embed.fields.0.name'),
 					value: message.trim(),
 				},
 			])

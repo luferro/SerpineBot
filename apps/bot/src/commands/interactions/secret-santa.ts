@@ -57,15 +57,15 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 			.setTitle(t('interactions.secret-santa.embeds.1.title', { year: eventDate.getFullYear() }))
 			.addFields([
 				{
-					name: `**${t('interactions.secret-santa.embeds.1.fields.0.name')}**`,
+					name: t('interactions.secret-santa.embeds.1.fields.0.name'),
 					value: `**${DateUtil.formatDate(eventDate)}**`,
 				},
 				{
-					name: `**${t('interactions.secret-santa.embeds.1.fields.1.name')}**`,
+					name: t('interactions.secret-santa.embeds.1.fields.1.name'),
 					value: `**${value}€**`,
 				},
 				{
-					name: `**${t('interactions.secret-santa.embeds.1.fields.2.name')}**`,
+					name: t('interactions.secret-santa.embeds.1.fields.2.name'),
 					value: `**${receiver.user.username}**`,
 				},
 			])

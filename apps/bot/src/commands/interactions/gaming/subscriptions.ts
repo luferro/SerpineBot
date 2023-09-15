@@ -31,9 +31,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 		.setTitle(StringUtil.truncate(subscriptions[0].entry.name))
 		.addFields([
 			{
-				name: t('interactions.gaming.subscriptions.embed.fields.0.name', {
-					size: `**${subscriptions.length}**`,
-				}),
+				name: t('interactions.gaming.subscriptions.embed.fields.0.name', { size: subscriptions.length }),
 				value: formattedSubscriptions.join('\n'),
 			},
 		])

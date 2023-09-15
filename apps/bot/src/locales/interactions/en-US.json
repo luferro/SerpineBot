@@ -27,7 +27,7 @@
 		"name": "channels",
 		"description": "Manage guild text / voice channels and assign / unassign bot messages to text channels.",
 		"roles": {
-			"name": "rles",
+			"name": "roles",
 			"description": "Roles group commands for the channels command.",
 			"assign": {
 				"name": "assign",
@@ -71,7 +71,7 @@
 			"sales": {
 				"name": "sales",
 				"description": "Steam's next sales.",
-				"embed": { "title": "When is the next Steam sale?", "fields": [{ "name": "Upcoming Sales" }] }
+				"embed": { "title": "When is the next Steam sale?", "fields": [{ "name": "**Upcoming Sales**" }] }
 			},
 			"profile": {
 				"name": "profile",
@@ -79,10 +79,10 @@
 				"options": [{ "name": "mention", "description": "User mention." }],
 				"embed": {
 					"fields": [
-						{ "name": "SteamId64" },
-						{ "name": "Status" },
-						{ "name": "Created at" },
-						{ "name": "Last logout at" }
+						{ "name": "**SteamId64**" },
+						{ "name": "**Status**" },
+						{ "name": "**Created at**" },
+						{ "name": "**Last logout at**" }
 					]
 				}
 			},
@@ -115,7 +115,7 @@
 				"name": "profile",
 				"description": "Xbox profile for your account or mentioned user.",
 				"options": [{ "name": "mention", "description": "User mention." }],
-				"embed": { "fields": [{ "name": "Gamerscore" }, { "name": "Games played" }] }
+				"embed": { "fields": [{ "name": "**Gamerscore**" }, { "name": "**Games played**" }] }
 			}
 		},
 		"deals": {
@@ -124,10 +124,10 @@
 			"options": [{ "name": "query", "description": "Game title." }],
 			"embed": {
 				"fields": [
-					{ "name": "Historical Low" },
-					{ "name": "Best deal" },
-					{ "name": "Live bundles" },
-					{ "name": "Subscriptions" }
+					{ "name": "**Historical Low**" },
+					{ "name": "**Best deal**" },
+					{ "name": "**Live bundles**" },
+					{ "name": "**Subscriptions**" }
 				]
 			}
 		},
@@ -137,7 +137,11 @@
 			"options": [{ "name": "query", "description": "Game title." }],
 			"embed": {
 				"title": "How long to beat {{game}}",
-				"fields": [{ "name": "Main Story" }, { "name": "Main Story + Extras" }, { "name": "Completionist" }]
+				"fields": [
+					{ "name": "**Main Story**" },
+					{ "name": "**Main Story + Extras**" },
+					{ "name": "**Completionist**" }
+				]
 			}
 		},
 		"reviews": {
@@ -146,11 +150,11 @@
 			"options": [{ "name": "query", "description": "Game title." }],
 			"embed": {
 				"fields": [
-					{ "name": "Release date" },
-					{ "name": "Available on" },
-					{ "name": "Score" },
-					{ "name": "Reviews count" },
-					{ "name": "Critics Recommended" }
+					{ "name": "**Release date**" },
+					{ "name": "**Available on**" },
+					{ "name": "**Score**" },
+					{ "name": "**Reviews count**" },
+					{ "name": "**Critics Recommended**" }
 				]
 			}
 		},
@@ -158,7 +162,7 @@
 			"name": "subscriptions",
 			"description": "Checks in which subscriptions a game is available.",
 			"options": [{ "name": "query", "description": "Game title." }],
-			"embed": { "fields": [{ "name": "Available in {{size}} subscription(s)" }] }
+			"embed": { "fields": [{ "name": "Available in **{{size}}** subscription(s)" }] }
 		}
 	},
 	"integrations": {
@@ -307,7 +311,7 @@
 				"description": "Lists the guild queue history.",
 				"embed": {
 					"title": "Queue history for {{guild}}",
-					"fields": [{ "name": "Queue history" }],
+					"fields": [{ "name": "**Queue history**" }],
 					"footer": { "text": "{{size}} item(s) in queue history." }
 				}
 			},
@@ -316,7 +320,7 @@
 				"description": "Lists the guild queue.",
 				"embed": {
 					"title": "Queue for {{guild}}",
-					"fields": [{ "name": "Now playing" }, { "name": "Queue" }],
+					"fields": [{ "name": "**Now playing**" }, { "name": "**Queue**" }],
 					"footer": { "text": "{{size}} item(s) in queue." }
 				}
 			},
@@ -324,7 +328,7 @@
 				"name": "now",
 				"description": "Lists track currently playing.",
 				"embed": {
-					"fields": [{ "name": "Previous track" }],
+					"fields": [{ "name": "**Previous track**" }],
 					"footer": { "text": "Requested by {{requestedBy}}" }
 				}
 			},
@@ -344,7 +348,7 @@
 			"name": "play",
 			"description": "Plays / enqueues track matching your query.",
 			"options": [{ "name": "query", "description": "Track query." }],
-			"embed": { "fields": [{ "name": "Position" }, { "name": "Duration" }] }
+			"embed": { "fields": [{ "name": "**Position**" }, { "name": "**Duration**" }] }
 		},
 		"search": {
 			"name": "search",
@@ -359,7 +363,7 @@
 					"title": "Pick a track from the select menu below.",
 					"footer": { "text": "Select \"Cancel\" to stop searching." }
 				},
-				{ "fields": [{ "name": "Position" }, { "name": "Duration" }] }
+				{ "fields": [{ "name": "**Position**" }, { "name": "**Duration**" }] }
 			]
 		}
 	},
@@ -407,13 +411,13 @@
 			"options": [{ "name": "query", "description": "Movie title." }],
 			"embed": {
 				"fields": [
-					{ "name": "Release date" },
-					{ "name": "Score" },
-					{ "name": "Runtime" },
-					{ "name": "Genres" },
-					{ "name": "Buy" },
-					{ "name": "Rent" },
-					{ "name": "Stream" }
+					{ "name": "**Release date**" },
+					{ "name": "**Score**" },
+					{ "name": "**Runtime**" },
+					{ "name": "**Genres**" },
+					{ "name": "**Buy**" },
+					{ "name": "**Rent**" },
+					{ "name": "**Stream**" }
 				],
 				"footer": { "text": "Buy, Rent and Stream data provided by JustWatch." }
 			}
@@ -424,14 +428,14 @@
 			"options": [{ "name": "query", "description": "Series title." }],
 			"embed": {
 				"fields": [
-					{ "name": "Status" },
-					{ "name": "First Episode" },
-					{ "name": "Next Episode" },
-					{ "name": "Seasons" },
-					{ "name": "Score" },
-					{ "name": "Runtime" },
-					{ "name": "Genres" },
-					{ "name": "Stream" }
+					{ "name": "**Status**" },
+					{ "name": "**First Episode**" },
+					{ "name": "**Next Episode**" },
+					{ "name": "**Seasons**" },
+					{ "name": "**Score**" },
+					{ "name": "**Runtime**" },
+					{ "name": "**Genres**" },
+					{ "name": "**Stream**" }
 				],
 				"footer": { "text": "Stream data provided by JustWatch." }
 			}
@@ -448,12 +452,8 @@
 				{ "name": "query", "description": "Movie / Series title." }
 			],
 			"embed": {
-				"fields": [
-					{
-						"name": "Available in {{size}} subscription(s)",
-						"footer": { "text": "Data provided by JustWatch." }
-					}
-				]
+				"fields": [{ "name": "Available in **{{size}}** subscription(s)" }],
+				"footer": { "text": "Data provided by JustWatch." }
 			}
 		}
 	},
@@ -520,7 +520,11 @@
 			{ "title": "A DM will be sent to each participant shortly." },
 			{
 				"title": "Secret Santa {{year}}",
-				"fields": [{ "name": "Gifts exchange" }, { "name": "Value" }, { "name": "Prepare a gift for" }],
+				"fields": [
+					{ "name": "**Gifts exchange**" },
+					{ "name": "**Value**" },
+					{ "name": "**Prepare a gift for**" }
+				],
 				"footer": { "text": "Reminder {{reminderId}} created for the gifts exchange." }
 			}
 		],

@@ -34,41 +34,41 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('interactions.shows.series.embed.fields.0.name')}**`,
+				name: t('interactions.shows.series.embed.fields.0.name'),
 				value: status ?? t('common.unavailable'),
 			},
 			{
-				name: `**${t('interactions.shows.series.embed.fields.1.name')}**`,
+				name: t('interactions.shows.series.embed.fields.1.name'),
 				value: firstEpisode ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.series.embed.fields.2.name')}**`,
+				name: t('interactions.shows.series.embed.fields.2.name'),
 				value: nextEpisode ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.series.embed.fields.3.name')}**`,
+				name: t('interactions.shows.series.embed.fields.3.name'),
 				value: seasons?.toString() ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.series.embed.fields.4.name')}**`,
+				name: t('interactions.shows.series.embed.fields.4.name'),
 				value: score ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.series.embed.fields.5.name')}**`,
+				name: t('interactions.shows.series.embed.fields.5.name'),
 				value: runtime ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.series.embed.fields.6.name')}**`,
+				name: t('interactions.shows.series.embed.fields.6.name'),
 				value: genres.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.shows.series.embed.fields.7.name')}**`,
+				name: t('interactions.shows.series.embed.fields.7.name'),
 				value: formattedStream.join('\n') || t('common.unavailable'),
 			},
 		])

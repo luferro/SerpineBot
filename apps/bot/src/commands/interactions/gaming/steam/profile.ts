@@ -25,29 +25,29 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const integration = await IntegrationsModel.getIntegration<SteamIntegration>({ userId, category: 'Steam' });
 	if (!integration) throw new Error(t('errors.unprocessable'));
 
-	const { profile } = integration;
-	const { name, image, status, logoutAt, createdAt } = await client.api.gaming.steam.getProfile(profile.id);
+	const { id, url } = integration.profile;
+	const { name, image, status, logoutAt, createdAt } = await client.api.gaming.steam.getProfile({ steamId64: id });
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
-		.setURL(profile.url)
+		.setURL(url)
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('interactions.gaming.steam.profile.embed.fields.0.name')}**`,
-				value: profile.id,
+				name: t('interactions.gaming.steam.profile.embed.fields.0.name'),
+				value: id,
 			},
 			{
-				name: `**${t('interactions.gaming.steam.profile.embed.fields.1.name')}**`,
+				name: t('interactions.gaming.steam.profile.embed.fields.1.name'),
 				value: status,
 			},
 			{
-				name: `**${t('interactions.gaming.steam.profile.embed.fields.2.name')}**`,
+				name: t('interactions.gaming.steam.profile.embed.fields.2.name'),
 				value: DateUtil.formatDate(createdAt),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.gaming.steam.profile.embed.fields.3.name')}**`,
+				name: t('interactions.gaming.steam.profile.embed.fields.3.name'),
 				value: DateUtil.formatDate(logoutAt),
 				inline: true,
 			},

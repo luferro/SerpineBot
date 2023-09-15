@@ -21,7 +21,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const { id } = await client.api.gaming.playtimes.search(query);
 	if (!id) throw new Error(t('errors.search.lookup', { query }));
 
-	const { name, image, playtimes } = await client.api.gaming.playtimes.getGameById(id);
+	const { name, image, playtimes } = await client.api.gaming.playtimes.getPlaytimesById(id);
 	const { main, mainExtra, completionist } = playtimes;
 
 	const hasPlaytimes = main || mainExtra || completionist;
@@ -33,17 +33,17 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('interactions.gaming.hltb.embed.fields.0.name')}**`,
+				name: t('interactions.gaming.hltb.embed.fields.0.name'),
 				value: main ? `~${main}` : t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.gaming.hltb.embed.fields.1.name')}**`,
+				name: t('interactions.gaming.hltb.embed.fields.1.name'),
 				value: mainExtra ? `~${mainExtra}` : t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: `**${t('interactions.gaming.hltb.embed.fields.2.name')}**`,
+				name: t('interactions.gaming.hltb.embed.fields.2.name'),
 				value: completionist ? `~${completionist}` : t('common.unavailable'),
 				inline: true,
 			},

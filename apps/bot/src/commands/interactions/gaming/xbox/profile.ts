@@ -24,19 +24,19 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const integration = await IntegrationsModel.getIntegration<XboxIntegration>({ userId, category: 'Xbox' });
 	if (!integration) throw new Error(t('errors.unprocessable'));
 
-	const { profile } = integration;
-	const { name, image, gamerscore, gamesPlayed } = await client.api.gaming.xbox.getProfile(profile.gamertag);
+	const { gamertag } = integration.profile;
+	const { name, image, gamerscore, gamesPlayed } = await client.api.gaming.xbox.getProfile({ gamertag });
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
 		.setThumbnail(image)
 		.addFields([
 			{
-				name: `**${t('interactions.gaming.xbox.profile.embed.fields.0.name')}**`,
+				name: t('interactions.gaming.xbox.profile.embed.fields.0.name'),
 				value: gamerscore.toString(),
 			},
 			{
-				name: `**${t('interactions.gaming.xbox.profile.embed.fields.1.name')}**`,
+				name: t('interactions.gaming.xbox.profile.embed.fields.1.name'),
 				value: gamesPlayed.toString(),
 			},
 		])
