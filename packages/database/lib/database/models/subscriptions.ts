@@ -1,26 +1,24 @@
 import { StringUtil } from '@luferro/shared-utils';
 import mongoose, { Model } from 'mongoose';
 
-import { SubscriptionType } from '../../types/category';
+type Entry = { name: string; slug: string; url: string | null };
+type Match = { provider: string; entry: Entry };
+type Subscription = { catalog: string; count: number; entries: Entry[] };
 
-type CatalogEntry = { name: string; slug: string; url: string | null };
-type Match = { provider: string; entry: CatalogEntry };
-type Subscription = { name: string; count: number; catalog: CatalogEntry[] };
-
-type Category = { category: SubscriptionType };
-type Catalog = { catalog: CatalogEntry[] };
+type Catalog = { catalog: string };
+type Entries = { entries: Entry[] };
 
 interface SubscriptionsModel extends Model<Subscription> {
-	updateCatalog: (args: Category & Catalog) => Promise<void>;
-	getCatalog: (args: Category) => Promise<Subscription>;
-	getMatches: (args: Pick<CatalogEntry, 'name'>) => Promise<Match[]>;
+	updateCatalog: (args: Catalog & Entries) => Promise<void>;
+	getCatalog: (args: Catalog) => Promise<Subscription>;
+	getMatches: (args: Pick<Entry, 'name'>) => Promise<Match[]>;
 }
 
 const schema = new mongoose.Schema<Subscription>(
 	{
-		name: { type: String, required: true, index: true },
+		catalog: { type: String, required: true, index: true },
 		count: { type: Number, required: true },
-		catalog: [
+		entries: [
 			{
 				name: { type: String, required: true },
 				slug: { type: String, required: true },
@@ -31,19 +29,19 @@ const schema = new mongoose.Schema<Subscription>(
 	{ timestamps: true },
 );
 
-schema.statics.updateCatalog = async function ({ category, catalog }: Category & Catalog) {
-	await this.updateOne({ name: category }, { $set: { catalog, count: catalog.length } }, { upsert: true });
+schema.statics.updateCatalog = async function ({ catalog, entries }: Catalog & Entries) {
+	await this.updateOne({ catalog }, { $set: { entries, count: entries.length } }, { upsert: true });
 };
 
-schema.statics.getCatalog = async function ({ category }: Category) {
-	return this.findOne({ name: category });
+schema.statics.getCatalog = async function ({ catalog }: Catalog) {
+	return this.findOne({ catalog });
 };
 
-schema.statics.getMatches = async function ({ name }: Pick<CatalogEntry, 'name'>) {
+schema.statics.getMatches = async function ({ name }: Pick<Entry, 'name'>) {
 	const results = await this.aggregate([
-		{ $unwind: { path: '$catalog' } },
-		{ $match: { 'catalog.slug': { $regex: new RegExp(`${StringUtil.slug(name).replace(/-/g, '(.*?)')}`) } } },
-		{ $group: { _id: '$name', entry: { $last: '$catalog' } } },
+		{ $unwind: { path: '$entries' } },
+		{ $match: { 'entries.slug': { $regex: new RegExp(`${StringUtil.slug(name).replace(/-/g, '(.*?)')}`) } } },
+		{ $group: { _id: '$name', entry: { $last: '$entries' } } },
 	]);
 
 	return results
