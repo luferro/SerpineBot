@@ -85,5 +85,4 @@ export type Connection = {
 
 export type Cache = {
 	anime: { schedule: Collection<number, AnimeApi.schedule.WeeklySchedule> };
-	deals: { chart: GamingApi.deals.PopularityChart[] };
 };

@@ -45,7 +45,7 @@ export class Bot extends Client {
 		this.tools = this.initializeTools();
 		this.connection = this.initializeVoiceConfig();
 		this.player = this.initializePlayer();
-		this.cache = { anime: { schedule: new Collection() }, deals: { chart: [] } };
+		this.cache = { anime: { schedule: new Collection() } };
 	}
 
 	private initializeApis() {
