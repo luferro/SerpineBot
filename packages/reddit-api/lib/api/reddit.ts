@@ -3,7 +3,6 @@ import { FetchUtil } from '@luferro/shared-utils';
 type Sort = 'new' | 'hot' | 'top';
 
 type Payload<T> = { data: T };
-
 type Children<T> = { children: T };
 
 type Post = {
@@ -26,18 +25,18 @@ type Post = {
 
 export const getPosts = async (subreddit: string, sort: Sort = 'hot', limit = 100) => {
 	const url = `https://www.reddit.com/r/${subreddit}/${sort}.json?limit=${limit}&restrict_sr=1`;
-	return await getPostsList(url);
+	return await mapPosts(url);
 };
 
 export const getPostsByFlair = async (subreddit: string, flairs: string[], sort: Sort = 'hot', limit = 100) => {
-	if (flairs.length === 0) throw new Error("Flair array can't be empty.");
+	if (flairs.length === 0) throw new Error('Flair array cannot be empty.');
 
 	const flair = flairs.map((flair) => `flair_name:"${flair}"`).join(' OR ');
 	const url = `https://www.reddit.com/r/${subreddit}/search.json?q=${flair}&limit=${limit}&sort=${sort}&restrict_sr=1`;
-	return await getPostsList(url);
+	return await mapPosts(url);
 };
 
-const getPostsList = async (url: string) => {
+const mapPosts = async (url: string) => {
 	const { payload } = await FetchUtil.fetch<Payload<Children<Post[]>>>({ url });
 	if (!payload?.data?.children) throw new Error('Failed to retrieve reddit post.');
 

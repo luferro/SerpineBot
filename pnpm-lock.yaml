@@ -197,6 +197,9 @@ importers:
 
   packages/entertainment-api:
     dependencies:
+      '@luferro/reddit-api':
+        specifier: workspace:^
+        version: link:../reddit-api
       '@luferro/scraper':
         specifier: workspace:^
         version: link:../scraper

@@ -3,7 +3,7 @@ import { UrlUtil } from '@luferro/shared-utils';
 
 type ProviderType = 'Stream' | 'Buy' | 'Rent';
 
-export const getProviders = async (url: string) => {
+export const getProvidersData = async (url: string) => {
 	const $ = await StaticScraper.loadUrl({ url });
 
 	const array = [];

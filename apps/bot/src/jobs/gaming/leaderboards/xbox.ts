@@ -27,7 +27,7 @@ export const execute: JobExecute = async ({ client }) => {
 	} finally {
 		const integrations = await IntegrationsModel.getIntegrations<XboxIntegration>({ category: 'Xbox' });
 		for (const integration of integrations) {
-			const { gamerscore } = await client.api.gaming.xbox.getProfile(integration.profile.gamertag);
+			const { gamerscore } = await client.api.gaming.xbox.getProfile({ gamertag: integration.profile.gamertag });
 			await IntegrationsModel.updateGamerscore({ userId: integration.userId, gamerscore });
 			await SleepUtil.sleep(5000);
 		}

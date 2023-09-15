@@ -1,6 +1,6 @@
 import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 
-import { getProviders } from './the-movie-db.scraper';
+import { getProvidersData } from './the-movie-db.scraper';
 
 type ShowType = 'movie' | 'tv';
 
@@ -109,7 +109,7 @@ export const getProvidersForId = async (type: ShowType, id: string) => {
 	} = await FetchUtil.fetch<Providers>({ url });
 
 	const ptUrl = PT?.link ?? null;
-	const providers = ptUrl ? await getProviders(ptUrl) : [];
+	const providers = ptUrl ? await getProvidersData(ptUrl) : [];
 	const buy = providers.filter(({ type }) => type === 'Buy');
 	const rent = providers.filter(({ type }) => type === 'Rent');
 	const stream = providers.filter(({ type }) => type === 'Stream');

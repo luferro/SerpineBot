@@ -7,39 +7,8 @@ export enum Endpoint {
 	UPCOMING_GAMES = 'https://store.steampowered.com/search/?filter=popularcomingsoon&os=win',
 }
 
-export const getSteamList = async (url: string) => {
-	const $ = await StaticScraper.loadUrl({ url });
-
-	return $('.search_result_row')
-		.get()
-		.map((element, index) => {
-			const position = index + 1;
-			const name = $(element).find('.responsive_search_name_combined .title').first().text();
-			const url = $(element).first().attr('href')!;
-			return { position, name, url };
-		})
-		.filter(({ url }, index, self) => index === self.findIndex(({ url: nestedUrl }) => nestedUrl === url))
-		.slice(0, 10);
-};
-
-export const getChartsList = async (url: string) => {
-	const $ = await StaticScraper.loadUrl({ url });
-
-	return $('table#top-games tbody tr')
-		.get()
-		.map((element, index) => {
-			const position = index + 1;
-			const name = $(element).find('.game-name a').text().trim();
-			const href = $(element).find('.game-name a').attr('href');
-			const url = `https://store.steampowered.com${href}`;
-			const count = $(element).find('.num').first().text();
-
-			return { position, name, url, count };
-		});
-};
-
-export const getSalesList = async (url: string) => {
-	const $ = await StaticScraper.loadUrl({ url });
+export const getUpcomingSalesData = async () => {
+	const $ = await StaticScraper.loadUrl({ url: Endpoint.NEXT_SALES });
 
 	const sale = $('p').first().attr('content') ?? null;
 	const status = $('span.status').first().text();
@@ -55,4 +24,33 @@ export const getSalesList = async (url: string) => {
 		});
 
 	return { sale, status, upcoming };
+};
+
+export const getChartData = async (url: string) => {
+	const $ = await StaticScraper.loadUrl({ url });
+
+	if (url === Endpoint.TOP_PLAYED) {
+		return $('table#top-games tbody tr')
+			.get()
+			.map((element, index) => {
+				const position = index + 1;
+				const name = $(element).find('.game-name a').text().trim();
+				const href = $(element).find('.game-name a').attr('href');
+				const url = `https://store.steampowered.com${href}`;
+				const count = $(element).find('.num').first().text();
+
+				return { position, name, url, count };
+			});
+	}
+
+	return $('.search_result_row')
+		.get()
+		.map((element, index) => {
+			const position = index + 1;
+			const name = $(element).find('.responsive_search_name_combined .title').first().text();
+			const url = $(element).first().attr('href')!;
+			return { position, name, url, count: null };
+		})
+		.filter(({ url }, index, self) => index === self.findIndex(({ url: nestedUrl }) => nestedUrl === url))
+		.slice(0, 10);
 };

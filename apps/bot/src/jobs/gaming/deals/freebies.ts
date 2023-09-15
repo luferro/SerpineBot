@@ -20,7 +20,6 @@ export const execute: JobExecute = async ({ client }) => {
 				t('jobs.gaming.deals.free.embed.description', {
 					discount: `**-${discount}%**`,
 					regular: `~~${regular}~~`,
-					current: '**Free**',
 					store: `**${store}**`,
 				}),
 			)

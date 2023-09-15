@@ -4,15 +4,15 @@ import { StringUtil } from '@luferro/shared-utils';
 type Catalog = { name: string; slug: string; url: string | null };
 
 export enum Endpoint {
-	XBOX_GAME_PASS_CATALOG = 'https://www.xbox.com/pt-PT/xbox-game-pass/games',
-	PC_GAME_PASS_CATALOG = 'https://www.xbox.com/pt-PT/xbox-game-pass/games#pcgames',
-	EA_PLAY_CATALOG = 'https://www.ea.com/ea-play/games#ea-app',
-	EA_PLAY_PRO_CATALOG = 'https://www.ea.com/ea-play/games#ea-play-pro',
-	UBISOFT_PLUS_CATALOG = 'https://store.ubisoft.com/ie/Ubisoftplus/games',
+	XBOX_GAME_PASS = 'https://www.xbox.com/pt-PT/xbox-game-pass/games',
+	PC_GAME_PASS = 'https://www.xbox.com/pt-PT/xbox-game-pass/games#pcgames',
+	EA_PLAY = 'https://www.ea.com/ea-play/games#ea-app',
+	EA_PLAY_PRO = 'https://www.ea.com/ea-play/games#ea-play-pro',
+	UBISOFT_PLUS = 'https://store.ubisoft.com/ie/Ubisoftplus/games',
 }
 
-export const getCatalogList = async (url: Endpoint) =>
-	await InteractiveScraper.load({
+export const getCatalogData = async (url: Endpoint) => {
+	return await InteractiveScraper.load({
 		url,
 		cb: async (page) => {
 			await page.waitForTimeout(5000);
@@ -68,10 +68,11 @@ export const getCatalogList = async (url: Endpoint) =>
 			return catalog;
 		},
 	});
+};
 
 const getSelectors = (url: Endpoint) => {
 	const options = {
-		[Endpoint.XBOX_GAME_PASS_CATALOG]: {
+		[Endpoint.XBOX_GAME_PASS]: {
 			list: {
 				element: '.gameList [itemtype="http://schema.org/Product"]',
 				item: { name: 'h3', href: 'a', base: null },
@@ -80,7 +81,7 @@ const getSelectors = (url: Endpoint) => {
 			cookies: null,
 			region: null,
 		},
-		[Endpoint.PC_GAME_PASS_CATALOG]: {
+		[Endpoint.PC_GAME_PASS]: {
 			list: {
 				element: '.gameList [itemtype="http://schema.org/Product"]',
 				item: { name: 'h3', href: 'a', base: null },
@@ -89,20 +90,20 @@ const getSelectors = (url: Endpoint) => {
 			cookies: null,
 			region: null,
 		},
-		[Endpoint.EA_PLAY_CATALOG]: {
+		[Endpoint.EA_PLAY]: {
 			list: { element: 'ea-box-set ea-game-box', item: { name: 'a', href: 'a', base: 'https://www.ea.com' } },
 			pagination: { nth: 0, element: 'ea-pagination', total: 'total-pages', next: 'span[data-page-target=next]' },
 			cookies: null,
 			region: null,
 		},
-		[Endpoint.EA_PLAY_PRO_CATALOG]: {
+		[Endpoint.EA_PLAY_PRO]: {
 			list: { element: 'ea-box-set ea-game-box', item: { name: 'a', href: 'a', base: 'https://www.ea.com' } },
 			pagination: { nth: 1, element: 'ea-pagination', total: 'total-pages', next: 'span[data-page-target=next]' },
 			cookies: null,
 			region: null,
 		},
 
-		[Endpoint.UBISOFT_PLUS_CATALOG]: {
+		[Endpoint.UBISOFT_PLUS]: {
 			list: { element: 'div.game', item: { name: 'p.game-title', href: null, base: null } },
 			pagination: { nth: 0, element: null, total: null, next: '.game-list_wrapper ~ div button' },
 			cookies: 'button#privacy__modal__accept',

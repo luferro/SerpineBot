@@ -6,8 +6,6 @@ type Payload<T> = { data: T };
 type Game<T> = { [key: string]: T };
 type List<T> = { list: T };
 
-export type PopularityChart = { position: number; title: string; plain: string; rank: number };
-
 type Search = { results: { id: number; plain: string; title: string }[]; urls: { search: string } };
 
 type Price = { store: string; cut: number; price: number; price_formatted: string; url: string | null };
@@ -40,6 +38,8 @@ type Deal = {
 	shop: { id: string; name: string };
 	urls: { buy: string; game: string };
 };
+
+type Blog = { blog: keyof typeof Feed };
 
 const getApiKey = () => {
 	if (!process.env.ITAD_API_KEY) throw new Error('ITAD_API_KEY is not set.');
@@ -107,6 +107,4 @@ export const getLatestFreebies = async () => {
 		}));
 };
 
-export const getLatestSales = async () => await getDealsFeed({ url: Feed.SALES });
-
-export const getLatestBundles = async () => await getDealsFeed({ url: Feed.BUNDLES });
+export const getBlog = async ({ blog }: Blog) => await getDealsFeed({ url: Feed[blog] });

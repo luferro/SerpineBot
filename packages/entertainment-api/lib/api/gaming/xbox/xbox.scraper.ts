@@ -4,16 +4,16 @@ import { DateUtil } from '@luferro/shared-utils';
 
 export enum Endpoint {
 	GAMERTAG = 'https://xboxgamertag.com/search/:gamertag',
-	LATEST_PODCAST = 'https://news.xbox.com/en-us/podcast/',
-	LATEST_GAME_PASS = 'https://news.xbox.com/en-us/?s=Xbox+Game+Pass&search-category=news-stories',
-	LATEST_DEALS_WITH_GOLD = 'https://news.xbox.com/en-us/?s=Deals+With+Gold&search-category=news-stories',
-	LATEST_GAMES_WITH_GOLD = 'https://news.xbox.com/en-us/?s=Games+With+Gold&search-category=news-stories',
+	PODCAST = 'https://news.xbox.com/en-us/podcast/',
+	GAME_PASS = 'https://news.xbox.com/en-us/?s=Xbox+Game+Pass&search-category=news-stories',
+	DEALS_WITH_GOLD = 'https://news.xbox.com/en-us/?s=Deals+With+Gold&search-category=news-stories',
+	GAMES_WITH_GOLD = 'https://news.xbox.com/en-us/?s=Games+With+Gold&search-category=news-stories',
 	TOP_PLAYED = 'https://www.microsoft.com/pt-pt/store/most-played/games/xbox',
 	TOP_SELLERS = 'https://www.microsoft.com/pt-pt/store/top-paid/games/xbox',
 	UPCOMING_GAMES = 'https://www.microsoft.com/pt-pt/store/coming-soon/games/xbox',
 }
 
-export const getGamertagDetails = async (url: string) => {
+export const getGamertagData = async (url: string) => {
 	const html = await InteractiveScraper.getHtml({ url });
 	const $ = StaticScraper.loadHtml({ html });
 
@@ -30,7 +30,7 @@ export const getGamertagDetails = async (url: string) => {
 	};
 };
 
-export const getNewsList = async (url: string) => {
+export const getBlogData = async (url: string) => {
 	const $ = await StaticScraper.loadUrl({ url });
 
 	return $('.media.feed')
@@ -63,7 +63,7 @@ export const getNewsList = async (url: string) => {
 		});
 };
 
-export const getXboxList = async (url: string) => {
+export const getChartData = async (url: string) => {
 	const $ = await StaticScraper.loadUrl({ url });
 
 	return $('section > ul li')

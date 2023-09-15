@@ -10,12 +10,12 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
-	const upcoming = await client.api.gaming.xbox.getUpcoming();
+	const upcoming = await client.api.gaming.xbox.getChart({ chart: 'UPCOMING_GAMES' });
 	if (upcoming.length === 0) throw new Error(t('errors.search.none'));
 
 	const embed = new EmbedBuilder()
 		.setTitle(t('interactions.gaming.xbox.new.embed.title'))
-		.setDescription(upcoming.join('\n'))
+		.setDescription(upcoming.map(({ position, name, url }) => `\`${position}.\` [${name}](${url})`).join('\n'))
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

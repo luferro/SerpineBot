@@ -1,11 +1,5 @@
-import { Endpoint, getCatalogList } from './subscriptions.scraper';
+import { Endpoint, getCatalogData } from './subscriptions.scraper';
 
-export const getXboxGamePassCatalog = async () => await getCatalogList(Endpoint.XBOX_GAME_PASS_CATALOG);
+type Catalog = { catalog: keyof typeof Endpoint };
 
-export const getPcGamePassCatalog = async () => await getCatalogList(Endpoint.PC_GAME_PASS_CATALOG);
-
-export const getEaPlayCatalog = async () => await getCatalogList(Endpoint.EA_PLAY_CATALOG);
-
-export const getEaPlayProCatalog = async () => await getCatalogList(Endpoint.EA_PLAY_PRO_CATALOG);
-
-export const getUbisoftPlusCatalog = async () => await getCatalogList(Endpoint.UBISOFT_PLUS_CATALOG);
+export const getCatalog = async ({ catalog }: Catalog) => await getCatalogData(Endpoint[catalog]);

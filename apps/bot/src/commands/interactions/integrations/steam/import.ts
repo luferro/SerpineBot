@@ -23,13 +23,13 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (!url) throw new Error(t('errors.steam.profile.url'));
 
 	const { 1: type, 2: id } = url;
-	const steamId = type === 'id' ? await client.api.gaming.steam.getSteamId64(id) : id;
-	if (!steamId) throw new Error(t('errors.steam.steamId64'));
+	const steamId64 = type === 'id' ? await client.api.gaming.steam.getSteamId64({ customId: id }) : id;
+	if (!steamId64) throw new Error(t('errors.steam.steamId64'));
 
-	const rawWishlist = await client.api.gaming.steam.getWishlist(steamId);
+	const rawWishlist = await client.api.gaming.steam.getWishlist({ steamId64 });
 	if (!rawWishlist) throw new Error(t('errors.steam.wishlist.private'));
 
-	const recentlyPlayed = await client.api.gaming.steam.getRecentlyPlayed(steamId);
+	const recentlyPlayed = await client.api.gaming.steam.getRecentlyPlayed({ steamId64 });
 	const wishlist = await Promise.all(
 		rawWishlist.map(async (game) => {
 			const rawSubscriptions = await SubscriptionsModel.getMatches({ name: game.name });
@@ -51,12 +51,13 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			wishlist,
 			recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })),
 			notifications: true,
-			profile: { id: steamId, url: `https://steamcommunity.com/profiles/${steamId}` },
+			profile: { id: steamId64, url: `https://steamcommunity.com/profiles/${steamId64}` },
 		},
 	});
 
 	const embed = new EmbedBuilder()
 		.setTitle(t('interactions.integrations.steam.import.embed.title'))
 		.setColor('Random');
+
 	await interaction.editReply({ embeds: [embed] });
 };

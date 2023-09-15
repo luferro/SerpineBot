@@ -6,16 +6,6 @@ type Payload<T> = { props: { pageProps: { game: { data: { game: T } } } } };
 type Entry = {
 	game_id: number;
 	game_name: string;
-	game_alias: string;
-	profile_summary: string;
-	profile_dev: string;
-	profile_pub: string;
-	profile_genre: string;
-	release_world: string;
-	review_score: number;
-	profile_steam: number;
-	profile_ign: string;
-	rating_esrb: string;
 	game_image: string;
 	comp_main: number;
 	comp_plus: number;
@@ -23,10 +13,10 @@ type Entry = {
 };
 
 export enum Endpoint {
-	GAME_PAGE = 'https://howlongtobeat.com/game/:id',
+	GAME = 'https://howlongtobeat.com/game/:id',
 }
 
-export const getGameDetails = async (url: Endpoint) => {
+export const getPlaytimesData = async (url: Endpoint) => {
 	const $ = await StaticScraper.loadUrl({ url });
 
 	const script = $('script[type="application/json"]').text();

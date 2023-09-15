@@ -1,6 +1,6 @@
 import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 
-import { Endpoint, getChartsList, getSalesList, getSteamList } from './steam.scraper';
+import { Endpoint, getChartData, getUpcomingSalesData } from './steam.scraper';
 
 enum Status {
 	Offline,
@@ -13,8 +13,6 @@ enum Status {
 }
 
 type Payload<T> = { [key: string]: T };
-
-type SteamId64 = { steamid?: string };
 
 type Profile = {
 	personaname: string;
@@ -36,22 +34,26 @@ type Wishlist = {
 type App = { appid: number; name: string; playtime_2weeks: number; playtime_forever: number };
 type RecentlyPlayed = { total_count?: number; games?: App[] };
 
+type CustomId = { customId: string };
+type SteamId64 = { steamId64: string };
+type Chart = { chart: Extract<keyof typeof Endpoint, 'TOP_PLAYED' | 'TOP_SELLERS' | 'UPCOMING_GAMES'> };
+
 const getApiKey = () => {
 	if (!process.env.STEAM_API_KEY) throw new Error('STEAM_API_KEY is not set.');
 	return process.env.STEAM_API_KEY;
 };
 
-export const getSteamId64 = async (customId: string) => {
+export const getSteamId64 = async ({ customId }: CustomId) => {
 	const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${getApiKey()}&vanityurl=${customId}`;
-	const { payload } = await FetchUtil.fetch<Payload<SteamId64>>({ url });
+	const { payload } = await FetchUtil.fetch<Payload<{ steamid?: string }>>({ url });
 	return payload.response?.steamid ?? null;
 };
 
-export const getProfile = async (steamId: string) => {
-	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${getApiKey()}&steamids=${steamId}`;
+export const getProfile = async ({ steamId64 }: SteamId64) => {
+	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${getApiKey()}&steamids=${steamId64}`;
 	const { payload } = await FetchUtil.fetch<Payload<Payload<Profile[]>>>({ url });
 
-	if (payload.response.players.length === 0) throw new Error(`Cannot find a profile for steamId ${steamId}.`);
+	if (payload.response.players.length === 0) throw new Error(`Cannot find a profile for steamId64 ${steamId64}.`);
 	const { personaname, avatarfull, personastate, lastlogoff, timecreated } = payload.response.players[0];
 
 	return {
@@ -63,8 +65,8 @@ export const getProfile = async (steamId: string) => {
 	};
 };
 
-export const getRecentlyPlayed = async (steamId: string) => {
-	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${getApiKey()}&steamid=${steamId}&format=json`;
+export const getRecentlyPlayed = async ({ steamId64 }: SteamId64) => {
+	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${getApiKey()}&steamid=${steamId64}&format=json`;
 	const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed>>({ url });
 
 	return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
@@ -76,12 +78,12 @@ export const getRecentlyPlayed = async (steamId: string) => {
 	}));
 };
 
-export const getWishlist = async (steamId: string) => {
+export const getWishlist = async ({ steamId64 }: SteamId64) => {
 	const wishlist = [];
 
 	let page = 0;
 	while (true) {
-		const url = `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=${page}`;
+		const url = `https://store.steampowered.com/wishlist/profiles/${steamId64}/wishlistdata?p=${page}`;
 		const { payload } = await FetchUtil.fetch<Payload<Wishlist>>({ url });
 
 		const hasMore = Object.keys(payload).some((id) => !isNaN(Number(id)));
@@ -117,21 +119,6 @@ export const getWishlist = async (steamId: string) => {
 	);
 };
 
-export const getNextSales = async () => await getSalesList(Endpoint.NEXT_SALES);
+export const getNextSales = async () => await getUpcomingSalesData();
 
-export const getTopPlayed = async () => {
-	const topPlayedCharts = await getChartsList(Endpoint.TOP_PLAYED);
-	return topPlayedCharts.map(
-		({ position, name, url, count }) => `\`${position}.\` **[${name}](${url})** **(${count} players)**`,
-	);
-};
-
-export const getTopSellers = async () => {
-	const topSellersList = await getSteamList(Endpoint.TOP_SELLERS);
-	return topSellersList.map(({ position, name, url }) => `\`${position}.\` **[${name}](${url})**`);
-};
-
-export const getUpcoming = async () => {
-	const upcomingList = await getSteamList(Endpoint.UPCOMING_GAMES);
-	return upcomingList.map(({ position, name, url }) => `\`${position}.\` **[${name}](${url})**`);
-};
+export const getChart = async ({ chart }: Chart) => await getChartData(chart);

@@ -2,10 +2,10 @@ import { StaticScraper } from '@luferro/scraper';
 import { DateUtil } from '@luferro/shared-utils';
 
 export enum Endpoint {
-	GAME_PAGE = 'https://opencritic.com/game/:id/:slug',
+	GAME = 'https://opencritic.com/game/:id/:slug',
 }
 
-export const getReviewsDetails = async (url: string) => {
+export const getReviewData = async (url: string) => {
 	const $ = await StaticScraper.loadUrl({ url });
 
 	const name = $('app-game-overview h1').first().text();

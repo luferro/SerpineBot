@@ -19,6 +19,7 @@
 	},
 	"dependencies": {
 		"@luferro/scraper": "workspace:^",
-		"@luferro/shared-utils": "workspace:^"
+		"@luferro/shared-utils": "workspace:^",
+		"@luferro/reddit-api": "workspace:^"
 	}
 }

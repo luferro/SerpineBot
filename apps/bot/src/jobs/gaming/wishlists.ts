@@ -34,7 +34,7 @@ export const execute: JobExecute = async ({ client }) => {
 			[Alert.RemovedFrom]: [],
 		};
 
-		const wishlist = await client.api.gaming.steam.getWishlist(integration.profile.id);
+		const wishlist = await client.api.gaming.steam.getWishlist({ steamId64: integration.profile.id });
 		if (!wishlist) continue;
 
 		const updatedWishlist = await Promise.all(

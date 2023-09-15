@@ -11,6 +11,15 @@ export const getVideoId = (url: string) => {
 	}
 };
 
+export const getSubscribers = async (url: string) => {
+	try {
+		const { videoDetails } = await ytdl.getBasicInfo(url);
+		return videoDetails.author.subscriber_count ?? 0;
+	} catch (error) {
+		return -1;
+	}
+};
+
 export const getVideoInfo = async (url: string) => {
 	const { videoDetails } = await ytdl.getBasicInfo(url);
 	const { title, author, thumbnails, lengthSeconds, isLiveContent } = videoDetails;

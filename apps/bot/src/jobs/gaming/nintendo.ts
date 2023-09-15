@@ -6,7 +6,7 @@ import type { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const articles = await client.api.gaming.nintendo.getLatestNews();
+	const articles = await client.api.gaming.nintendo.getNews();
 
 	const embeds = [];
 	for (const { title, url, image } of articles.reverse()) {

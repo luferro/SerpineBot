@@ -17,7 +17,7 @@ type Articles = {
 };
 
 export enum Endpoint {
-	LATEST_NEWS = 'https://www.nintendo.com/whatsnew/',
+	NEWS = 'https://www.nintendo.com/whatsnew/',
 }
 
 export const getNewsList = async (url: Endpoint) => {

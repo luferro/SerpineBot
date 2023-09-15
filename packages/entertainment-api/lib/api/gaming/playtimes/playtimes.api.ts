@@ -1,7 +1,7 @@
 import { SearchEngine } from '@luferro/scraper';
 import { StringUtil } from '@luferro/shared-utils';
 
-import { Endpoint, getGameDetails } from './playtimes.scraper';
+import { Endpoint, getPlaytimesData } from './playtimes.scraper';
 
 export const search = async (query: string) => {
 	const results = await SearchEngine.search({ query: `${query} site:https://howlongtobeat.com` });
@@ -13,7 +13,7 @@ export const search = async (query: string) => {
 	return { id };
 };
 
-export const getGameById = async (id: string) => {
-	const url = StringUtil.format<Endpoint>(Endpoint.GAME_PAGE, id);
-	return await getGameDetails(url);
+export const getPlaytimesById = async (id: string) => {
+	const url = StringUtil.format<Endpoint>(Endpoint.GAME, id);
+	return await getPlaytimesData(url);
 };
