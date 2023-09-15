@@ -19,4 +19,5 @@ export const getInitConfig = async (lng: string) => ({
 	lng,
 	fallbackLng: 'en-US',
 	resources: await getResources(['en-US']),
+	interpolation: { escapeValue: false },
 });
