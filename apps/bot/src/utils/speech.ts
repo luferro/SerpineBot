@@ -19,23 +19,40 @@ export const initializeTextToSpeech = () => new TextToSpeechClient();
 
 export const initializePorcupine = ({ apiKey }: SpeechClient) => {
 	const keywords = [`${resolve('models/porcupine')}/wakeword_en_${process.platform}.ppn`, BuiltinKeyword.BUMBLEBEE];
-	return new Porcupine(apiKey, keywords, [0.8, 0.5]);
+	try {
+		return new Porcupine(apiKey, keywords, [0.8, 0.5]);
+	} catch (error) {
+		return null;
+	}
 };
 
 export const initializeRhino = ({ apiKey }: SpeechClient) => {
 	const model = `${resolve('models/rhino')}/model_en_${process.platform}.rhn`;
-	return new Rhino(apiKey, model, 0.5, 0.5, false);
+	try {
+		return new Rhino(apiKey, model, 0.5, 0.5, false);
+	} catch (error) {
+		return null;
+	}
 };
 
 export const initializeLeopard = ({ apiKey }: SpeechClient) => {
 	const model = `${resolve('models/leopard')}/model_en.pv`;
-	return new Leopard(apiKey, { modelPath: model });
+	try {
+		return new Leopard(apiKey, { modelPath: model });
+	} catch (error) {
+		return null;
+	}
 };
 
 export const isOutOfVocabularyIntents = ({ intent }: Intent) => ['music.play'].some((_intent) => _intent === intent);
 
 export const infereIntent = async ({ client, pcm }: { client: Bot } & Audio) => {
 	const { speechToIntent } = client.tools;
+	if (!speechToIntent) {
+		logger.warn('Rhino user limit reached.');
+		return null;
+	}
+
 	return new Promise((resolve) => {
 		const silentFrames = bufferToInt16(Buffer.alloc(pcm.length, 0xffff));
 		for (const _pcm of [silentFrames, pcm, silentFrames]) {
@@ -56,6 +73,11 @@ export const infereIntent = async ({ client, pcm }: { client: Bot } & Audio) => 
 
 export const transcribe = async ({ client, pcm }: { client: Bot } & Audio) => {
 	const { speechToText } = client.tools;
+	if (!speechToText) {
+		logger.warn('Leopard user limit reached.');
+		return null;
+	}
+
 	return new Promise((resolve) => {
 		const { words, transcript } = speechToText.process(pcm);
 		logger.debug(`Transcript: ${transcript}`);

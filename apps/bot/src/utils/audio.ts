@@ -1,4 +1,4 @@
-import { ArrayUtil } from '@luferro/shared-utils';
+import { ArrayUtil, logger } from '@luferro/shared-utils';
 import { EndBehaviorType, VoiceReceiver } from 'discord-voip';
 import prism from 'prism-media';
 
@@ -14,6 +14,11 @@ export const getAudioBuffer = async ({
 	userId: string;
 }) => {
 	const { wakeWord } = client.tools;
+	if (!wakeWord) {
+		logger.warn('Porcupine user limit reached.');
+		return Buffer.concat([]);
+	}
+
 	return new Promise((resolve, reject) => {
 		const chunks: Buffer[] = [];
 		const stream = receiver.subscribe(userId, { end: { behavior: EndBehaviorType.AfterSilence, duration: 1000 } });

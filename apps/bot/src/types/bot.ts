@@ -67,9 +67,9 @@ export type Api = {
 };
 
 export type Tools = {
-	wakeWord: Porcupine;
-	speechToIntent: Rhino;
-	speechToText: Leopard;
+	wakeWord: Porcupine | null;
+	speechToIntent: Rhino | null;
+	speechToText: Leopard | null;
 	textToSpeech: TextToSpeechClient;
 };
 
