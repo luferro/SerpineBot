@@ -19,6 +19,6 @@ export const getProfile = async ({ gamertag }: Gamertag) => {
 	return await getGamertagData(url);
 };
 
-export const getBlog = async ({ blog }: Blog) => await getBlogData(blog);
+export const getBlog = async ({ blog }: Blog) => await getBlogData(Endpoint[blog]);
 
-export const getChart = async ({ chart }: Chart) => await getChartData(chart);
+export const getChart = async ({ chart }: Chart) => await getChartData(Endpoint[chart]);
