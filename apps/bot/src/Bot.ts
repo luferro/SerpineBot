@@ -3,7 +3,7 @@ import { AnimeApi, ComicsApi, GamingApi, MangadexApi, ShowsApi } from '@luferro/
 import { NewsApi } from '@luferro/news-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { InteractiveScraper, SearchEngine, StaticScraper, Youtube } from '@luferro/scraper';
-import { ArrayUtil, EnumUtil, FetchError, logger } from '@luferro/shared-utils';
+import { ArrayUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
 import { CronJob } from 'cron';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
@@ -142,6 +142,7 @@ export class Bot extends Client {
 	}
 
 	async state(entry: StateArgs) {
+		await SleepUtil.sleep(1000);
 		return await StateModel.createEntry(entry);
 	}
 
