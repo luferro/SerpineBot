@@ -41,11 +41,11 @@ export const execute: JobExecute = async ({ client }) => {
 			.addFields([
 				{
 					name: t('jobs.manga.embed.fields.0.name'),
-					value: tags.map((tag) => `\`${tag}\``).join(),
+					value: tags.map((tag) => `\`${tag}\``).join() || t('common.unavailable'),
 				},
 				{
 					name: t('jobs.manga.embed.fields.1.name'),
-					value: formattedChapters.join('\n'),
+					value: formattedChapters.join('\n') || t('common.unavailable'),
 				},
 			])
 			.setColor('Random');
