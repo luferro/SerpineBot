@@ -19,9 +19,7 @@ export const search = async (title: string) => {
 
 export const getReviewsById = async (id: string) => {
 	const { slug } = await getUrlParameters(id);
-	if (!slug) throw new Error(`Cannot fetch reviews for game with id ${id}`);
-
-	const url = StringUtil.format<Endpoint>(Endpoint.GAME, id, slug);
+	const url = StringUtil.format<Endpoint>(Endpoint.GAME, id, slug!);
 	return await getReviewData(url);
 };
 

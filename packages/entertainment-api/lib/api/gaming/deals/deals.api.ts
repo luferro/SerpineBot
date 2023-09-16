@@ -9,6 +9,7 @@ type List<T> = { list: T };
 type Search = { results: { id: number; plain: string; title: string }[]; urls: { search: string } };
 
 type Price = { store: string; cut: number; price: number; price_formatted: string; url: string | null };
+
 type Overview = {
 	price: Price;
 	lowest: Price & { recorded: string; recorded_formatted: string };
@@ -58,8 +59,6 @@ export const search = async (query: string) => {
 export const getDealById = async (id: string) => {
 	const url = `https://api.isthereanydeal.com/v01/game/overview/?key=${getApiKey()}&region=eu1&country=PT&plains=${id}`;
 	const { payload } = await FetchUtil.fetch<Payload<Game<Overview>>>({ url });
-	if (!payload.data[id].price && !payload.data[id].lowest) throw new Error(`No deal was found for ${id}.`);
-
 	const { price, lowest, bundles, urls } = payload.data[id];
 
 	return {

@@ -63,19 +63,18 @@ export const getAnimeById = async (id: string) => {
 	});
 
 	const { mal, aniList, animePlanet, kitsu } = payload.websites;
-	const isTracker = (url: string) => [mal, aniList, animePlanet, kitsu].includes(url);
+	const trackersList = [mal, aniList, animePlanet, kitsu];
 
 	const { crunchyroll, funimation, hidive, netflix, youtube, wakanim, hulu, amazon } = payload.websites;
-	const isStream = (url: string) =>
-		[crunchyroll, funimation, hidive, netflix, youtube, wakanim, hulu, amazon].includes(url);
+	const streamsList = [crunchyroll, funimation, hidive, netflix, youtube, wakanim, hulu, amazon];
 
 	const trackers = Object.entries(payload.websites)
-		.filter(({ 1: url }) => isTracker(url))
-		.map(([tracker, url]) => ({ tracker, url: `https://${url}` }));
+		.filter(({ 1: href }) => trackersList.includes(href))
+		.map(([tracker, href]) => ({ tracker, url: `https://${href}` }));
 
 	const streams = Object.entries(payload.websites)
-		.filter(({ 1: url }) => isStream(url))
-		.map(([tracker, url]) => ({ tracker, url: `https://${url}` }));
+		.filter(({ 1: href }) => streamsList.includes(href))
+		.map(([tracker, href]) => ({ tracker, url: `https://${href}` }));
 
 	return {
 		titles: { default: payload.title, alternative: payload.names?.english ?? null },
@@ -105,29 +104,25 @@ export const getWeeklySchedule = async () => {
 	});
 
 	return payload
-		.map((anime) => {
-			const streams = Object.entries(anime.streams).map(([stream, url]) => ({ stream, url: `https://${url}` }));
-
-			return {
-				id: anime.route,
-				titles: { default: anime.title, alternative: anime.english },
-				url: `https://animeschedule.net/anime/${anime.route}`,
-				image: `https://img.animeschedule.net/production/assets/public/img/${anime.imageVersionRoute}`,
-				status: anime.status,
-				episodes: {
-					total: anime.episodes,
-					duration: anime.lengthMin,
-					current: { number: anime.episodeNumber, date: anime.episodeDate },
-					delay: {
-						from: anime.delayedFrom !== '0001-01-01T00:00:00Z' ? anime.delayedFrom : null,
-						until: anime.delayedUntil !== '0001-01-01T00:00:00Z' ? anime.delayedUntil : null,
-					},
+		.map((anime) => ({
+			id: anime.route,
+			titles: { default: anime.title, alternative: anime.english },
+			url: `https://animeschedule.net/anime/${anime.route}`,
+			image: `https://img.animeschedule.net/production/assets/public/img/${anime.imageVersionRoute}`,
+			status: anime.status,
+			episodes: {
+				total: anime.episodes,
+				duration: anime.lengthMin,
+				current: { number: anime.episodeNumber, date: anime.episodeDate },
+				delay: {
+					from: anime.delayedFrom !== '0001-01-01T00:00:00Z' ? anime.delayedFrom : null,
+					until: anime.delayedUntil !== '0001-01-01T00:00:00Z' ? anime.delayedUntil : null,
 				},
-				streams,
-				hasAired: anime.airingStatus === 'aired',
-				isAiring: anime.airingStatus === 'airing',
-				isDelayed: anime.airingStatus === 'delayed-air',
-			};
-		})
+			},
+			streams: Object.entries(anime.streams).map(([stream, href]) => ({ stream, url: `https://${href}` })),
+			hasAired: anime.airingStatus === 'aired',
+			isAiring: anime.airingStatus === 'airing',
+			isDelayed: anime.airingStatus === 'delayed-air',
+		}))
 		.filter((anime): anime is NonNullable<typeof anime> => !!anime);
 };

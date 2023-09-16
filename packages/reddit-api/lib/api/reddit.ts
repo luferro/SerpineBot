@@ -13,7 +13,6 @@ type Post = {
 		permalink: string;
 		secure_media?: { type: string };
 		gallery_data?: { items: { media_id: string }[] };
-		preview?: { reddit_video_preview?: { fallback_url: string } };
 		is_self: boolean;
 		crosspost_parent: boolean | null;
 		stickied: boolean;
@@ -52,7 +51,6 @@ const mapPosts = async (url: string) => {
 			isSelf: data.is_self,
 			embedType: data.secure_media?.type ?? null,
 			gallery: data.gallery_data,
-			fallback: data.preview,
 			publishedAt: new Date(data.created_utc),
 			hasEmbeddedMedia:
 				Boolean(data.secure_media) ||

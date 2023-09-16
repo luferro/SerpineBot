@@ -17,9 +17,7 @@ export const getComic = async (url: Endpoint) => {
 	const isRedirect = $('body').text().includes('redirected');
 	if (isRedirect) {
 		const redirectUrl = $('a').attr('href');
-		if (!redirectUrl) throw new Error(`Couldn't find comic.`);
-
-		$ = await StaticScraper.loadUrl({ url: redirectUrl });
+		if (redirectUrl) $ = await StaticScraper.loadUrl({ url: redirectUrl });
 	}
 
 	const title = $('.comic').attr('data-feature-name') ?? null;
