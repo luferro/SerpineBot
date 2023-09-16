@@ -16,7 +16,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/marked": "^5.0.1",
-		"@types/node": "^20.6.0",
+		"@types/node": "^20.6.2",
 		"@types/react": "18.2.21",
 		"@types/react-dom": "18.2.7",
 		"eslint": "^8.49.0",
@@ -24,7 +24,7 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@babel/core": "^7.22.17",
+		"@babel/core": "^7.22.20",
 		"@emotion/react": "^11.11.1",
 		"@emotion/server": "^11.11.0",
 		"@emotion/styled": "^11.11.0",
@@ -34,7 +34,7 @@
 		"discord.js": "^14.13.0",
 		"dotenv": "^16.3.1",
 		"html-react-parser": "^4.2.2",
-		"marked": "^9.0.0",
+		"marked": "^9.0.1",
 		"next": "13.4.19",
 		"react": "18.2.0",
 		"react-dom": "18.2.0"
