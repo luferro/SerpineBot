@@ -18,10 +18,10 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString(t('interactions.gaming.hltb.options.0.name'), true);
 
-	const { id } = await client.api.gaming.playtimes.search(query);
+	const { id } = await client.api.gaming.playtimes.search({ query });
 	if (!id) throw new Error(t('errors.search.lookup', { query }));
 
-	const { name, image, playtimes } = await client.api.gaming.playtimes.getPlaytimesById(id);
+	const { name, image, playtimes } = await client.api.gaming.playtimes.getPlaytimesById({ id });
 	const { main, mainExtra, completionist } = playtimes;
 
 	const hasPlaytimes = main || mainExtra || completionist;

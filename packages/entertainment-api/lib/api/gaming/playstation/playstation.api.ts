@@ -1,5 +1,11 @@
-import { Feed, getPlaystationFeed } from './playstation.feed';
+import { RssModel } from '@luferro/database';
 
-type Blog = { blog: keyof typeof Feed };
+import { getPlaystationBlogFeed } from './playstation.feed';
 
-export const getBlog = async ({ blog }: Blog) => await getPlaystationFeed({ url: Feed[blog] });
+export const getBlog = async () => {
+	const data = [];
+	for (const url of await RssModel.getFeeds({ key: 'gaming.playstation' })) {
+		data.push(...(await getPlaystationBlogFeed({ url })));
+	}
+	return data.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+};

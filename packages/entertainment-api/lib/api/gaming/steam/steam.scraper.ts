@@ -1,14 +1,13 @@
 import { StaticScraper } from '@luferro/scraper';
 
-export enum Endpoint {
-	NEXT_SALES = 'https://prepareyourwallet.com',
-	TOP_PLAYED = 'https://steamcharts.com',
-	TOP_SELLERS = 'https://store.steampowered.com/search/?filter=topsellers&os=win',
-	UPCOMING_GAMES = 'https://store.steampowered.com/search/?filter=popularcomingsoon&os=win',
+export const enum Chart {
+	TOP_SELLERS = 1,
+	TOP_PLAYED,
+	UPCOMING_GAMES,
 }
 
-export const getUpcomingSalesData = async () => {
-	const $ = await StaticScraper.loadUrl({ url: Endpoint.NEXT_SALES });
+export const getNextSalesData = async () => {
+	const $ = await StaticScraper.loadUrl({ url: 'https://prepareyourwallet.com' });
 
 	const sale = $('p').first().attr('content') ?? null;
 	const status = $('span.status').first().text();
@@ -26,10 +25,15 @@ export const getUpcomingSalesData = async () => {
 	return { sale, status, upcoming };
 };
 
-export const getChartData = async (url: string) => {
-	const $ = await StaticScraper.loadUrl({ url });
+export const getChartData = async ({ chart }: { chart: Chart }) => {
+	const chartUrl: Record<typeof chart, string> = {
+		[Chart.TOP_PLAYED]: 'https://steamcharts.com',
+		[Chart.TOP_SELLERS]: 'https://store.steampowered.com/search/?filter=topsellers&os=win',
+		[Chart.UPCOMING_GAMES]: 'https://store.steampowered.com/search/?filter=popularcomingsoon&os=win',
+	};
+	const $ = await StaticScraper.loadUrl({ url: chartUrl[chart] });
 
-	if (url === Endpoint.TOP_PLAYED) {
+	if (chart === Chart.TOP_PLAYED) {
 		return $('table#top-games tbody tr')
 			.get()
 			.map((element, index) => {

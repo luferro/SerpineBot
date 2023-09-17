@@ -7,7 +7,7 @@ export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	for (const subreddit of client.config.MEMES_SUBREDDITS) {
-		const posts = await client.api.reddit.getPosts(subreddit, 'hot', 25);
+		const posts = await client.api.reddit.getPosts({ subreddit, limit: 25 });
 
 		const embeds = [];
 		for (const { title, url, selfurl, hasEmbeddedMedia, isSelf } of posts.reverse()) {

@@ -53,20 +53,17 @@
 		"steam": {
 			"name": "steam",
 			"description": "Steam group commands for the gaming command.",
-			"hot": {
-				"name": "hot",
-				"description": "Steam's top sellers.",
-				"embed": { "title": "Steam's top sellers" }
-			},
-			"new": {
-				"name": "new",
-				"description": "Steam's upcoming games.",
-				"embed": { "title": "Steam's upcoming games" }
-			},
-			"top": {
-				"name": "top",
-				"description": "Steam's top played games.",
-				"embed": { "title": "Steam's top played" }
+			"charts": {
+				"name": "charts",
+				"description": "Steam charts.",
+				"options": [
+					{
+						"name": "chart",
+						"description": "Top sellers, top played or upcoming games charts.",
+						"choices": [{ "name": "Top Sellers" }, { "name": "Top Played" }, { "name": "Upcoming Games" }]
+					}
+				],
+				"embed": { "title": "Steam's {{chart}}" }
 			},
 			"sales": {
 				"name": "sales",
@@ -96,20 +93,17 @@
 		"xbox": {
 			"name": "xbox",
 			"description": "Xbox group commands for the gaming command.",
-			"hot": {
-				"name": "hot",
-				"description": "Xbox's top sellers.",
-				"embed": { "title": "Xbox's top sellers" }
-			},
-			"new": {
-				"name": "new",
-				"description": "Xbox's upcoming games.",
-				"embed": { "title": "Xbox's upcoming games" }
-			},
-			"top": {
-				"name": "top",
-				"description": "Xbox's top played games.",
-				"embed": { "title": "Xbox's top played" }
+			"charts": {
+				"name": "charts",
+				"description": "Xbox charts.",
+				"options": [
+					{
+						"name": "chart",
+						"description": "Top sellers, top played or upcoming games charts.",
+						"choices": [{ "name": "Top Sellers" }, { "name": "Top Played" }, { "name": "Upcoming Games" }]
+					}
+				],
+				"embed": { "title": "Xbox's {{chart}}" }
 			},
 			"profile": {
 				"name": "profile",
@@ -162,7 +156,7 @@
 			"name": "subscriptions",
 			"description": "Checks in which subscriptions a game is available.",
 			"options": [{ "name": "query", "description": "Game title." }],
-			"embed": { "fields": [{ "name": "Available in **{{size}}** subscription(s)" }] }
+			"embed": { "title": "**{{item}}** is available in **{{size}}** gaming service(s)" }
 		}
 	},
 	"integrations": {
@@ -443,16 +437,9 @@
 		"subscriptions": {
 			"name": "subscriptions",
 			"description": "Checks in which subscriptions a movie / tv is available.",
-			"options": [
-				{
-					"name": "category",
-					"description": "Shows category.",
-					"choices": [{ "name": "Series" }, { "name": "Movies" }]
-				},
-				{ "name": "query", "description": "Movie / Series title." }
-			],
+			"options": [{ "name": "query", "description": "Movie / Series title." }],
 			"embed": {
-				"fields": [{ "name": "Available in **{{size}}** subscription(s)" }],
+				"title": "**{{item}}** is available in **{{size}}** streaming service(s)",
 				"footer": { "text": "Data provided by JustWatch." }
 			}
 		}
@@ -501,7 +488,11 @@
 			"embed": { "title": "Webhook has been deleted." }
 		}
 	},
-	"comics": { "name": "comics", "description": "Random comic page." },
+	"comics": {
+		"name": "comics",
+		"description": "Random page from a given comic.",
+		"options": [{ "name": "query", "description": "Comic query." }]
+	},
 	"memes": { "name": "memes", "description": "Random meme." },
 	"prune": {
 		"name": "prune",

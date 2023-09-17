@@ -22,13 +22,10 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setDescription(t('interactions.reminders.create.options.1.description'))
 			.setRequired(true)
 			.addChoices(
-				{ name: t('interactions.reminders.create.options.1.choices.0.name'), value: 'Seconds' },
-				{ name: t('interactions.reminders.create.options.1.choices.1.name'), value: 'Minutes' },
-				{ name: t('interactions.reminders.create.options.1.choices.2.name'), value: 'Hours' },
-				{ name: t('interactions.reminders.create.options.1.choices.3.name'), value: 'Days' },
-				{ name: t('interactions.reminders.create.options.1.choices.4.name'), value: 'Weeks' },
-				{ name: t('interactions.reminders.create.options.1.choices.5.name'), value: 'Months' },
-				{ name: t('interactions.reminders.create.options.1.choices.6.name'), value: 'Years' },
+				...Array.from({ length: 7 }).map((_, index) => ({
+					name: t(`interactions.reminders.create.options.1.choices.${index}.name`),
+					value: t(`interactions.reminders.create.options.1.choices.${index}.name`),
+				})),
 			),
 	)
 	.addStringOption((option) =>

@@ -1,18 +1,9 @@
 import { StaticScraper } from '@luferro/scraper';
 
-export enum Endpoint {
-	GARFIELD_COMIC = 'https://www.gocomics.com/random/garfield',
-	PEANUTS_COMIC = 'https://www.gocomics.com/random/peanuts',
-	GET_FUZZY_COMIC = 'https://www.gocomics.com/random/getfuzzy',
-	FOWL_LANGUAGE_COMIC = 'https://www.gocomics.com/random/fowl-language',
-	CALVIN_AND_HOBBES = 'https://www.gocomics.com/random/calvinandhobbes',
-	JAKE_LIKES_ONIONS = 'https://www.gocomics.com/random/jake-likes-onions',
-	SARAHS_SCRIBBLES = 'https://www.gocomics.com/random/sarahs-scribbles',
-	WORRY_LINES = 'https://www.gocomics.com/random/worry-lines',
-}
+import { Id } from '../../../types/args';
 
-export const getComic = async (url: Endpoint) => {
-	let $ = await StaticScraper.loadUrl({ url });
+export const getComicData = async ({ id }: Id) => {
+	let $ = await StaticScraper.loadUrl({ url: `https://www.gocomics.com/random/${id}` });
 
 	const isRedirect = $('body').text().includes('redirected');
 	if (isRedirect) {
@@ -22,12 +13,12 @@ export const getComic = async (url: Endpoint) => {
 
 	const title = $('.comic').attr('data-feature-name') ?? null;
 	const author = $('.comic').attr('creator') ?? null;
-	const dataUrl = $('.comic').attr('data-url') ?? null;
+	const url = $('.comic').attr('data-url') ?? null;
 	const image = $('.comic').attr('data-image') ?? null;
 
 	return {
 		image,
-		url: dataUrl,
+		url,
 		title: title === author ? title : `${title} by ${author}`,
 	};
 };

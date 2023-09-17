@@ -1,3 +1,3 @@
-import { Endpoint, getNewsList } from './nintendo.scraper';
+import { getNewsData } from './nintendo.scraper';
 
-export const getNews = async () => await getNewsList(Endpoint.NEWS);
+export const getNews = async () => await getNewsData();

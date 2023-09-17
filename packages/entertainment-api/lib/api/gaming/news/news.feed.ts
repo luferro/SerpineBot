@@ -1,18 +1,10 @@
 import { RSS, StaticScraper } from '@luferro/scraper';
 
-export enum Feed {
-	GAME_INFORMER = 'https://www.gameinformer.com/news.xml',
-	EUROGAMER = 'https://www.eurogamer.net/feed',
-	TECHRAPTOR = 'https://techraptor.net/gaming/feed',
-	IGN = 'http://feeds.feedburner.com/ign/games-all',
-	VERGE = 'https://www.theverge.com/rss/games/index.xml',
-	ROCK_PAPER_SHOTGUN = 'https://www.rockpapershotgun.com/feed/news',
-}
+import { Url } from '../../../types/args';
 
-export const getNewsFeed = async ({ url }: { url: string }) => mapFeed({ data: await RSS.getFeed({ url }) });
-
-const mapFeed = ({ data }: { data: Awaited<ReturnType<typeof RSS.getFeed>> }) => {
-	return data.items.map(({ title, link, content, 'content:encoded': encodedContent, contentSnippet, isoDate }) => {
+export const getNewsFeed = async ({ url }: Url) => {
+	const raw = await RSS.getFeed({ url });
+	return raw.items.map(({ title, link, content, 'content:encoded': encodedContent, contentSnippet, isoDate }) => {
 		const $ = StaticScraper.loadHtml({ html: encodedContent ?? content });
 		const image = $('img').attr('src');
 		return {

@@ -7,7 +7,7 @@ import type { JobData, JobExecute } from '../types/bot';
 export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const latestChapters = await client.api.mangadex.getLatestChapters();
+	const latestChapters = await client.api.mangadex.getChapters({});
 	const chaptersByManga = new Map(
 		latestChapters
 			.reverse()
@@ -23,7 +23,7 @@ export const execute: JobExecute = async ({ client }) => {
 		}
 		if (chapters.length === 0) continue;
 
-		const { title, url, image, publication, tags } = await client.api.mangadex.getMangaById(mangaId);
+		const { title, url, image, publication, tags } = await client.api.mangadex.getMangaById({ id: mangaId });
 		if (!title && !url) continue;
 
 		const formattedChapters = chapters

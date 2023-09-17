@@ -1,9 +1,11 @@
 import { ConverterUtil } from '@luferro/shared-utils';
 import ytdl from 'ytdl-core';
 
-export const isVideo = (url: string) => Boolean(getVideoId(url));
+type Url = { url: string };
 
-export const getVideoId = (url: string) => {
+export const isVideo = ({ url }: Url) => Boolean(getVideoId({ url }));
+
+export const getVideoId = ({ url }: Url) => {
 	try {
 		return ytdl.getVideoID(url);
 	} catch (error) {
@@ -11,7 +13,7 @@ export const getVideoId = (url: string) => {
 	}
 };
 
-export const getSubscribers = async (url: string) => {
+export const getSubscribers = async ({ url }: Url) => {
 	try {
 		const { videoDetails } = await ytdl.getBasicInfo(url);
 		return videoDetails.author.subscriber_count ?? 0;
@@ -20,7 +22,7 @@ export const getSubscribers = async (url: string) => {
 	}
 };
 
-export const getVideoInfo = async (url: string) => {
+export const getVideoInfo = async ({ url }: Url) => {
 	const { videoDetails } = await ytdl.getBasicInfo(url);
 	const { title, author, thumbnails, lengthSeconds, isLiveContent } = videoDetails;
 

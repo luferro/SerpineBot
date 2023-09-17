@@ -7,7 +7,7 @@ export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const interval = { start: Date.now() };
-	const results = await client.scraper.searchEngine.search({ query: `reviews site:opencritic.com/game`, interval });
+	const results = await client.scraper.searchEngine.search({ query: 'reviews site:opencritic.com/game', interval });
 	const reviews = results
 		.map((result) => {
 			const matches = result.url.match(/https?:\/\/opencritic.com\/game\/\d+\/(\w|-)+/);
@@ -19,8 +19,8 @@ export const execute: JobExecute = async ({ client }) => {
 
 	const embeds = [];
 	for (const review of reviews.reverse()) {
-		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } =
-			await client.api.gaming.reviews.getReviewsForUrl(review.url);
+		const data = await client.api.gaming.reviews.getReviewsForUrl({ url: review.url });
+		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } = data;
 		if (!tier || !score) continue;
 
 		const isSuccessful = await client.state({ title: name, url });

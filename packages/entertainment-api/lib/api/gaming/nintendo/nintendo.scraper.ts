@@ -16,19 +16,12 @@ type Articles = {
 	};
 };
 
-export enum Endpoint {
-	NEWS = 'https://www.nintendo.com/whatsnew/',
-}
-
-export const getNewsList = async (url: Endpoint) => {
-	const $ = await StaticScraper.loadUrl({ url });
+export const getNewsData = async () => {
+	const $ = await StaticScraper.loadUrl({ url: 'https://www.nintendo.com/whatsnew/' });
 
 	const script = $('script[type="application/json"]').first().text();
-	const {
-		props: {
-			pageProps: { initialApolloState },
-		},
-	} = JSON.parse(script) as Articles;
+	const { props } = JSON.parse(script) as Articles;
+	const { initialApolloState } = props.pageProps;
 
 	return Object.values(initialApolloState)
 		.filter(({ __typename }) => __typename === 'NewsArticle')

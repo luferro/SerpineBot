@@ -1,20 +1,20 @@
+import { RssModel } from '@luferro/database';
 import { RedditApi } from '@luferro/reddit-api';
-import { EnumUtil } from '@luferro/shared-utils';
 
-import { Feed, getNewsFeed } from './news.feed';
+import { getNewsFeed } from './news.feed';
 
 type News = {
 	title: string;
 	url: string;
-	image?: string;
 	publishedAt: Date;
+	image?: string;
 	isYoutubeEmbed?: boolean;
 	isTwitterEmbed?: boolean;
 };
 
 export const getNews = async () => {
-	let news: News[] = [
-		...(await RedditApi.getPosts('Games', 'new', 25))
+	const data: News[] = [
+		...(await RedditApi.getPosts({ subreddit: 'Games', sort: 'new', limit: 25 }))
 			.filter(({ isCrosspost, isSelf }) => !isCrosspost && !isSelf)
 			.map(({ title, url, embedType, publishedAt }) => ({
 				title,
@@ -25,9 +25,9 @@ export const getNews = async () => {
 			})),
 	];
 
-	for (const source of EnumUtil.enumKeysToArray(Feed)) {
-		news = news.concat(
-			(await getNewsFeed({ url: Feed[source] })).map(({ title, url, image, publishedAt }) => ({
+	for (const url of await RssModel.getFeeds({ key: 'gaming.news' })) {
+		data.push(
+			...(await getNewsFeed({ url })).map(({ title, url, image, publishedAt }) => ({
 				title,
 				url,
 				image,
@@ -36,5 +36,5 @@ export const getNews = async () => {
 		);
 	}
 
-	return news.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+	return data.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 };

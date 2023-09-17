@@ -7,7 +7,7 @@ import type { InteractionCommandExecute } from '../../types/bot';
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
-	const posts = await client.api.reddit.getPosts('Memes');
+	const posts = await client.api.reddit.getPosts({ subreddit: 'Memes' });
 	if (posts.length === 0) throw new Error(t('errors.search.none'));
 
 	const { title, url, selfurl, hasEmbeddedMedia } = posts[Math.floor(Math.random() * posts.length)];

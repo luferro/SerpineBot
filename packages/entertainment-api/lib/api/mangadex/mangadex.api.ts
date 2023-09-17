@@ -1,8 +1,10 @@
 import { FetchUtil, StringUtil } from '@luferro/shared-utils';
 
+import { Id, Limit, Query } from '../../types/args';
+
 type Payload<T> = { data: T };
 
-type Search = { id: number };
+type SearchResult = { id: number };
 
 type Relationship<T = unknown> = {
 	id: string;
@@ -27,19 +29,18 @@ type Manga = {
 	relationships: Relationship<{ fileName: string }>[];
 };
 
-export const search = async (query: string) => {
+export const search = async ({ query }: Query) => {
 	const url = `https://api.mangadex.org/manga?title=${query}`;
-	const { payload } = await FetchUtil.fetch<Payload<Search[]>>({ url });
-	return { id: payload.data[0]?.id.toString() ?? null };
+	const { payload } = await FetchUtil.fetch<Payload<SearchResult[]>>({ url });
+	return {
+		id: payload.data[0]?.id.toString() ?? null,
+	};
 };
 
-export const getMangaById = async (id: string) => {
+export const getMangaById = async ({ id }: Id) => {
 	const url = `https://api.mangadex.org/manga/${id}`;
-	const {
-		payload: {
-			data: { attributes },
-		},
-	} = await FetchUtil.fetch<Payload<Manga>>({ url });
+	const { payload } = await FetchUtil.fetch<Payload<Manga>>({ url });
+	const { attributes } = payload.data;
 
 	const { title, status, year, tags } = attributes;
 	const image = `https://og.mangadex.org/og-image/manga/${id}`;
@@ -56,7 +57,7 @@ export const getMangaById = async (id: string) => {
 	};
 };
 
-export const getLatestChapters = async (limit = 20) => {
+export const getChapters = async ({ limit = 20 }: Partial<Limit>) => {
 	const url = `https://api.mangadex.org/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&includes[]=manga&limit=${limit}`;
 	const { payload } = await FetchUtil.fetch<Payload<Chapter[]>>({ url });
 

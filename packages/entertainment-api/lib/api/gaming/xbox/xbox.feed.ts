@@ -2,10 +2,11 @@ import { RSS } from '@luferro/scraper';
 import { DateUtil } from '@luferro/shared-utils';
 
 import { Url } from '../../../types/args';
-import { getImage } from './playstation.scraper';
+import { getImage } from './xbox.scraper';
 
-export const getPlaystationBlogFeed = async ({ url }: Url) => {
+export const getXboxWireFeed = async ({ url }: Url) => {
 	const raw = await RSS.getFeed({ url });
+	console.log(raw.items.slice(0, 3));
 	return Promise.all(
 		raw.items
 			.filter(({ isoDate }) => isoDate && DateUtil.isDateToday(new Date(isoDate)))

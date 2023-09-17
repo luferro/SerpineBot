@@ -1,9 +1,11 @@
-import { EnumUtil } from '@luferro/shared-utils';
+import { SearchEngine } from '@luferro/scraper';
 
-import { Endpoint, getComic } from './go-comics.scraper';
+import { Id, Query } from '../../../types/args';
+import { getComicData } from './go-comics.scraper';
 
-export const getRandomComic = async () => {
-	const keys = EnumUtil.enumKeysToArray(Endpoint);
-	const selection = keys[Math.floor(Math.random() * keys.length)];
-	return await getComic(Endpoint[selection]);
+export const search = async ({ query }: Query) => {
+	const results = await SearchEngine.search({ query: `${query} site:https://www.gocomics.com/` });
+	return { id: results[0]?.url.split('/').at(-1) ?? null };
 };
+
+export const getComic = async ({ id }: Id) => await getComicData({ id });

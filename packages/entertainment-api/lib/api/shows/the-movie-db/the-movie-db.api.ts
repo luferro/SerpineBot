@@ -1,43 +1,15 @@
 import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 
+import { Id, Query } from '../../../types/args';
 import { getProvidersData } from './the-movie-db.scraper';
 
 type ShowType = 'movie' | 'tv';
 
-type Search = { results: { id: number }[] };
-
-type Movie = {
-	title: string;
-	tagline: string;
-	overview: string;
-	homepage: string;
-	release_date: string;
-	poster_path: string;
-	vote_average: number;
-	vote_count: number;
-	runtime: number;
-	genres: { name: string }[];
-};
-
-type Series = {
-	name: string;
-	tagline: string;
-	overview: string;
-	homepage: string;
-	status: string;
-	first_air_date: string;
-	next_episode_to_air?: { air_date: string } | string;
-	seasons: { name: string; episode_count: number; air_date: string }[];
-	poster_path: string;
-	vote_average: number;
-	vote_count: number;
-	episode_run_time: number[];
-	genres: { name: string }[];
-};
+type SearchResult = { results: { id: number; media_type: ShowType }[] };
 
 type Providers = {
 	results: {
-		PT?: {
+		[key: string]: {
 			link: string;
 			flatrate?: { provider_name: string }[];
 			rent?: { provider_name: string }[];
@@ -46,83 +18,126 @@ type Providers = {
 	};
 };
 
+type Movie = {
+	'title': string;
+	'tagline': string;
+	'overview': string;
+	'homepage': string;
+	'release_date': string;
+	'poster_path': string;
+	'vote_average': number;
+	'vote_count': number;
+	'runtime': number;
+	'genres': { name: string }[];
+	'watch/providers': Providers;
+};
+
+type Series = {
+	'name': string;
+	'tagline': string;
+	'overview': string;
+	'homepage': string;
+	'status': string;
+	'first_air_date': string;
+	'next_episode_to_air'?: { air_date: string } | string;
+	'seasons': { name: string; episode_count: number; air_date: string }[];
+	'poster_path': string;
+	'vote_average': number;
+	'vote_count': number;
+	'episode_run_time': number[];
+	'genres': { name: string }[];
+	'watch/providers': Providers;
+};
+
 const getApiKey = () => {
 	if (!process.env.THE_MOVIE_DB_API_KEY) throw new Error('THE_MOVIE_DB_API_KEY is not set.');
 	return process.env.THE_MOVIE_DB_API_KEY;
 };
 
-export const search = async (type: ShowType, query: string) => {
-	const url = `https://api.themoviedb.org/3/search/${type}?query=${query}&api_key=${getApiKey()}`;
-	const { payload } = await FetchUtil.fetch<Search>({ url });
-	return { id: payload.results[0]?.id.toString() ?? null };
+export const search = async ({ query }: Query) => {
+	const { payload } = await FetchUtil.fetch<SearchResult>({
+		url: `https://api.themoviedb.org/3/search/multi?api_key=${getApiKey()}&query=${query}`,
+	});
+	const results = payload.results.filter(({ media_type }) => media_type === 'movie' || media_type === 'tv');
+	return {
+		id: results[0]?.id.toString() ?? null,
+		type: results[0]?.media_type ?? null,
+	};
 };
 
-export const getMovieById = async (id: string) => {
-	const url = `https://api.themoviedb.org/3/movie/${id}?api_key=${getApiKey()}`;
-	const { payload } = await FetchUtil.fetch<Movie>({ url });
+export const getMovieById = async ({ id }: Id) => {
+	const { payload } = await FetchUtil.fetch<Movie>({
+		url: `https://api.themoviedb.org/3/movie/${id}?api_key=${getApiKey()}&append_to_response=watch/providers`,
+	});
+
+	const { tagline, overview, runtime: _runtime, poster_path, vote_count, vote_average } = payload;
+	const description = `${tagline ? `*${tagline}*` : ''}\n${overview ?? ''}`.trim();
+	const runtime = _runtime > 0 ? ConverterUtil.formatTime(_runtime * 1000 * 60) : null;
+	const image = poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${poster_path}` : null;
+	const score = vote_count > 0 && vote_average > 0 ? `${vote_average.toFixed(1)}/10` : null;
+
+	const { link } = payload['watch/providers'].results[(process.env.LOCALE ?? 'en-US').split('-')[1]];
+	const providers = link ? await getProvidersData({ url: link }) : [];
 
 	return {
+		description,
+		image,
+		score,
+		runtime,
 		name: payload.title,
-		description: `${payload.tagline ? `*${payload.tagline}*` : ''}\n${
-			payload.overview ? payload.overview : ''
-		}`.trim(),
 		url: payload.homepage || null,
 		releaseDate: payload.release_date,
-		image: payload.poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${payload.poster_path}` : null,
-		score: payload.vote_count > 0 && payload.vote_average > 0 ? `${payload.vote_average.toFixed(1)}/10` : null,
-		runtime: payload.runtime > 0 ? ConverterUtil.formatTime(payload.runtime * 1000 * 60) : null,
 		genres: payload.genres.map(({ name }) => `> ${name}`),
+		providers: {
+			url: link,
+			buy: providers.filter(({ type }) => type === 'Buy'),
+			rent: providers.filter(({ type }) => type === 'Rent'),
+			stream: providers.filter(({ type }) => type === 'Stream'),
+		},
 	};
 };
 
-export const getSeriesById = async (id: string) => {
-	const url = `https://api.themoviedb.org/3/tv/${id}?api_key=${getApiKey()}`;
+export const getSeriesById = async ({ id }: Id) => {
+	const url = `https://api.themoviedb.org/3/tv/${id}?api_key=${getApiKey()}&append_to_response=watch/providers`;
 	const { payload } = await FetchUtil.fetch<Series>({ url });
 
+	const { tagline, overview, episode_run_time, next_episode_to_air, poster_path, vote_count, vote_average } = payload;
+	const description = `${tagline ? `*${tagline}*` : ''}\n${overview ?? ''}`.trim();
+	const image = poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${poster_path}` : null;
+	const runtime = episode_run_time.length > 0 ? ConverterUtil.formatTime(episode_run_time[0] * 1000 * 60) : null;
+	const nextEpisode = next_episode_to_air instanceof Object ? next_episode_to_air.air_date : next_episode_to_air;
+	const score = vote_count > 0 && vote_average > 0 ? `${vote_average.toFixed(1)}/10` : null;
+
+	const { link } = payload['watch/providers'].results[(process.env.LOCALE ?? 'en-US').split('-')[1]];
+	const providers = link ? await getProvidersData({ url: link }) : [];
+
 	return {
+		description,
+		runtime,
+		score,
+		image,
 		name: payload.name,
 		status: payload.status,
-		description: `${payload.tagline ? `*${payload.tagline}*` : ''}\n${payload.overview ? payload.overview : ''}`,
 		url: payload.homepage || null,
 		firstEpisode: payload.first_air_date,
-		runtime:
-			payload.episode_run_time.length > 0
-				? ConverterUtil.formatTime(payload.episode_run_time[0] * 1000 * 60)
-				: null,
-		nextEpisode:
-			payload.next_episode_to_air instanceof Object
-				? payload.next_episode_to_air.air_date
-				: payload.next_episode_to_air ?? null,
+		nextEpisode: nextEpisode ?? null,
 		seasons: payload.seasons.length,
-		image: payload.poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${payload.poster_path}` : null,
-		score: payload.vote_count > 0 && payload.vote_average > 0 ? `${payload.vote_average.toFixed(1)}/10` : null,
 		genres: payload.genres.map(({ name }) => `> ${name}`),
+		providers: {
+			url: link,
+			buy: providers.filter(({ type }) => type === 'Buy'),
+			rent: providers.filter(({ type }) => type === 'Rent'),
+			stream: providers.filter(({ type }) => type === 'Stream'),
+		},
 	};
 };
 
-export const getProvidersForId = async (type: ShowType, id: string) => {
-	const url = `https://api.themoviedb.org/3/${type}/${id}/watch/providers?api_key=${getApiKey()}`;
-	const {
-		payload: {
-			results: { PT },
-		},
-	} = await FetchUtil.fetch<Providers>({ url });
-
-	const ptUrl = PT?.link ?? null;
-	const providers = ptUrl ? await getProvidersData(ptUrl) : [];
-	const buy = providers.filter(({ type }) => type === 'Buy');
-	const rent = providers.filter(({ type }) => type === 'Rent');
-	const stream = providers.filter(({ type }) => type === 'Stream');
-
-	return { url: ptUrl, buy, rent, stream };
-};
-
-export const getCatalogMatches = async (type: ShowType, query: string) => {
-	const { id } = await search(type, query);
+export const getStreamingServices = async ({ query }: Query) => {
+	const { id, type } = await search({ query });
 	if (!id) return [];
 
-	const { stream } = await getProvidersForId(type, id);
-	return stream
+	const { providers } = type === 'tv' ? await getSeriesById({ id }) : await getMovieById({ id });
+	return providers.stream
 		.sort((a, b) => a.provider.localeCompare(b.provider))
 		.map(({ provider, entry }) => ({ provider, entry }));
 };

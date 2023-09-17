@@ -1,38 +1,17 @@
 import { StaticScraper } from '@luferro/scraper';
 import { ConverterUtil } from '@luferro/shared-utils';
 
+import { Id } from '../../../types/args';
+
 type Payload<T> = { props: { pageProps: { game: { data: { game: T } } } } };
+type Entry = { game_name: string; game_image: string; comp_main: number; comp_plus: number; comp_100: number };
 
-type Entry = {
-	game_id: number;
-	game_name: string;
-	game_image: string;
-	comp_main: number;
-	comp_plus: number;
-	comp_100: number;
-};
-
-export enum Endpoint {
-	GAME = 'https://howlongtobeat.com/game/:id',
-}
-
-export const getPlaytimesData = async (url: Endpoint) => {
-	const $ = await StaticScraper.loadUrl({ url });
+export const getPlaytimeData = async ({ id }: Id) => {
+	const $ = await StaticScraper.loadUrl({ url: `https://howlongtobeat.com/game/${id}` });
 
 	const script = $('script[type="application/json"]').text();
-	const {
-		props: {
-			pageProps: {
-				game: {
-					data: {
-						game: {
-							0: { game_name, game_image, comp_main, comp_plus, comp_100 },
-						},
-					},
-				},
-			},
-		},
-	} = JSON.parse(script) as Payload<Entry[]>;
+	const { props } = JSON.parse(script) as Payload<Entry[]>;
+	const [{ game_name, game_image, comp_main, comp_plus, comp_100 }] = props.pageProps.game.data.game;
 
 	return {
 		name: game_name,

@@ -1,6 +1,7 @@
 import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 
-import { Endpoint, getChartData, getUpcomingSalesData } from './steam.scraper';
+import { Id } from '../../../types/args';
+import { Chart, getChartData, getNextSalesData } from './steam.scraper';
 
 enum Status {
 	Offline,
@@ -22,38 +23,35 @@ type Profile = {
 	timecreated: number;
 };
 
-type Package = { id: number; discount_block: string; price: number; discount_pct: number };
 type Wishlist = {
 	name: string;
 	release_date: string | number;
 	priority: number;
 	is_free_game: boolean;
-	subs: Package[];
+	subs: { id: number; discount_block: string; price: number; discount_pct: number }[];
 };
 
-type App = { appid: number; name: string; playtime_2weeks: number; playtime_forever: number };
-type RecentlyPlayed = { total_count?: number; games?: App[] };
-
-type CustomId = { customId: string };
-type SteamId64 = { steamId64: string };
-type Chart = { chart: Extract<keyof typeof Endpoint, 'TOP_PLAYED' | 'TOP_SELLERS' | 'UPCOMING_GAMES'> };
+type RecentlyPlayed = {
+	total_count?: number;
+	games?: { appid: number; name: string; playtime_2weeks: number; playtime_forever: number }[];
+};
 
 const getApiKey = () => {
 	if (!process.env.STEAM_API_KEY) throw new Error('STEAM_API_KEY is not set.');
 	return process.env.STEAM_API_KEY;
 };
 
-export const getSteamId64 = async ({ customId }: CustomId) => {
-	const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${getApiKey()}&vanityurl=${customId}`;
+export const getSteamId64 = async ({ id }: Id) => {
+	const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=${getApiKey()}&vanityurl=${id}`;
 	const { payload } = await FetchUtil.fetch<Payload<{ steamid?: string }>>({ url });
 	return payload.response?.steamid ?? null;
 };
 
-export const getProfile = async ({ steamId64 }: SteamId64) => {
-	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${getApiKey()}&steamids=${steamId64}`;
+export const getProfile = async ({ id }: Id) => {
+	const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${getApiKey()}&steamids=${id}`;
 	const { payload } = await FetchUtil.fetch<Payload<Payload<Profile[]>>>({ url });
 
-	if (payload.response.players.length === 0) throw new Error(`Cannot find a profile for steamId64 ${steamId64}.`);
+	if (payload.response.players.length === 0) throw new Error(`Cannot find a profile for steamId64 ${id}.`);
 	const { personaname, avatarfull, personastate, lastlogoff, timecreated } = payload.response.players[0];
 
 	return {
@@ -65,8 +63,8 @@ export const getProfile = async ({ steamId64 }: SteamId64) => {
 	};
 };
 
-export const getRecentlyPlayed = async ({ steamId64 }: SteamId64) => {
-	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${getApiKey()}&steamid=${steamId64}&format=json`;
+export const getRecentlyPlayed = async ({ id }: Id) => {
+	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${getApiKey()}&steamid=${id}&format=json`;
 	const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed>>({ url });
 
 	return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
@@ -78,12 +76,12 @@ export const getRecentlyPlayed = async ({ steamId64 }: SteamId64) => {
 	}));
 };
 
-export const getWishlist = async ({ steamId64 }: SteamId64) => {
+export const getWishlist = async ({ id }: Id) => {
 	const wishlist = [];
 
 	let page = 0;
 	while (true) {
-		const url = `https://store.steampowered.com/wishlist/profiles/${steamId64}/wishlistdata?p=${page}`;
+		const url = `https://store.steampowered.com/wishlist/profiles/${id}/wishlistdata?p=${page}`;
 		const { payload } = await FetchUtil.fetch<Payload<Wishlist>>({ url });
 
 		const hasMore = Object.keys(payload).some((id) => !isNaN(Number(id)));
@@ -119,6 +117,6 @@ export const getWishlist = async ({ steamId64 }: SteamId64) => {
 	);
 };
 
-export const getNextSales = async () => await getUpcomingSalesData();
+export const getNextSales = async () => await getNextSalesData();
 
-export const getChart = async ({ chart }: Chart) => await getChartData(chart);
+export const getChart = async ({ chart }: { chart: Chart }) => await getChartData({ chart });

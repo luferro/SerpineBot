@@ -2,10 +2,10 @@ import { DateUtil } from '@luferro/shared-utils';
 
 import { InteractiveScraper, StaticScraper } from '..';
 
-type Interval = { start: Date | number; end?: Date | number };
-type SearchEngineArgs = { query: string; interval?: Interval };
+type Query = { query: string };
+type Interval = { interval: { start: Date | number; end?: Date | number } };
 
-export const search = async ({ query, interval }: SearchEngineArgs) => {
+export const search = async ({ query, interval }: Query & Partial<Interval>) => {
 	const url = [`https://duckduckgo.com/?q=${query}`];
 
 	if (interval) {

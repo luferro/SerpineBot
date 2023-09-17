@@ -1,9 +1,11 @@
 import { StaticScraper } from '@luferro/scraper';
 import { UrlUtil } from '@luferro/shared-utils';
 
+import { Url } from '../../../types/args';
+
 type ProviderType = 'Stream' | 'Buy' | 'Rent';
 
-export const getProvidersData = async (url: string) => {
+export const getProvidersData = async ({ url }: Url) => {
 	const $ = await StaticScraper.loadUrl({ url });
 
 	const array = [];

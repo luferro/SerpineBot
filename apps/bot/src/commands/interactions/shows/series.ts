@@ -18,14 +18,25 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString(t('interactions.shows.series.options.0.name'), true);
 
-	const { id } = await client.api.shows.search('tv', query);
-	if (!id) throw new Error(t('errors.search.lookup', { query }));
+	const { id, type } = await client.api.shows.search({ query });
+	if (!id || type !== 'tv') throw new Error(t('errors.search.lookup', { query }));
 
-	const { stream } = await client.api.shows.getProvidersForId('tv', id);
-	const formattedStream = stream.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
+	const {
+		name,
+		description,
+		url,
+		status,
+		firstEpisode,
+		nextEpisode,
+		seasons,
+		image,
+		score,
+		runtime,
+		genres,
+		providers: { stream },
+	} = await client.api.shows.getSeriesById({ id });
 
-	const { name, description, url, status, firstEpisode, nextEpisode, seasons, image, score, runtime, genres } =
-		await client.api.shows.getSeriesById(id);
+	const formattedStream = stream.map(({ provider }) => `> ${provider}`);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)

@@ -1,12 +1,14 @@
+import { RssModel } from '@luferro/database';
 import { ConverterUtil, DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
 
-import { Feed, getDealsFeed } from './deals.feed';
+import { Id, Query } from '../../../types/args';
+import { getDealsFeed } from './deals.feed';
 
 type Payload<T> = { data: T };
 type Game<T> = { [key: string]: T };
 type List<T> = { list: T };
 
-type Search = { results: { id: number; plain: string; title: string }[]; urls: { search: string } };
+type SearchResult = { results: { id: number; plain: string; title: string }[]; urls: { search: string } };
 
 type Price = { store: string; cut: number; price: number; price_formatted: string; url: string | null };
 
@@ -40,23 +42,21 @@ type Deal = {
 	urls: { buy: string; game: string };
 };
 
-type Blog = { blog: keyof typeof Feed };
-
 const getApiKey = () => {
 	if (!process.env.ITAD_API_KEY) throw new Error('ITAD_API_KEY is not set.');
 	return process.env.ITAD_API_KEY;
 };
 
-export const search = async (query: string) => {
+export const search = async ({ query }: Query) => {
 	const url = `https://api.isthereanydeal.com/v02/search/search/?key=${getApiKey()}&q=${query}&limit=20&strict=0`;
-	const { payload } = await FetchUtil.fetch<Payload<Search>>({ url });
+	const { payload } = await FetchUtil.fetch<Payload<SearchResult>>({ url });
 	return {
 		id: payload.data.results[0]?.plain ?? null,
 		title: payload.data.results[0]?.title ?? null,
 	};
 };
 
-export const getDealById = async (id: string) => {
+export const getDealById = async ({ id }: Id) => {
 	const url = `https://api.isthereanydeal.com/v01/game/overview/?key=${getApiKey()}&region=eu1&country=PT&plains=${id}`;
 	const { payload } = await FetchUtil.fetch<Payload<Game<Overview>>>({ url });
 	const { price, lowest, bundles, urls } = payload.data[id];
@@ -87,7 +87,7 @@ export const getDealById = async (id: string) => {
 	};
 };
 
-export const getLatestFreebies = async () => {
+export const getreebies = async () => {
 	const url = `https://api.isthereanydeal.com/v01/deals/list/?key=${getApiKey()}&region=eu1&country=PT&limit=50`;
 	const { payload } = await FetchUtil.fetch<Payload<List<Deal[]>>>({ url });
 
@@ -106,4 +106,10 @@ export const getLatestFreebies = async () => {
 		}));
 };
 
-export const getBlog = async ({ blog }: Blog) => await getDealsFeed({ url: Feed[blog] });
+export const getBlog = async () => {
+	const data = [];
+	for (const url of await RssModel.getFeeds({ key: 'gaming.deals' })) {
+		data.push(...(await getDealsFeed({ url })));
+	}
+	return data.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+};

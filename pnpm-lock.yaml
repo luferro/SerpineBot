@@ -197,6 +197,9 @@ importers:
 
   packages/entertainment-api:
     dependencies:
+      '@luferro/database':
+        specifier: workspace:^
+        version: link:../database
       '@luferro/reddit-api':
         specifier: workspace:^
         version: link:../reddit-api

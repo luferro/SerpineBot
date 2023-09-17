@@ -34,24 +34,24 @@ export const execute: JobExecute = async ({ client }) => {
 			[Alert.RemovedFrom]: [],
 		};
 
-		const wishlist = await client.api.gaming.steam.getWishlist({ steamId64: integration.profile.id });
+		const wishlist = await client.api.gaming.steam.getWishlist({ id: integration.profile.id });
 		if (!wishlist) continue;
 
 		const updatedWishlist = await Promise.all(
 			wishlist.map(async (game) => {
 				const storedGame = integration.wishlist.find(({ name }) => name === game.name);
-				const subscriptions = await SubscriptionsModel.getMatches({ name: game.name });
+				const services = await SubscriptionsModel.getGamingServices({ name: game.name });
 
 				const updatedEntry = {
 					...game,
 					notified: storedGame?.notified ?? false,
 					released: storedGame?.released || game.released,
 					subscriptions: {
-						xbox_game_pass: subscriptions.some(({ provider }) => provider === 'Xbox Game Pass'),
-						pc_game_pass: subscriptions.some(({ provider }) => provider === 'PC Game Pass'),
-						ubisoft_plus: subscriptions.some(({ provider }) => provider === 'Ubisoft Plus'),
-						ea_play_pro: subscriptions.some(({ provider }) => provider === 'EA Play Pro'),
-						ea_play: subscriptions.some(({ provider }) => provider === 'EA Play'),
+						xbox_game_pass: services.some(({ provider }) => provider === 'Xbox Game Pass'),
+						pc_game_pass: services.some(({ provider }) => provider === 'PC Game Pass'),
+						ubisoft_plus: services.some(({ provider }) => provider === 'Ubisoft Plus'),
+						ea_play_pro: services.some(({ provider }) => provider === 'EA Play Pro'),
+						ea_play: services.some(({ provider }) => provider === 'EA Play'),
 					},
 				};
 

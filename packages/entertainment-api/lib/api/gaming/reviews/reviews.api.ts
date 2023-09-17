@@ -1,29 +1,33 @@
 import { SearchEngine } from '@luferro/scraper';
-import { StringUtil, UrlUtil } from '@luferro/shared-utils';
+import { UrlUtil } from '@luferro/shared-utils';
 
-import { Endpoint, getReviewData } from './reviews.scraper';
+import { Id, Query, Url } from '../../../types/args';
+import { getReviewData } from './reviews.scraper';
 
-const getUrlParameters = async (query: string) => {
-	const interval = { start: Date.now() };
-	const results = await SearchEngine.search({ query: `${query} site:https://opencritic.com/game`, interval });
+export const search = async ({ query }: Query) => ({ id: (await extractParameters({ query })).id });
+
+export const getReviewsById = async ({ id }: Id) => {
+	const slug = (await extractParameters({ query: id })).slug!;
+	return await getReviewData({ id, slug });
+};
+
+export const getReviewsForUrl = async ({ url }: Url) => {
+	const { id, slug } = await extractParameters({ query: url });
+	if (!id || !slug) throw new Error('Invalid review url.');
+	return await getReviewData({ id, slug });
+};
+
+const extractParameters = async ({ query }: Query) => {
+	const isQueryUrl = UrlUtil.isValid(query);
+	const results = !isQueryUrl
+		? await SearchEngine.search({
+				query: `${query} site:https://opencritic.com/game`,
+				interval: { start: Date.now() },
+		  })
+		: [];
+	const url = !isQueryUrl ? results[0]?.url : query;
 	return {
-		id: results[0]?.url.split('/').at(4) ?? null,
-		slug: results[0]?.url.split('/').at(5) ?? null,
+		id: url?.split('/').at(4) ?? null,
+		slug: url?.split('/').at(5) ?? null,
 	};
-};
-
-export const search = async (title: string) => {
-	const { id } = await getUrlParameters(title);
-	return { id };
-};
-
-export const getReviewsById = async (id: string) => {
-	const { slug } = await getUrlParameters(id);
-	const url = StringUtil.format<Endpoint>(Endpoint.GAME, id, slug!);
-	return await getReviewData(url);
-};
-
-export const getReviewsForUrl = async (url: string) => {
-	if (!UrlUtil.isValid(url)) throw new Error('Invalid url.');
-	return await getReviewData(url);
 };

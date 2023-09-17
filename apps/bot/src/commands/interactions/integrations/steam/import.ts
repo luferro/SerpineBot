@@ -23,22 +23,22 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (!url) throw new Error(t('errors.steam.profile.url'));
 
 	const { 1: type, 2: id } = url;
-	const steamId64 = type === 'id' ? await client.api.gaming.steam.getSteamId64({ customId: id }) : id;
+	const steamId64 = type === 'id' ? await client.api.gaming.steam.getSteamId64({ id }) : id;
 	if (!steamId64) throw new Error(t('errors.steam.steamId64'));
 
-	const rawWishlist = await client.api.gaming.steam.getWishlist({ steamId64 });
+	const rawWishlist = await client.api.gaming.steam.getWishlist({ id: steamId64 });
 	if (!rawWishlist) throw new Error(t('errors.steam.wishlist.private'));
 
-	const recentlyPlayed = await client.api.gaming.steam.getRecentlyPlayed({ steamId64 });
+	const recentlyPlayed = await client.api.gaming.steam.getRecentlyPlayed({ id: steamId64 });
 	const wishlist = await Promise.all(
 		rawWishlist.map(async (game) => {
-			const rawSubscriptions = await SubscriptionsModel.getMatches({ name: game.name });
+			const services = await SubscriptionsModel.getGamingServices({ name: game.name });
 			const subscriptions = {
-				xbox_game_pass: rawSubscriptions.some(({ provider }) => provider === 'Xbox Game Pass'),
-				pc_game_pass: rawSubscriptions.some(({ provider }) => provider === 'PC Game Pass'),
-				ubisoft_plus: rawSubscriptions.some(({ provider }) => provider === 'Ubisoft Plus'),
-				ea_play_pro: rawSubscriptions.some(({ provider }) => provider === 'EA Play Pro'),
-				ea_play: rawSubscriptions.some(({ provider }) => provider === 'EA Play'),
+				xbox_game_pass: services.some(({ provider }) => provider === 'Xbox Game Pass'),
+				pc_game_pass: services.some(({ provider }) => provider === 'PC Game Pass'),
+				ubisoft_plus: services.some(({ provider }) => provider === 'Ubisoft Plus'),
+				ea_play_pro: services.some(({ provider }) => provider === 'EA Play Pro'),
+				ea_play: services.some(({ provider }) => provider === 'EA Play'),
 			};
 			return { ...game, subscriptions, notified: false };
 		}),

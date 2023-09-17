@@ -1,5 +1,7 @@
 import Parser from 'rss-parser';
 
+type Url = { url: string };
+
 const parser = new Parser();
 
-export const getFeed = async ({ url }: { url: string }) => await parser.parseURL(url);
+export const getFeed = async ({ url }: Url) => await parser.parseURL(url);

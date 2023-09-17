@@ -1,20 +1,15 @@
-import { Youtube } from '@luferro/scraper';
 import { InteractiveScraper, StaticScraper } from '@luferro/scraper';
-import { DateUtil } from '@luferro/shared-utils';
 
-export enum Endpoint {
-	GAMERTAG = 'https://xboxgamertag.com/search/:gamertag',
-	PODCAST = 'https://news.xbox.com/en-us/podcast/',
-	GAME_PASS = 'https://news.xbox.com/en-us/?s=Xbox+Game+Pass&search-category=news-stories',
-	DEALS_WITH_GOLD = 'https://news.xbox.com/en-us/?s=Deals+With+Gold&search-category=news-stories',
-	GAMES_WITH_GOLD = 'https://news.xbox.com/en-us/?s=Games+With+Gold&search-category=news-stories',
-	TOP_PLAYED = 'https://www.microsoft.com/pt-pt/store/most-played/games/xbox',
-	TOP_SELLERS = 'https://www.microsoft.com/pt-pt/store/top-paid/games/xbox',
-	UPCOMING_GAMES = 'https://www.microsoft.com/pt-pt/store/coming-soon/games/xbox',
+import { Gamertag, Url } from '../../../types/args';
+
+export const enum Chart {
+	TOP_SELLERS = 1,
+	TOP_PLAYED,
+	UPCOMING_GAMES,
 }
 
-export const getGamertagData = async (url: string) => {
-	const html = await InteractiveScraper.getHtml({ url });
+export const getGamertagData = async ({ gamertag }: Gamertag) => {
+	const html = await InteractiveScraper.getHtml({ url: `https://xboxgamertag.com/search/${gamertag}` });
 	const $ = StaticScraper.loadHtml({ html });
 
 	const name = $('h1').first().text();
@@ -30,41 +25,18 @@ export const getGamertagData = async (url: string) => {
 	};
 };
 
-export const getBlogData = async (url: string) => {
+export const getImage = async ({ url }: Url) => {
 	const $ = await StaticScraper.loadUrl({ url });
-
-	return $('.media.feed')
-		.get()
-		.filter((element) => {
-			const publishedAt = $(element).find('time[datetime]').first().attr('datetime');
-			return publishedAt && DateUtil.isDateToday(new Date(publishedAt));
-		})
-		.map((element) => {
-			const title = $(element).find('.media-body .feed__title a').text();
-			const url = $(element).find('.media-body .feed__title a').attr('href')!;
-			const image = $(element).find('.media-image a img').attr('src')!;
-			const videoEmbedUrl = $(element).find('.media-image .video-wrapper').first().attr('data-src');
-			const podcastEmbedUrl = $(element).find('.media-body .feed__podcast-player iframe').first().attr('src');
-
-			const videoUrl = videoEmbedUrl
-				? `https://www.youtube.com/watch?v=${Youtube.getVideoId(videoEmbedUrl)}`
-				: null;
-
-			const podcastUrl = podcastEmbedUrl
-				? `https://www.youtube.com/watch?v=${Youtube.getVideoId(podcastEmbedUrl)}`
-				: null;
-
-			return {
-				title: podcastUrl ? `Xbox Podcast | ${title}` : title,
-				image: image ? image.split('?')[0] : null,
-				isVideo: Boolean(videoUrl ?? podcastUrl),
-				url: videoUrl ?? podcastUrl ?? url,
-			};
-		});
+	return $('.media.feed').find('.media-image a img').attr('src')!;
 };
 
-export const getChartData = async (url: string) => {
-	const $ = await StaticScraper.loadUrl({ url });
+export const getChartData = async ({ chart }: { chart: Chart }) => {
+	const chartUrl: Record<typeof chart, string> = {
+		[Chart.TOP_PLAYED]: 'https://www.microsoft.com/pt-pt/store/most-played/games/xbox',
+		[Chart.TOP_SELLERS]: 'https://www.microsoft.com/pt-pt/store/top-paid/games/xbox',
+		[Chart.UPCOMING_GAMES]: 'https://www.microsoft.com/pt-pt/store/coming-soon/games/xbox',
+	};
+	const $ = await StaticScraper.loadUrl({ url: chartUrl[chart] });
 
 	return $('section > ul li')
 		.get()

@@ -20,7 +20,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 
 	const query = interaction.options.getString(t('interactions.gaming.subscriptions.options.0.name'), true);
 
-	const subscriptions = await SubscriptionsModel.getMatches({ name: query });
+	const subscriptions = await SubscriptionsModel.getGamingServices({ name: query });
 	if (subscriptions.length === 0) throw new Error(t('errors.search.lookup', { query }));
 
 	const formattedSubscriptions = subscriptions.map(({ provider, entry }) =>
@@ -28,13 +28,13 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 	);
 
 	const embed = new EmbedBuilder()
-		.setTitle(StringUtil.truncate(subscriptions[0].entry.name))
-		.addFields([
-			{
-				name: t('interactions.gaming.subscriptions.embed.fields.0.name', { size: subscriptions.length }),
-				value: formattedSubscriptions.join('\n'),
-			},
-		])
+		.setTitle(
+			t('interactions.gaming.subscriptions.embed.title', {
+				item: StringUtil.truncate(subscriptions[0].entry.name),
+				size: subscriptions.length,
+			}),
+		)
+		.setDescription(formattedSubscriptions.join('\n'))
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

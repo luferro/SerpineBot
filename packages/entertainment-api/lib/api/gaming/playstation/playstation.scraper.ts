@@ -1,6 +1,8 @@
 import { StaticScraper } from '@luferro/scraper';
 
-export const getImage = async (url: string) => {
+import { Url } from '../../../types/args';
+
+export const getImage = async ({ url }: Url) => {
 	const $ = await StaticScraper.loadUrl({ url });
 	return $('.featured-asset').first().attr('src')!;
 };

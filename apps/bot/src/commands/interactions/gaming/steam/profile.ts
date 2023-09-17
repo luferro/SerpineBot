@@ -26,7 +26,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (!integration) throw new Error(t('errors.unprocessable'));
 
 	const { id, url } = integration.profile;
-	const { name, image, status, logoutAt, createdAt } = await client.api.gaming.steam.getProfile({ steamId64: id });
+	const { name, image, status, logoutAt, createdAt } = await client.api.gaming.steam.getProfile({ id });
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)

@@ -18,16 +18,24 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString(t('interactions.shows.movies.options.0.name'), true);
 
-	const { id } = await client.api.shows.search('movie', query);
-	if (!id) throw new Error(t('errors.search.lookup', { query }));
+	const { id, type } = await client.api.shows.search({ query });
+	if (!id || type !== 'movie') throw new Error(t('errors.search.lookup', { query }));
 
-	const { stream, buy, rent } = await client.api.shows.getProvidersForId('movie', id);
-	const formattedStream = stream.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
-	const formattedBuy = buy.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
-	const formattedRent = rent.map(({ provider, entry }) => `> [${provider}](${entry.url})`);
+	const {
+		name,
+		description,
+		url,
+		releaseDate,
+		image,
+		score,
+		runtime,
+		genres,
+		providers: { buy, rent, stream },
+	} = await client.api.shows.getMovieById({ id });
 
-	const { name, description, url, releaseDate, image, score, runtime, genres } =
-		await client.api.shows.getMovieById(id);
+	const formattedStream = stream.map(({ provider }) => `> ${provider}`);
+	const formattedBuy = buy.map(({ provider }) => `> ${provider}`);
+	const formattedRent = rent.map(({ provider }) => `> ${provider}`);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)

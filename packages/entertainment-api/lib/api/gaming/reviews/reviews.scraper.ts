@@ -1,11 +1,10 @@
 import { StaticScraper } from '@luferro/scraper';
 import { DateUtil } from '@luferro/shared-utils';
 
-export enum Endpoint {
-	GAME = 'https://opencritic.com/game/:id/:slug',
-}
+import { Id, Slug } from '../../../types/args';
 
-export const getReviewData = async (url: string) => {
+export const getReviewData = async ({ id, slug }: Id & Slug) => {
+	const url = `https://opencritic.com/game/${id}/${slug}`;
 	const $ = await StaticScraper.loadUrl({ url });
 
 	const name = $('app-game-overview h1').first().text();
@@ -17,7 +16,7 @@ export const getReviewData = async (url: string) => {
 	const recommended = $('app-score-orb').last().text().trim();
 	const count = $('app-rapid-review-list a').first().text().match(/\d+/g)?.[0];
 	const platforms = $('.platforms span')
-		.map((_index, element) => $(element).find('strong').text())
+		.map((_, element) => $(element).find('strong').text())
 		.toArray();
 
 	return {

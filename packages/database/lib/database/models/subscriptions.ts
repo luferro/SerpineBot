@@ -2,7 +2,7 @@ import { StringUtil } from '@luferro/shared-utils';
 import mongoose, { Model } from 'mongoose';
 
 type Entry = { name: string; slug: string; url: string | null };
-type Match = { provider: string; entry: Entry };
+type Provider = { provider: string; entry: Entry };
 type Subscription = { catalog: string; count: number; entries: Entry[] };
 
 type Catalog = { catalog: string };
@@ -11,7 +11,7 @@ type Entries = { entries: Entry[] };
 interface SubscriptionsModel extends Model<Subscription> {
 	updateCatalog: (args: Catalog & Entries) => Promise<void>;
 	getCatalog: (args: Catalog) => Promise<Subscription>;
-	getMatches: (args: Pick<Entry, 'name'>) => Promise<Match[]>;
+	getGamingServices: (args: Pick<Entry, 'name'>) => Promise<Provider[]>;
 }
 
 const schema = new mongoose.Schema<Subscription>(
@@ -37,7 +37,7 @@ schema.statics.getCatalog = async function ({ catalog }: Catalog) {
 	return this.findOne({ catalog });
 };
 
-schema.statics.getMatches = async function ({ name }: Pick<Entry, 'name'>) {
+schema.statics.getGamingServices = async function ({ name }: Pick<Entry, 'name'>) {
 	const results = await this.aggregate([
 		{ $unwind: { path: '$entries' } },
 		{ $match: { 'entries.slug': { $regex: new RegExp(`${StringUtil.slug(name).replace(/-/g, '(.*?)')}`) } } },

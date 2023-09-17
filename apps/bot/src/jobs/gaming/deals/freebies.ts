@@ -6,7 +6,7 @@ import type { JobData, JobExecute } from '../../../types/bot';
 export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const freebies = await client.api.gaming.deals.getLatestFreebies();
+	const freebies = await client.api.gaming.deals.getreebies();
 
 	const embeds = [];
 	for (const { title, url, discount, regular, store, expiry } of freebies.reverse()) {

@@ -10,7 +10,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 	const embeds = [];
 	for (const { title, url, image, isTwitterEmbed, isYoutubeEmbed } of data.reverse()) {
-		if (isYoutubeEmbed && (await client.scraper.youtube.getSubscribers(url)) < 50_000) continue;
+		if (isYoutubeEmbed && (await client.scraper.youtube.getSubscribers({ url })) < 50_000) continue;
 
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
