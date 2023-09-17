@@ -6,7 +6,6 @@ import { getImage } from './xbox.scraper';
 
 export const getXboxWireFeed = async ({ url }: Url) => {
 	const raw = await RSS.getFeed({ url });
-	console.log(raw.items.slice(0, 3));
 	return Promise.all(
 		raw.items
 			.filter(({ isoDate }) => isoDate && DateUtil.isDateToday(new Date(isoDate)))
