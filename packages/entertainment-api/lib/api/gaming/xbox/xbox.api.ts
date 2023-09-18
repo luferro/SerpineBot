@@ -1,6 +1,4 @@
-import { RssModel } from '@luferro/database';
-
-import { Gamertag } from '../../../types/args';
+import { Feeds, Gamertag } from '../../../types/args';
 import { getXboxWireFeed } from './xbox.feed';
 import { Chart, getChartData, getGamertagData } from './xbox.scraper';
 
@@ -9,9 +7,9 @@ export const isGamertagValid = async ({ gamertag }: Gamertag) =>
 
 export const getProfile = async ({ gamertag }: Gamertag) => await getGamertagData({ gamertag });
 
-export const getBlog = async () => {
+export const getBlog = async ({ feeds }: Feeds) => {
 	const data = [];
-	for (const url of await RssModel.getFeeds({ key: 'gaming.xbox' })) {
+	for (const url of feeds) {
 		data.push(...(await getXboxWireFeed({ url })));
 	}
 	return data.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());

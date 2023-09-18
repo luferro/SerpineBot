@@ -1,6 +1,6 @@
-import { RssModel } from '@luferro/database';
 import { RedditApi } from '@luferro/reddit-api';
 
+import { Feeds } from '../../../types/args';
 import { getNewsFeed } from './news.feed';
 
 type News = {
@@ -12,7 +12,7 @@ type News = {
 	isTwitterEmbed?: boolean;
 };
 
-export const getNews = async () => {
+export const getNews = async ({ feeds }: Partial<Feeds>) => {
 	const data: News[] = [
 		...(await RedditApi.getPosts({ subreddit: 'Games', sort: 'new', limit: 25 }))
 			.filter(({ isCrosspost, isSelf }) => !isCrosspost && !isSelf)
@@ -25,7 +25,7 @@ export const getNews = async () => {
 			})),
 	];
 
-	for (const url of await RssModel.getFeeds({ key: 'gaming.news' })) {
+	for (const url of feeds ?? []) {
 		data.push(
 			...(await getNewsFeed({ url })).map(({ title, url, image, publishedAt }) => ({
 				title,

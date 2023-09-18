@@ -1,7 +1,6 @@
-import { RssModel } from '@luferro/database';
 import { ConverterUtil, DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
 
-import { Id, Query } from '../../../types/args';
+import { Feeds, Id, Query } from '../../../types/args';
 import { getDealsFeed } from './deals.feed';
 
 type Payload<T> = { data: T };
@@ -106,9 +105,9 @@ export const getreebies = async () => {
 		}));
 };
 
-export const getBlog = async () => {
+export const getBlog = async ({ feeds }: Feeds) => {
 	const data = [];
-	for (const url of await RssModel.getFeeds({ key: 'gaming.deals' })) {
+	for (const url of feeds) {
 		data.push(...(await getDealsFeed({ url })));
 	}
 	return data.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());

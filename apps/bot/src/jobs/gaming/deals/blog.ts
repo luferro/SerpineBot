@@ -1,3 +1,4 @@
+import { RssModel } from '@luferro/database';
 import { EmbedBuilder } from 'discord.js';
 
 import type { JobData, JobExecute } from '../../../types/bot';
@@ -5,7 +6,8 @@ import type { JobData, JobExecute } from '../../../types/bot';
 export const data: JobData = { schedule: '0 */20 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const data = await client.api.gaming.deals.getBlog();
+	const feeds = await RssModel.getFeeds({ key: 'gaming.deals' });
+	const data = await client.api.gaming.deals.getBlog({ feeds });
 
 	const embeds = [];
 	for (const { title, description, image, url } of data.reverse()) {

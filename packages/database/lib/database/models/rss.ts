@@ -12,8 +12,8 @@ const schema = new mongoose.Schema<RSS>({
 });
 
 schema.statics.getFeeds = async function ({ key }: Pick<RSS, 'key'>) {
-	const data = await this.find({ key });
-	return data.feeds ?? [];
+	const data = await this.findOne({ key });
+	return data?.feeds ?? [];
 };
 
-export default mongoose.model<RSS, RssModel>('rss', schema);
+export default mongoose.model<RSS, RssModel>('rss', schema, 'rss');

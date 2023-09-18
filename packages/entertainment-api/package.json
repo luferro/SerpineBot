@@ -18,7 +18,6 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@luferro/database": "workspace:^",
 		"@luferro/scraper": "workspace:^",
 		"@luferro/shared-utils": "workspace:^",
 		"@luferro/reddit-api": "workspace:^"
