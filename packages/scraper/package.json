@@ -15,16 +15,16 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.6.2",
+		"@types/node": "^20.8.3",
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
 		"@luferro/shared-utils": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
-		"playwright-chromium": "^1.38.0",
+		"playwright-chromium": "^1.38.1",
 		"playwright-extra": "^4.3.6",
 		"puppeteer-extra-plugin-stealth": "^2.11.2",
 		"rss-parser": "^3.13.0",
-		"ytdl-core": "4.10.0"
+		"ytdl-core": "4.11.5"
 	}
 }
