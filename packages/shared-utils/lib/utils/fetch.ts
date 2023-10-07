@@ -4,22 +4,36 @@ import { HeaderGenerator, Headers } from 'header-generator';
 import { FetchError } from '../errors/FetchError';
 
 type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-type Request = { url: string | URL; method?: HttpMethod; authorization?: string; body?: string };
+type Request = { url: string | URL; method?: HttpMethod; clientId?: string; authorization?: string; body?: string };
 
-export const getHeaders = ({ method, authorization }: Pick<Request, 'method' | 'authorization'>) => {
-	const custom = new Map();
-	if (method === 'POST' || method === 'PUT') custom.set('content-type', 'application/json');
-	if (authorization) custom.set('Authorization', `Bearer ${authorization}`);
-
-	return new HeaderGenerator().getHeaders({}, Object.fromEntries(custom));
+const isBodyJson = ({ body }: Required<Pick<Request, 'body'>>) => {
+	try {
+		JSON.parse(body);
+		return true;
+	} catch (error) {
+		return false;
+	}
 };
 
-export const fetch = async <T>({ method = 'GET', url, authorization, body }: Request) => {
+export const getHeaders = ({ method, body, clientId, authorization }: Omit<Request, 'url'>) => {
+	const headers = new Map();
+	if (clientId) headers.set('Client-ID', clientId);
+	if (authorization) headers.set('Authorization', `Bearer ${authorization}`);
+	if (body && (method === 'POST' || method === 'PUT')) {
+		headers.set('Content-Type', isBodyJson({ body }) ? 'application/json' : 'plain/text');
+	}
+
+	return new HeaderGenerator().getHeaders({}, Object.fromEntries(headers));
+};
+
+const getBody = ({ body }: Required<Pick<Request, 'body'>>) => (isBodyJson({ body }) ? JSON.parse(body) : body);
+
+export const fetch = async <T>({ method = 'GET', url, clientId, authorization, body }: Request) => {
 	try {
 		const res = await axios(url.toString(), {
 			method,
-			headers: getHeaders({ method, authorization }),
-			data: body ? JSON.parse(body) : null,
+			headers: getHeaders({ method, clientId, authorization }),
+			data: body ? getBody({ body }) : undefined,
 		});
 		if (res.status >= 400) throw new Error(`${res.status} ${res.statusText}`);
 
