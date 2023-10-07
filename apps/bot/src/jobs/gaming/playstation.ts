@@ -8,7 +8,7 @@ export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const feeds = await RssModel.getFeeds({ key: 'gaming.playstation' });
-	const articles = await client.api.gaming.playstation.getBlog({ feeds });
+	const articles = await client.api.gaming.playstation.getNews({ feeds });
 
 	const embeds = [];
 	for (const { title, url, image } of articles) {

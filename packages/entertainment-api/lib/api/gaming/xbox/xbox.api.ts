@@ -7,7 +7,7 @@ export const isGamertagValid = async ({ gamertag }: Gamertag) =>
 
 export const getProfile = async ({ gamertag }: Gamertag) => await getGamertagData({ gamertag });
 
-export const getBlog = async ({ feeds }: Feeds) => {
+export const getNews = async ({ feeds }: Feeds) => {
 	const data = [];
 	for (const url of feeds) {
 		data.push(...(await getXboxWireFeed({ url })));
