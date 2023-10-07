@@ -1,7 +1,7 @@
 import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 
 import { Id, Query } from '../../../types/args';
-import { getProvidersData } from './the-movie-db.scraper';
+import { getProvidersData } from './tmdb.scraper';
 
 type ShowType = 'movie' | 'tv';
 

@@ -1,1 +1,1 @@
-export * from './the-movie-db/the-movie-db.api';
+export * from './tmdb/tmdb.api';
