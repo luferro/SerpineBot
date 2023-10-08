@@ -24,13 +24,10 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
-		"@babel/core": "^7.23.0",
 		"@emotion/react": "^11.11.1",
-		"@emotion/server": "^11.11.0",
 		"@emotion/styled": "^11.11.0",
-		"@mantine/core": "^7.1.2",
-		"@mantine/hooks": "^7.1.2",
-		"@mantine/next": "^6.0.21",
+		"@mui/icons-material": "^5.14.12",
+		"@mui/material": "^5.14.12",
 		"discord.js": "^14.13.0",
 		"dotenv": "^16.3.1",
 		"html-react-parser": "^4.2.2",

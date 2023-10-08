@@ -2,6 +2,6 @@ import { ReactNode } from 'react';
 
 import { StyledMain } from './Main.styled';
 
-export const Main = ({ children }: { children: ReactNode }) => {
-	return <StyledMain>{children}</StyledMain>;
-};
+type Props = { children: ReactNode };
+
+export const Main = ({ children }: Props) => <StyledMain>{children}</StyledMain>;

@@ -1,11 +1,7 @@
-import styled from '@emotion/styled';
-import { Skeleton } from '@mantine/core';
+import { Skeleton, styled } from '@mui/material';
 
-export const StyledSkeleton = styled(Skeleton)`
-	&::before {
-		background: #292b2f;
-	}
-	&::after {
-		background: #202225;
-	}
-`;
+export const StyledSkeleton = styled(Skeleton)(({ theme }) => ({
+	'maxWidth': '100%',
+	'&::before': { background: theme.palette.secondary.main },
+	'&::after': { background: theme.palette.background.paper },
+}));

@@ -1,14 +1,13 @@
-import styled from '@emotion/styled';
+import { Box, styled } from '@mui/material';
 
-export const StyledLanding = styled.div`
-	width: 100%;
-	background: #202225;
-	border-bottom: 5px solid #5865f2;
-	padding: 16px;
-	& a {
-		font-size: 1rem;
-		font-weight: 600;
-		text-decoration: none;
-		color: #00aff4;
-	}
-`;
+export const StyledLanding = styled(Box)(({ theme }) => ({
+	'width': '100%',
+	'background': theme.palette.background.paper,
+	'borderBottom': `5px solid ${theme.palette.primary.main}`,
+	'padding': theme.spacing(2),
+	'marginBottom': theme.spacing(2.5),
+	'& a': {
+		fontWeight: 700,
+		color: '#00aff4',
+	},
+}));

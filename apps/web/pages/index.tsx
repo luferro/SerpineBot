@@ -1,4 +1,3 @@
-import { Box } from '@mantine/core';
 import { ApplicationCommandOptionType, Client, GatewayIntentBits } from 'discord.js';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
@@ -52,7 +51,7 @@ const getOptions = ({ options }: { options?: Option[] }) => {
 export const getStaticProps = async () => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 	await client.login(process.env.BOT_TOKEN);
-	if (!client.application) throw new Error('Could not fetch registered slash commands.');
+	if (!client.application) throw new Error('Cannot fetch registered slash commands.');
 
 	const commands = (await client.application.commands.fetch())
 		.map((command) => ({
@@ -73,7 +72,7 @@ const Home = ({ commands }: { commands: Command[] }) => {
 	useEffect(() => setLoading(false), []);
 
 	return (
-		<Box>
+		<>
 			<Head>
 				<title>SerpineBot Slash Commands Overview</title>
 				<meta name="author" content="Luís Ferro" />
@@ -84,21 +83,37 @@ const Home = ({ commands }: { commands: Command[] }) => {
 			</Head>
 
 			<Main>
-				<StyledSkeleton visible={loading}>
-					<Landing
-						title="SerpineBot, a multipurpose discord bot for my private discord server"
-						description={`This page is an overview of all available slash commands.<br/>
-						Does not include webhooks or jobs documentation.<br/>
-						You can look into the repository at [https://github.com/luferro/SerpineBot](https://github.com/luferro/SerpineBot)`}
-					/>
-				</StyledSkeleton>
-				<StyledSkeleton visible={loading}>
-					<Accordion commands={commands} />
-				</StyledSkeleton>
+				{loading ? (
+					<>
+						<StyledSkeleton variant="rectangular" height={200} />
+						<br />
+						<StyledSkeleton variant="rectangular" height={'calc(100vh - 380px)'} />
+					</>
+				) : (
+					<>
+						<Landing
+							title="SerpineBot, a multipurpose discord bot for my private discord server"
+							description={`This page is an overview of all available slash commands.<br/>
+								Does not include webhooks or jobs documentation.<br/>
+								Github repository can be found [here](https://github.com/luferro/SerpineBot).`}
+						/>
+						{commands.map(({ name, description, groups, subcommands, options }, index) => {
+							return (
+								<Accordion
+									key={index}
+									name={name}
+									description={description}
+									groups={groups}
+									subcommands={subcommands}
+									options={options}
+								/>
+							);
+						})}
+					</>
+				)}
 			</Main>
-
 			<Footer />
-		</Box>
+		</>
 	);
 };
 

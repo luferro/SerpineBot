@@ -1,12 +1,7 @@
-import styled from '@emotion/styled';
+import { Box, styled } from '@mui/material';
 
-export const StyledMain = styled.main`
-	margin: 20px auto 0;
-	width: 80%;
-	& > div:last-child {
-		margin-top: 50px;
-	}
-	@media (max-width: 600px) {
-		width: 95%;
-	}
-`;
+export const StyledMain = styled(Box)(({ theme }) => ({
+	margin: '20px auto 0',
+	width: '80%',
+	[theme.breakpoints.down('md')]: { width: '95%' },
+}));

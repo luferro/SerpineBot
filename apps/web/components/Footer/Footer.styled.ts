@@ -1,14 +1,14 @@
-import styled from '@emotion/styled';
+import { Box, styled } from '@mui/material';
 
-export const StyledFooter = styled.footer`
-	width: 80%;
-	margin: 20px auto 0;
-	display: flex;
-	padding: 2rem 0;
-	border-top: 5px solid #5865f2;
-	justify-content: center;
-	align-items: center;
-	@media (max-width: 600px) {
-		width: 90%;
-	}
-`;
+export const StyledFooter = styled(Box)(({ theme }) => ({
+	width: '80%',
+	margin: '20px auto 0',
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 10,
+	padding: theme.spacing(2, 0),
+	borderTop: `5px solid ${theme.palette.primary.main}`,
+	justifyContent: 'center',
+	alignItems: 'center',
+	[theme.breakpoints.down('md')]: { width: '90%' },
+}));
