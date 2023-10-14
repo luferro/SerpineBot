@@ -25,23 +25,24 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const subscriptions = await SubscriptionsModel.getGamingServices({ name: query });
 	const formattedSubscriptions = subscriptions.map(({ provider }) => `> **${provider}**`);
 
-	const { url, deal, historicalLow, bundles } = await client.api.gaming.deals.getDealById({ id });
-	const formattedBundles = bundles.live.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
+	const { historicalLow, bundles, prices } = await client.api.gaming.deals.getDealById({ id });
+	const formattedBundles = bundles.active.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
+	const formattedPrices = prices.map(({ store, discounted, url }) => `**${discounted}** @ [${store}](${url})`);
+	const formattedHistoricalLow = historicalLow
+		? `**${historicalLow.price}** @ ${historicalLow.store}\n*${historicalLow.date}*`
+		: null;
 
 	const embed = new EmbedBuilder()
 		.setTitle(title)
-		.setURL(url)
 		.addFields([
 			{
 				name: t('interactions.gaming.deals.embed.fields.0.name'),
-				value: `**${historicalLow.price}** @ ${
-					historicalLow.url ? `[${historicalLow.store}](${historicalLow.url})` : historicalLow.store
-				}\n*${historicalLow.on}*`,
+				value: formattedHistoricalLow ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
 				name: t('interactions.gaming.deals.embed.fields.1.name'),
-				value: `**${deal.price}** @ [${deal.store}](${deal.url})`,
+				value: formattedPrices.join('\n') || t('common.unavailable'),
 				inline: true,
 			},
 			{

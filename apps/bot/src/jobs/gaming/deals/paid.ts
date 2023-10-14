@@ -6,8 +6,8 @@ import type { JobData, JobExecute } from '../../../types/bot';
 export const data: JobData = { schedule: '0 */20 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const feeds = await RssModel.getFeeds({ key: 'gaming.deals' });
-	const data = await client.api.gaming.deals.getBlog({ feeds });
+	const feeds = await RssModel.getFeeds({ key: 'gaming.deals.paid' });
+	const data = await client.api.gaming.deals.getDealsFeed({ feeds });
 
 	const embeds = [];
 	for (const { title, description, image, url } of data.reverse()) {
