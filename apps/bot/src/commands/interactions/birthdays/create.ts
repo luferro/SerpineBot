@@ -32,7 +32,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 	const month = interaction.options.getInteger(t('interactions.birthdays.create.options.1.name'), true);
 	const year = interaction.options.getInteger(t('interactions.birthdays.create.options.2.name'), true);
 
-	if (!DateUtil.isValidDate(year, month, day)) throw new Error(t('errors.date.invalid'));
+	if (!DateUtil.isValidDate({ year, month, day })) throw new Error(t('errors.date.invalid'));
 
 	const isBirthdayRegistered = await BirthdaysModel.isBirthdayRegistered({ userId: interaction.user.id });
 	if (isBirthdayRegistered) throw new Error(t('errors.unprocessable'));

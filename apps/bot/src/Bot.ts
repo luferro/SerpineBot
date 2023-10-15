@@ -3,7 +3,7 @@ import { AnimeApi, ComicsApi, GamingApi, MangadexApi, ShowsApi } from '@luferro/
 import { NewsApi } from '@luferro/news-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { InteractiveScraper, SearchEngine, StaticScraper, Youtube } from '@luferro/scraper';
-import { ArrayUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
+import { ArrayUtil, DateUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
 import { CronJob } from 'cron';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
@@ -124,6 +124,7 @@ export class Bot extends Client {
 
 		try {
 			i18next.init(await getInitConfig(this.config.LOCALE));
+			if (i18next.resolvedLanguage) DateUtil.setI18nLocale({ locale: i18next.resolvedLanguage });
 
 			await this.login(this.config.BOT_TOKEN);
 			await Database.connect(this.config.MONGO_URI);

@@ -64,8 +64,8 @@ const getBundles = async ({ id }: Id) => {
 		active: list.map(({ title, bundle, start, expiry, url }) => ({
 			title,
 			store: bundle,
-			start: DateUtil.formatDate(start * 1000),
-			expiry: expiry ? DateUtil.formatDate(expiry * 1000) : null,
+			start: DateUtil.formatDate({ date: start * 1000 }),
+			expiry: expiry ? DateUtil.formatDate({ date: expiry * 1000 }) : null,
 			url,
 		})),
 	};
@@ -81,12 +81,12 @@ const getHistoricalLow = async ({ id }: Id) => {
 		store: shop.name,
 		price: ConverterUtil.formatCurrency(price),
 		discount: cut,
-		date: DateUtil.formatDate(added * 1000),
+		date: DateUtil.formatDateDistance({ date: added * 1000 }),
 	};
 };
 
 const getPrices = async ({ id }: Id) => {
-	const url = `https://api.isthereanydeal.com/v01/game/lowest/?key=${getApiKey()}&region=eu1&country=PT&plains=${id}`;
+	const url = `https://api.isthereanydeal.com/v01/game/prices/?key=${getApiKey()}&region=eu1&country=PT&plains=${id}`;
 	const { payload } = await FetchUtil.fetch<Payload<Game<Prices>>>({ url });
 	const { list } = payload.data[id];
 
@@ -123,7 +123,7 @@ export const getFreebies = async () => {
 			discount: price_cut,
 			regular: ConverterUtil.formatCurrency(price_old),
 			current: ConverterUtil.formatCurrency(price_new),
-			expiry: expiry ? DateUtil.formatDate(expiry * 1000) : null,
+			expiry: expiry ? DateUtil.formatDate({ date: expiry * 1000 }) : null,
 		}));
 };
 

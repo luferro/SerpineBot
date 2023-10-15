@@ -4,8 +4,10 @@ import { DateUtil } from '..';
 
 type UnitType = 'Milliseconds' | 'Seconds' | 'Minutes' | 'Hours' | 'Days' | 'Weeks' | 'Months' | 'Years';
 
-export const formatCurrency = (amount: number) =>
-	new Intl.NumberFormat(DateUtil.getLocale().code, { style: 'currency', currency: 'EUR' }).format(amount);
+export const formatCurrency = (amount: number) => {
+	const localeCode = DateUtil.getDefaultLocale().code;
+	return new Intl.NumberFormat(localeCode, { style: 'currency', currency: 'EUR' }).format(amount);
+};
 
 export const centsToEuros = (cents: number) => {
 	return formatCurrency(cents / 100).replace(String.fromCharCode(160), ' ');
