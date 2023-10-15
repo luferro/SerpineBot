@@ -118,8 +118,8 @@
 			"options": [{ "name": "query", "description": "Game title." }],
 			"embed": {
 				"fields": [
-					{ "name": "**Historical Low**" },
-					{ "name": "**Best deal**" },
+					{ "name": "**Historical Low Price**" },
+					{ "name": "**Official Stores**" },
 					{ "name": "**Live bundles**" },
 					{ "name": "**Subscriptions**" }
 				]

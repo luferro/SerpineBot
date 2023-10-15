@@ -27,9 +27,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const { historicalLow, bundles, prices } = await client.api.gaming.deals.getDealById({ id });
 	const formattedBundles = bundles.active.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
-	const formattedPrices = prices.map(({ store, discounted, url }) => `**${discounted}** @ [${store}](${url})`);
+	const formattedPrices = prices
+		.slice(0, 5)
+		.map(({ store, discounted, url }) => `**[${store}](${url})** - **${discounted}**`);
 	const formattedHistoricalLow = historicalLow
-		? `**${historicalLow.price}** @ ${historicalLow.store}\n*${historicalLow.date}*`
+		? `**${historicalLow.price}** @ ${historicalLow.store} - *${historicalLow.date}*`
 		: null;
 
 	const embed = new EmbedBuilder()
@@ -38,12 +40,10 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			{
 				name: t('interactions.gaming.deals.embed.fields.0.name'),
 				value: formattedHistoricalLow ?? t('common.unavailable'),
-				inline: true,
 			},
 			{
 				name: t('interactions.gaming.deals.embed.fields.1.name'),
 				value: formattedPrices.join('\n') || t('common.unavailable'),
-				inline: true,
 			},
 			{
 				name: t('interactions.gaming.deals.embed.fields.2.name'),
