@@ -1,6 +1,6 @@
 import { InteractiveScraper, StaticScraper } from '@luferro/scraper';
 
-import { Gamertag, Url } from '../../../types/args';
+import { Gamertag } from '../../../types/args';
 
 export const enum Chart {
 	TOP_SELLERS = 1,
@@ -23,11 +23,6 @@ export const getGamertagData = async ({ gamertag }: Gamertag) => {
 		gamerscore: Number(gamerscore),
 		gamesPlayed: Number(gamesPlayed),
 	};
-};
-
-export const getImage = async ({ url }: Url) => {
-	const $ = await StaticScraper.loadUrl({ url });
-	return $('.media.feed').find('.media-image a img').attr('src')!;
 };
 
 export const getChartData = async ({ chart }: { chart: Chart }) => {

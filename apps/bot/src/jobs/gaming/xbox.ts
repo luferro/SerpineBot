@@ -1,4 +1,5 @@
 import { RssModel } from '@luferro/database';
+import { Youtube } from '@luferro/scraper';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
@@ -15,9 +16,15 @@ export const execute: JobExecute = async ({ client }) => {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
+		if (Youtube.isVideo({ url })) {
+			const content = `**${title}**\n${url}`;
+			await client.propageMessage({ category: 'Xbox', content });
+			continue;
+		}
+
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title))
-			.setThumbnail(image)
+			.setImage(image)
 			.setURL(url)
 			.setColor('Random');
 

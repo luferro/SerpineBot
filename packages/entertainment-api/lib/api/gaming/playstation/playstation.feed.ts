@@ -1,8 +1,7 @@
-import { RSS } from '@luferro/scraper';
+import { RSS, StaticScraper } from '@luferro/scraper';
 import { DateUtil } from '@luferro/shared-utils';
 
 import { Url } from '../../../types/args';
-import { getImage } from './playstation.scraper';
 
 export const getPlaystationBlogFeed = async ({ url }: Url) => {
 	const raw = await RSS.getFeed({ url });
@@ -10,7 +9,12 @@ export const getPlaystationBlogFeed = async ({ url }: Url) => {
 		raw.items
 			.filter(({ isoDate }) => isoDate && DateUtil.isDateToday({ date: new Date(isoDate) }))
 			.map(async ({ title, link, contentSnippet, isoDate }) => {
-				const image = link ? await getImage({ url: link }) : null;
+				let image: string | null = null;
+				if (link) {
+					const $ = await StaticScraper.loadUrl({ url: link });
+					image = $('.featured-asset').first().attr('src')!;
+				}
+
 				return {
 					title: title!,
 					url: link!,
