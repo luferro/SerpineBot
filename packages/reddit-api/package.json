@@ -19,6 +19,7 @@
 		"typescript": "^5.2.2"
 	},
 	"dependencies": {
+		"@luferro/scraper": "workspace:^",
 		"@luferro/shared-utils": "workspace:^"
 	}
 }

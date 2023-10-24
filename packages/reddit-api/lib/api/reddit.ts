@@ -1,3 +1,4 @@
+import { Youtube } from '@luferro/scraper';
 import { FetchUtil } from '@luferro/shared-utils';
 
 type Url = { url: string };
@@ -56,11 +57,18 @@ const mapPosts = async ({ url }: Url) => {
 			selfurl: `https://www.reddit.com${data.permalink}`,
 			isCrosspost: Boolean(data.crosspost_parent),
 			isSelf: data.is_self,
-			embedType: data.secure_media?.type ?? null,
+			isYoutubeEmbed: data.secure_media?.type === 'youtube.com' || Youtube.isVideo({ url: data.url }),
+			isTwitterEmbed: new Set(['twitter.com', 'x.com']).has(data.url),
 			gallery: data.gallery_data,
 			publishedAt: new Date(data.created_utc),
 			hasEmbeddedMedia:
 				Boolean(data.secure_media) ||
 				['.gif', '.gifv', '.mp4'].some((extension) => data.url.includes(extension)),
+		}))
+		.map((data) => ({
+			...data,
+			url: data.isTwitterEmbed
+				? data.url.replace('twitter.com', 'x.com').replace('x.com', 'fixvx.com')
+				: data.url,
 		}));
 };

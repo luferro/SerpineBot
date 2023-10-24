@@ -7,10 +7,10 @@ export const getNews = async () => {
 		flairs: ['News', 'Nintendo Official'],
 	});
 
-	return data.map(({ title, url, embedType }) => ({
+	return data.map(({ title, url, isYoutubeEmbed, isTwitterEmbed }) => ({
 		title,
 		url,
-		isYoutubeEmbed: embedType === 'youtube.com',
-		isTwitterEmbed: embedType === 'twitter.com',
+		isYoutubeEmbed,
+		isTwitterEmbed,
 	}));
 };

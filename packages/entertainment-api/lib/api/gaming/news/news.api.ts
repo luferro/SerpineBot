@@ -16,12 +16,12 @@ export const getNews = async ({ feeds }: Partial<Feeds>) => {
 	const data: News[] = [
 		...(await RedditApi.getPosts({ subreddit: 'Games', sort: 'new', limit: 25 }))
 			.filter(({ isCrosspost, isSelf }) => !isCrosspost && !isSelf)
-			.map(({ title, url, embedType, publishedAt }) => ({
+			.map(({ title, url, isYoutubeEmbed, isTwitterEmbed, publishedAt }) => ({
 				title,
 				url,
 				publishedAt,
-				isYoutubeEmbed: embedType === 'youtube.com',
-				isTwitterEmbed: embedType === 'twitter.com',
+				isYoutubeEmbed,
+				isTwitterEmbed,
 			})),
 	];
 

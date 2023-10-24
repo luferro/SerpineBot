@@ -214,6 +214,9 @@ importers:
 
   packages/reddit-api:
     dependencies:
+      '@luferro/scraper':
+        specifier: workspace:^
+        version: link:../scraper
       '@luferro/shared-utils':
         specifier: workspace:^
         version: link:../shared-utils
