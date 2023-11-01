@@ -58,12 +58,10 @@ const mapPosts = async ({ url }: Url) => {
 			isCrosspost: Boolean(data.crosspost_parent),
 			isSelf: data.is_self,
 			isYoutubeEmbed: data.secure_media?.type === 'youtube.com' || Youtube.isVideo({ url: data.url }),
-			isTwitterEmbed: /twitter.com|x.com/.test(data.url),
+			isTwitterEmbed: /^(?:https?:)?(?:\/\/)?(?:www\.)?(twitter.com|x.com)/.test(data.url),
 			gallery: data.gallery_data,
 			publishedAt: new Date(data.created_utc),
-			hasEmbeddedMedia:
-				Boolean(data.secure_media) ||
-				['.gif', '.gifv', '.mp4'].some((extension) => data.url.includes(extension)),
+			hasEmbeddedMedia: Boolean(data.secure_media) || /\.(gif|gifv|mp4)/.test(data.url),
 		}))
 		.map((data) => ({
 			...data,
