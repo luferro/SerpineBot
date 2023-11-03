@@ -42,6 +42,10 @@ export const getWeek = () => DateFns.getWeek(getCurrentDate());
 
 export const isToday = ({ date }: SimpleDate) => DateFns.isToday(date);
 
+export const isPast = ({ date }: SimpleDate) => DateFns.isPast(date);
+
+export const addMinutes = ({ date, amount }: SimpleDate & Amount) => DateFns.addMinutes(date, amount);
+
 export const addHours = ({ date, amount }: SimpleDate & Amount) => DateFns.addHours(date, amount);
 
 export const addDays = ({ date, amount }: SimpleDate & Amount) => DateFns.addDays(date, amount);
