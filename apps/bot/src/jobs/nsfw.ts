@@ -18,8 +18,10 @@ export const execute: JobExecute = async ({ client }) => {
 			if (!isSuccessful) continue;
 
 			if (hasEmbeddedMedia) {
-				const content = `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${nsfwUrl}`;
-				await client.propageMessage({ category: 'Nsfw', content });
+				await client.propageMessage({
+					category: 'Nsfw',
+					content: `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${nsfwUrl}`,
+				});
 				continue;
 			}
 

@@ -17,8 +17,10 @@ export const execute: JobExecute = async ({ client }) => {
 			if (!isSuccessful) continue;
 
 			if (hasEmbeddedMedia) {
-				const content = `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}`;
-				await client.propageMessage({ category: 'Memes', content });
+				await client.propageMessage({
+					category: 'Memes',
+					content: `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}`,
+				});
 				continue;
 			}
 

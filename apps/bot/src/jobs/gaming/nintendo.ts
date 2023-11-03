@@ -14,8 +14,7 @@ export const execute: JobExecute = async ({ client }) => {
 		if (!isSuccessful) continue;
 
 		if (isTwitterEmbed || isYoutubeEmbed) {
-			const content = `**${title}**\n${isTwitterEmbed ? url.split('?')[0] : url}`;
-			await client.propageMessage({ category: 'Gaming News', content });
+			await client.propageMessage({ category: 'Gaming News', content: `**${title}**\n${url}` });
 			continue;
 		}
 
