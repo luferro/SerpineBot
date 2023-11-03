@@ -66,7 +66,7 @@ const mapPosts = async ({ url }: Url) => {
 		.map((data) => ({
 			...data,
 			url: data.isTwitterEmbed
-				? data.url.replace('twitter.com', 'vxtwitter.com').replace('x.com', 'fixvx.com')
+				? data.url.split('?')[0].replace('twitter.com', 'vxtwitter.com').replace('x.com', 'fixvx.com')
 				: data.url,
 		}));
 };
