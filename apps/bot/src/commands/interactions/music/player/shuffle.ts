@@ -14,5 +14,5 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	queue.tracks.shuffle();
 
-	await Bot.commands.interactions.execute.get('music.queue.list')!({ client, interaction });
+	await Bot.commands.interactions.methods.get('music.queue.list')?.execute({ client, interaction });
 };

@@ -22,5 +22,5 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (!self) queue.tracks.clear();
 	else queue.tracks.remove((track) => track.requestedBy?.id === interaction.user.id);
 
-	await Bot.commands.interactions.execute.get('music.queue.list')!({ client, interaction });
+	await Bot.commands.interactions.methods.get('music.queue.list')?.execute({ client, interaction });
 };

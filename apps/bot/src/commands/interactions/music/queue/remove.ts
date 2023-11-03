@@ -37,7 +37,7 @@ const removeTrack = async ({ client, interaction, position }: Parameters<typeof 
 	const removedTrack = queue.node.remove(position - 1);
 	if (!removedTrack) throw new Error(t('errors.player.queue.tracks.position', { position: `\`${position}\`` }));
 
-	await Bot.commands.interactions.execute.get('music.queue.list')!({ client, interaction });
+	await Bot.commands.interactions.methods.get('music.queue.list')?.execute({ client, interaction });
 };
 
 const removePlaylist = async ({ client, interaction }: Parameters<typeof execute>[0]) => {

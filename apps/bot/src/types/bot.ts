@@ -18,7 +18,7 @@ import type {
 import { GuildQueue } from 'discord-player';
 
 import type { Bot } from '../Bot';
-import type { ExtendedChatInputCommandInteraction } from './interaction';
+import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from './interaction';
 
 type Client = { client: Bot };
 
@@ -29,12 +29,18 @@ type VoiceCommandArgs<T> = Client & { queue: GuildQueue<TextBasedChannel>; slots
 export type VoiceCommandExecute<T = unknown> = { (args: VoiceCommandArgs<T>): Promise<void> };
 export type VoiceCommand = { execute: VoiceCommandExecute };
 
-type InteractionCommandArgs = Client & { interaction: ExtendedChatInputCommandInteraction };
+type InteractionCommandArgs<T> = Client & { interaction: T };
 export type InteractionCommandData = Exclude<MetadataBuilder, 'SlashCommandOption'> | SlashCommandOption[];
-export type InteractionCommandExecute = { (args: InteractionCommandArgs): Promise<void> };
+type BaseInteractionCommandMethod<T> = { (args: InteractionCommandArgs<T>): Promise<void> };
+export type InteractionCommandExecute = BaseInteractionCommandMethod<ExtendedChatInputCommandInteraction>;
+export type InteractionCommandAutoComplete = BaseInteractionCommandMethod<ExtendedAutocompleteInteraction>;
+export type InteractionCommandMethods = {
+	execute: InteractionCommandExecute;
+	autocomplete?: InteractionCommandAutoComplete;
+};
 export type InteractionCommand = {
 	metadata: SlashCommandBuilder[];
-	execute: Collection<string, InteractionCommandExecute>;
+	methods: Collection<string, InteractionCommandMethods>;
 };
 
 export type Commands = { voice: Collection<string, VoiceCommand>; interactions: InteractionCommand };

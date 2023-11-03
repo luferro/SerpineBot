@@ -42,7 +42,7 @@ const registerInteractionCommands = async () => {
 		const name = FileUtil.getRelativePath(file, 'interactions');
 		if (!name) continue;
 
-		const { data, execute }: RawInteractionCommand = await import(file);
+		const { data, ...methods }: RawInteractionCommand = await import(file);
 		const options = Array.isArray(data) ? data : [data];
 
 		const matches = name.split('.');
@@ -58,7 +58,7 @@ const registerInteractionCommands = async () => {
 		if (storedMetadata) storedMetadata.get(category)?.push(...options) ?? storedMetadata.set(category, options);
 		else metadata.set(command, new Map([[category, options]]));
 
-		Bot.commands.interactions.execute.set(name, execute);
+		Bot.commands.interactions.methods.set(name, methods);
 	}
 	logger.info(`Commands handler registered **${files.length}** interaction command(s).`);
 
@@ -108,7 +108,7 @@ const buildSlashCommands = (map: Map<string, Map<string, InteractionCommandData[
 
 		Bot.commands.interactions.metadata.push(command);
 	}
-	logger.info(`Command handler built **${map.size}** slash command(s).`);
+	logger.info(`Commands handler built **${map.size}** slash command(s).`);
 };
 
 export const deployCommands = async (client: Bot) => {
