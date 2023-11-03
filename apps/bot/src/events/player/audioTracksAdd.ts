@@ -8,7 +8,7 @@ type Args = [queue: GuildQueue<TextBasedChannel>, tracks: Track[]];
 export const data: EventData = { type: 'on' };
 
 export const execute: EventExecute<Args> = async ({ rest: [queue, tracks] }) => {
-	const channel = queue.metadata;
+	const { metadata } = queue;
 	const { playlist, requestedBy } = tracks[0];
 	if (!playlist) return;
 
@@ -20,5 +20,5 @@ export const execute: EventExecute<Args> = async ({ rest: [queue, tracks] }) => 
 		.addFields([{ name: '**Tracks**', value: playlist.tracks.length.toString() }])
 		.setColor('Random');
 
-	channel.send({ embeds: [embed] });
+	await metadata.send({ embeds: [embed] });
 };
