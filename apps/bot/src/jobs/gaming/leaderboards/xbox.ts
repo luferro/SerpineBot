@@ -14,8 +14,8 @@ export const execute: JobExecute = async ({ client }) => {
 	try {
 		const leaderboard = await Leaderboards.getXboxLeaderboard(client);
 
-		const from = DateUtil.formatDate({ date: Date.now() - 7 * 24 * 60 * 60 * 1000 });
-		const to = DateUtil.formatDate({ date: Date.now() });
+		const from = DateUtil.format({ date: Date.now() - 7 * 24 * 60 * 60 * 1000 });
+		const to = DateUtil.format({ date: Date.now() });
 
 		const embed = new EmbedBuilder()
 			.setTitle(t('jobs.gaming.leaderboards.xbox.embed.title', { from, to }))

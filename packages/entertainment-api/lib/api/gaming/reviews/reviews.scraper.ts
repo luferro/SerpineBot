@@ -23,7 +23,7 @@ export const getReviewData = async ({ id, slug }: Id & Slug) => {
 		name,
 		url,
 		tier: tier ? (tier.startsWith('http') ? tier : `https:${tier}`) : null,
-		releaseDate: date.trim() ? DateUtil.formatDate({ date: new Date(date) }).split(' ')[0] : null,
+		releaseDate: date.trim() ? DateUtil.format({ date: new Date(date) }).split(' ')[0] : null,
 		image: image ? (image.startsWith('http') ? image : `https:${image}`) : null,
 		count: count || null,
 		score: score || null,

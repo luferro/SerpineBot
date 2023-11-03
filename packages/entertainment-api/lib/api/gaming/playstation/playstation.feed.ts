@@ -7,7 +7,7 @@ export const getPlaystationBlogFeed = async ({ url }: Url) => {
 	const raw = await RSS.getFeed({ url });
 	return Promise.all(
 		raw.items
-			.filter(({ isoDate }) => isoDate && DateUtil.isDateToday({ date: new Date(isoDate) }))
+			.filter(({ isoDate }) => isoDate && DateUtil.isToday({ date: new Date(isoDate) }))
 			.map(async ({ title, link, contentSnippet, isoDate }) => {
 				let image: string | null = null;
 				if (link) {

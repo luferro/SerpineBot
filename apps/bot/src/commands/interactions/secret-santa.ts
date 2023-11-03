@@ -58,7 +58,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 			.addFields([
 				{
 					name: t('interactions.secret-santa.embeds.1.fields.0.name'),
-					value: `**${DateUtil.formatDate({ date: eventDate })}**`,
+					value: `**${DateUtil.format({ date: eventDate })}**`,
 				},
 				{
 					name: t('interactions.secret-santa.embeds.1.fields.1.name'),

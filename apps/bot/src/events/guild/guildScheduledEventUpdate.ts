@@ -42,12 +42,12 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 			},
 			{
 				name: '**Start**',
-				value: scheduledStartAt ? DateUtil.formatDate({ date: scheduledStartAt }) : 'N/A',
+				value: scheduledStartAt ? DateUtil.format({ date: scheduledStartAt }) : 'N/A',
 				inline: true,
 			},
 			{
 				name: '**End**',
-				value: scheduledEndAt ? DateUtil.formatDate({ date: scheduledEndAt }) : 'N/A',
+				value: scheduledEndAt ? DateUtil.format({ date: scheduledEndAt }) : 'N/A',
 				inline: true,
 			},
 			{

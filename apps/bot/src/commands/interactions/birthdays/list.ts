@@ -16,7 +16,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 	const groupedBirthdays = birthdaysList
 		.sort((a, b) => a.date.getDate() - b.date.getDate() && a.date.getMonth() - b.date.getMonth())
 		.reduce((acc, birthday) => {
-			const month = StringUtil.capitalize(DateUtil.formatDate({ date: birthday.date, format: 'MMMM' }));
+			const month = StringUtil.capitalize(DateUtil.format({ date: birthday.date, format: 'MMMM' }));
 
 			const monthIndex = acc.findIndex((entry) => entry.month === month);
 			if (monthIndex === -1) acc.push({ month, birthdays: [birthday] });
@@ -31,7 +31,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 			const formattedBirthdays = await Promise.all(
 				birthdays.map(async ({ userId, date }) => {
 					const user = await interaction.client.users.fetch(userId);
-					const birthday = DateUtil.formatDate({ date: date, format: 'dd/MM' });
+					const birthday = DateUtil.format({ date, format: 'dd/MM' });
 					return `**${birthday}** ${user.username}`;
 				}),
 			);

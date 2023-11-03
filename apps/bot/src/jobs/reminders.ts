@@ -12,7 +12,7 @@ export const execute: JobExecute = async ({ client }) => {
 	const filteredReminders = reminders.filter(({ timeEnd }) => Date.now() >= timeEnd);
 	for (const { reminderId, userId, timeStart, message } of filteredReminders) {
 		const embed = new EmbedBuilder()
-			.setTitle(t('jobs.reminders.embed.title', { date: DateUtil.formatDate({ date: timeStart }) }))
+			.setTitle(t('jobs.reminders.embed.title', { date: DateUtil.format({ date: timeStart }) }))
 			.addFields([
 				{
 					name: t('jobs.reminders.embed.fields.0.name'),

@@ -9,8 +9,8 @@ export const search = async ({ query, interval }: Query & Partial<Interval>) => 
 	const url = [`https://duckduckgo.com/?q=${query}`];
 
 	if (interval) {
-		const fromStr = DateUtil.formatDate({ date: interval.start, format: 'yyyy-MM-dd' });
-		const toStr = interval.end ? DateUtil.formatDate({ date: interval.end, format: 'yyyy-MM-dd' }) : fromStr;
+		const fromStr = DateUtil.format({ date: interval.start, format: 'yyyy-MM-dd' });
+		const toStr = interval.end ? DateUtil.format({ date: interval.end, format: 'yyyy-MM-dd' }) : fromStr;
 		url.push(`&df=${fromStr}..${toStr}`);
 	}
 

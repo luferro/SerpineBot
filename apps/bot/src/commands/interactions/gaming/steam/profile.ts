@@ -43,12 +43,12 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			},
 			{
 				name: t('interactions.gaming.steam.profile.embed.fields.2.name'),
-				value: DateUtil.formatDate({ date: createdAt }),
+				value: DateUtil.format({ date: createdAt }),
 				inline: true,
 			},
 			{
 				name: t('interactions.gaming.steam.profile.embed.fields.3.name'),
-				value: DateUtil.formatDate({ date: logoutAt }),
+				value: DateUtil.format({ date: logoutAt }),
 				inline: true,
 			},
 		])
