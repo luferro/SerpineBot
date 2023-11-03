@@ -1,9 +1,8 @@
 import { logger } from '@luferro/shared-utils';
-import type { ConnectOptions } from 'mongoose';
 import mongoose from 'mongoose';
 
 export const connect = async (uri: string) => {
-	await mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true } as ConnectOptions);
+	await mongoose.connect(uri);
 	logger.info('Connected to database successfully.');
 };
 
