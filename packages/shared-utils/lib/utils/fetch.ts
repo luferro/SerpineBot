@@ -4,44 +4,55 @@ import { HeaderGenerator, Headers } from 'header-generator';
 import { FetchError } from '../errors/FetchError';
 
 type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
-type Request = { url: string | URL; method?: HttpMethod; clientId?: string; authorization?: string; body?: string };
+type Request = {
+	url: string | URL;
+	method?: HttpMethod;
+	customHeaders?: Map<string, string>;
+	body?: string;
+	handleStatusCode?: (status: number) => Promise<unknown>;
+};
 
-const isBodyJson = ({ body }: Required<Pick<Request, 'body'>>) => {
+const getHeaders = ({ customHeaders }: Required<Pick<Request, 'customHeaders'>>) => {
+	if (!customHeaders.has('content-type')) customHeaders.set('content-type', 'application/json');
+	return new HeaderGenerator().getHeaders({}, Object.fromEntries(customHeaders));
+};
+
+const getBody = ({ body }: Pick<Request, 'body'>) => {
+	if (!body) return;
 	try {
-		JSON.parse(body);
-		return true;
+		return JSON.parse(body);
 	} catch (error) {
-		return false;
+		return body;
 	}
 };
 
-export const getHeaders = ({ method, body, clientId, authorization }: Omit<Request, 'url'>) => {
-	const headers = new Map();
-	if (clientId) headers.set('Client-ID', clientId);
-	if (authorization) headers.set('Authorization', `Bearer ${authorization}`);
-	if (body && (method === 'POST' || method === 'PUT')) {
-		headers.set('Content-Type', isBodyJson({ body }) ? 'application/json' : 'plain/text');
-	}
-
-	return new HeaderGenerator().getHeaders({}, Object.fromEntries(headers));
-};
-
-const getBody = ({ body }: Required<Pick<Request, 'body'>>) => (isBodyJson({ body }) ? JSON.parse(body) : body);
-
-export const fetch = async <T>({ method = 'GET', url, clientId, authorization, body }: Request) => {
+export const fetch = async <T>({ method = 'GET', url, customHeaders = new Map(), body, handleStatusCode }: Request) => {
 	try {
 		const res = await axios(url.toString(), {
 			method,
-			headers: getHeaders({ method, clientId, authorization }),
-			data: body ? getBody({ body }) : undefined,
+			headers: getHeaders({ customHeaders }),
+			data: getBody({ body }),
+			validateStatus: () => true,
 		});
-		if (res.status >= 400) throw new Error(`${res.status} ${res.statusText}`);
-
 		const headers = res.headers as Headers;
 		const payload = res.data as T;
 
+		if (res.status >= 400) {
+			const error = new FetchError(res.statusText)
+				.setUrl(url.toString())
+				.setStatus(res.status)
+				.setHeaders(headers)
+				.setPayload(payload);
+			throw error;
+		}
+
 		return { headers, payload };
 	} catch (error) {
-		throw new FetchError(`**${method}** request to **${url}** failed. Reason: ${(error as Error).message}`);
+		const isFetchError = error instanceof FetchError;
+		if (isFetchError) {
+			const status = error.status ?? 500;
+			if (handleStatusCode) await handleStatusCode(status);
+		} else (error as Error).message = `**${method}** request to **${url}** failed.`;
+		throw error;
 	}
 };

@@ -59,7 +59,7 @@ const getApiKey = () => {
 export const getAnimeById = async (id: string) => {
 	const { payload } = await FetchUtil.fetch<Anime>({
 		url: `https://animeschedule.net/api/v3/anime/${id}`,
-		authorization: getApiKey(),
+		customHeaders: new Map([['Authorization', `Bearer ${getApiKey()}`]]),
 	});
 
 	const { mal, aniList, animePlanet, kitsu } = payload.websites;
@@ -99,8 +99,8 @@ export const getAnimeById = async (id: string) => {
 
 export const getWeeklySchedule = async () => {
 	const { payload } = await FetchUtil.fetch<Schedule[]>({
-		url: `https://animeschedule.net/api/v3/timetables/sub?year=${DateUtil.getCurrentDate().getFullYear()}&week=${DateUtil.getWeekNumber()}&tz=${DateUtil.getTimezone()}`,
-		authorization: getApiKey(),
+		url: `https://animeschedule.net/api/v3/timetables/sub?year=${DateUtil.getCurrentDate().getFullYear()}&week=${DateUtil.getWeek()}&tz=${DateUtil.getTimezone()}`,
+		customHeaders: new Map([['Authorization', `Bearer ${getApiKey()}`]]),
 	});
 
 	return payload
