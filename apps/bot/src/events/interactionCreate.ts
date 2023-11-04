@@ -1,5 +1,6 @@
 import { FetchError, logger } from '@luferro/shared-utils';
 import { DiscordAPIError, EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { Bot } from '../Bot';
 import type { EventData, EventExecute } from '../types/bot';
@@ -43,13 +44,18 @@ const handleChatInputCommandInteraction = async ({ client, interaction }: ChatIn
 		if (!methods) throw new Error(`Slash command "${key}" is not registered.`);
 		await methods.execute({ client, interaction });
 	} catch (error) {
-		if (error instanceof DiscordAPIError || error instanceof FetchError) {
+		const isDiscordAPIError = error instanceof DiscordAPIError;
+		const isFetchError = error instanceof FetchError;
+		if (isDiscordAPIError || (isFetchError && error.status && error.status >= 500)) {
 			error.message = `Command **${key}** in guild ${interaction.guild.name} failed. Reason: ${error.message}`;
 			throw error;
 		}
 
-		const { message } = error as Error;
-		const embed = new EmbedBuilder().setTitle('Something went wrong.').setDescription(message).setColor('Random');
+		const embed = new EmbedBuilder()
+			.setTitle('Something went wrong.')
+			.setDescription(error instanceof FetchError ? t(`errors.status.${error.status}`) : (error as Error).message)
+			.setColor('Random');
+
 		if (interaction.deferred) await interaction.editReply({ content: null, embeds: [embed], components: [] });
 		else await interaction.reply({ embeds: [embed], ephemeral: true });
 	}

@@ -1,5 +1,6 @@
 import 'dotenv/config';
 
+import { logger } from '@luferro/shared-utils';
 import { GatewayIntentBits } from 'discord.js';
 
 import { Bot } from './Bot';
@@ -18,7 +19,7 @@ import { Bot } from './Bot';
 	});
 	await client.start();
 
-	process.on('uncaughtException', (error) => client.handleError(error, client));
+	process.on('uncaughtException', logger.error);
 	process.on('SIGINT', client.stop);
 	process.on('SIGTERM', client.stop);
 })();

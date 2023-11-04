@@ -1,9 +1,9 @@
 import { Database, SettingsModel, StateModel, WebhookType } from '@luferro/database';
-import { AnimeApi, ComicsApi, GamingApi, MangadexApi, ShowsApi } from '@luferro/entertainment-api';
-import { NewsApi } from '@luferro/news-api';
-import { RedditApi } from '@luferro/reddit-api';
+import * as Entertainment from '@luferro/entertainment-api';
+import * as News from '@luferro/news-api';
+import * as Reddit from '@luferro/reddit-api';
 import { InteractiveScraper, SearchEngine, StaticScraper, Youtube } from '@luferro/scraper';
-import { ArrayUtil, DateUtil, EnumUtil, FetchError, logger, SleepUtil } from '@luferro/shared-utils';
+import { ArrayUtil, DateUtil, EnumUtil, logger } from '@luferro/shared-utils';
 import { CronJob } from 'cron';
 import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
@@ -21,13 +21,22 @@ type StateArgs = { title: string; url: string };
 type WebhookArgs = { guild: Guild; category: WebhookType };
 type PropageArgs = { category: WebhookType; content: string; embeds: EmbedBuilder[]; everyone?: boolean };
 
+const { NewsApi: news } = News;
+const { RedditApi: reddit } = Reddit;
+const { AnimeApi: anime, ComicsApi: comics, GamingApi: gaming, MangadexApi: mangadex, ShowsApi: shows } = Entertainment;
 export class Bot extends Client {
 	private static readonly MAX_EMBEDS_SIZE = 10;
 	static readonly ROLES_MESSAGE_ID = 'CLAIM_YOUR_ROLES';
 
 	static jobs: Collection<string, Job> = new Collection();
 	static events: Collection<string, Event> = new Collection();
-	static commands: Commands = { voice: new Collection(), interactions: { metadata: [], execute: new Collection() } };
+	static commands: Commands = {
+		voice: new Collection(),
+		interactions: {
+			metadata: [],
+			methods: new Collection(),
+		},
+	};
 
 	api: Api;
 	scraper: Scraper;
@@ -45,26 +54,18 @@ export class Bot extends Client {
 		this.tools = this.initializeTools();
 		this.connection = this.initializeVoiceConfig();
 		this.player = this.initializePlayer();
-		this.cache = { anime: { schedule: new Collection() } };
+		this.cache = this.initializeCache();
 	}
 
-	private initializeApis() {
-		return {
-			anime: AnimeApi,
-			comics: ComicsApi,
-			mangadex: MangadexApi,
-			gaming: GamingApi,
-			news: NewsApi,
-			reddit: RedditApi,
-			shows: ShowsApi,
-		};
+	private initializeApis(): Api {
+		return { anime, comics, mangadex, gaming, news, reddit, shows };
 	}
 
-	private initializeScraper() {
+	private initializeScraper(): Scraper {
 		return { interactive: InteractiveScraper, static: StaticScraper, searchEngine: SearchEngine, youtube: Youtube };
 	}
 
-	private initializeVoiceConfig() {
+	private initializeVoiceConfig(): Connection {
 		return {
 			config: {
 				leaveOnEmpty: true,
@@ -76,7 +77,7 @@ export class Bot extends Client {
 		};
 	}
 
-	private initializeTools() {
+	private initializeTools(): Tools {
 		return {
 			textToSpeech: initializeTextToSpeech(),
 			speechToText: initializeLeopard({ apiKey: this.config.PICOVOICE_API_KEY }),
@@ -85,21 +86,32 @@ export class Bot extends Client {
 		};
 	}
 
-	private initializePlayer() {
+	private initializePlayer(): Player {
 		const player = new Player(this);
 		player.extractors.loadDefault();
 		logger.debug(player.scanDeps());
 		return player;
 	}
 
+	private initializeCache(): Cache {
+		return { anime: { schedule: new Collection() } };
+	}
+
 	private initializeListeners() {
 		for (const [name, { data, execute }] of Bot.events.entries()) {
-			const callback = (...args: unknown[]) => execute({ client: this, rest: args }).catch(this.handleError);
+			const callback = (...args: unknown[]) =>
+				execute({ client: this, rest: args }).catch((error) => {
+					this.emit('clientError', error);
+					return;
+				});
 
-			const isClient = EnumUtil.enumKeysToArray(Events).some((key) => Events[key] === name);
-			const isPlayer = EnumUtil.enumKeysToArray(GuildQueueEvent).some((key) => GuildQueueEvent[key] === name);
-			const isClientEvent = isClient || (!isClient && !isPlayer);
+			const discordEvents = EnumUtil.enumKeysToArray(Events);
+			const isDiscordEvent = discordEvents.some((key) => Events[key] === name);
 
+			const playerEvents = EnumUtil.enumKeysToArray(GuildQueueEvent);
+			const isPlayerEvent = playerEvents.some((key) => GuildQueueEvent[key] === name);
+
+			const isClientEvent = isDiscordEvent || (!isDiscordEvent && !isPlayerEvent);
 			if (isClientEvent) this[data.type](name, callback);
 			else this.player.events[data.type](name as keyof GuildQueueEvents, callback);
 
@@ -108,13 +120,17 @@ export class Bot extends Client {
 	}
 
 	private initializeSchedulers() {
+		if (this.config.NODE_ENV !== 'PRODUCTION') return;
+
 		for (const [name, job] of Bot.jobs.entries()) {
-			new CronJob(job.data.schedule, () =>
+			const cronjob = new CronJob(job.data.schedule, () =>
 				job.execute({ client: this }).catch((error) => {
 					error.message = `Job **${name}** failed. Reason: ${error.message}`;
-					this.handleError(error);
+					this.emit('clientError', error);
+					return;
 				}),
-			).start();
+			);
+			cronjob.start();
 			logger.info(`Job **${name}** is set to run. Schedule: **(${job.data.schedule})**.`);
 		}
 	}
@@ -143,7 +159,6 @@ export class Bot extends Client {
 	}
 
 	async state(entry: StateArgs) {
-		await SleepUtil.sleep(1000);
 		return await StateModel.createEntry(entry);
 	}
 
@@ -186,13 +201,5 @@ export class Bot extends Client {
 		logger.info('Stopping SerpineBot.');
 		Database.disconnect();
 		process.exit(1);
-	}
-
-	handleError(error: Error, client?: Bot) {
-		const isPlayerError = error.stack?.includes('discord-player');
-		const isFetchError = error instanceof FetchError;
-		logger[isPlayerError || isFetchError ? 'warn' : 'error'](error);
-
-		if (isPlayerError) this.emit('recoverFromError', { client });
 	}
 }

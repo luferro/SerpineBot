@@ -3,6 +3,13 @@
 	"date": { "invalid": "Invalid date." },
 	"interaction": { "timeout": "Interaction timeout.", "cancel": "Interaction cancelled." },
 	"unprocessable": "Cannot process request.",
+	"status": {
+		"400": "Bad request.",
+		"401": "Unauthorized.",
+		"403": "Forbidden.",
+		"404": "No results were found.",
+		"429": "Too many requests."
+	},
 	"search": {
 		"query": "No query provided.",
 		"lookup": "No matches for \"{{query}}\".",
