@@ -405,9 +405,9 @@
 			"options": [{ "name": "query", "description": "Movie title." }],
 			"embed": {
 				"fields": [
-					{ "name": "**Release date**" },
+					{ "name": "**Release Date**" },
 					{ "name": "**Score**" },
-					{ "name": "**Runtime**" },
+					{ "name": "**Duration**" },
 					{ "name": "**Genres**" },
 					{ "name": "**Buy**" },
 					{ "name": "**Rent**" },
@@ -422,25 +422,16 @@
 			"options": [{ "name": "query", "description": "Series title." }],
 			"embed": {
 				"fields": [
-					{ "name": "**Status**" },
-					{ "name": "**First Episode**" },
-					{ "name": "**Next Episode**" },
 					{ "name": "**Seasons**" },
+					{ "name": "**Total**", "value": "{{episodes}} episodes" },
+					{ "name": "**Duration**" },
+					{ "name": "**Last Episode**" },
+					{ "name": "**Next Episode**" },
 					{ "name": "**Score**" },
-					{ "name": "**Runtime**" },
 					{ "name": "**Genres**" },
 					{ "name": "**Stream**" }
 				],
 				"footer": { "text": "Stream data provided by JustWatch." }
-			}
-		},
-		"subscriptions": {
-			"name": "subscriptions",
-			"description": "Checks in which subscriptions a movie / tv is available.",
-			"options": [{ "name": "query", "description": "Movie / Series title." }],
-			"embed": {
-				"title": "**{{item}}** is available in **{{size}}** streaming service(s)",
-				"footer": { "text": "Data provided by JustWatch." }
 			}
 		}
 	},

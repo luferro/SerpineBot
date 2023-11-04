@@ -1,7 +1,12 @@
+import { DateUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 
-import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
+import type {
+	InteractionCommandAutoComplete,
+	InteractionCommandData,
+	InteractionCommandExecute,
+} from '../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t('interactions.shows.series.name'))
@@ -10,7 +15,8 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 		option
 			.setName(t('interactions.shows.series.options.0.name'))
 			.setDescription(t('interactions.shows.series.options.0.description'))
-			.setRequired(true),
+			.setRequired(true)
+			.setAutocomplete(true),
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
@@ -18,73 +24,74 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString(t('interactions.shows.series.options.0.name'), true);
 
-	const { id, type } = await client.api.shows.search({ query });
-	if (!id || type !== 'tv') throw new Error(t('errors.search.lookup', { query }));
-
-	const {
-		name,
-		description,
-		url,
-		status,
-		firstEpisode,
-		nextEpisode,
-		seasons,
-		image,
-		score,
-		runtime,
-		genres,
-		providers: { stream },
-	} = await client.api.shows.getSeriesById({ id });
-
-	const formattedStream = stream.map(({ provider }) => `> ${provider}`);
+	const { name, tagline, overview, url, image, seasons, episodes, score, genres, providers } =
+		await client.api.shows.getSeriesById({ id: query });
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
 		.setURL(url)
-		.setDescription(description)
+		.setDescription(`${tagline ? `*${tagline}*` : ''}\n${overview ?? ''}`.trim())
 		.setThumbnail(image)
 		.addFields([
 			{
 				name: t('interactions.shows.series.embed.fields.0.name'),
-				value: status ?? t('common.unavailable'),
-			},
-			{
-				name: t('interactions.shows.series.embed.fields.1.name'),
-				value: firstEpisode ?? t('common.unavailable'),
-				inline: true,
-			},
-			{
-				name: t('interactions.shows.series.embed.fields.2.name'),
-				value: nextEpisode ?? t('common.unavailable'),
-				inline: true,
-			},
-			{
-				name: t('interactions.shows.series.embed.fields.3.name'),
 				value: seasons?.toString() ?? t('common.unavailable'),
 				inline: true,
 			},
 			{
+				name: t('interactions.shows.series.embed.fields.1.name'),
+				value: episodes.total
+					? t('interactions.shows.series.embed.fields.1.value', { episodes: episodes.total })
+					: t('common.unavailable'),
+				inline: true,
+			},
+			{
+				name: t('interactions.shows.series.embed.fields.2.name'),
+				value: episodes.duration ?? t('common.unavailable'),
+				inline: true,
+			},
+			{
+				name: t('interactions.shows.series.embed.fields.3.name'),
+				value: episodes.last.date
+					? DateUtil.format({ date: new Date(episodes.last.date), format: 'dd/MM/yyyy' })
+					: t('common.unavailable'),
+				inline: true,
+			},
+			{
 				name: t('interactions.shows.series.embed.fields.4.name'),
-				value: score ?? t('common.unavailable'),
+				value: episodes.next.date
+					? DateUtil.format({ date: new Date(), format: 'dd/MM/yyyy' })
+					: t('common.unavailable'),
 				inline: true,
 			},
 			{
 				name: t('interactions.shows.series.embed.fields.5.name'),
-				value: runtime ?? t('common.unavailable'),
-				inline: true,
+				value: score ?? t('common.unavailable'),
 			},
 			{
 				name: t('interactions.shows.series.embed.fields.6.name'),
-				value: genres.join('\n') || t('common.unavailable'),
-				inline: true,
+				value: genres.map((genre) => `\`${genre.name}\``).join() || t('common.unavailable'),
 			},
 			{
 				name: t('interactions.shows.series.embed.fields.7.name'),
-				value: formattedStream.join('\n') || t('common.unavailable'),
+				value: providers.stream.map((provider) => `\`${provider}\``).join() || t('common.unavailable'),
 			},
 		])
 		.setFooter({ text: t('interactions.shows.series.embed.footer.text') })
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });
+};
+
+export const autocomplete: InteractionCommandAutoComplete = async ({ client, interaction }) => {
+	const { value: query } = interaction.options.getFocused(true);
+	if (query.length < 3) return await interaction.respond([]);
+
+	const results = await client.api.shows.search({ query });
+	await interaction.respond(
+		results
+			.filter(({ type }) => type === 'tv')
+			.slice(0, 10)
+			.map(({ id, title }) => ({ name: title, value: id.toString() })),
+	);
 };
