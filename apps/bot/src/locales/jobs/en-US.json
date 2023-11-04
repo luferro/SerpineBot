@@ -29,6 +29,12 @@
 				}
 			}
 		},
+		"events": {
+			"scheduled": {
+				"title": "🎉🥳🎂🥳🎉 Happy Birthday! 🎉🥳🎂🥳🎉",
+				"description": "{{text}}\n{{url}}\nStart time / End time may be incorrect."
+			}
+		},
 		"leaderboards": {
 			"steam": {
 				"embed": {

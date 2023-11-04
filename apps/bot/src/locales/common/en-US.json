@@ -1,5 +1,6 @@
 {
 	"unavailable": "n/a",
+	"tbd": "TBD",
 	"on": "on",
 	"off": "off",
 	"list": { "more": "And {{size}} more!" },
