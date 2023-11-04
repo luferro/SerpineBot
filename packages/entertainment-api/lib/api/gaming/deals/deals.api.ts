@@ -7,24 +7,20 @@ type Payload<T> = { data: T };
 type Game<T> = { [key: string]: T };
 type List<T> = { list: T };
 
-type SearchResult = { results: { id: number; plain: string; title: string }[] };
+type Result = { results: { id: number; plain: string; title: string }[] };
 
 type HistoricalLow = { shop?: { id: string; name: string }; price?: number; cut?: number; added?: number };
 
-type Bundles = {
-	total: number;
-	list: { title: string; bundle: string; start: number; expiry: number | null; url: string }[];
-};
+type Bundle = { title: string; bundle: string; start: number; expiry: number | null; url: string };
+type Bundles = { total: number } & List<Bundle[]>;
 
-type Prices = {
-	list: {
-		shop: { id: string; name: string };
-		price_new: number;
-		price_old: number;
-		price_cut: string;
-		url: string | null;
-		drm: string[];
-	}[];
+type Price = {
+	shop: { id: string; name: string };
+	price_new: number;
+	price_old: number;
+	price_cut: string;
+	url: string | null;
+	drm: string[];
 };
 
 type Deal = {
@@ -47,11 +43,8 @@ const getApiKey = () => {
 
 export const search = async ({ query }: Query) => {
 	const url = `https://api.isthereanydeal.com/v02/search/search/?key=${getApiKey()}&q=${query}&limit=20&strict=0`;
-	const { payload } = await FetchUtil.fetch<Payload<SearchResult>>({ url });
-	return {
-		id: payload.data.results[0]?.plain ?? null,
-		title: payload.data.results[0]?.title ?? null,
-	};
+	const { payload } = await FetchUtil.fetch<Payload<Result>>({ url });
+	return payload.data.results.map(({ plain, title }) => ({ title, id: plain }));
 };
 
 const getBundles = async ({ id }: Id) => {
@@ -64,8 +57,8 @@ const getBundles = async ({ id }: Id) => {
 		active: list.map(({ title, bundle, start, expiry, url }) => ({
 			title,
 			store: bundle,
-			start: DateUtil.formatDate({ date: start * 1000 }),
-			expiry: expiry ? DateUtil.formatDate({ date: expiry * 1000 }) : null,
+			start: DateUtil.format({ date: start * 1000 }),
+			expiry: expiry ? DateUtil.format({ date: expiry * 1000 }) : null,
 			url,
 		})),
 	};
@@ -81,13 +74,13 @@ const getHistoricalLow = async ({ id }: Id) => {
 		store: shop.name,
 		price: ConverterUtil.formatCurrency(price),
 		discount: cut,
-		date: DateUtil.formatDateDistance({ date: added * 1000 }),
+		date: DateUtil.formatDistance({ date: added * 1000 }),
 	};
 };
 
 const getPrices = async ({ id }: Id) => {
 	const url = `https://api.isthereanydeal.com/v01/game/prices/?key=${getApiKey()}&region=eu1&country=PT&plains=${id}`;
-	const { payload } = await FetchUtil.fetch<Payload<Game<Prices>>>({ url });
+	const { payload } = await FetchUtil.fetch<Payload<Game<List<Price[]>>>>({ url });
 	const { list } = payload.data[id];
 
 	return list.map(({ shop, price_old, price_new, price_cut, drm, url }) => ({
@@ -123,7 +116,7 @@ export const getFreebies = async () => {
 			discount: price_cut,
 			regular: ConverterUtil.formatCurrency(price_old),
 			current: ConverterUtil.formatCurrency(price_new),
-			expiry: expiry ? DateUtil.formatDate({ date: expiry * 1000 }) : null,
+			expiry: expiry ? DateUtil.format({ date: expiry * 1000 }) : null,
 		}));
 };
 
