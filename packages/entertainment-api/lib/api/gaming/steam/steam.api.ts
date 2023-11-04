@@ -64,8 +64,9 @@ export const getProfile = async ({ id }: Id) => {
 };
 
 export const getRecentlyPlayed = async ({ id }: Id) => {
-	const url = `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${getApiKey()}&steamid=${id}&format=json`;
-	const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed>>({ url });
+	const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed>>({
+		url: `https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${getApiKey()}&steamid=${id}&format=json`,
+	});
 
 	return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
 		name,
@@ -81,8 +82,9 @@ export const getWishlist = async ({ id }: Id) => {
 
 	let page = 0;
 	while (true) {
-		const url = `https://store.steampowered.com/wishlist/profiles/${id}/wishlistdata?p=${page}`;
-		const { payload } = await FetchUtil.fetch<Payload<Wishlist>>({ url });
+		const { payload } = await FetchUtil.fetch<Payload<Wishlist>>({
+			url: `https://store.steampowered.com/wishlist/profiles/${id}/wishlistdata?p=${page}`,
+		});
 
 		const hasMore = Object.keys(payload).some((id) => !isNaN(Number(id)));
 		if (!hasMore) break;

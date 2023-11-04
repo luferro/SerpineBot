@@ -9,9 +9,7 @@ type Args = [interaction: ExtendedStringSelectMenuInteraction];
 export const data: EventData = { type: 'on' };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [interaction] }) => {
-	const guild = interaction.guild;
-	const channel = interaction.channel;
-	const member = interaction.member;
+	const { guild, channel, member } = interaction;
 	if (member.user.bot || !channel?.isTextBased()) return;
 
 	const granted = [];
@@ -51,8 +49,9 @@ export const execute: EventExecute<Args> = async ({ client, rest: [interaction] 
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 
-	const name = member.nickname ?? member.displayName;
-	logger.info(`Roles updated for **${name}** in **${guild.name}** (+${granted.length} | -${revoked.length}).`);
+	logger.info(
+		`Roles updated for **${member.displayName}** in **${guild.name}** (+${granted.length} | -${revoked.length}).`,
+	);
 	logger.debug({ granted, revoked });
 
 	client.emit('rolesMessageUpdate', client);
