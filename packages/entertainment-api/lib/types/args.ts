@@ -11,3 +11,5 @@ export type Slug = { slug: string };
 export type Limit = { limit: number };
 
 export type Feeds = { feeds: string[] };
+
+export type ApiKey = { apiKey: string };

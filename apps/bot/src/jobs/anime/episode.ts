@@ -25,7 +25,7 @@ export const execute: JobExecute = async ({ client }) => {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
-		const { score, season, trackers } = await client.api.anime.schedule.getAnimeById(id);
+		const { score, season, trackers } = await client.api.anime.getAnimeById({ id });
 
 		const formattedTracking = trackers?.map(({ tracker, url }) => `> **[${translate(tracker)}](${url})**`);
 		const formattedStreams = streams?.map(({ stream, url }) => `> **[${translate(stream)}](${url})**`);

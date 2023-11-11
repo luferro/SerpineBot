@@ -18,10 +18,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString(t('interactions.gaming.reviews.options.0.name'), true);
 
-	const { id } = await client.api.gaming.reviews.search({ query });
-	if (!id) throw new Error(t('errors.search.lookup', { query }));
+	const results = await client.api.gaming.games.reviews.search({ query });
+	if (results.length === 0) throw new Error(t('errors.search.lookup', { query }));
+	const { id, slug } = results[0];
 
-	const review = await client.api.gaming.reviews.getReviewsById({ id });
+	const review = await client.api.gaming.games.reviews.getReviewsByIdAndSlug({ id, slug });
 	const { name, url, releaseDate, platforms, tier, score, count, recommended, image } = review;
 	if (!tier || !score) throw new Error(t('errors.search.lookup', { query }));
 

@@ -1,5 +1,7 @@
 import { DateUtil, FetchUtil } from '@luferro/shared-utils';
 
+import { ApiKey, Id } from '../../types/args';
+
 type Streams = {
 	crunchyroll: string;
 	funimation: string;
@@ -10,7 +12,9 @@ type Streams = {
 	youtube: string;
 	netflix: string;
 };
+
 type Trackers = { mal: string; aniList: string; kitsu: string; animePlanet: string; anidb: string };
+
 type Websites = { official: string } & Streams & Trackers;
 
 type Anime = {
@@ -49,66 +53,73 @@ type Schedule = {
 	airingStatus: string;
 };
 
-export type WeeklySchedule = Awaited<ReturnType<typeof getWeeklySchedule>>;
+export class AnimeScheduleApi {
+	private static BASE_URL = 'https://animeschedule.net';
+	private static BASE_IMAGE_URL = 'https://img.animeschedule.net';
 
-const getApiKey = () => {
-	if (!process.env.ANIME_SCHEDULE_API_KEY) throw new Error('ANIME_SCHEDULE_API_KEY is not set.');
-	return process.env.ANIME_SCHEDULE_API_KEY;
-};
+	private apiKey: string;
 
-export const getAnimeById = async (id: string) => {
-	const { payload } = await FetchUtil.fetch<Anime>({
-		url: `https://animeschedule.net/api/v3/anime/${id}`,
-		customHeaders: new Map([['Authorization', `Bearer ${getApiKey()}`]]),
-	});
+	constructor({ apiKey }: ApiKey) {
+		this.apiKey = apiKey;
+	}
 
-	const { mal, aniList, animePlanet, kitsu } = payload.websites;
-	const trackersList = [mal, aniList, animePlanet, kitsu];
+	private getCustomHeaders() {
+		return new Map([['Authorization', `Bearer ${this.apiKey}`]]);
+	}
 
-	const { crunchyroll, funimation, hidive, netflix, youtube, wakanim, hulu, amazon } = payload.websites;
-	const streamsList = [crunchyroll, funimation, hidive, netflix, youtube, wakanim, hulu, amazon];
+	async getAnimeById({ id }: Id) {
+		const { payload } = await FetchUtil.fetch<Anime>({
+			url: `${AnimeScheduleApi.BASE_URL}/api/v3/anime/${id}`,
+			customHeaders: this.getCustomHeaders(),
+		});
 
-	const trackers = Object.entries(payload.websites)
-		.filter(({ 1: href }) => trackersList.includes(href))
-		.map(([tracker, href]) => ({ tracker, url: `https://${href}` }));
+		const { mal, aniList, animePlanet, kitsu } = payload.websites;
+		const trackersList = [mal, aniList, animePlanet, kitsu];
+		const trackers = Object.entries(payload.websites)
+			.filter(({ 1: href }) => trackersList.includes(href))
+			.map(([tracker, href]) => ({ tracker, url: `https://${href}` }));
 
-	const streams = Object.entries(payload.websites)
-		.filter(({ 1: href }) => streamsList.includes(href))
-		.map(([tracker, href]) => ({ tracker, url: `https://${href}` }));
+		const { crunchyroll, funimation, hidive, netflix, youtube, wakanim, hulu, amazon } = payload.websites;
+		const streamsList = [crunchyroll, funimation, hidive, netflix, youtube, wakanim, hulu, amazon];
+		const streams = Object.entries(payload.websites)
+			.filter(({ 1: href }) => streamsList.includes(href))
+			.map(([tracker, href]) => ({ tracker, url: `https://${href}` }));
 
-	return {
-		titles: { default: payload.title, alternative: payload.names?.english ?? null },
-		url: payload.websites.official ?? `https://animeschedule.net/anime/${payload.route}`,
-		image: `https://img.animeschedule.net/production/assets/public/img/${payload.imageVersionRoute}`,
-		premier: payload.premier,
-		score: payload.stats.averageScore > 0 ? Math.round(payload.stats.averageScore) / 10 : null,
-		description: payload.description,
-		status: payload.status,
-		season: payload.season.title,
-		episodes: {
-			total: payload.episodes,
-			duration: payload.lengthMin,
-		},
-		genres: payload.genres.map(({ name }) => name),
-		studios: payload.studios.map(({ name }) => name),
-		sources: payload.sources.map(({ name }) => name),
-		trackers,
-		streams,
-	};
-};
+		return {
+			trackers,
+			streams,
+			titles: { default: payload.title, alternative: payload.names?.english ?? null },
+			url: payload.websites.official ?? `${AnimeScheduleApi.BASE_URL}/anime/${payload.route}`,
+			image: `${AnimeScheduleApi.BASE_IMAGE_URL}/production/assets/public/img/${payload.imageVersionRoute}`,
+			premier: payload.premier,
+			score: payload.stats.averageScore > 0 ? Math.round(payload.stats.averageScore) / 10 : null,
+			description: payload.description,
+			status: payload.status,
+			season: payload.season.title,
+			episodes: {
+				total: payload.episodes,
+				duration: payload.lengthMin,
+			},
+			genres: payload.genres.map(({ name }) => name),
+			studios: payload.studios.map(({ name }) => name),
+			sources: payload.sources.map(({ name }) => name),
+		};
+	}
 
-export const getWeeklySchedule = async () => {
-	const { payload } = await FetchUtil.fetch<Schedule[]>({
-		url: `https://animeschedule.net/api/v3/timetables/sub?year=${DateUtil.getCurrentDate().getFullYear()}&week=${DateUtil.getWeek()}&tz=${DateUtil.getTimezone()}`,
-		customHeaders: new Map([['Authorization', `Bearer ${getApiKey()}`]]),
-	});
+	async getWeeklySchedule() {
+		const year = DateUtil.getCurrentDate().getFullYear();
+		const week = DateUtil.getWeek();
+		const tz = DateUtil.getTimezone();
+		const { payload } = await FetchUtil.fetch<Schedule[]>({
+			url: `${AnimeScheduleApi.BASE_URL}/api/v3/timetables/sub?year=${year}&week=${week}&tz=${tz}`,
+			customHeaders: this.getCustomHeaders(),
+		});
 
-	return payload
-		.map((anime) => ({
+		return payload.map((anime) => ({
 			id: anime.route,
 			titles: { default: anime.title, alternative: anime.english },
-			url: `https://animeschedule.net/anime/${anime.route}`,
-			image: `https://img.animeschedule.net/production/assets/public/img/${anime.imageVersionRoute}`,
+			url: `${AnimeScheduleApi.BASE_URL}/anime/${anime.route}`,
+			image: `${AnimeScheduleApi.BASE_IMAGE_URL}/production/assets/public/img/${anime.imageVersionRoute}`,
 			status: anime.status,
 			episodes: {
 				total: anime.episodes,
@@ -123,6 +134,6 @@ export const getWeeklySchedule = async () => {
 			hasAired: anime.airingStatus === 'aired',
 			isAiring: anime.airingStatus === 'airing',
 			isDelayed: anime.airingStatus === 'delayed-air',
-		}))
-		.filter((anime): anime is NonNullable<typeof anime> => !!anime);
-};
+		}));
+	}
+}

@@ -19,14 +19,14 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const query = interaction.options.getString(t('interactions.gaming.deals.options.0.name'), true);
 
-	const results = await client.api.gaming.deals.search({ query });
+	const results = await client.api.gaming.games.deals.search({ query });
 	if (results.length === 0) throw new Error(t('errors.search.lookup', { query }));
 	const { id, title } = results[0];
 
 	const subscriptions = await SubscriptionsModel.getGamingServices({ name: query });
 	const formattedSubscriptions = subscriptions.map(({ provider }) => `> **${provider}**`);
 
-	const { historicalLow, bundles, prices } = await client.api.gaming.deals.getDealById({ id });
+	const { historicalLow, bundles, prices } = await client.api.gaming.games.deals.getDealById({ id });
 	const formattedBundles = bundles.active.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
 	const formattedPrices = prices
 		.slice(0, 5)

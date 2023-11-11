@@ -1,6 +1,5 @@
 // APIs
-export * as AnimeApi from './api/anime';
-export * as ComicsApi from './api/comics';
-export * as GamingApi from './api/gaming';
-export * as MangadexApi from './api/mangadex';
-export * as ShowsApi from './api/shows';
+export * from './api/anime/anime-schedule.api';
+export * from './api/gaming/gaming.api';
+export * from './api/mangadex/mangadex.api';
+export * from './api/shows/tmdb.api';

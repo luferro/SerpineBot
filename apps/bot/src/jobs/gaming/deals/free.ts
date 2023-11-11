@@ -1,4 +1,4 @@
-import { RssModel } from '@luferro/database';
+import { RSSModel } from '@luferro/database';
 import { EmbedBuilder } from 'discord.js';
 import { t } from 'i18next';
 
@@ -7,7 +7,7 @@ import type { JobData, JobExecute } from '../../../types/bot';
 export const data: JobData = { schedule: '0 */15 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const data = [...(await getFreebiesData({ client })), ...(await getFeedsData({ client }))];
+	const data = [...(await getFreebies({ client })), ...(await getFreebiesFeeds({ client }))];
 
 	const embeds = [];
 	for (const { title, url, description, footer } of data.reverse()) {
@@ -23,8 +23,8 @@ export const execute: JobExecute = async ({ client }) => {
 	await client.propageMessages({ category: 'Free Games', embeds });
 };
 
-const getFreebiesData = async ({ client }: Parameters<typeof execute>[0]) => {
-	const data = await client.api.gaming.deals.getFreebies();
+const getFreebies = async ({ client }: Parameters<typeof execute>[0]) => {
+	const data = await client.api.gaming.games.deals.getFreebies();
 	return data.map(({ title, url, discount, regular, store, expiry }) => ({
 		title,
 		url,
@@ -38,8 +38,11 @@ const getFreebiesData = async ({ client }: Parameters<typeof execute>[0]) => {
 	}));
 };
 
-const getFeedsData = async ({ client }: Parameters<typeof execute>[0]) => {
-	const feeds = await RssModel.getFeeds({ key: 'gaming.deals.free' });
-	const data = await client.api.gaming.deals.getDealsFeed({ feeds });
+const getFreebiesFeeds = async ({ client }: Parameters<typeof execute>[0]) => {
+	const feeds = (await RSSModel.getFeeds({ key: 'gaming.deals.free' })).map((feed) => ({
+		feed,
+		options: { image: { selector: 'img' } },
+	}));
+	const data = await client.scraper.rss.consume({ feeds });
 	return data.map(({ title, url, image, description }) => ({ title, url, image, description, footer: null }));
 };

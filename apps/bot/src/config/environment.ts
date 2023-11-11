@@ -21,6 +21,8 @@ const getEnvConfig = () => ({
 	THE_MOVIE_DB_API_KEY: process.env.THE_MOVIE_DB_API_KEY ?? null,
 	ANIME_SCHEDULE_API_KEY: process.env.ANIME_SCHEDULE_API_KEY ?? null,
 	ITAD_API_KEY: process.env.ITAD_API_KEY ?? null,
+	IGDB_CLIENT_ID: process.env.IGDB_CLIENT_ID ?? null,
+	IGDB_CLIENT_SECRET: process.env.IGDB_CLIENT_SECRET ?? null,
 
 	// SUBREDDITS
 	NSFW_SUBREDDITS: process.env.NSFW_SUBREDDITS?.split(',') ?? [],

@@ -6,20 +6,11 @@ import type { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const interval = { start: Date.now() };
-	const results = await client.scraper.searchEngine.search({ query: 'reviews site:opencritic.com/game', interval });
-	const reviews = results
-		.map((result) => {
-			const matches = result.url.match(/https?:\/\/opencritic.com\/game\/\d+\/(\w|-)+/);
-			if (!matches) return;
-
-			return { name: result.name, url: matches[0] };
-		})
-		.filter((item): item is NonNullable<typeof item> => !!item);
+	const results = await client.api.gaming.games.reviews.search({});
 
 	const embeds = [];
-	for (const review of reviews.reverse()) {
-		const data = await client.api.gaming.reviews.getReviewsForUrl({ url: review.url });
+	for (const { id, slug } of results.reverse()) {
+		const data = await client.api.gaming.games.reviews.getReviewsByIdAndSlug({ id, slug });
 		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } = data;
 		if (!tier || !score) continue;
 

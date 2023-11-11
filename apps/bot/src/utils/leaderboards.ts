@@ -13,7 +13,7 @@ export const getSteamLeaderboard = async (client: Bot) => {
 
 	const integrations = await IntegrationsModel.getIntegrations<SteamIntegration>({ category: 'Steam' });
 	for (const integration of integrations) {
-		const data = await client.api.gaming.steam.getRecentlyPlayed({ id: integration.profile.id });
+		const data = await client.api.gaming.platforms.steam.getRecentlyPlayed({ id: integration.profile.id });
 		if (data.length === 0) continue;
 
 		const recentlyPlayed = data.map((game) => {
@@ -47,7 +47,7 @@ export const getXboxLeaderboard = async (client: Bot) => {
 
 	const integrations = await IntegrationsModel.getIntegrations<XboxIntegration>({ category: 'Xbox' });
 	for (const integration of integrations) {
-		const data = await client.api.gaming.xbox.getProfile({ gamertag: integration.profile.gamertag });
+		const data = await client.api.gaming.platforms.xbox.getProfile({ gamertag: integration.profile.gamertag });
 		if (!data) continue;
 
 		await IntegrationsModel.updateGamerscore({ userId: integration.userId, gamerscore: data.gamerscore });

@@ -1,2 +1,2 @@
 // APIs
-export * as RedditApi from './api/reddit';
+export * from './api/reddit.api';

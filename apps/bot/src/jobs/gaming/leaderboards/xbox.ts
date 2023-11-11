@@ -26,9 +26,9 @@ export const execute: JobExecute = async ({ client }) => {
 		logger.info(`**Xbox** leaderboard has been generated and sent to all guilds.`);
 	} finally {
 		const integrations = await IntegrationsModel.getIntegrations<XboxIntegration>({ category: 'Xbox' });
-		for (const integration of integrations) {
-			const { gamerscore } = await client.api.gaming.xbox.getProfile({ gamertag: integration.profile.gamertag });
-			await IntegrationsModel.updateGamerscore({ userId: integration.userId, gamerscore });
+		for (const { userId, profile } of integrations) {
+			const { gamerscore } = await client.api.gaming.platforms.xbox.getProfile({ gamertag: profile.gamertag });
+			await IntegrationsModel.updateGamerscore({ userId, gamerscore });
 			await SleepUtil.sleep(5000);
 		}
 		logger.info('**Xbox** leaderboard has been reset.');

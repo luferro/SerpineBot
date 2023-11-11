@@ -25,7 +25,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (!integration) throw new Error(t('errors.unprocessable'));
 
 	const { gamertag } = integration.profile;
-	const { name, image, gamerscore, gamesPlayed } = await client.api.gaming.xbox.getProfile({ gamertag });
+	const { name, image, gamerscore, gamesPlayed } = await client.api.gaming.platforms.xbox.getProfile({ gamertag });
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)

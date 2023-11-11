@@ -10,7 +10,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
-	const { sale, status, upcoming } = await client.api.gaming.steam.getNextSales();
+	const { sale, status, upcoming } = await client.api.gaming.platforms.steam.getUpcomingSales();
 	if (!sale) throw new Error(t('errors.search.none'));
 
 	const embed = new EmbedBuilder()

@@ -6,11 +6,10 @@ import type { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const news = await client.api.news.getNewsByCountry(Country.Portugal);
-	const sortedNews = news.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+	const news = await client.api.news.getNewsByCountry({ country: Country.Portugal });
 
 	const embeds = [];
-	for (const { title, url, publisher, description, image, publishedAt } of sortedNews.reverse()) {
+	for (const { title, url, publisher, description, image, publishedAt } of news.reverse()) {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 

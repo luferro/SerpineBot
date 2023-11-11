@@ -19,10 +19,10 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const gamertag = interaction.options.getString(t('interactions.integrations.xbox.import.options.0.name'), true);
 
-	const isGamertagValid = await client.api.gaming.xbox.isGamertagValid({ gamertag });
+	const isGamertagValid = await client.api.gaming.platforms.xbox.isGamertagValid({ gamertag });
 	if (!isGamertagValid) throw new Error(t('errors.xbox.profile.gamertag'));
 
-	const { gamerscore } = await client.api.gaming.xbox.getProfile({ gamertag });
+	const { gamerscore } = await client.api.gaming.platforms.xbox.getProfile({ gamertag });
 	await IntegrationsModel.createIntegration<XboxIntegration>({
 		userId: interaction.user.id,
 		category: 'Xbox',

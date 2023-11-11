@@ -15,7 +15,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const integration = await IntegrationsModel.getIntegration<SteamIntegration>({ userId, category: 'Steam' });
 	if (!integration) throw new Error(t('errors.unprocessable'));
 
-	const wishlist = await client.api.gaming.steam.getWishlist({ id: integration.profile.id });
+	const wishlist = await client.api.gaming.platforms.steam.getWishlist({ id: integration.profile.id });
 	if (!wishlist) throw new Error(t('errors.steam.wishlist.private'));
 
 	const updatedWishlist = wishlist.map((game) => {

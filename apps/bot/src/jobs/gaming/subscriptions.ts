@@ -6,7 +6,7 @@ import { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 0 2 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const catalogs = await client.api.gaming.subscriptions.getCatalogs();
+	const catalogs = await client.api.gaming.games.subscriptions.getCatalogs();
 	for (const { catalog, entries } of catalogs) {
 		logger.debug(`Found **${entries.length}** items in **${catalog}** catalog.`);
 

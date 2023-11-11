@@ -6,15 +6,19 @@ import type { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 */30 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const articles = await client.api.gaming.nintendo.getNews();
+	const data = await client.api.reddit.getPostsByFlair({
+		subreddit: 'NintendoSwitch',
+		sort: 'new',
+		flairs: ['News', 'Nintendo Official'],
+	});
 
 	const embeds = [];
-	for (const { title, url, isTwitterEmbed, isYoutubeEmbed } of articles.reverse()) {
+	for (const { title, url, isTwitterEmbed, isYoutubeEmbed } of data.reverse()) {
 		const isSuccessful = await client.state({ title, url });
 		if (!isSuccessful) continue;
 
 		if (isTwitterEmbed || isYoutubeEmbed) {
-			await client.propageMessage({ category: 'Gaming News', content: `**${title}**\n${url}` });
+			await client.propageMessage({ category: 'Nintendo', content: `**${title}**\n${url}` });
 			continue;
 		}
 

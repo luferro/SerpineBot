@@ -2,7 +2,7 @@ import mongoose, { Model } from 'mongoose';
 
 type RSS = { key: string; feeds: string[] };
 
-interface RssModel extends Model<RSS> {
+interface RSSModel extends Model<RSS> {
 	getFeeds: (args: Pick<RSS, 'key'>) => Promise<string[]>;
 }
 
@@ -16,4 +16,4 @@ schema.statics.getFeeds = async function ({ key }: Pick<RSS, 'key'>) {
 	return data?.feeds ?? [];
 };
 
-export default mongoose.model<RSS, RssModel>('rss', schema, 'rss');
+export default mongoose.model<RSS, RSSModel>('rss', schema, 'rss');

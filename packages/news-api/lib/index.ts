@@ -2,4 +2,4 @@
 export * from './types/country';
 
 // Api
-export * as NewsApi from './api/news';
+export * from './api/news.api';
