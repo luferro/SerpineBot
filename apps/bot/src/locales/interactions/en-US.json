@@ -479,11 +479,6 @@
 			"embed": { "title": "Webhook has been deleted." }
 		}
 	},
-	"comics": {
-		"name": "comics",
-		"description": "Random page from a given comic.",
-		"options": [{ "name": "query", "description": "Comic query." }]
-	},
 	"memes": { "name": "memes", "description": "Random meme." },
 	"prune": {
 		"name": "prune",
