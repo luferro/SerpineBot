@@ -124,7 +124,7 @@ export class Bot extends Client {
 			this.initializeListeners();
 			this.initializeSchedulers();
 
-			this.emit('ready', this as Client);
+			this.emit('ready', this as Client<true>);
 		} catch (error) {
 			logger.error('Fatal error during application start.', error);
 			this.stop();
