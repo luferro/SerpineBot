@@ -48,6 +48,7 @@
 	"roles": {
 		"rolesMessageUpdate": {
 			"menu": {
+				"placeholder": "No roles selected.",
 				"title": "Claim your roles!",
 				"description": "Use the select menu below to `claim` or `revoke` roles.",
 				"footer": {
