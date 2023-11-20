@@ -21,8 +21,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
-
-	const query = interaction.options.getString(t('interactions.shows.series.options.0.name'), true);
+	const query = interaction.options.getString(data.options[0].name, true);
 
 	const { name, tagline, overview, url, image, seasons, episodes, score, genres, providers } =
 		await client.api.shows.getSeriesById({ id: query });
@@ -53,15 +52,13 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			{
 				name: t('interactions.shows.series.embed.fields.3.name'),
 				value: episodes.last.date
-					? DateUtil.format({ date: new Date(episodes.last.date), format: 'dd/MM/yyyy' })
+					? DateUtil.format(new Date(episodes.last.date), 'dd/MM/yyyy')
 					: t('common.unavailable'),
 				inline: true,
 			},
 			{
 				name: t('interactions.shows.series.embed.fields.4.name'),
-				value: episodes.next.date
-					? DateUtil.format({ date: new Date(), format: 'dd/MM/yyyy' })
-					: t('common.unavailable'),
+				value: episodes.next.date ? DateUtil.format(new Date(), 'dd/MM/yyyy') : t('common.unavailable'),
 				inline: true,
 			},
 			{

@@ -3,7 +3,7 @@ import { t } from 'i18next';
 
 import type { JobData, JobExecute } from '../../types/bot';
 
-export const data: JobData = { schedule: '0 0 0 * * *' };
+export const data: JobData = { schedule: '0 0 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
 	const events = await client.api.gaming.igdb.getUpcomingEvents();

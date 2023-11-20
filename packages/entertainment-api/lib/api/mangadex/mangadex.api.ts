@@ -8,7 +8,14 @@ type Relationship<T = unknown> = { id: string; type: 'manga' | 'cover_art'; attr
 
 type Chapter = {
 	id: string;
-	attributes: { volume: string | null; chapter: string; title: string; externalUrl: string };
+	attributes: {
+		volume: string | null;
+		chapter: string;
+		title: string;
+		externalUrl: string;
+		publishedAt: string;
+		readableAt: string;
+	};
 	relationships: Relationship[];
 };
 
@@ -24,9 +31,13 @@ type Manga = {
 };
 
 export class MangadexApi {
+	private static BASE_URL = 'https://mangadex.org';
+	private static BASE_API_URL = 'https://api.mangadex.org';
+	private static BASE_IMAGE_URL = 'https://og.mangadex.org';
+
 	async search({ query }: Query) {
 		const { payload } = await FetchUtil.fetch<Payload<Manga[]>>({
-			url: `https://api.mangadex.org/manga?title=${query}`,
+			url: `${MangadexApi.BASE_API_URL}/manga?title=${query}`,
 		});
 
 		return payload.data.map((result) => {
@@ -36,11 +47,11 @@ export class MangadexApi {
 	}
 
 	async getMangaById({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Payload<Manga>>({ url: `https://api.mangadex.org/manga/${id}` });
+		const { payload } = await FetchUtil.fetch<Payload<Manga>>({ url: `${MangadexApi.BASE_API_URL}/manga/${id}` });
 		const { attributes } = payload.data;
 
 		const { title, status, year, tags } = attributes;
-		const image = `https://og.mangadex.org/og-image/manga/${id}`;
+		const image = `${MangadexApi.BASE_IMAGE_URL}/og-image/manga/${id}`;
 		const release = year ? `${year}, ` : null;
 		const publication = status ? StringUtil.capitalize(status) : null;
 
@@ -48,7 +59,7 @@ export class MangadexApi {
 			id,
 			image,
 			title: title.en ?? title['ja-ro'] ?? title.ja ?? title.jp,
-			url: `https://mangadex.org/title/${id}`,
+			url: `${MangadexApi.BASE_URL}/title/${id}`,
 			publication: release || publication ? `${release ?? ''} ${publication ?? ''}`.trim() : null,
 			tags: tags.map((tag) => tag.attributes.name.en),
 		};
@@ -56,15 +67,16 @@ export class MangadexApi {
 
 	async getChapters({ limit = 20 }: Partial<Limit>) {
 		const { payload } = await FetchUtil.fetch<Payload<Chapter[]>>({
-			url: `https://api.mangadex.org/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&includes[]=manga&limit=${limit}`,
+			url: `${MangadexApi.BASE_API_URL}/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&includes[]=manga&limit=${limit}`,
 		});
 
-		return payload.data.map(({ id, attributes: { title, chapter, externalUrl }, relationships }) => ({
+		return payload.data.map(({ id, attributes: { title, chapter, externalUrl, readableAt }, relationships }) => ({
 			mangaId: relationships.find(({ type }) => type === 'manga')!.id,
 			chapter: {
 				id,
+				readableAt,
 				title: chapter || title ? `${chapter ? `Ch. ${chapter}` : ''} ${title ?? ''}`.trim() : 'Oneshot',
-				url: externalUrl ?? `https://mangadex.org/chapter/${id}`,
+				url: externalUrl ?? `${MangadexApi.BASE_URL}/chapter/${id}`,
 			},
 		}));
 	}

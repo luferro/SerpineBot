@@ -16,8 +16,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
-
-	const timestamp = interaction.options.getString(t('interactions.music.player.seek.options.0.name'), true);
+	const timestamp = interaction.options.getString(data.options[0].name, true);
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error(t('errors.player.node'));

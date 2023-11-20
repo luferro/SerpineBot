@@ -1,6 +1,5 @@
 import type { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from '@luferro/entertainment-api';
-import type { NewsApi } from '@luferro/news-api';
 import type { RedditApi } from '@luferro/reddit-api';
 import { Leopard } from '@picovoice/leopard-node';
 import { Porcupine } from '@picovoice/porcupine-node';
@@ -16,7 +15,7 @@ import type {
 } from 'discord.js';
 import { GuildQueue } from 'discord-player';
 
-import type { Bot } from '../Bot';
+import type { Bot } from '../structures/Bot';
 import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from './interaction';
 
 type Client = { client: Bot };
@@ -50,38 +49,21 @@ export type EventExecute<T = void> = { (args: EventArgs<T>): Promise<void> };
 export type Event = { data: EventData; execute: EventExecute<unknown[]> };
 
 type JobArgs = Client;
-export type JobData = { schedule: string | Date };
+export type JobData = { schedule: string };
 export type JobExecute = { (args: JobArgs): Promise<void> };
 export type Job = { data: JobData; execute: JobExecute };
 
-export type APIs = {
+export type Api = {
 	anime: AnimeScheduleApi;
 	mangadex: MangadexApi;
 	gaming: GamingApi;
-	news: NewsApi;
 	reddit: RedditApi;
 	shows: TMDBApi;
 };
 
-export type Tools = {
-	wakeWord: Porcupine | null;
-	speechToIntent: Rhino | null;
-	speechToText: Leopard | null;
-	textToSpeech: TextToSpeechClient;
-};
-
-export type Connection = {
-	config: {
-		leaveOnEmpty: boolean;
-		leaveOnEmptyCooldown: number;
-		leaveOnEnd: boolean;
-		selfDeaf: boolean;
-		bufferingTimeout: number;
-	};
-};
-
-export type Cache = {
-	anime: {
-		schedule: Collection<number, Awaited<ReturnType<InstanceType<typeof AnimeScheduleApi>['getWeeklySchedule']>>>;
-	};
+export type Speech = {
+	wake: Porcupine | null;
+	sti: Rhino | null;
+	stt: Leopard | null;
+	tts: TextToSpeechClient;
 };

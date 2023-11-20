@@ -1,38 +1,42 @@
-import { BirthdaysModel } from '@luferro/database';
+import { Birthday } from '@luferro/database';
 import { DateUtil, StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 
 import { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
 
-type GroupedBirthdays = { month: string; birthdays: Awaited<ReturnType<typeof BirthdaysModel.getAllBirthdays>> };
-
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t('interactions.birthdays.list.name'))
 	.setDescription(t('interactions.birthdays.list.description'));
 
-export const execute: InteractionCommandExecute = async ({ interaction }) => {
-	const birthdaysList = await BirthdaysModel.getAllBirthdays();
-	const groupedBirthdays = birthdaysList
-		.sort((a, b) => a.date.getDate() - b.date.getDate() && a.date.getMonth() - b.date.getMonth())
-		.reduce((acc, birthday) => {
-			const month = StringUtil.capitalize(DateUtil.format({ date: birthday.date, format: 'MMMM' }));
+export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+	const birthdays = await client.prisma.birthday.findMany();
+	const groupedBirthdays = birthdays
+		.sort((a, b) => a.day - b.day && a.month - b.month)
+		.reduce(
+			(acc, birthday) => {
+				const month = StringUtil.capitalize(
+					DateUtil.format(new Date(birthday.year, birthday.month - 1, birthday.day), 'MMMM'),
+				);
 
-			const monthIndex = acc.findIndex((entry) => entry.month === month);
-			if (monthIndex === -1) acc.push({ month, birthdays: [birthday] });
-			else acc[monthIndex] = { month, birthdays: acc[monthIndex].birthdays.concat(birthday) };
+				const index = acc.findIndex((entry) => entry.month === month);
+				if (index === -1) acc.push({ month, birthdays: [birthday] });
+				else acc[index] = { month, birthdays: acc[index].birthdays.concat(birthday) };
 
-			return acc;
-		}, [] as GroupedBirthdays[]);
+				return acc;
+			},
+			[] as { month: string; birthdays: Birthday[] }[],
+		);
 	if (groupedBirthdays.length === 0) throw new Error(t('errors.search.none'));
 
 	const fields = await Promise.all(
 		groupedBirthdays.map(async ({ month, birthdays }) => {
 			const formattedBirthdays = await Promise.all(
-				birthdays.map(async ({ userId, date }) => {
+				birthdays.map(async ({ userId, day, month }) => {
 					const user = await interaction.client.users.fetch(userId);
-					const birthday = DateUtil.format({ date, format: 'dd/MM' });
-					return `**${birthday}** ${user.username}`;
+					const formattedDay = day.toString().padStart(2, '0');
+					const formattedMonth = month.toString().padStart(2, '0');
+					return `**${formattedDay}/${formattedMonth}** ${user.username}`;
 				}),
 			);
 
@@ -44,5 +48,6 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 		.setTitle(t('interactions.birthdays.list.embed.title'))
 		.setFields(fields)
 		.setColor('Random');
+
 	await interaction.reply({ embeds: [embed] });
 };

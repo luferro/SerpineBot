@@ -23,15 +23,3 @@ export const truncate = (string: string, limit = 256) => {
 
 	return string.trim();
 };
-
-export const format = <T>(string: string, ...args: string[]) => {
-	const matches = string.match(/:(\w|\d)+/g);
-	if (!matches) throw new Error('Invalid string format.');
-	if (matches.length !== args.length) throw new Error('Amount of format fields and arguments do not match');
-
-	for (const [index, match] of matches.entries()) {
-		string = string.replace(match, args[index]);
-	}
-
-	return string as T;
-};

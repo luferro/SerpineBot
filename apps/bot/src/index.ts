@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { logger } from '@luferro/shared-utils';
 import { GatewayIntentBits } from 'discord.js';
 
-import { Bot } from './Bot';
+import { Bot } from './structures/Bot';
 
 (async () => {
 	const client = new Bot({

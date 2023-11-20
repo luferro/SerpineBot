@@ -20,8 +20,8 @@ export class SearchEngine {
 		const url = [`https://duckduckgo.com/?q=${query}`];
 
 		if (interval) {
-			const fromStr = DateUtil.format({ date: interval.start, format: 'yyyy-MM-dd' });
-			const toStr = interval.end ? DateUtil.format({ date: interval.end, format: 'yyyy-MM-dd' }) : fromStr;
+			const fromStr = DateUtil.format(interval.start, 'yyyy-MM-dd');
+			const toStr = interval.end ? DateUtil.format(interval.end, 'yyyy-MM-dd') : fromStr;
 			url.push(`&df=${fromStr}..${toStr}`);
 		}
 
@@ -31,7 +31,7 @@ export class SearchEngine {
 			.get()
 			.map((element) => {
 				const title = $(element).find('h2').text();
-				const url = $(element).find('div > a').attr('href');
+				const url = $(element).find('h2 a').attr('href');
 				if (!title || !url) return;
 
 				return { title, url };

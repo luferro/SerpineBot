@@ -1,4 +1,4 @@
-import { BirthdaysModel } from '@luferro/database';
+import { WebhookType } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 import { t } from 'i18next';
@@ -8,27 +8,35 @@ import type { JobData, JobExecute } from '../types/bot';
 export const data: JobData = { schedule: '0 0 0 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const birthdays = await BirthdaysModel.getUpcomingBirthdays();
-	for (const { userId, date } of birthdays) {
-		const currentDate = new Date();
-		currentDate.setHours(0, 0, 0, 0);
+	const birthdays = await client.prisma.birthday.findMany({
+		where: {
+			OR: [
+				{ AND: [{ day: { gte: new Date().getDate() } }, { month: { equals: new Date().getMonth() + 1 } }] },
+				{ month: { gte: new Date().getMonth() + 1 } },
+			],
+		},
+	});
 
-		const age = currentDate.getFullYear() - date.getFullYear();
-
-		date.setFullYear(currentDate.getFullYear());
+	for (const { userId, day, month, year } of birthdays) {
+		const date = new Date();
 		date.setHours(0, 0, 0, 0);
-
-		if (currentDate.getTime() !== date.getTime()) continue;
+		const birthdate = new Date(day, month - 1, date.getFullYear());
+		birthdate.setHours(0, 0, 0, 0);
+		if (date.getTime() !== birthdate.getTime()) continue;
 
 		const target = await client.users.fetch(userId);
 
 		const embed = new EmbedBuilder()
 			.setTitle(t('jobs.birthdays.embed.title'))
-			.setDescription(t('jobs.birthdays.embed.description', { username: `\`${target.username}\``, age }))
+			.setDescription(
+				t('jobs.birthdays.embed.description', {
+					username: `\`${target.username}\``,
+					age: date.getFullYear() - year,
+				}),
+			)
 			.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL);
 
-		await client.propageMessages({ category: 'Birthdays', everyone: true, embeds: [embed] });
-
+		await client.propagate({ type: WebhookType.BIRTHDAYS, cache: false, everyone: true, messages: [embed] });
 		logger.info(`Notified guild users about **${target.username}** birthday.`);
 	}
 };

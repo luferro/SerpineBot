@@ -9,7 +9,8 @@ export const data: EventData = { type: 'on' };
 export const execute: EventExecute<Args> = async ({ rest: [error] }) => {
 	if (error instanceof FetchError) {
 		const { url, status, payload } = error;
-		logger.warn({ url, status, payload });
+		logger.warn(`Request to ${url} failed.`);
+		logger.debug({ url, status, payload });
 		return;
 	}
 	logger.error(error);

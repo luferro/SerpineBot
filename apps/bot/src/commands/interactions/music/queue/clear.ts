@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 
-import { Bot } from '../../../../Bot';
+import { Bot } from '../../../../structures/Bot';
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
@@ -14,7 +14,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const self = !!interaction.options.getBoolean(t('interactions.music.queue.clear.options.0.name'));
+	const self = interaction.options.getBoolean(data.options[0].name);
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error(t('errors.player.node'));

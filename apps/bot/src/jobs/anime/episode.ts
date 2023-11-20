@@ -1,29 +1,30 @@
+import { WebhookType } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 import { t } from 'i18next';
 
-import { Bot } from '../../Bot';
+import { Bot } from '../../structures/Bot';
 import type { JobData, JobExecute } from '../../types/bot';
+import { WeeklyAnimeSchedule } from '../../types/cache';
 
 export const data: JobData = { schedule: '0 */5 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	if (client.cache.anime.schedule.size === 0) await Bot.jobs.get('anime.schedule')?.execute({ client });
+	if (client.cache.memory.anime.keys().length === 0) await Bot.jobs.get('anime.schedule')?.execute({ client });
 
-	const schedule = client.cache.anime.schedule.get(new Date().getDay());
+	const schedule = client.cache.memory.anime.get<WeeklyAnimeSchedule>(new Date().getDay());
 	if (!schedule) return;
 
-	const embeds = [];
+	const translate = (name: string) => {
+		if (name === 'mal') return 'MyAnimeList';
+		if (name === 'hidive') return name.toUpperCase();
+		return StringUtil.capitalize(name);
+	};
+
+	const messages = [];
 	for (const { id, titles, url, image, episodes, streams, isDelayed } of schedule) {
-		if (Date.now() < new Date(episodes.current.date).getTime() || isDelayed) continue;
-
-		const title = t('jobs.anime.episode.embed.title', {
-			anime: StringUtil.truncate(titles.default, 240),
-			episode: episodes.current.number,
-		});
-
-		const isSuccessful = await client.state({ title, url });
-		if (!isSuccessful) continue;
+		const notAiredYet = Date.now() < new Date(episodes.current.date).getTime();
+		if (notAiredYet || isDelayed) continue;
 
 		const { score, season, trackers } = await client.api.anime.getAnimeById({ id });
 
@@ -31,7 +32,12 @@ export const execute: JobExecute = async ({ client }) => {
 		const formattedStreams = streams?.map(({ stream, url }) => `> **[${translate(stream)}](${url})**`);
 
 		const embed = new EmbedBuilder()
-			.setTitle(title)
+			.setTitle(
+				t('jobs.anime.episode.embed.title', {
+					anime: StringUtil.truncate(titles.default, 240),
+					episode: episodes.current.number,
+				}),
+			)
 			.setURL(url)
 			.setDescription(season ? `*${season}*` : null)
 			.setThumbnail(image)
@@ -72,14 +78,8 @@ export const execute: JobExecute = async ({ client }) => {
 			])
 			.setColor('Random');
 
-		embeds.push(embed);
+		messages.push(embed);
 	}
 
-	await client.propageMessages({ category: 'Anime', embeds });
-};
-
-const translate = (name: string) => {
-	if (name === 'mal') return 'MyAnimeList';
-	if (name === 'hidive') return name.toUpperCase();
-	return StringUtil.capitalize(name);
+	await client.propagate({ type: WebhookType.ANIME, messages });
 };

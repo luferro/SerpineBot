@@ -1,12 +1,18 @@
 import { Scraper } from '@luferro/scraper';
-import { logger, StringUtil } from '@luferro/shared-utils';
+import { ArrayUtil, logger, StringUtil } from '@luferro/shared-utils';
 
-type Catalog = { catalog: 'Xbox Game Pass' | 'PC Game Pass' | 'EA Play' | 'EA Play Pro' | 'Ubisoft Plus' };
+const CatalogType = {
+	XBOX_GAME_PASS: 'XBOX_GAME_PASS',
+	PC_GAME_PASS: 'PC_GAME_PASS',
+	UBISOFT_PLUS: 'UBISOFT_PLUS',
+	EA_PLAY_PRO: 'EA_PLAY_PRO',
+	EA_PLAY: 'EA_PLAY',
+} as const;
 
 export class SubscriptionsApi extends Scraper {
-	private getSelectors({ catalog }: Catalog) {
+	private getSelectors({ type }: { type: keyof typeof CatalogType }) {
 		const options = {
-			'Xbox Game Pass': {
+			[CatalogType.XBOX_GAME_PASS]: {
 				list: {
 					element: '.gameList [itemtype="http://schema.org/Product"]',
 					item: { name: 'h3', href: 'a', base: null },
@@ -15,7 +21,7 @@ export class SubscriptionsApi extends Scraper {
 				cookies: null,
 				region: null,
 			},
-			'PC Game Pass': {
+			[CatalogType.PC_GAME_PASS]: {
 				list: {
 					element: '.gameList [itemtype="http://schema.org/Product"]',
 					item: { name: 'h3', href: 'a', base: null },
@@ -24,7 +30,7 @@ export class SubscriptionsApi extends Scraper {
 				cookies: null,
 				region: null,
 			},
-			'EA Play': {
+			[CatalogType.EA_PLAY]: {
 				list: { element: 'ea-box-set ea-game-box', item: { name: 'a', href: 'a', base: 'https://www.ea.com' } },
 				pagination: {
 					nth: 0,
@@ -35,7 +41,7 @@ export class SubscriptionsApi extends Scraper {
 				cookies: null,
 				region: null,
 			},
-			'EA Play Pro': {
+			[CatalogType.EA_PLAY_PRO]: {
 				list: { element: 'ea-box-set ea-game-box', item: { name: 'a', href: 'a', base: 'https://www.ea.com' } },
 				pagination: {
 					nth: 1,
@@ -46,33 +52,33 @@ export class SubscriptionsApi extends Scraper {
 				cookies: null,
 				region: null,
 			},
-			'Ubisoft Plus': {
+			[CatalogType.UBISOFT_PLUS]: {
 				list: { element: 'div.game', item: { name: 'p.game-title', href: null, base: null } },
 				pagination: { nth: 0, element: null, total: null, next: '.game-list_wrapper ~ div button' },
 				cookies: 'button#privacy__modal__accept',
 				region: 'button.stay-on-country-store',
 			},
 		};
-		return options[catalog];
+		return options[type];
 	}
 
-	async getCatalog({ catalog }: Catalog) {
-		const catalogUrl: Record<typeof catalog, string> = {
-			'Xbox Game Pass': 'https://www.xbox.com/pt-PT/xbox-game-pass/games',
-			'PC Game Pass': 'https://www.xbox.com/pt-PT/xbox-game-pass/games#pcgames',
-			'EA Play': 'https://www.ea.com/ea-play/games#ea-app',
-			'EA Play Pro': 'https://www.ea.com/ea-play/games#ea-play-pro',
-			'Ubisoft Plus': 'https://store.ubisoft.com/ie/Ubisoftplus/games',
+	async getCatalog({ type }: { type: keyof typeof CatalogType }) {
+		const catalogUrl = {
+			[CatalogType.XBOX_GAME_PASS]: 'https://www.xbox.com/pt-PT/xbox-game-pass/games',
+			[CatalogType.PC_GAME_PASS]: 'https://www.xbox.com/pt-PT/xbox-game-pass/games#pcgames',
+			[CatalogType.EA_PLAY]: 'https://www.ea.com/ea-play/games#ea-app',
+			[CatalogType.EA_PLAY_PRO]: 'https://www.ea.com/ea-play/games#ea-play-pro',
+			[CatalogType.UBISOFT_PLUS]: 'https://store.ubisoft.com/ie/Ubisoftplus/games',
 		};
 
 		return await this.interactive.load({
-			url: catalogUrl[catalog],
+			url: catalogUrl[type],
 			cb: async (page) => {
 				try {
 					await page.waitForTimeout(5000);
 
-					const entries: { name: string; slug: string; url: string | null }[] = [];
-					const { list, pagination, cookies, region } = this.getSelectors({ catalog });
+					const catalog: { title: string; slug: string; url: string | null }[] = [];
+					const { list, pagination, cookies, region } = this.getSelectors({ type });
 
 					const cookiesButton = cookies ? page.locator(cookies) : null;
 					if (cookiesButton && (await cookiesButton.isVisible())) await cookiesButton.click();
@@ -95,9 +101,9 @@ export class SubscriptionsApi extends Scraper {
 
 							// eslint-disable-next-line no-control-regex
 							const fixedName = name.replace(/[^\x00-\x7F]/g, '');
-							if (entries.find((item) => item.name === fixedName)) continue;
+							if (catalog.find((item) => item.title === fixedName)) continue;
 
-							entries.push({ name: fixedName, slug: StringUtil.slug(name), url: url ?? null });
+							catalog.push({ title: fixedName, slug: StringUtil.slug(name), url: url ?? null });
 						}
 
 						const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
@@ -118,10 +124,10 @@ export class SubscriptionsApi extends Scraper {
 						await nextPageButton.click();
 						currentPage++;
 					}
-					return { catalog, entries };
+					return { type, catalog };
 				} catch (error) {
-					logger.warn(`Cannot retrieve **${catalog}** catalog.`);
-					return { catalog, entries: [] };
+					logger.warn(`Cannot retrieve **${type}** catalog.`);
+					return { type, catalog: [] };
 				}
 			},
 		});
@@ -129,8 +135,8 @@ export class SubscriptionsApi extends Scraper {
 
 	async getCatalogs() {
 		const data = [];
-		for (const catalog of ['Xbox Game Pass', 'PC Game Pass', 'EA Play', 'EA Play Pro', 'Ubisoft Plus'] as const) {
-			data.push(await this.getCatalog({ catalog }));
+		for (const type of ArrayUtil.enumToArray(CatalogType)) {
+			data.push(await this.getCatalog({ type }));
 		}
 		return data;
 	}

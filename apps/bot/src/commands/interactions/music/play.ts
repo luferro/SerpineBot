@@ -20,8 +20,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
-
-	const query = interaction.options.getString(t('interactions.music.play.options.0.name'), true);
+	const query = interaction.options.getString(data.options[0].name, true);
 
 	const voiceChannel = interaction.member.voice.channel;
 	if (!voiceChannel) throw new Error(t('errors.voice.member.channel'));
@@ -32,7 +31,14 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		searchResult: { playlist },
 	} = await client.player.play(voiceChannel, query, {
 		requestedBy: interaction.user,
-		nodeOptions: { metadata: interaction.channel, ...client.connection.config },
+		nodeOptions: {
+			metadata: interaction.channel,
+			leaveOnEmpty: true,
+			leaveOnEmptyCooldown: 1000 * 60 * 5,
+			leaveOnEnd: false,
+			selfDeaf: false,
+			bufferingTimeout: 0,
+		},
 	});
 
 	const position = queue.node.getTrackPosition(playlist?.tracks[0] ?? track) + 1;

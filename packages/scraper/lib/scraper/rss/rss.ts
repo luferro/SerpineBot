@@ -1,4 +1,4 @@
-import { DateUtil } from '@luferro/shared-utils';
+import { DateUtil, logger } from '@luferro/shared-utils';
 import Parser from 'rss-parser';
 
 import { StaticScraper } from '../web-pages/static';
@@ -8,7 +8,7 @@ type Url = { url: string };
 type Html = { html: string };
 type Selector = { selector: string };
 type Image = { isExternal?: boolean } & Selector;
-export type Feeds = { feeds: { feed: string; options?: { image: Image } }[] };
+export type Feeds = { feeds: { url: string; options: { image: Image } | null }[] };
 
 export class RSS extends Parser {
 	private staticScraper: StaticScraper;
@@ -30,13 +30,24 @@ export class RSS extends Parser {
 		return image ?? null;
 	}
 
+	private async parse(url: string) {
+		try {
+			return await this.parseURL(url);
+		} catch (error) {
+			logger.warn(`Failed to parse ${url}.`);
+			return null;
+		}
+	}
+
 	async consume({ feeds }: Feeds) {
 		const data = [];
-		for (const { feed, options } of feeds) {
-			const output = await this.parseURL(feed);
+		for (const { url, options } of feeds) {
+			const output = await this.parse(url);
+			if (!output) continue;
+
 			const items = await Promise.all(
 				output.items
-					.filter(({ isoDate }) => isoDate && DateUtil.isToday({ date: new Date(isoDate) }))
+					.filter(({ isoDate }) => isoDate && DateUtil.isToday(new Date(isoDate)))
 					.map(
 						async ({
 							creator,

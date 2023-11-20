@@ -1,4 +1,4 @@
-import { RSSModel } from '@luferro/database';
+import { WebhookType } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
@@ -7,55 +7,46 @@ import type { JobData, JobExecute } from '../../types/bot';
 export const data: JobData = { schedule: '0 */10 * * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const data = [...(await getNews({ client })), ...(await getFeedNews({ client }))];
+	await client.propagate({
+		type: WebhookType.GAMING_NEWS,
+		messages: [...(await getRedditPosts({ client })), ...(await getRssNews({ client }))],
+	});
+};
 
-	const embeds = [];
-	for (const { title, url, image, isTwitterEmbed, isYoutubeEmbed } of data.reverse()) {
-		if (isYoutubeEmbed && (await client.scraper.youtube.getSubscribers({ url })) < 50_000) continue;
+const getRedditPosts = async ({ client }: Parameters<typeof execute>[0]) => {
+	const posts = await client.api.reddit.getPosts({ subreddit: 'Games', sort: 'new', limit: 25 });
 
-		const isSuccessful = await client.state({ title, url });
-		if (!isSuccessful) continue;
+	const messages = [];
+	for (const { title, url, isTwitterEmbed, isYoutubeEmbed, isSelf, isCrosspost } of posts.reverse()) {
+		if (isSelf || isCrosspost) continue;
 
 		if (isTwitterEmbed || isYoutubeEmbed) {
-			await client.propageMessage({ category: 'Gaming News', content: `**${title}**\n${url}` });
+			if (isYoutubeEmbed && (await client.scraper.youtube.getSubscribers({ url })) < 50_000) continue;
+			messages.push(`**${title}**\n${url}`);
 			continue;
 		}
 
 		const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
-		if (image) embed.setThumbnail(image);
-
-		embeds.push(embed);
+		messages.push(embed);
 	}
 
-	await client.propageMessages({ category: 'Gaming News', embeds });
+	return messages;
 };
 
-const getNews = async ({ client }: Parameters<typeof execute>[0]) => {
-	const data = await client.api.reddit.getPosts({ subreddit: 'Games', sort: 'new', limit: 25 });
-	return data
-		.filter(({ isCrosspost, isSelf }) => !isCrosspost || !isSelf)
-		.map(({ title, url, isYoutubeEmbed, isTwitterEmbed, publishedAt }) => ({
-			title,
-			url,
-			publishedAt,
-			isYoutubeEmbed,
-			isTwitterEmbed,
-			image: null,
-		}));
-};
+const getRssNews = async ({ client }: Parameters<typeof execute>[0]) => {
+	const rss = await client.prisma.rss.findUnique({ where: { webhook: WebhookType.GAMING_NEWS } });
+	const feed = await client.scraper.rss.consume({ feeds: rss?.feeds ?? [] });
 
-const getFeedNews = async ({ client }: Parameters<typeof execute>[0]) => {
-	const feeds = (await RSSModel.getFeeds({ key: 'gaming.news' })).map((feed) => ({
-		feed,
-		options: { image: { selector: 'img' } },
-	}));
-	const data = await client.scraper.rss.consume({ feeds });
-	return data.map(({ title, url, image, publishedAt }) => ({
-		title,
-		url,
-		image,
-		publishedAt,
-		isYoutubeEmbed: false,
-		isTwitterEmbed: false,
-	}));
+	const messages = [];
+	for (const { title, url, image } of feed.reverse()) {
+		const embed = new EmbedBuilder()
+			.setTitle(StringUtil.truncate(title))
+			.setThumbnail(image)
+			.setURL(url)
+			.setColor('Random');
+
+		messages.push(embed);
+	}
+
+	return messages;
 };

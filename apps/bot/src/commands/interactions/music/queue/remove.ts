@@ -9,7 +9,7 @@ import {
 import { Playlist } from 'discord-player';
 import { t } from 'i18next';
 
-import { Bot } from '../../../../Bot';
+import { Bot } from '../../../../structures/Bot';
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
 import { ExtendedStringSelectMenuInteraction } from '../../../../types/interaction';
 
@@ -24,7 +24,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const position = interaction.options.getInteger(t('interactions.music.queue.remove.options.0.name'));
+	const position = interaction.options.getInteger(data.options[0].name);
 
 	if (position) removeTrack({ client, interaction, position });
 	else removePlaylist({ client, interaction });

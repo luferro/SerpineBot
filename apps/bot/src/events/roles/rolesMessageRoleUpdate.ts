@@ -1,5 +1,5 @@
-import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import type { EventData, EventExecute } from '../../types/bot';
 import { ExtendedStringSelectMenuInteraction } from '../../types/interaction';
@@ -32,27 +32,23 @@ export const execute: EventExecute<Args> = async ({ client, rest: [interaction] 
 	}
 
 	const embed = new EmbedBuilder()
-		.setTitle(`${granted.length} role(s) granted and ${revoked.length} role(s) revoked`)
+		.setTitle(
+			t('events.roles.rolesMessageRoleUpdate.embed.title', { granted: granted.length, revoked: revoked.length }),
+		)
 		.addFields([
 			{
-				name: 'Granted',
-				value: granted.join('\n') || 'None',
+				name: t('events.roles.rolesMessageRoleUpdate.embed.fields.0.name'),
+				value: granted.join('\n') || t('common.none'),
 				inline: true,
 			},
 			{
-				name: 'Revoked',
-				value: revoked.join('\n') || 'None',
+				name: t('events.roles.rolesMessageRoleUpdate.embed.fields.1.name'),
+				value: revoked.join('\n') || t('common.none'),
 				inline: true,
 			},
 		])
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });
-
-	logger.info(
-		`Roles updated for **${member.displayName}** in **${guild.name}** (+${granted.length} | -${revoked.length}).`,
-	);
-	logger.debug({ granted, revoked });
-
 	client.emit('rolesMessageUpdate', client);
 };

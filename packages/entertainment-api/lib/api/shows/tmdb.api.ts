@@ -75,7 +75,7 @@ export class TMDBApi {
 		});
 
 		const { tagline, overview } = payload;
-		const localeProviders = payload['watch/providers'].results[DateUtil.getDefaultLocale().code.toUpperCase()];
+		const localeProviders = payload['watch/providers'].results[DateUtil.getDefaultLocale().code!.toUpperCase()];
 
 		return {
 			tagline,
@@ -103,7 +103,7 @@ export class TMDBApi {
 		});
 
 		const { name, tagline, overview, episode_run_time, next_episode_to_air, last_episode_to_air } = payload;
-		const localeProviders = payload['watch/providers'].results[DateUtil.getDefaultLocale().code.toUpperCase()];
+		const localeProviders = payload['watch/providers'].results[DateUtil.getDefaultLocale().code!.toUpperCase()];
 
 		return {
 			name,

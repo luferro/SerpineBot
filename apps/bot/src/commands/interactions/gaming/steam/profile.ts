@@ -1,4 +1,3 @@
-import { IntegrationsModel, SteamIntegration } from '@luferro/database';
 import { DateUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
@@ -16,16 +15,14 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
+	const mention = interaction.options.getMentionable(data.options[0].name) as GuildMember | null;
 
-	const mention = interaction.options.getMentionable(
-		t('interactions.gaming.steam.profile.options.0.name'),
-	) as GuildMember | null;
-
-	const userId = mention?.user.id ?? interaction.user.id;
-	const integration = await IntegrationsModel.getIntegration<SteamIntegration>({ userId, category: 'Steam' });
+	const integration = await client.prisma.steam.findUnique({
+		where: { userId: mention?.user.id ?? interaction.user.id },
+	});
 	if (!integration) throw new Error(t('errors.unprocessable'));
-
 	const { id, url } = integration.profile;
+
 	const { name, image, status, logoutAt, createdAt } = await client.api.gaming.platforms.steam.getProfile({ id });
 
 	const embed = new EmbedBuilder()
@@ -43,12 +40,12 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			},
 			{
 				name: t('interactions.gaming.steam.profile.embed.fields.2.name'),
-				value: DateUtil.format({ date: createdAt }),
+				value: DateUtil.format(createdAt),
 				inline: true,
 			},
 			{
 				name: t('interactions.gaming.steam.profile.embed.fields.3.name'),
-				value: DateUtil.format({ date: logoutAt }),
+				value: DateUtil.format(logoutAt),
 				inline: true,
 			},
 		])

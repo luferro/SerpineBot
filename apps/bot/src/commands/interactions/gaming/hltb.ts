@@ -15,22 +15,21 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
-
-	const query = interaction.options.getString(t('interactions.gaming.hltb.options.0.name'), true);
+	const query = interaction.options.getString(data.options[0].name, true);
 
 	const results = await client.api.gaming.games.hltb.search({ query });
 	if (results.length === 0) throw new Error(t('errors.search.lookup', { query }));
 	const { id } = results[0];
 
-	const { name, image, playtimes } = await client.api.gaming.games.hltb.getPlaytimesById({ id });
+	const { title, url, image, playtimes } = await client.api.gaming.games.hltb.getPlaytimesById({ id });
 	const { main, mainExtra, completionist } = playtimes;
 
 	const hasPlaytimes = main || mainExtra || completionist;
 	if (!hasPlaytimes) throw new Error(t('errors.search.lookup', { query }));
 
 	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.gaming.hltb.embed.title', { game: `\`${name}\`` }))
-		.setURL(`https://howlongtobeat.com/game/${id}`)
+		.setTitle(t('interactions.gaming.hltb.embed.title', { game: `\`${title}\`` }))
+		.setURL(url)
 		.setThumbnail(image)
 		.addFields([
 			{

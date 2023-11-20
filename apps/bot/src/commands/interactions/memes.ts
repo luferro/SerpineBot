@@ -8,9 +8,10 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.deferReply();
 
 	const posts = await client.api.reddit.getPosts({ subreddit: 'Memes' });
-	if (posts.length === 0) throw new Error(t('errors.search.none'));
+	const filteredPosts = posts.filter((post) => !post.isSelf);
+	if (filteredPosts.length === 0) throw new Error(t('errors.search.none'));
 
-	const { title, url, selfurl, hasEmbeddedMedia } = posts[Math.floor(Math.random() * posts.length)];
+	const { title, url, selfurl, hasEmbeddedMedia } = filteredPosts[Math.floor(Math.random() * filteredPosts.length)];
 
 	if (hasEmbeddedMedia) {
 		const content = `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}`;

@@ -38,7 +38,7 @@ export class RedditApi extends Scraper {
 		if (!payload?.data?.children) throw new Error('Failed to retrieve reddit post.');
 
 		return payload.data.children
-			.filter(({ data }) => !data.stickied && !data.is_video && !data.removed_by_category)
+			.filter(({ data }) => !data.stickied || !data.removed_by_category)
 			.sort((a, b) => b.data.created_utc - a.data.created_utc)
 			.map(({ data }) => {
 				const isTwitterEmbed = /^(?:https?:)?(?:\/\/)?(?:www\.)?(twitter.com|x.com)/.test(data.url);

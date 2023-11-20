@@ -3,10 +3,9 @@ import { HeaderGenerator, Headers } from 'header-generator';
 
 import { FetchError } from '../errors/FetchError';
 
-type HttpMethod = 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
 type Request = {
 	url: string | URL;
-	method?: HttpMethod;
+	method?: 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE';
 	customHeaders?: Map<string, string>;
 	body?: string;
 	handleStatusCode?: (status: number) => Promise<unknown>;

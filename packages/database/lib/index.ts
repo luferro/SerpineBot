@@ -1,15 +1,6 @@
-// Types
-export * from './types/category';
-export * from './types/integration';
+// Prisma
+export * from './prisma/client';
+export * from '@prisma/client';
 
-// Database connector
-export * as Database from './database/database';
-
-// Models
-export { default as BirthdaysModel } from './database/models/birthdays';
-export { default as IntegrationsModel } from './database/models/integrations';
-export { default as RemindersModel } from './database/models/reminders';
-export { default as RSSModel } from './database/models/rss';
-export { default as SettingsModel, webhooks } from './database/models/settings';
-export { default as StateModel } from './database/models/state';
-export { default as SubscriptionsModel } from './database/models/subscriptions';
+// Redis
+export * from './redis/client';

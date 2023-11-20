@@ -1,4 +1,5 @@
-import { StringUtil } from '@luferro/shared-utils';
+import { WebhookType } from '@luferro/database';
+import { DateUtil, StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 import { t } from 'i18next';
 
@@ -11,27 +12,28 @@ export const execute: JobExecute = async ({ client }) => {
 	const chaptersByManga = new Map(
 		latestChapters
 			.reverse()
-			.map((manga) => [manga.mangaId, latestChapters.filter((chapter) => chapter.mangaId === manga.mangaId)]),
+			.map((manga) => [
+				manga.mangaId,
+				latestChapters.filter(
+					({ mangaId, chapter }) =>
+						mangaId === manga.mangaId &&
+						new Date(chapter.readableAt).getTime() >= DateUtil.getPrevious(data.schedule).getTime(),
+				),
+			]),
 	);
 
-	const embeds = [];
+	const messages = [];
 	for (const [mangaId, chapters] of chaptersByManga) {
-		for (const { chapter } of chapters) {
-			const isSuccessful = await client.state({ title: chapter.id, url: chapter.url });
-			if (isSuccessful) continue;
-			chapters.splice(chapters.findIndex((currentChapter) => currentChapter.chapter.id === chapter.id));
-		}
 		if (chapters.length === 0) continue;
 
 		const { title, url, image, publication, tags } = await client.api.mangadex.getMangaById({ id: mangaId });
-		if (!title && !url) continue;
 
 		const formattedChapters = chapters
 			.slice(0, 10)
 			.reverse()
 			.map(({ chapter }) => `**[${chapter.title}](${chapter.url})**`);
-		const hiddenChaptersCount = chapters.length - formattedChapters.length;
-		if (hiddenChaptersCount > 0) formattedChapters.push(t('common.list.more', { size: hiddenChaptersCount }));
+		const hiddenCount = chapters.length - formattedChapters.length;
+		if (hiddenCount > 0) formattedChapters.push(t('common.lists.hidden', { size: hiddenCount }));
 
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title))
@@ -50,8 +52,8 @@ export const execute: JobExecute = async ({ client }) => {
 			])
 			.setColor('Random');
 
-		embeds.push(embed);
+		messages.push(embed);
 	}
 
-	await client.propageMessages({ category: 'Manga', embeds });
+	await client.propagate({ type: WebhookType.MANGA, messages });
 };

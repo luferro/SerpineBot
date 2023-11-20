@@ -107,7 +107,7 @@ export class AnimeScheduleApi {
 	}
 
 	async getWeeklySchedule() {
-		const year = DateUtil.getCurrentDate().getFullYear();
+		const year = new Date().getFullYear();
 		const week = DateUtil.getWeek();
 		const tz = DateUtil.getTimezone();
 		const { payload } = await FetchUtil.fetch<Schedule[]>({

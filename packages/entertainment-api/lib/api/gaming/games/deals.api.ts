@@ -55,8 +55,8 @@ export class DealsApi {
 			active: list.map(({ title, bundle, start, expiry, url }) => ({
 				title,
 				store: bundle,
-				start: DateUtil.format({ date: start * 1000 }),
-				expiry: expiry ? DateUtil.format({ date: expiry * 1000 }) : null,
+				start: DateUtil.format(start * 1000),
+				expiry: expiry ? DateUtil.format(expiry * 1000) : null,
 				url,
 			})),
 		};
@@ -73,7 +73,7 @@ export class DealsApi {
 			store: shop.name,
 			price: ConverterUtil.formatCurrency(price),
 			discount: cut,
-			date: DateUtil.formatDistance({ date: added * 1000 }),
+			date: DateUtil.formatDistance(added * 1000),
 		};
 	}
 
@@ -114,7 +114,7 @@ export class DealsApi {
 
 		return payload.data.list
 			.filter(({ price_cut, drm }) => price_cut === 100 && drm.length > 0)
-			.map(({ title, plain, price_new, price_old, price_cut, shop, drm, expiry, urls }) => ({
+			.map(({ title, plain, price_new, price_old, price_cut, shop, drm, expiry, added, urls }) => ({
 				title,
 				id: plain,
 				url: urls.buy,
@@ -123,7 +123,8 @@ export class DealsApi {
 				discount: price_cut,
 				regular: ConverterUtil.formatCurrency(price_old),
 				current: ConverterUtil.formatCurrency(price_new),
-				expiry: expiry ? DateUtil.format({ date: expiry * 1000 }) : null,
+				expiry: expiry ? DateUtil.format(expiry * 1000) : null,
+				added: added ? DateUtil.format(added * 1000) : null,
 			}));
 	}
 }

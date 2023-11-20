@@ -1,4 +1,3 @@
-import { SettingsModel } from '@luferro/database';
 import { randomUUID } from 'crypto';
 import {
 	ActionRowBuilder,
@@ -7,7 +6,6 @@ import {
 	EmbedBuilder,
 	SlashCommandSubcommandBuilder,
 	StringSelectMenuBuilder,
-	TextChannel,
 } from 'discord.js';
 import { t } from 'i18next';
 
@@ -25,43 +23,44 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const channel = interaction.options.getChannel('channel', true) as TextChannel;
+	const channel = interaction.options.getChannel(data.options[0].name, true);
 
 	const uuid = randomUUID();
-	const options = [...interaction.guild.roles.cache.values()]
+	const options = interaction.guild.roles.cache
 		.sort((a, b) => a.position - b.position)
-		.filter(({ id }) => id !== interaction.guild.roles.everyone.id)
+		.filter((role) => role.id !== interaction.guild.roles.everyone.id)
 		.map((role) => ({ label: role.name, value: role.id }));
 
-	const channelSelectMenu = new StringSelectMenuBuilder()
-		.setCustomId(uuid)
-		.setPlaceholder(t('interactions.channels.roles.assign.options.menu.placeholder'))
-		.setMaxValues(options.length)
-		.addOptions(options);
-	const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(channelSelectMenu);
+	await interaction.reply({
+		embeds: [new EmbedBuilder().setTitle(t('interactions.channels.roles.assign.menu.title')).setColor('Random')],
+		components: [
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+				new StringSelectMenuBuilder()
+					.setCustomId(uuid)
+					.setPlaceholder(t('interactions.channels.roles.assign.menu.placeholder'))
+					.setMaxValues(options.length)
+					.addOptions(options),
+			),
+		],
+		ephemeral: true,
+	});
 
-	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.channels.roles.assign.options.menu.title'))
-		.setColor('Random');
-	await interaction.reply({ embeds: [embed], components: [component], ephemeral: true });
-
-	const selectMenuInteraction = await interaction.channel?.awaitMessageComponent({
+	const componentInteraction = await interaction.channel?.awaitMessageComponent({
 		time: 60 * 1000 * 5,
 		componentType: ComponentType.StringSelect,
 		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
 	});
-	if (!selectMenuInteraction) throw new Error(t('errors.interaction.timeout'));
+	if (!componentInteraction) throw new Error(t('errors.interaction.timeout'));
 
-	await SettingsModel.updateRoleMessage({
-		guildId: interaction.guild.id,
-		channelId: channel.id,
-		options: selectMenuInteraction.values,
+	await client.prisma.guild.update({
+		where: { id: interaction.guild.id },
+		data: { roles: { channelId: channel.id, options: componentInteraction.values } },
 	});
 
 	const updatedEmbed = new EmbedBuilder()
-		.setTitle(t('interactions.channels.roles.assign.options.embed.title', { channel: `\`${channel.name}\`` }))
+		.setTitle(t('interactions.channels.roles.assign.embed.title', { channel: `\`${channel.name}\`` }))
 		.setColor('Random');
-	await selectMenuInteraction.update({ embeds: [updatedEmbed], components: [] });
 
+	await componentInteraction.update({ embeds: [updatedEmbed], components: [] });
 	client.emit('rolesMessageUpdate', client);
 };

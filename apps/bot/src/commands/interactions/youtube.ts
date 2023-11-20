@@ -12,8 +12,7 @@ export const data: InteractionCommandData = [
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
-
-	const query = interaction.options.getString(t('interactions.youtube.options.0.name'), true);
+	const query = interaction.options.getString(data[0].name, true);
 
 	const results = await client.player.search(query);
 	if (results.isEmpty()) throw new Error(t('errors.search.lookup', { query }));

@@ -41,8 +41,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	interaction.deferReply({ ephemeral: true });
-
-	const filter = interaction.options.getString(t('interactions.music.player.filters.options.0.name')) as Filter;
+	const filter = interaction.options.getString(data.options[0].name) as Filter;
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue?.currentTrack || !queue.filters.ffmpeg) throw new Error(`Cannot toggle \`${filter}\` filter.`);

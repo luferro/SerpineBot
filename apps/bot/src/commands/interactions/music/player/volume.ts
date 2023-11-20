@@ -16,7 +16,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const volume = interaction.options.getInteger(t('interactions.music.player.volume.options.0.name'), true);
+	const volume = interaction.options.getInteger(data.options[0].name, true);
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error(t('errors.player.node'));

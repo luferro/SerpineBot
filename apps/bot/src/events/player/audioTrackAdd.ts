@@ -1,5 +1,6 @@
 import { EmbedBuilder, TextBasedChannel } from 'discord.js';
 import { GuildQueue, Track } from 'discord-player';
+import { t } from 'i18next';
 
 import type { EventData, EventExecute } from '../../types/bot';
 
@@ -21,10 +22,18 @@ export const execute: EventExecute<Args> = async ({ client, rest: [queue, track]
 
 	if (!currentTrack && queue.tracks.size === 1) {
 		embed
-			.setAuthor({ iconURL: clientIconUrl, name: 'Now playing' })
-			.setFields([{ name: '**Duration**', value: `**${track.duration}**` }])
-			.setFooter({ iconURL: userIconUrl, text: `Requested by ${track.requestedBy?.username}` });
-	} else embed.setAuthor({ iconURL: userIconUrl, name: 'Added track' });
+			.setAuthor({ iconURL: clientIconUrl, name: t('events.player.audioTrackAdd.embeds.0.author.name') })
+			.setFields([
+				{
+					name: t('events.player.audioTrackAdd.embeds.0.fields.0.name'),
+					value: `**${track.duration}**`,
+				},
+			])
+			.setFooter({
+				iconURL: userIconUrl,
+				text: t('events.player.audioTrackAdd.embeds.0.footer.text', { user: track.requestedBy?.username }),
+			});
+	} else embed.setAuthor({ iconURL: userIconUrl, name: t('events.player.audioTrackAdd.embeds.1.author.name') });
 
 	await metadata.send({ embeds: [embed] });
 };

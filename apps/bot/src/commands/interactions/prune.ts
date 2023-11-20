@@ -13,7 +13,7 @@ export const data: InteractionCommandData = [
 ];
 
 export const execute: InteractionCommandExecute = async ({ interaction }) => {
-	const quantity = interaction.options.getInteger(t('interactions.prune.options.0.name'), true);
+	const quantity = interaction.options.getInteger(data[0].name, true);
 
 	const messages = await (interaction.channel as TextChannel).bulkDelete(quantity, true);
 

@@ -1,4 +1,3 @@
-import { IntegrationsModel, XboxIntegration } from '@luferro/database';
 import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 
@@ -15,17 +14,16 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
+	const mention = interaction.options.getMentionable(data.options[0].name) as GuildMember | null;
 
-	const mention = interaction.options.getMentionable(
-		t('interactions.gaming.xbox.profile.options.0.name'),
-	) as GuildMember | null;
-
-	const userId = mention?.user.id ?? interaction.user.id;
-	const integration = await IntegrationsModel.getIntegration<XboxIntegration>({ userId, category: 'Xbox' });
+	const integration = await client.prisma.xbox.findUnique({
+		where: { userId: mention?.user.id ?? interaction.user.id },
+	});
 	if (!integration) throw new Error(t('errors.unprocessable'));
 
-	const { gamertag } = integration.profile;
-	const { name, image, gamerscore, gamesPlayed } = await client.api.gaming.platforms.xbox.getProfile({ gamertag });
+	const { name, image, gamerscore, gamesPlayed } = await client.api.gaming.platforms.xbox.getProfile({
+		gamertag: integration.profile.gamertag,
+	});
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)

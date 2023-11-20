@@ -1,3 +1,4 @@
+import { WebhookType } from '@luferro/database';
 import { EmbedBuilder } from 'discord.js';
 import { t } from 'i18next';
 
@@ -8,17 +9,14 @@ export const data: JobData = { schedule: '0 */30 * * * *' };
 export const execute: JobExecute = async ({ client }) => {
 	const results = await client.api.gaming.games.reviews.search({});
 
-	const embeds = [];
+	const messages = [];
 	for (const { id, slug } of results.reverse()) {
-		const data = await client.api.gaming.games.reviews.getReviewsByIdAndSlug({ id, slug });
-		const { name, url, releaseDate, platforms, tier, score, count, recommended, image } = data;
+		const aggregation = await client.api.gaming.games.reviews.getReviewsByIdAndSlug({ id, slug });
+		const { title, url, releaseDate, platforms, tier, score, count, recommended, image } = aggregation;
 		if (!tier || !score) continue;
 
-		const isSuccessful = await client.state({ title: name, url });
-		if (!isSuccessful) continue;
-
 		const embed = new EmbedBuilder()
-			.setTitle(name)
+			.setTitle(title)
 			.setURL(url)
 			.setThumbnail(tier)
 			.setImage(image)
@@ -49,8 +47,8 @@ export const execute: JobExecute = async ({ client }) => {
 			])
 			.setColor('Random');
 
-		embeds.push(embed);
+		messages.push(embed);
 	}
 
-	await client.propageMessages({ category: 'Game Reviews', embeds });
+	await client.propagate({ type: WebhookType.GAME_REVIEWS, messages });
 };

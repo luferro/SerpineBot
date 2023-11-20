@@ -12,7 +12,7 @@ import {
 import { t } from 'i18next';
 import { resolve } from 'path';
 
-import { Bot } from '../Bot';
+import { Bot } from '../structures/Bot';
 import { InteractionCommandData, InteractionCommandExecute, MetadataBuilder, VoiceCommand } from '../types/bot';
 
 type RawInteractionCommand = { data: InteractionCommandData; execute: InteractionCommandExecute };

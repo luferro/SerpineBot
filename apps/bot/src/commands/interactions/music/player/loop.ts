@@ -1,4 +1,4 @@
-import { EnumUtil } from '@luferro/shared-utils';
+import { ArrayUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { QueueRepeatMode } from 'discord-player';
 import { t } from 'i18next';
@@ -14,7 +14,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setDescription(t('interactions.music.player.loop.options.0.description'))
 			.setRequired(true)
 			.addChoices(
-				...EnumUtil.enumKeysToArray(QueueRepeatMode).map((mode) => ({
+				...ArrayUtil.enumToArray(QueueRepeatMode).map((mode) => ({
 					name: mode,
 					value: QueueRepeatMode[mode],
 				})),
@@ -22,10 +22,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const mode = interaction.options.getInteger(
-		t('interactions.music.player.loop.options.0.name'),
-		true,
-	) as QueueRepeatMode;
+	const mode = interaction.options.getInteger(data.options[0].name, true) as QueueRepeatMode;
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue?.currentTrack) throw new Error(t('errors.player.playback.nothing'));

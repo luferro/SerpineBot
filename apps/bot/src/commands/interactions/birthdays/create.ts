@@ -1,4 +1,3 @@
-import { BirthdaysModel } from '@luferro/database';
 import { DateUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
@@ -27,17 +26,19 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setRequired(true),
 	);
 
-export const execute: InteractionCommandExecute = async ({ interaction }) => {
-	const day = interaction.options.getInteger(t('interactions.birthdays.create.options.0.name'), true);
-	const month = interaction.options.getInteger(t('interactions.birthdays.create.options.1.name'), true);
-	const year = interaction.options.getInteger(t('interactions.birthdays.create.options.2.name'), true);
+export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+	const day = interaction.options.getInteger(data.options[0].name, true);
+	const month = interaction.options.getInteger(data.options[1].name, true);
+	const year = interaction.options.getInteger(data.options[2].name, true);
 
-	if (!DateUtil.isValid({ year, month, day })) throw new Error(t('errors.date.invalid'));
+	if (!DateUtil.isValid(year, month, day)) throw new Error(t('errors.date.invalid'));
 
-	const isBirthdayRegistered = await BirthdaysModel.isBirthdayRegistered({ userId: interaction.user.id });
-	if (isBirthdayRegistered) throw new Error(t('errors.unprocessable'));
-
-	await BirthdaysModel.createBirthday({ userId: interaction.user.id, date: new Date(year, month - 1, day) });
+	const userId = interaction.user.id;
+	await client.prisma.birthday.upsert({
+		where: { userId },
+		create: { userId, day, month, year },
+		update: { day, month, year },
+	});
 
 	const embed = new EmbedBuilder().setTitle(t('interactions.birthdays.create.embed.title')).setColor('Random');
 	await interaction.reply({ embeds: [embed], ephemeral: true });

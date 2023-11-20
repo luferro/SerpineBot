@@ -14,19 +14,22 @@ export class ReviewsApi extends Scraper {
 
 		const regex = /\/(\d+)\/([^/?]*$)/g;
 		return results
-			.filter(({ url }) => regex.test(url))
 			.map(({ title, url }) => {
-				const { 1: id, 2: slug } = regex.exec(url)!;
+				const result = regex.exec(url);
+				if (!result) return;
+
+				const { 1: id, 2: slug } = result;
 				const name = title.split('Reviews').at(0)!.trim();
 				return { id, slug, name, url };
-			});
+			})
+			.filter((item): item is NonNullable<typeof item> => !!item);
 	}
 
 	async getReviewsByIdAndSlug({ id, slug }: Id & Slug) {
 		const url = `${ReviewsApi.BASE_URL}/game/${id}/${slug}`;
 		const $ = await this.static.loadUrl({ url });
 
-		const name = $('app-game-overview h1').first().text();
+		const title = $('app-game-overview h1').first().text();
 		const image = $('app-game-overview .top-container img').first().attr('src');
 		const [date] = $('.platforms').text().split('-');
 		const display = $('app-tier-display').first().find('img');
@@ -39,10 +42,12 @@ export class ReviewsApi extends Scraper {
 			.toArray();
 
 		return {
-			name,
+			id,
+			title,
+			slug,
 			url,
 			tier: tier ? (tier.startsWith('http') ? tier : `https:${tier}`) : null,
-			releaseDate: date.trim() ? DateUtil.format({ date: new Date(date) }).split(' ')[0] : null,
+			releaseDate: date.trim() ? DateUtil.format(new Date(date)).split(' ')[0] : null,
 			image: image ? (image.startsWith('http') ? image : `https:${image}`) : null,
 			count: count || null,
 			score: score || null,

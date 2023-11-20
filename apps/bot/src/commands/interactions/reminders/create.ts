@@ -1,4 +1,3 @@
-import { RemindersModel } from '@luferro/database';
 import { ConverterUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
@@ -35,32 +34,33 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setRequired(true),
 	);
 
-export const execute: InteractionCommandExecute = async ({ interaction }) => {
-	const time = interaction.options.getInteger(t('interactions.reminders.create.options.0.name'), true);
-	const unit = interaction.options.getString(t('interactions.reminders.create.options.1.name'), true) as TimeUnit;
-	const message = interaction.options.getString(t('interactions.reminders.create.options.2.name'), true);
+export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+	const time = interaction.options.getInteger(data.options[0].name, true);
+	const unit = interaction.options.getString(data.options[1].name, true) as TimeUnit;
+	const message = interaction.options.getString(data.options[2].name, true);
 
 	if (unit === 'Seconds' && time < 300) throw new Error(t('interactions.reminders.minimum.seconds'));
 	if (unit === 'Minutes' && time < 5) throw new Error(t('interactions.reminders.minimum.minutes'));
 
-	const user = interaction.user;
-	const reminderId = await RemindersModel.createReminder({
-		userId: user.id,
-		timeStart: Date.now(),
-		timeEnd: Date.now() + ConverterUtil.toMilliseconds(time, unit),
-		message,
+	const reminder = await client.prisma.reminder.create({
+		data: {
+			message,
+			userId: interaction.user.id,
+			timeStart: new Date(),
+			timeEnd: new Date(Date.now() + ConverterUtil.toMilliseconds(time, unit)),
+		},
 	});
 
 	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.reminders.create.embed.title', { reminderId: `**${reminderId}**` }))
+		.setTitle(t('interactions.reminders.create.embed.title'))
 		.setDescription(
 			t('interactions.reminders.create.embed.description', {
-				user,
-				message,
 				time,
+				message: `**"${message}"**`,
 				unit: unit.toLocaleLowerCase(),
 			}),
 		)
+		.setFooter({ text: t('interactions.reminders.create.embed.footer.text', { reminderId: reminder.id }) })
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });

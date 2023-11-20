@@ -1,0 +1,68 @@
+{
+	"guild": {
+		"guildScheduledEventUpdate": {
+			"embed": {
+				"title": "{{name}} is starting!",
+				"fields": [
+					{ "name": "**Event location**" },
+					{ "name": "**Start**" },
+					{ "name": "**End**" },
+					{ "name": "**Created by**" }
+				]
+			}
+		}
+	},
+	"player": {
+		"audioTrackAdd": {
+			"embeds": [
+				{
+					"author": {
+						"name": "Now playing"
+					},
+					"fields": [{ "name": "**Duration**" }],
+					"footer": {
+						"text": "Requested by {{user}}"
+					}
+				},
+				{
+					"author": {
+						"name": "Added track"
+					}
+				}
+			]
+		},
+		"audioTracksAdd": {
+			"embed": {
+				"author": {
+					"name": "Added playlist"
+				},
+				"fields": [{ "name": "**Tracks**" }]
+			}
+		},
+		"playerError": {
+			"embed": {
+				"title": "Could not stream this track. Skipping it..."
+			}
+		}
+	},
+	"roles": {
+		"rolesMessageUpdate": {
+			"menu": {
+				"title": "Claim your roles!",
+				"description": "Use the select menu below to `claim` or `revoke` roles.",
+				"footer": {
+					"text": "Each role grants access to a different text channel."
+				}
+			}
+		},
+		"rolesMessageRoleUpdate": {
+			"embed": {
+				"title": "{{granted}} role(s) granted and {{revoked}} role(s) revoked",
+				"fields": [{ "name": "**Granted**" }, { "name": "**Revoked**" }],
+				"footer": {
+					"text": "Each role grants access to a different text channel."
+				}
+			}
+		}
+	}
+}

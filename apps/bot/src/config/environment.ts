@@ -1,13 +1,10 @@
 type NonNullableConfig<T> = { [K in keyof T]: NonNullable<T[K]> };
 
-const getEnvConfig = () => ({
+const getConfig = () => ({
 	NODE_ENV: process.env.NODE_ENV ?? 'PRODUCTION',
 
 	// DISCORD TOKEN
 	BOT_TOKEN: process.env.BOT_TOKEN ?? null,
-
-	// DATABASE URI
-	MONGO_URI: process.env.MONGO_URI ?? null,
 
 	// Region
 	LOCALE: process.env.LOCALE ?? 'en-US',
@@ -17,7 +14,6 @@ const getEnvConfig = () => ({
 
 	// API KEYS
 	STEAM_API_KEY: process.env.STEAM_API_KEY ?? null,
-	GNEWS_API_KEY: process.env.GNEWS_API_KEY ?? null,
 	THE_MOVIE_DB_API_KEY: process.env.THE_MOVIE_DB_API_KEY ?? null,
 	ANIME_SCHEDULE_API_KEY: process.env.ANIME_SCHEDULE_API_KEY ?? null,
 	ITAD_API_KEY: process.env.ITAD_API_KEY ?? null,
@@ -29,8 +25,10 @@ const getEnvConfig = () => ({
 	MEMES_SUBREDDITS: process.env.MEMES_SUBREDDITS?.split(',') ?? [],
 });
 
-export const getSanitizedEnvConfig = () => {
-	const config = getEnvConfig();
+export type SanitizedConfig = ReturnType<typeof getSanitizedConfig>;
+
+export const getSanitizedConfig = () => {
+	const config = getConfig();
 	for (const [key, value] of Object.entries(config)) {
 		if (!value) throw new Error(`Environment variable ${key} is missing.`);
 	}

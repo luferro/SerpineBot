@@ -1,3 +1,4 @@
+import { WebhookType } from '@luferro/database';
 import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 
@@ -9,19 +10,15 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const subreddit of client.config.NSFW_SUBREDDITS) {
 		const posts = await client.api.reddit.getPosts({ subreddit, limit: 25 });
 
-		const embeds = [];
-		for (const { title, url, selfurl, gallery, hasEmbeddedMedia } of posts.reverse()) {
+		const messages = [];
+		for (const { title, url, selfurl, gallery, hasEmbeddedMedia, isSelf } of posts.reverse()) {
+			if (isSelf) continue;
+
 			const galleryMediaId = gallery?.items[0].media_id;
 			const nsfwUrl = galleryMediaId ? `https://i.redd.it/${galleryMediaId}.jpg` : url;
 
-			const isSuccessful = await client.state({ title, url: nsfwUrl });
-			if (!isSuccessful) continue;
-
 			if (hasEmbeddedMedia) {
-				await client.propageMessage({
-					category: 'Nsfw',
-					content: `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${nsfwUrl}`,
-				});
+				messages.push(`**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${nsfwUrl}`);
 				continue;
 			}
 
@@ -31,9 +28,9 @@ export const execute: JobExecute = async ({ client }) => {
 				.setImage(nsfwUrl)
 				.setColor('Random');
 
-			embeds.push(embed);
+			messages.push(embed);
 		}
 
-		await client.propageMessages({ category: 'Nsfw', embeds });
+		await client.propagate({ type: WebhookType.NSFW, messages });
 	}
 };

@@ -54,7 +54,9 @@ export class HLTBApi extends Scraper {
 		const [{ game_name, game_image, comp_main, comp_plus, comp_100 }] = props.pageProps.game.data.game;
 
 		return {
-			name: game_name,
+			id,
+			title: game_name,
+			url: `https://howlongtobeat.com/game/${id}`,
 			image: game_image ? `${HLTBApi.BASE_URL}/games/${game_image}` : null,
 			playtimes: {
 				main: comp_main != 0 ? `${ConverterUtil.toHours(comp_main * 1000)}h` : null,

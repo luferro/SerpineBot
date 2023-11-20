@@ -1,7 +1,9 @@
+import { WebhookType } from '@luferro/database';
 import { DateUtil } from '@luferro/shared-utils';
 import { BaseGuildVoiceChannel, EmbedBuilder, GuildScheduledEvent } from 'discord.js';
+import { t } from 'i18next';
 
-import { Bot } from '../../Bot';
+import { Bot } from '../../structures/Bot';
 import type { EventData, EventExecute } from '../../types/bot';
 
 type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent: GuildScheduledEvent];
@@ -32,34 +34,34 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 	}
 
 	const embed = new EmbedBuilder()
-		.setTitle(`\`${name}\` is starting!`)
+		.setTitle(t('events.guild.guildScheduledEventUpdate.embed.title', { name: `\`${name}\`` }))
 		.setURL(url)
 		.setDescription(description || null)
 		.addFields([
 			{
-				name: '**Event location**',
+				name: t('events.guild.guildScheduledEventUpdate.embed.fields.0.name'),
 				value: location instanceof BaseGuildVoiceChannel ? `**<#${location.id}>**` : `**${location}**`,
 			},
 			{
-				name: '**Start**',
-				value: scheduledStartAt ? DateUtil.format({ date: scheduledStartAt }) : 'N/A',
+				name: t('events.guild.guildScheduledEventUpdate.embed.fields.1.name'),
+				value: scheduledStartAt ? DateUtil.format(scheduledStartAt) : t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: '**End**',
-				value: scheduledEndAt ? DateUtil.format({ date: scheduledEndAt }) : 'N/A',
+				name: t('events.guild.guildScheduledEventUpdate.embed.fields.2.name'),
+				value: scheduledEndAt ? DateUtil.format(scheduledEndAt) : t('common.unavailable'),
 				inline: true,
 			},
 			{
-				name: '**Created by**',
-				value: creator?.username ?? 'N/A',
+				name: t('events.guild.guildScheduledEventUpdate.embed.fields.3.name'),
+				value: creator?.username ?? t('common.unavailable'),
 			},
 		])
 		.setThumbnail(guild.iconURL())
 		.setImage(event.coverImageURL({ size: 4096 }))
 		.setColor('Random');
 
-	const webhook = await client.webhook({ guild, category: 'Events' });
+	const webhook = await client.webhook({ guild, type: WebhookType.EVENTS });
 	webhook?.send({ content: `${role}`, embeds: [embed] });
 };
 

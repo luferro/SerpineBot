@@ -1,9 +1,9 @@
-import { IntegrationsModel, SteamIntegration, SubscriptionsModel, WishlistEntry } from '@luferro/database';
+import { SteamWishlistEntry } from '@luferro/database';
 import { logger } from '@luferro/shared-utils';
 import { EmbedBuilder } from 'discord.js';
 import { t } from 'i18next';
 
-import type { Bot } from '../../Bot';
+import type { Bot } from '../../structures/Bot';
 import type { JobData, JobExecute } from '../../types/bot';
 
 enum Alert {
@@ -13,7 +13,7 @@ enum Alert {
 	RemovedFrom = 'removedFrom',
 }
 
-type SteamAlert = { addedTo?: string[]; removedFrom?: string[] } & WishlistEntry;
+type SteamAlert = { addedTo?: string[]; removedFrom?: string[] } & SteamWishlistEntry;
 
 type Entries<T> = {
 	[K in keyof T]: [K, T[K]];
@@ -22,10 +22,7 @@ type Entries<T> = {
 export const data: JobData = { schedule: '0 */15 7-23 * * *' };
 
 export const execute: JobExecute = async ({ client }) => {
-	const integrations = await IntegrationsModel.getIntegrations<SteamIntegration>({
-		category: 'Steam',
-		notifications: true,
-	});
+	const integrations = await client.prisma.steam.findMany({ where: { notifications: true } });
 	for (const integration of integrations) {
 		const alerts: Record<Alert, SteamAlert[]> = {
 			[Alert.Sale]: [],
@@ -39,44 +36,42 @@ export const execute: JobExecute = async ({ client }) => {
 
 		const updatedWishlist = await Promise.all(
 			wishlist.map(async (game) => {
-				const storedGame = integration.wishlist.find(({ name }) => name === game.name);
-				const services = await SubscriptionsModel.getGamingServices({ name: game.name });
+				const storedGame = integration.wishlist.find((storedGame) => storedGame.title === game.title);
+				const subscriptions = await client.prisma.subscription.search({ query: game.title });
 
 				const updatedEntry = {
 					...game,
 					notified: storedGame?.notified ?? false,
-					released: storedGame?.released || game.released,
-					subscriptions: {
-						xbox_game_pass: services.some(({ provider }) => provider === 'Xbox Game Pass'),
-						pc_game_pass: services.some(({ provider }) => provider === 'PC Game Pass'),
-						ubisoft_plus: services.some(({ provider }) => provider === 'Ubisoft Plus'),
-						ea_play_pro: services.some(({ provider }) => provider === 'EA Play Pro'),
-						ea_play: services.some(({ provider }) => provider === 'EA Play'),
-					},
+					subscriptions: subscriptions.map((subscription) => subscription.type),
 				};
 
-				const wasSale = storedGame?.sale ?? game.sale;
-				if (!wasSale && game.sale && !updatedEntry.notified) alerts[Alert.Sale].push(updatedEntry);
+				const wasSale = storedGame?.onSale ?? game.onSale;
+				if (!wasSale && game.onSale && !updatedEntry.notified) {
+					alerts[Alert.Sale].push(updatedEntry);
+					updatedEntry.notified = true;
+				}
 
-				const wasReleased = storedGame?.released ?? game.released;
-				if (!wasReleased && game.released) alerts[Alert.Released].push(updatedEntry);
+				const wasReleased = storedGame?.isReleased ?? game.isReleased;
+				if (!wasReleased && game.isReleased) alerts[Alert.Released].push(updatedEntry);
 
 				const { addedTo, removedFrom } = getSubscriptionChanges(updatedEntry, storedGame);
 				if (addedTo.length > 0) alerts[Alert.AddedTo].push({ ...updatedEntry, addedTo });
 				if (removedFrom.length > 0) alerts[Alert.RemovedFrom].push({ ...updatedEntry, removedFrom });
 
-				updatedEntry.notified = !wasSale && game.sale;
 				return updatedEntry;
 			}),
 		);
 
 		await notifyUser(client, integration.userId, alerts);
 
-		await IntegrationsModel.updateWishlist({ userId: integration.userId, wishlist: updatedWishlist });
+		await client.prisma.steam.update({
+			where: { userId: integration.userId },
+			data: { wishlist: updatedWishlist },
+		});
 	}
 };
 
-const getSubscriptionChanges = (newGame: WishlistEntry, oldGame?: WishlistEntry) => {
+const getSubscriptionChanges = (newGame: SteamWishlistEntry, oldGame?: SteamWishlistEntry) => {
 	const addedTo = [];
 	const removedFrom = [];
 	for (const [name, isIncluded] of Object.entries(newGame.subscriptions)) {
@@ -95,30 +90,33 @@ const getSubscriptionChanges = (newGame: WishlistEntry, oldGame?: WishlistEntry)
 };
 
 const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, SteamAlert[]>) => {
-	for (const [category, queue] of Object.entries(alerts) as unknown as Entries<typeof alerts>) {
+	for (const [alert, queue] of Object.entries(alerts) as unknown as Entries<typeof alerts>) {
 		if (queue.length === 0) continue;
 
-		const title = t(`jobs.gaming.wishlists.${category}.embed.title`, { size: queue.length });
-		const description = queue
-			.slice(0, 10)
-			.map(
-				({ name, url, discount, discounted, regular, addedTo, removedFrom }) =>
-					`> ${t(`jobs.gaming.wishlists.${category}.embed.description`, {
-						item: `**[${name}](${url})**`,
-						discount: `***${discount}%***`,
-						regular: `~~${regular}~~`,
-						discounted: `**${discounted}**`,
-						addedTo: (addedTo ?? []).join('\n'),
-						removedFrom: (removedFrom ?? []).join('\n'),
-					})}`,
-			)
-			.join('\n');
-
 		const user = await client.users.fetch(userId);
-		const embed = new EmbedBuilder().setTitle(title).setDescription(description).setColor('Random');
-		await user.send({ embeds: [embed] });
 
-		logger.info(`Steam alerts sent to **${user.username}** (**${category}** | **${queue.length}** update(s)).`);
+		const embed = new EmbedBuilder()
+			.setTitle(t(`jobs.gaming.wishlists.${alert}.embed.title`, { size: queue.length }))
+			.setDescription(
+				queue
+					.slice(0, 10)
+					.map(
+						({ title, url, discount, discounted, regular, addedTo, removedFrom }) =>
+							`> ${t(`jobs.gaming.wishlists.${alert}.embed.description`, {
+								item: `**[${title}](${url})**`,
+								discount: `***${discount}%***`,
+								regular: `~~${regular}~~`,
+								discounted: `**${discounted}**`,
+								addedTo: (addedTo ?? []).join('\n'),
+								removedFrom: (removedFrom ?? []).join('\n'),
+							})}`,
+					)
+					.join('\n'),
+			)
+			.setColor('Random');
+
+		await user.send({ embeds: [embed] });
+		logger.info(`Steam alerts sent to **${user.username}** (**${alert}** | **${queue.length}** update(s)).`);
 		logger.debug({ queue });
 	}
 };

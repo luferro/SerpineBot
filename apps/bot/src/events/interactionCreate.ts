@@ -2,7 +2,7 @@ import { FetchError, logger } from '@luferro/shared-utils';
 import { DiscordAPIError, EmbedBuilder } from 'discord.js';
 import { t } from 'i18next';
 
-import { Bot } from '../Bot';
+import { Bot } from '../structures/Bot';
 import type { EventData, EventExecute } from '../types/bot';
 import type {
 	ExtendedAutocompleteInteraction,
@@ -41,7 +41,7 @@ const handleChatInputCommandInteraction = async ({ client, interaction }: ChatIn
 	logger.info(`Command **${key}** used by **${interaction.user.username}** in guild **${interaction.guild.name}**.`);
 
 	try {
-		if (!methods) throw new Error(`Slash command "${key}" is not registered.`);
+		if (!methods) throw new Error(t('errors.interaction.unregistered', { key: `"${key}"` }));
 		await methods.execute({ client, interaction });
 	} catch (error) {
 		const isDiscordAPIError = error instanceof DiscordAPIError;
@@ -52,8 +52,8 @@ const handleChatInputCommandInteraction = async ({ client, interaction }: ChatIn
 		}
 
 		const embed = new EmbedBuilder()
-			.setTitle('Something went wrong.')
-			.setDescription(error instanceof FetchError ? t(`errors.status.${error.status}`) : (error as Error).message)
+			.setTitle(t('errors.generic.title'))
+			.setDescription(isFetchError ? t(`errors.fetch.status.${error.status}`) : (error as Error).message)
 			.setColor('Random');
 
 		if (interaction.deferred) await interaction.editReply({ content: null, embeds: [embed], components: [] });

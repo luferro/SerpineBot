@@ -15,19 +15,18 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
-
-	const query = interaction.options.getString(t('interactions.gaming.reviews.options.0.name'), true);
+	const query = interaction.options.getString(data.options[0].name, true);
 
 	const results = await client.api.gaming.games.reviews.search({ query });
 	if (results.length === 0) throw new Error(t('errors.search.lookup', { query }));
 	const { id, slug } = results[0];
 
 	const review = await client.api.gaming.games.reviews.getReviewsByIdAndSlug({ id, slug });
-	const { name, url, releaseDate, platforms, tier, score, count, recommended, image } = review;
+	const { title, url, releaseDate, platforms, tier, score, count, recommended, image } = review;
 	if (!tier || !score) throw new Error(t('errors.search.lookup', { query }));
 
 	const embed = new EmbedBuilder()
-		.setTitle(name)
+		.setTitle(title)
 		.setURL(url)
 		.setThumbnail(tier)
 		.setImage(image)

@@ -1,5 +1,6 @@
 import { EmbedBuilder, TextBasedChannel } from 'discord.js';
 import { GuildQueue } from 'discord-player';
+import { t } from 'i18next';
 
 import type { EventData, EventExecute } from '../../types/bot';
 
@@ -10,6 +11,6 @@ export const data: EventData = { type: 'on' };
 export const execute: EventExecute<Args> = async ({ client, rest: [queue, error] }) => {
 	const { metadata } = queue;
 	client.emit('clientError', error);
-	const embed = new EmbedBuilder().setTitle('Could not stream this track. Skipping it...');
+	const embed = new EmbedBuilder().setTitle(t('events.player.playerError.embed.title'));
 	await metadata.send({ embeds: [embed] });
 };

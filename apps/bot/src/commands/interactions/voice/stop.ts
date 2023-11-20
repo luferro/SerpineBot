@@ -8,9 +8,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setDescription(t('interactions.voice.stop.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const member = interaction.member;
-	const voiceChannel = member.voice.channel;
-	if (!voiceChannel) throw new Error(t('errors.voice.member.channel'));
+	if (!interaction.member.voice.channel) throw new Error(t('errors.voice.member.channel'));
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error(t('errors.player.node'));

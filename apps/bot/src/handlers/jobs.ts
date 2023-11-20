@@ -1,7 +1,7 @@
 import { FileUtil, logger } from '@luferro/shared-utils';
 import path from 'path';
 
-import { Bot } from '../Bot';
+import { Bot } from '../structures/Bot';
 import type { Job } from '../types/bot';
 
 export const registerJobs = async () => {

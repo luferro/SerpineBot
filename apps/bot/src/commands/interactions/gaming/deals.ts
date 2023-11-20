@@ -1,4 +1,3 @@
-import { SubscriptionsModel } from '@luferro/database';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 
@@ -16,15 +15,14 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
-
-	const query = interaction.options.getString(t('interactions.gaming.deals.options.0.name'), true);
+	const query = interaction.options.getString(data.options[0].name, true);
 
 	const results = await client.api.gaming.games.deals.search({ query });
 	if (results.length === 0) throw new Error(t('errors.search.lookup', { query }));
 	const { id, title } = results[0];
 
-	const subscriptions = await SubscriptionsModel.getGamingServices({ name: query });
-	const formattedSubscriptions = subscriptions.map(({ provider }) => `> **${provider}**`);
+	const subscriptions = await client.prisma.subscription.search({ query });
+	const formattedSubscriptions = subscriptions.map((subscription) => `> **${subscription.name}**`);
 
 	const { historicalLow, bundles, prices } = await client.api.gaming.games.deals.getDealById({ id });
 	const formattedBundles = bundles.active.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);

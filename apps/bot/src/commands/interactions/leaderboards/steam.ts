@@ -1,8 +1,8 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 
+import * as Leaderboards from '../../../helpers/leaderboards';
 import { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
-import * as Leaderboards from '../../../utils/leaderboards';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t('interactions.leaderboards.steam.name'))

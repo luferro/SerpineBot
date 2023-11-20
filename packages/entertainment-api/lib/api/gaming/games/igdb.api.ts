@@ -7,6 +7,7 @@ type Result = { id: number; name: string; slug: string };
 type Event = {
 	name: string;
 	description?: string;
+	live_stream_url?: string;
 	event_logo?: { url: string };
 	event_networks?: { url: string }[];
 	start_time: number;
@@ -67,29 +68,33 @@ export class IGDBApi {
 			method: 'POST',
 			url: `${IGDBApi.BASE_API_URL}/v4/events`,
 			customHeaders: await this.getCustomHeaders(),
-			body: `fields name, description, event_logo.url, event_networks.url, start_time, end_time; where start_time >= ${timestamp}; sort start_time asc;`,
+			body: `fields name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, created_at; where start_time >= ${timestamp}; sort start_time asc;`,
 			handleStatusCode: (status) => this.handleStatusCode(status),
 		});
 
-		return payload.map(({ name, description, start_time, end_time, event_logo, event_networks }) => {
-			const scheduledStartAt = DateUtil.isPast({ date: start_time * 1000 })
-				? DateUtil.addMinutes({ date: Date.now(), amount: 10 })
-				: start_time * 1000;
-			const scheduledStartEnd = end_time
-				? end_time * 1000
-				: DateUtil.addDays({ date: scheduledStartAt, amount: 1 }).getTime();
+		return payload.map(
+			({ name, description, live_stream_url, start_time, end_time, event_logo, event_networks }) => {
+				const scheduledStartAt = DateUtil.isPast(start_time * 1000)
+					? DateUtil.addMinutes(Date.now(), 5)
+					: start_time * 1000;
+				const scheduledStartEnd = end_time ? end_time * 1000 : DateUtil.endOfDay(scheduledStartAt).getTime();
 
-			return {
-				name,
-				scheduledStartAt,
-				scheduledStartEnd,
-				image: event_logo ? `https:${event_logo.url.replace('t_thumb', 't_1080p')}` : null,
-				description: description ?? null,
-				url: {
-					youtube: event_networks?.find(({ url }) => /youtube/.test(url))?.url ?? null,
-					twitch: event_networks?.find(({ url }) => /twitch/.test(url))?.url ?? null,
-				},
-			};
-		});
+				const urls = [live_stream_url, ...(event_networks?.map((event) => event.url) ?? [])].filter(
+					(url): url is NonNullable<string> => !!url,
+				);
+
+				return {
+					name,
+					scheduledStartAt,
+					scheduledStartEnd,
+					image: event_logo ? `https:${event_logo.url.replace('t_thumb', 't_1080p')}` : null,
+					description: description ?? null,
+					url: {
+						youtube: urls.find((url) => /youtube/.test(url)) ?? null,
+						twitch: urls.find((url) => /twitch/.test(url)) ?? null,
+					},
+				};
+			},
+		);
 	}
 }

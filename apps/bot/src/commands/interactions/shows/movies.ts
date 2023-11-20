@@ -21,8 +21,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
-
-	const query = interaction.options.getString(t('interactions.shows.movies.options.0.name'), true);
+	const query = interaction.options.getString(data.options[0].name, true);
 
 	const { name, tagline, overview, url, image, releaseDate, score, duration, genres, providers } =
 		await client.api.shows.getMovieById({ id: query });
@@ -35,9 +34,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.addFields([
 			{
 				name: t('interactions.shows.movies.embed.fields.0.name'),
-				value: releaseDate
-					? DateUtil.format({ date: new Date(releaseDate), format: 'dd/MM/yyyy' })
-					: t('common.unavailable'),
+				value: releaseDate ? DateUtil.format(new Date(releaseDate), 'dd/MM/yyyy') : t('common.unavailable'),
 				inline: true,
 			},
 			{

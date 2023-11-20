@@ -3,29 +3,29 @@ import { EmbedBuilder, SlashCommandSubcommandBuilder, TextBasedChannel } from 'd
 import { VoiceReceiver } from 'discord-voip';
 import { t } from 'i18next';
 
-import { Bot } from '../../../Bot';
+import { bufferToInt16, getAudioBuffer } from '../../../helpers/audio';
+import { infereIntent, isOutOfVocabularyIntents, transcribe } from '../../../helpers/speech';
+import { Bot } from '../../../structures/Bot';
 import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
-import { bufferToInt16, getAudioBuffer } from '../../../utils/audio';
-import { infereIntent, isOutOfVocabularyIntents, transcribe } from '../../../utils/speech';
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t('interactions.voice.listen.name'))
 	.setDescription(t('interactions.voice.listen.description'));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	const member = interaction.member;
-	const guildId = member.guild.id;
-	const textChannel = interaction.channel;
-	const voiceChannel = member.voice.channel;
-	if (!voiceChannel) throw new Error(t('errors.voice.member.channel'));
+	if (!interaction.member.voice.channel) throw new Error(t('errors.voice.member.channel'));
 
 	let queue = client.player.nodes.get<TextBasedChannel>(interaction.guild.id);
 	if (!queue) {
 		queue = client.player.nodes.create(interaction.guild.id, {
-			metadata: textChannel,
-			...client.connection.config,
+			metadata: interaction.channel,
+			leaveOnEmpty: true,
+			leaveOnEmptyCooldown: 1000 * 60 * 5,
+			leaveOnEnd: false,
+			selfDeaf: false,
+			bufferingTimeout: 0,
 		});
-		await queue.connect(voiceChannel);
+		await queue.connect(interaction.member.voice.channel);
 	}
 
 	const receiver = queue.connection?.receiver;
@@ -34,9 +34,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const isAlreadyListening = receiver.speaking.listeners('start').length > 0;
 	if (isAlreadyListening) throw new Error(t('errors.voice.listening'));
 
-	receiver.speaking.on('start', (userId) => handleUserVoice({ client, guildId, userId, receiver }));
+	receiver.speaking.on('start', (userId) =>
+		handleUserVoice({ guildId: interaction.guild.id, client, userId, receiver }),
+	);
 
-	const embed = new EmbedBuilder().setTitle(t('interactions.voice.listen.embeds.0.title'));
+	const embed = new EmbedBuilder().setTitle(t('interactions.voice.listen.embed.title'));
 	await interaction.reply({ embeds: [embed] });
 };
 
@@ -75,7 +77,7 @@ const handleUserVoice = async ({
 
 	await command.execute({ client, queue, slots, rest: [userId] }).catch((error) => {
 		const embed = new EmbedBuilder()
-			.setTitle(t('interactions.voice.listen.embeds.1.title', { intent: `\`${intent}\`` }))
+			.setTitle(t('errors.voice.failed', { intent: `\`${intent}\`` }))
 			.setDescription((error as Error).message)
 			.setColor('Random');
 

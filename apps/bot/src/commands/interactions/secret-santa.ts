@@ -1,5 +1,4 @@
-import { RemindersModel } from '@luferro/database';
-import { DateUtil, logger } from '@luferro/shared-utils';
+import { ArrayUtil, DateUtil, logger } from '@luferro/shared-utils';
 import { randomUUID } from 'crypto';
 import { EmbedBuilder, SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 import { t } from 'i18next';
@@ -18,39 +17,41 @@ export const data: InteractionCommandData = [
 		.setRequired(true),
 ];
 
-export const execute: InteractionCommandExecute = async ({ interaction }) => {
-	const mentions = interaction.options.getString(t('interactions.secret-santa.options.0.name'), true).match(/\d+/g);
-	const value = interaction.options.getInteger(t('interactions.secret-santa.options.1.name'), true);
+export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+	const mentions = interaction.options.getString(data[0].name, true).match(/\d+/g);
+	const value = interaction.options.getInteger(data[1].name, true);
 
-	if (!mentions) throw new Error(t('errors.secret-santa.users.invalid'));
+	if (!mentions) throw new Error(t('errors.secret-santa.mentions.invalid'));
 
 	const uniqueMentions = new Set(mentions);
-	if (uniqueMentions.size !== mentions.length) throw new Error(t('errors.secret-santa.users.duplicate'));
+	if (uniqueMentions.size !== mentions.length) throw new Error(t('errors.secret-santa.mentions.duplicate'));
 
 	const users = await Promise.all(
 		mentions
-			.filter((id) => interaction.client.users.cache.has(id))
+			.filter((id) => client.users.cache.has(id))
 			.map(async (id) => {
-				const user = await interaction.client.users.fetch(id);
-				if (user.bot) throw new Error(t('errors.secret-santa.users.bot'));
+				const user = await client.users.fetch(id);
+				if (user.bot) throw new Error(t('errors.secret-santa.mentions.bot'));
 				return { participantId: randomUUID(), user };
 			}),
 	);
-	if (users.length < 3) throw new Error(t('errors.secret-santa.users.minimum'));
+	if (users.length < 3) throw new Error(t('errors.secret-santa.mentions.minimum'));
 
 	const embed = new EmbedBuilder().setTitle(t('interactions.secret-santa.embeds.0.title')).setColor('Random');
 	await interaction.reply({ embeds: [embed] });
 
 	const eventDate = getEventDate();
-	const shuffledUsers = shuffle(users);
+	const shuffledUsers = ArrayUtil.shuffle(users);
 	for (const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
-		const reminderId = await RemindersModel.createReminder({
-			userId: gifter.user.id,
-			timeStart: Date.now(),
-			timeEnd: eventDate.getTime(),
-			message: t('interactions.secret-santa.reminder.message', { year: eventDate.getFullYear() }),
+		const reminder = await client.prisma.reminder.create({
+			data: {
+				userId: gifter.user.id,
+				timeStart: new Date(),
+				timeEnd: eventDate,
+				message: t('interactions.secret-santa.reminder.message', { year: eventDate.getFullYear() }),
+			},
 		});
 
 		const embed = new EmbedBuilder()
@@ -58,21 +59,21 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 			.addFields([
 				{
 					name: t('interactions.secret-santa.embeds.1.fields.0.name'),
-					value: `**${DateUtil.format({ date: eventDate })}**`,
+					value: DateUtil.format(eventDate),
 				},
 				{
 					name: t('interactions.secret-santa.embeds.1.fields.1.name'),
-					value: `**${value}€**`,
+					value: `${value}€`,
 				},
 				{
 					name: t('interactions.secret-santa.embeds.1.fields.2.name'),
-					value: `**${receiver.user.username}**`,
+					value: receiver.user.username,
 				},
 			])
-			.setFooter({ text: t('interactions.secret-santa.embeds.1.footer.text', { reminderId }) })
+			.setFooter({ text: t('interactions.secret-santa.embeds.1.footer.text', { reminderId: reminder.id }) })
 			.setColor('Random');
 
-		gifter.user.send({ embeds: [embed] });
+		await gifter.user.send({ embeds: [embed] });
 		logger.debug({ gifterId: gifter.participantId, receiverId: receiver.participantId });
 	}
 };
@@ -80,15 +81,7 @@ export const execute: InteractionCommandExecute = async ({ interaction }) => {
 const getEventDate = () => {
 	const currentYear = new Date().getFullYear();
 	const eventYear = new Date(currentYear, 11, 25).getTime() >= Date.now() ? currentYear : currentYear + 1;
-	return new Date(eventYear, 11, 25);
-};
-
-const shuffle = <T>(array: T[]) => {
-	let currentIndex = array.length;
-	while (currentIndex != 0) {
-		const randomIndex = Math.floor(Math.random() * currentIndex);
-		currentIndex--;
-		[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-	}
-	return array;
+	const date = new Date(eventYear, 11, 25);
+	date.setHours(0, 0, 0, 0);
+	return date;
 };

@@ -20,11 +20,10 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
+	const chart = interaction.options.getInteger(data.options[0].name, true);
 
-	const chart = interaction.options.getInteger(t('interactions.gaming.xbox.charts.options.0.name'), true);
-
-	const data = await client.api.gaming.platforms.xbox.getChart({ chart });
-	if (data.length === 0) throw new Error(t('errors.search.none'));
+	const result = await client.api.gaming.platforms.xbox.getChart({ chart });
+	if (result.length === 0) throw new Error(t('errors.search.none'));
 
 	const embed = new EmbedBuilder()
 		.setTitle(
@@ -32,7 +31,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 				chart: t(`interactions.gaming.xbox.charts.options.0.choices.${chart}.name`),
 			}),
 		)
-		.setDescription(data.map(({ position, name, url }) => `\`${position}.\` [${name}](${url})`).join('\n'))
+		.setDescription(result.map(({ position, name, url }) => `\`${position}.\` [${name}](${url})`).join('\n'))
 		.setColor('Random');
 
 	await interaction.editReply({ embeds: [embed] });

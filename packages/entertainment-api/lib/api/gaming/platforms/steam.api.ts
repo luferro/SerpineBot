@@ -83,10 +83,10 @@ export class SteamApi extends Scraper {
 		});
 
 		return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
-			name,
-			id: appid,
+			id: appid.toString(),
+			title: name,
 			totalHours: ConverterUtil.toHours(playtime_forever * 1000 * 60),
-			twoWeeksHours: ConverterUtil.toHours(playtime_2weeks * 1000 * 60),
+			biweeklyHours: ConverterUtil.toHours(playtime_2weeks * 1000 * 60),
 			url: `${SteamApi.BASE_STORE_URL}/app/${appid}`,
 		}));
 	}
@@ -114,15 +114,15 @@ export class SteamApi extends Scraper {
 
 				wishlist.push({
 					id,
-					name,
 					priority,
 					discount,
 					discounted,
 					regular,
+					title: name,
 					url: `${SteamApi.BASE_STORE_URL}/app/${id}`,
-					free: is_free_game,
-					released: typeof release_date === 'string',
-					sale: Boolean(discount && discounted),
+					isFree: is_free_game,
+					isReleased: typeof release_date === 'string',
+					onSale: Boolean(discount && discounted),
 				});
 			}
 			page++;

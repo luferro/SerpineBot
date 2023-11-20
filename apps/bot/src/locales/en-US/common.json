@@ -1,0 +1,21 @@
+{
+	"unavailable": "n/a",
+	"none": "None",
+	"tbd": "TBD",
+	"toggle": {
+		"on": "on",
+		"off": "off"
+	},
+	"lists": {
+		"hidden": "And {{size}} more!"
+	},
+	"player": {
+		"playback": {
+			"playing": "Currently playing.",
+			"nothing": "Nothing is playing."
+		},
+		"queue": {
+			"empty": "Empty."
+		}
+	}
+}
