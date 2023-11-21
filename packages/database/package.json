@@ -9,7 +9,8 @@
 		"build": "tsc",
 		"lint": "eslint --ext .ts .",
 		"lint:fix": "eslint --fix --ext .ts .",
-		"prettier": "prettier --write ."
+		"prettier": "prettier --write .",
+		"schema": "npx prisma generate --schema=./lib/prisma/schema.prisma"
 	},
 	"keywords": [],
 	"author": "Luís Ferro",

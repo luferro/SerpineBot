@@ -4,6 +4,12 @@
 		"start": {
 			"outputs": []
 		},
+		"dev": {
+			"outputs": []
+		},
+		"schema": {
+			"outputs": []
+		},
 		"build": {
 			"dependsOn": ["^build"],
 			"outputs": ["dist/**"]

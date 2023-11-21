@@ -4,6 +4,8 @@
 	"description": "Multipurpose bot for my private discord server.",
 	"scripts": {
 		"start": "turbo run start",
+		"dev": "turbo run dev",
+		"schema": "turbo run schema",
 		"build": "turbo run build",
 		"lint": "turbo run lint",
 		"lint:fix": "turbo run lint:fix",

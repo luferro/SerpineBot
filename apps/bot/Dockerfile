@@ -13,6 +13,7 @@ COPY --from=builder /usr/src/app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install
 COPY --from=builder /usr/src/app/out/full/ .
 ARG CONCURRENCY
+RUN pnpm schema
 RUN pnpm build --filter=bot... --concurrency=$CONCURRENCY
 
 FROM mcr.microsoft.com/playwright:focal as runner
