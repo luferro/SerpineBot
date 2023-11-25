@@ -2,9 +2,9 @@ import { ExtendedPrismaClient, getExtendedPrismaClient, WebhookType } from '@luf
 import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from '@luferro/entertainment-api';
 import { RedditApi } from '@luferro/reddit-api';
 import { Scraper } from '@luferro/scraper';
-import { ArrayUtil, DateUtil, logger } from '@luferro/shared-utils';
+import { DateUtil, logger, ObjectUtil } from '@luferro/shared-utils';
 import { CronJob } from 'cron';
-import { Client, ClientOptions, Collection, EmbedBuilder, Events, Guild } from 'discord.js';
+import { Client, ClientOptions, Collection, Embed, EmbedBuilder, Events, Guild, Message } from 'discord.js';
 import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
 import i18next from 'i18next';
 
@@ -17,9 +17,9 @@ import { initializeLeopard, initializePorcupine, initializeRhino, initializeText
 import type { Api, Commands, Event, Job, Speech } from '../types/bot';
 import { Cache } from './Cache';
 
-type Message = string | EmbedBuilder;
+type MessageType = string | EmbedBuilder;
 type WebhookArgs = { guild: Guild; type: WebhookType };
-type PropagateArgs = { type: WebhookType; cache?: boolean; everyone?: boolean; messages: Message[] };
+type PropagateArgs = { type: WebhookType; cache?: boolean; everyone?: boolean; messages: MessageType[] };
 
 export class Bot extends Client {
 	private static readonly MAX_EMBEDS_CHUNK_SIZE = 10;
@@ -85,8 +85,8 @@ export class Bot extends Client {
 					this.emit('clientError', error);
 				});
 
-			const isDiscordEvent = ArrayUtil.enumToArray(Events).some((key) => Events[key] === name);
-			const isPlayerEvent = ArrayUtil.enumToArray(GuildQueueEvent).some((key) => GuildQueueEvent[key] === name);
+			const isDiscordEvent = ObjectUtil.enumToArray(Events).some((key) => Events[key] === name);
+			const isPlayerEvent = ObjectUtil.enumToArray(GuildQueueEvent).some((key) => GuildQueueEvent[key] === name);
 			const isClientEvent = isDiscordEvent || (!isDiscordEvent && !isPlayerEvent);
 
 			if (isClientEvent) this[data.type](name, callback);
@@ -168,20 +168,46 @@ export class Bot extends Client {
 			  ).filter((item): item is NonNullable<(typeof messages)[0]> => !!item)
 			: messages;
 
+		const filter = <T>(message: T) => message instanceof EmbedBuilder;
+		const [embeds, contents] = ObjectUtil.partition<MessageType, EmbedBuilder>(allMessages, filter);
+
+		const hasCommonFields = <T extends object>(obj1: T, obj2: T) =>
+			ObjectUtil.hasCommonFields(['url', 'fields'], obj1, obj2);
+
 		for (const { 1: guild } of this.guilds.cache) {
 			const webhook = await this.webhook({ guild, type });
-			if (!webhook) continue;
+			const channel = webhook?.channel;
+			if (!webhook || !channel) continue;
 
-			const filter = <T>(message: T) => message instanceof EmbedBuilder;
-			const [embeds, contents] = ArrayUtil.partition<Message, EmbedBuilder>(allMessages, filter);
+			for (const data of [...contents, ...ObjectUtil.splitIntoChunks(embeds, Bot.MAX_EMBEDS_CHUNK_SIZE)]) {
+				if (Array.isArray(data)) {
+					const content = everyone ? `${guild.roles.everyone}` : undefined;
 
-			for (const content of contents) {
-				await webhook.send({ content: everyone ? `${guild.roles.everyone}, ${content}` : content });
-			}
+					const cachedMessage = channel.messages.cache.find((message) =>
+						data.some((embed) =>
+							message.embeds.some((cachedEmbed) => hasCommonFields(embed.data, cachedEmbed.data)),
+						),
+					);
 
-			const size = type === WebhookType.ANIME ? 1 : Bot.MAX_EMBEDS_CHUNK_SIZE;
-			for (const chunk of ArrayUtil.splitIntoChunks(embeds, size)) {
-				await webhook.send({ content: everyone ? `${guild.roles.everyone}` : undefined, embeds: chunk });
+					if (!cachedMessage) {
+						const message = await webhook.send({ content, embeds: data });
+						webhook.channel.messages.cache.set(message.id, message as Message<true>);
+						continue;
+					}
+
+					const { embeds } = cachedMessage;
+					for (const embed of data) {
+						const index = embeds.findIndex((cachedEmbed) => hasCommonFields(embed.data, cachedEmbed.data));
+						if (index !== -1) embeds[index] = embed.data as Embed;
+						else embeds.push(embed.data as Embed);
+					}
+
+					const message = await webhook.editMessage(cachedMessage.id, { content, embeds });
+					webhook.channel.messages.cache.set(message.id, message as Message<true>);
+					continue;
+				}
+
+				await webhook.send({ content: everyone ? `${guild.roles.everyone}, ${data}` : data });
 			}
 		}
 	}
