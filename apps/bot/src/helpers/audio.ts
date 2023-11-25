@@ -1,4 +1,4 @@
-import { ArrayUtil, logger } from '@luferro/shared-utils';
+import { logger, ObjectUtil } from '@luferro/shared-utils';
 import { EndBehaviorType, VoiceReceiver } from 'discord-voip';
 import prism from 'prism-media';
 
@@ -43,7 +43,7 @@ export const getAudioBuffer = async ({
 };
 
 export const getFrames = (pcm: Int16Array, frameLength: number) => {
-	const frames = ArrayUtil.splitIntoChunks(pcm as unknown as number[], frameLength);
+	const frames = ObjectUtil.splitIntoChunks(pcm as unknown as number[], frameLength);
 	if (frames.at(-1)?.length !== frameLength) {
 		frames.pop();
 	}

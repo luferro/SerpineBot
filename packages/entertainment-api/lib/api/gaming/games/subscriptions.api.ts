@@ -1,5 +1,5 @@
 import { Scraper } from '@luferro/scraper';
-import { ArrayUtil, logger, StringUtil } from '@luferro/shared-utils';
+import { logger, ObjectUtil, StringUtil } from '@luferro/shared-utils';
 
 const CatalogType = {
 	XBOX_GAME_PASS: 'XBOX_GAME_PASS',
@@ -135,7 +135,7 @@ export class SubscriptionsApi extends Scraper {
 
 	async getCatalogs() {
 		const data = [];
-		for (const type of ArrayUtil.enumToArray(CatalogType)) {
+		for (const type of ObjectUtil.enumToArray(CatalogType)) {
 			data.push(await this.getCatalog({ type }));
 		}
 		return data;

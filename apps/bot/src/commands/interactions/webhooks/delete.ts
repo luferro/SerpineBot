@@ -1,5 +1,5 @@
 import { WebhookType } from '@luferro/database';
-import { ArrayUtil } from '@luferro/shared-utils';
+import { ObjectUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 
@@ -13,7 +13,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setName(t('interactions.webhooks.delete.options.0.name'))
 			.setDescription(t('interactions.webhooks.delete.options.0.description'))
 			.setRequired(true)
-			.addChoices(...ArrayUtil.enumToArray(WebhookType).map((webhook) => ({ name: webhook, value: webhook }))),
+			.addChoices(...ObjectUtil.enumToArray(WebhookType).map((webhook) => ({ name: webhook, value: webhook }))),
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {

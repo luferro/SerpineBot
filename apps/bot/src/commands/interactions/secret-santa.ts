@@ -1,4 +1,4 @@
-import { ArrayUtil, DateUtil, logger } from '@luferro/shared-utils';
+import { DateUtil, logger, ObjectUtil } from '@luferro/shared-utils';
 import { randomUUID } from 'crypto';
 import { EmbedBuilder, SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 import { t } from 'i18next';
@@ -41,7 +41,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.reply({ embeds: [embed] });
 
 	const eventDate = getEventDate();
-	const shuffledUsers = ArrayUtil.shuffle(users);
+	const shuffledUsers = ObjectUtil.shuffle(users);
 	for (const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 

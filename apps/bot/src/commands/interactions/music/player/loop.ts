@@ -1,4 +1,4 @@
-import { ArrayUtil } from '@luferro/shared-utils';
+import { ObjectUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { QueueRepeatMode } from 'discord-player';
 import { t } from 'i18next';
@@ -14,7 +14,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setDescription(t('interactions.music.player.loop.options.0.description'))
 			.setRequired(true)
 			.addChoices(
-				...ArrayUtil.enumToArray(QueueRepeatMode).map((mode) => ({
+				...ObjectUtil.enumToArray(QueueRepeatMode).map((mode) => ({
 					name: mode,
 					value: QueueRepeatMode[mode],
 				})),

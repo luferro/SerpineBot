@@ -1,3 +1,5 @@
+import R from 'ramda';
+
 export const splitIntoChunks = <T>(array: T[], size: number) => {
 	const result: T[][] = [];
 	for (let i = 0; i < array.length; i += size) {
@@ -35,4 +37,8 @@ export const enumToArray = <T extends { [name: string]: number | string }>(enume
 	return Object.keys(enumeration)
 		.filter((value) => isNaN(Number(value)))
 		.map((value) => value as keyof T);
+};
+
+export const hasCommonFields = <T extends object>(fields: string[], obj1: T, obj2: T): boolean => {
+	return R.all((field) => R.equals(R.path(field.split('.'), obj1), R.path(field.split('.'), obj2)), fields);
 };
