@@ -15,16 +15,30 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
-	const gamertag = interaction.options.getString(data.options[0].name, true);
+	const profile = interaction.options.getString(data.options[0].name, true);
 
 	const exists = await client.prisma.xbox.exists({ where: { userId: interaction.user.id } });
-	if (!exists) throw new Error('errors.unprocessable');
+	if (exists) throw new Error(t('errors.unprocessable'));
 
-	const isGamertagValid = await client.api.gaming.platforms.xbox.isGamertagValid({ gamertag });
-	if (!isGamertagValid) throw new Error(t('errors.xbox.profile.gamertag'));
+	const results = await client.api.gaming.platforms.xbox.search({ gamertag: profile });
+	if (results.length === 0) throw new Error(t('errors.xbox.profile.gamertag'));
+	const { id, gamertag } = results[0];
 
-	const { name, gamerscore } = await client.api.gaming.platforms.xbox.getProfile({ gamertag });
-	await client.prisma.xbox.create({ data: { userId: interaction.user.id, profile: { gamertag: name, gamerscore } } });
+	const recentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed({ id });
+
+	await client.prisma.xbox.create({
+		data: {
+			userId: interaction.user.id,
+			profile: { id, gamertag },
+			recentlyPlayed: recentlyPlayed.map((game) => ({
+				id: game.id,
+				title: game.title,
+				currentGamerscore: game.gamerscore.current,
+				totalGamerscore: game.gamerscore.total,
+				weeklyGamerscore: 0,
+			})),
+		},
+	});
 
 	const embed = new EmbedBuilder()
 		.setTitle(t('interactions.integrations.xbox.import.embed.title'))

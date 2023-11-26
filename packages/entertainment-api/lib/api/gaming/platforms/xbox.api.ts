@@ -1,6 +1,33 @@
 import { Scraper } from '@luferro/scraper';
+import { DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
 
-import { Gamertag } from '../../../types/args';
+import { ApiKey, Gamertag, Id } from '../../../types/args';
+
+type Payload<T> = { [key: string]: T };
+
+type Profile = {
+	xuid: string;
+	gamertag: string;
+	gamerScore: string;
+	displayPicRaw: string | null;
+	presentState: string;
+	presenceText: string;
+	preferredPlatforms: string[];
+};
+
+type RecentlyPlayed = {
+	titleId: string;
+	name: string;
+	displayImage: string;
+	achievement: {
+		currentAchievements: number;
+		totalAchievements: number;
+		currentGamerscore: number;
+		totalGamerscore: number;
+		progressPercentage: number;
+	};
+	titleHistory: { lastTimePlayed: string };
+};
 
 enum Chart {
 	TOP_SELLERS,
@@ -9,26 +36,69 @@ enum Chart {
 }
 
 export class XboxApi extends Scraper {
-	async isGamertagValid({ gamertag }: Gamertag) {
-		const profile = await this.getProfile({ gamertag });
-		return profile.name !== "Gamertag doesn't exist";
+	private static BASE_API_URL = 'https://xbl.io';
+
+	private apiKey: string;
+
+	constructor({ apiKey }: ApiKey) {
+		super();
+		this.apiKey = apiKey;
 	}
 
-	async getProfile({ gamertag }: Gamertag) {
-		const html = await this.interactive.getHtml({ url: `https://xboxgamertag.com/search/${gamertag}` });
-		const $ = this.static.loadHtml({ html });
+	private getCustomHeaders() {
+		return new Map([
+			['x-authorization', this.apiKey],
+			['accept', 'application/json'],
+		]);
+	}
 
-		const name = $('h1').first().text();
-		const image = $('.avatar img').first().attr('src');
-		const gamerscore = $('.profile-detail-item').first().text().match(/\d/g)?.join('') ?? 0;
-		const gamesPlayed = $('.profile-detail-item').last().text().match(/\d/g)?.join('') ?? 0;
+	async search({ gamertag }: Gamertag) {
+		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>({
+			url: `${XboxApi.BASE_API_URL}/api/v2/search/${gamertag}`,
+			customHeaders: this.getCustomHeaders(),
+		});
+		return payload.people.map(({ xuid, gamertag }) => ({ id: xuid, gamertag }));
+	}
+
+	async getProfile({ id }: Id) {
+		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>({
+			url: `${XboxApi.BASE_API_URL}/api/v2/player/summary/${id}`,
+			customHeaders: this.getCustomHeaders(),
+		});
+
+		if (payload.people.length === 0) throw new Error(`Cannot find a profile for id ${id}.`);
+		const { gamertag, gamerScore, displayPicRaw, presenceText, preferredPlatforms } = payload.people[0];
 
 		return {
-			name,
-			image: image ? `https:${image.replace('&w=90&h=90', '')}` : null,
-			gamerscore: Number(gamerscore),
-			gamesPlayed: Number(gamesPlayed),
+			id,
+			gamertag,
+			gamerscore: Number(gamerScore),
+			image: displayPicRaw,
+			status: presenceText,
+			platforms: preferredPlatforms?.map((platform) => StringUtil.capitalize(platform)),
 		};
+	}
+
+	async getRecentlyPlayed({ id }: Id) {
+		const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed[]>>({
+			url: `${XboxApi.BASE_API_URL}/api/v2/player/titleHistory/${id}`,
+			customHeaders: this.getCustomHeaders(),
+		});
+
+		return payload.titles
+			.filter(
+				({ titleHistory }) =>
+					DateUtil.subWeeks(new Date(), 1).getTime() < new Date(titleHistory.lastTimePlayed).getTime(),
+			)
+			.map(({ titleId, name, displayImage, achievement }) => ({
+				id: titleId,
+				title: name,
+				image: displayImage,
+				gamerscore: {
+					current: achievement.currentGamerscore,
+					total: achievement.totalGamerscore,
+				},
+			}));
 	}
 
 	async getChart({ chart }: { chart: Chart }) {

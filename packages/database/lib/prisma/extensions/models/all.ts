@@ -8,7 +8,7 @@ export const all = Prisma.defineExtension((client) => {
 		model: {
 			$allModels: {
 				async exists<T>(this: T, where: Pick<Prisma.Args<T, 'count'>, 'where'>) {
-					const count = await getContext(this).count({ where });
+					const count = await getContext(this).count(where);
 					return count > 0;
 				},
 			},

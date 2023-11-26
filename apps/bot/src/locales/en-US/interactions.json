@@ -109,7 +109,7 @@
 				"name": "profile",
 				"description": "Xbox profile for your account or mentioned user.",
 				"options": [{ "name": "mention", "description": "User mention." }],
-				"embed": { "fields": [{ "name": "**Gamerscore**" }, { "name": "**Games played**" }] }
+				"embed": { "fields": [{ "name": "**Gamerscore**" }, { "name": "**Status**" }] }
 			}
 		},
 		"deals": {

@@ -57,17 +57,26 @@ model Reminder {
   @@map("reminders")
 }
 
+type XboxRecentlyPlayedEntry {
+  id                String
+  title             String
+  weeklyGamerscore  Int
+  currentGamerscore Int
+  totalGamerscore   Int
+}
+
 type XboxProfile {
-  gamertag   String
-  gamerscore Int
+  id       String
+  gamertag String
 }
 
 model Xbox {
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String      @unique
-  profile   XboxProfile
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id             String                    @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String                    @unique
+  profile        XboxProfile
+  recentlyPlayed XboxRecentlyPlayedEntry[]
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
 
   @@map("xbox")
 }

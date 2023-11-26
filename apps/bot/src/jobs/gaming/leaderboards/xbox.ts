@@ -6,13 +6,12 @@ import { t } from 'i18next';
 import * as Leaderboards from '../../../helpers/leaderboards';
 import type { JobData, JobExecute } from '../../../types/bot';
 
-export const data: JobData = {
-	schedule: '0 0 0 * * 0',
-};
+export const data: JobData = { schedule: '0 0 0 * * 0' };
 
 export const execute: JobExecute = async ({ client }) => {
 	try {
 		const leaderboard = await Leaderboards.getXboxLeaderboard(client);
+		if (leaderboard.length === 0) return;
 
 		const from = DateUtil.format(Date.now() - 7 * 24 * 60 * 60 * 1000);
 		const to = DateUtil.format(Date.now());
@@ -26,11 +25,10 @@ export const execute: JobExecute = async ({ client }) => {
 		logger.info(`**Xbox** leaderboard has been generated and sent to all guilds.`);
 	} finally {
 		const integrations = await client.prisma.xbox.findMany();
-		for (const { userId, profile } of integrations) {
-			const { gamerscore } = await client.api.gaming.platforms.xbox.getProfile({ gamertag: profile.gamertag });
+		for (const { userId, recentlyPlayed } of integrations) {
 			await client.prisma.xbox.update({
 				where: { userId },
-				data: { profile: { ...profile, gamerscore } },
+				data: { recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyGamerscore: 0 })) },
 			});
 		}
 		logger.info('**Xbox** leaderboard has been reset.');

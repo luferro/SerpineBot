@@ -16,17 +16,16 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.deferReply();
 	const mention = interaction.options.getMentionable(data.options[0].name) as GuildMember | null;
 
-	const integration = await client.prisma.xbox.findUnique({
-		where: { userId: mention?.user.id ?? interaction.user.id },
-	});
+	const userId = mention?.user.id ?? interaction.user.id;
+	const integration = await client.prisma.xbox.findUnique({ where: { userId } });
 	if (!integration) throw new Error(t('errors.unprocessable'));
 
-	const { name, image, gamerscore, gamesPlayed } = await client.api.gaming.platforms.xbox.getProfile({
-		gamertag: integration.profile.gamertag,
+	const { gamertag, gamerscore, image, status } = await client.api.gaming.platforms.xbox.getProfile({
+		id: integration.profile.id,
 	});
 
 	const embed = new EmbedBuilder()
-		.setTitle(name)
+		.setTitle(gamertag)
 		.setThumbnail(image)
 		.addFields([
 			{
@@ -35,7 +34,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			},
 			{
 				name: t('interactions.gaming.xbox.profile.embed.fields.1.name'),
-				value: gamesPlayed.toString(),
+				value: status,
 			},
 		])
 		.setColor('Random');

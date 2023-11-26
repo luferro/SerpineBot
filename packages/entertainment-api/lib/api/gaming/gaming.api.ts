@@ -11,6 +11,7 @@ type Config = {
 	igdb: { clientId: string; clientSecret: string };
 	deals: ApiKey;
 	steam: ApiKey;
+	xbox: ApiKey;
 };
 
 type Games = { hltb: HLTBApi; deals: DealsApi; reviews: ReviewsApi; subscriptions: SubscriptionsApi };
@@ -31,7 +32,7 @@ export class GamingApi {
 		};
 		this.platforms = {
 			steam: new SteamApi(config.steam),
-			xbox: new XboxApi(),
+			xbox: new XboxApi(config.xbox),
 		};
 	}
 }

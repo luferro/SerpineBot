@@ -14,6 +14,7 @@ const getConfig = () => ({
 
 	// API KEYS
 	STEAM_API_KEY: process.env.STEAM_API_KEY ?? null,
+	XBOX_API_KEY: process.env.XBOX_API_KEY ?? null,
 	THE_MOVIE_DB_API_KEY: process.env.THE_MOVIE_DB_API_KEY ?? null,
 	ANIME_SCHEDULE_API_KEY: process.env.ANIME_SCHEDULE_API_KEY ?? null,
 	ITAD_API_KEY: process.env.ITAD_API_KEY ?? null,
