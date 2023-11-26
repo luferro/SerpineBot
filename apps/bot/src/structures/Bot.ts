@@ -58,6 +58,7 @@ export class Bot extends Client {
 				igdb: { clientId: this.config.IGDB_CLIENT_ID, clientSecret: this.config.IGDB_CLIENT_SECRET },
 				deals: { apiKey: this.config.ITAD_API_KEY },
 				steam: { apiKey: this.config.STEAM_API_KEY },
+				xbox: { apiKey: this.config.XBOX_API_KEY },
 			}),
 		};
 	}
@@ -161,7 +162,7 @@ export class Bot extends Client {
 							const hash = this.cache.createHash(stringifiedMessage);
 							if (await this.cache.persistent.exists(hash)) return;
 
-							await this.cache.persistent.set(hash, stringifiedMessage, 'EX', 60 * 60 * 24 * 7);
+							await this.cache.persistent.set(hash, stringifiedMessage, 'EX', 60 * 60 * 24 * 30);
 							return message;
 						}),
 					)
@@ -172,7 +173,7 @@ export class Bot extends Client {
 		const [embeds, contents] = ObjectUtil.partition<MessageType, EmbedBuilder>(allMessages, filter);
 
 		const hasCommonFields = <T extends object>(obj1: T, obj2: T) =>
-			ObjectUtil.hasCommonFields(['url', 'fields'], obj1, obj2);
+			ObjectUtil.hasCommonFields(['url', 'description', 'fields'], obj1, obj2);
 
 		for (const { 1: guild } of this.guilds.cache) {
 			const webhook = await this.webhook({ guild, type });
