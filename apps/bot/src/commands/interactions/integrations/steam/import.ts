@@ -18,7 +18,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const profile = interaction.options.getString(data.options[0].name, true);
 
 	const exists = await client.prisma.steam.exists({ where: { userId: interaction.user.id } });
-	if (exists) throw new Error('errors.unprocessable');
+	if (exists) throw new Error(t('errors.unprocessable'));
 
 	const url = profile.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
 	if (!url) throw new Error(t('errors.steam.profile.url'));
