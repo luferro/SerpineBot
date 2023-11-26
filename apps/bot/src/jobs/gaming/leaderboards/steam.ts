@@ -6,13 +6,12 @@ import { t } from 'i18next';
 import * as Leaderboards from '../../../helpers/leaderboards';
 import type { JobData, JobExecute } from '../../../types/bot';
 
-export const data: JobData = {
-	schedule: '0 0 0 * * 0',
-};
+export const data: JobData = { schedule: '0 0 0 * * 0' };
 
 export const execute: JobExecute = async ({ client }) => {
 	try {
 		const leaderboard = await Leaderboards.getSteamLeaderboard(client);
+		if (leaderboard.length === 0) return;
 
 		const from = DateUtil.format(Date.now() - 7 * 24 * 60 * 60 * 1000);
 		const to = DateUtil.format(Date.now());
@@ -29,7 +28,7 @@ export const execute: JobExecute = async ({ client }) => {
 		for (const { userId, recentlyPlayed } of integrations) {
 			await client.prisma.steam.update({
 				where: { userId },
-				data: { recentlyPlayed: { ...recentlyPlayed, weeklyHours: 0 } },
+				data: { recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })) },
 			});
 		}
 		logger.info('**Steam** leaderboard has been reset.');

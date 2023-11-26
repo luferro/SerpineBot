@@ -38,8 +38,10 @@ type Wishlist = {
 };
 
 type RecentlyPlayed = {
-	total_count?: number;
-	games?: { appid: number; name: string; playtime_2weeks: number; playtime_forever: number }[];
+	appid: number;
+	name: string;
+	playtime_2weeks: number;
+	playtime_forever: number;
 };
 
 export class SteamApi extends Scraper {
@@ -61,7 +63,7 @@ export class SteamApi extends Scraper {
 	}
 
 	async getProfile({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Payload<Payload<Profile[]>>>({
+		const { payload } = await FetchUtil.fetch<Payload<{ players: Profile[] }>>({
 			url: `${SteamApi.BASE_API_URL}/ISteamUser/GetPlayerSummaries/v0002/?key=${this.apiKey}&steamids=${id}`,
 		});
 
@@ -69,6 +71,7 @@ export class SteamApi extends Scraper {
 		const { personaname, avatarfull, personastate, lastlogoff, timecreated } = payload.response.players[0];
 
 		return {
+			id,
 			name: personaname,
 			image: avatarfull,
 			status: Status[personastate],
@@ -78,7 +81,7 @@ export class SteamApi extends Scraper {
 	}
 
 	async getRecentlyPlayed({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed>>({
+		const { payload } = await FetchUtil.fetch<Payload<{ games: RecentlyPlayed[] }>>({
 			url: `${SteamApi.BASE_API_URL}/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${this.apiKey}&steamid=${id}&format=json`,
 		});
 
