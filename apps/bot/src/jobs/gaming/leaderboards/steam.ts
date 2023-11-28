@@ -21,7 +21,12 @@ export const execute: JobExecute = async ({ client }) => {
 			.setDescription(leaderboard.join('\n'))
 			.setColor('Random');
 
-		await client.propagate({ type: WebhookType.LEADERBOARDS, cache: false, messages: [embed] });
+		await client.propagate({
+			type: WebhookType.LEADERBOARDS,
+			cache: false,
+			fields: ['title', 'description'],
+			messages: [embed],
+		});
 		logger.info(`**Steam** leaderboard has been generated and sent to all guilds.`);
 	} finally {
 		const integrations = await client.prisma.steam.findMany();

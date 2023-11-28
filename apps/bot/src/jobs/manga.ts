@@ -55,5 +55,5 @@ export const execute: JobExecute = async ({ client }) => {
 		messages.push(embed);
 	}
 
-	await client.propagate({ type: WebhookType.MANGA, messages });
+	await client.propagate({ type: WebhookType.MANGA, fields: ['title', 'url', 'fields'], messages });
 };

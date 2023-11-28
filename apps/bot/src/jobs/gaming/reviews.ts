@@ -50,5 +50,5 @@ export const execute: JobExecute = async ({ client }) => {
 		messages.push(embed);
 	}
 
-	await client.propagate({ type: WebhookType.GAME_REVIEWS, messages });
+	await client.propagate({ type: WebhookType.GAME_REVIEWS, fields: ['title', 'url'], messages });
 };

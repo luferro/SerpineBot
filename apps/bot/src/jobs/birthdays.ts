@@ -36,7 +36,13 @@ export const execute: JobExecute = async ({ client }) => {
 			)
 			.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL);
 
-		await client.propagate({ type: WebhookType.BIRTHDAYS, cache: false, everyone: true, messages: [embed] });
+		await client.propagate({
+			type: WebhookType.BIRTHDAYS,
+			cache: false,
+			everyone: true,
+			fields: ['title', 'description', 'thumbnail'],
+			messages: [embed],
+		});
 		logger.info(`Notified guild users about **${target.username}** birthday.`);
 	}
 };

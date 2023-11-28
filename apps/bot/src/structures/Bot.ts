@@ -19,7 +19,13 @@ import { Cache } from './Cache';
 
 type MessageType = string | EmbedBuilder;
 type WebhookArgs = { guild: Guild; type: WebhookType };
-type PropagateArgs = { type: WebhookType; cache?: boolean; everyone?: boolean; messages: MessageType[] };
+type PropagateArgs = {
+	type: WebhookType;
+	cache?: boolean;
+	everyone?: boolean;
+	fields?: string[];
+	messages: MessageType[];
+};
 
 export class Bot extends Client {
 	private static readonly MAX_EMBEDS_CHUNK_SIZE = 10;
@@ -149,7 +155,7 @@ export class Bot extends Client {
 		return await this.fetchWebhook(webhook.id, webhook.token);
 	}
 
-	async propagate({ type, cache = true, everyone = false, messages }: PropagateArgs) {
+	async propagate({ type, cache = true, everyone = false, fields = ['url'], messages }: PropagateArgs) {
 		const allMessages = cache
 			? (
 					await Promise.all(
@@ -172,8 +178,7 @@ export class Bot extends Client {
 		const filter = <T>(message: T) => message instanceof EmbedBuilder;
 		const [embeds, contents] = ObjectUtil.partition<MessageType, EmbedBuilder>(allMessages, filter);
 
-		const hasCommonFields = <T extends object>(obj1: T, obj2: T) =>
-			ObjectUtil.hasCommonFields(['url', 'description', 'fields'], obj1, obj2);
+		const hasCommonFields = <T extends object>(obj1: T, obj2: T) => ObjectUtil.hasCommonFields(fields, obj1, obj2);
 
 		for (const { 1: guild } of this.guilds.cache) {
 			const webhook = await this.webhook({ guild, type });
