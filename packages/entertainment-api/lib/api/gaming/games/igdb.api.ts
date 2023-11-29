@@ -77,7 +77,7 @@ export class IGDBApi {
 				const scheduledStartAt = DateUtil.isPast(start_time * 1000)
 					? DateUtil.addMinutes(Date.now(), 5)
 					: start_time * 1000;
-				const scheduledStartEnd = end_time ? end_time * 1000 : DateUtil.endOfDay(scheduledStartAt).getTime();
+				const scheduledEndAt = end_time ? end_time * 1000 : DateUtil.endOfDay(scheduledStartAt).getTime();
 
 				const urls = [live_stream_url, ...(event_networks?.map((event) => event.url) ?? [])].filter(
 					(url): url is NonNullable<string> => !!url,
@@ -86,7 +86,7 @@ export class IGDBApi {
 				return {
 					name,
 					scheduledStartAt,
-					scheduledStartEnd,
+					scheduledEndAt,
 					image: event_logo ? `https:${event_logo.url.replace('t_thumb', 't_1080p')}` : null,
 					description: description ?? null,
 					url: {

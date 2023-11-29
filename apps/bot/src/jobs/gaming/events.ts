@@ -1,3 +1,4 @@
+import { DateUtil } from '@luferro/shared-utils';
 import { GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel } from 'discord.js';
 import { t } from 'i18next';
 
@@ -10,9 +11,11 @@ export const execute: JobExecute = async ({ client }) => {
 
 	for (const { 1: guild } of client.guilds.cache) {
 		const guildEvents = await guild.scheduledEvents.fetch();
-		for (const { name, description, image, url, scheduledStartAt, scheduledStartEnd } of events) {
+		for (const { name, description, image, url, scheduledStartAt, scheduledEndAt } of events) {
+			const stringifiedEvent = JSON.stringify({ name, image, url });
+			const hash = client.cache.createHash(stringifiedEvent);
 			const hasGuildEvent = guildEvents.some((guildEvent) => guildEvent.name === name);
-			if (hasGuildEvent) continue;
+			if (hasGuildEvent || (await client.cache.persistent.exists(hash))) continue;
 
 			await guild.scheduledEvents.create({
 				name,
@@ -22,11 +25,14 @@ export const execute: JobExecute = async ({ client }) => {
 					url: url.youtube ?? url.twitch ?? '',
 				}),
 				scheduledStartTime: scheduledStartAt,
-				scheduledEndTime: scheduledStartEnd,
+				scheduledEndTime: scheduledEndAt,
 				entityType: GuildScheduledEventEntityType.External,
 				privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
 				entityMetadata: { location: url.twitch ?? url.youtube ?? t('common.tbd') },
 			});
+
+			const seconds = DateUtil.differenceInSeconds(scheduledEndAt, Date.now());
+			await client.cache.persistent.set(hash, stringifiedEvent, 'EX', seconds);
 		}
 	}
 };
