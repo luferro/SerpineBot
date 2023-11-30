@@ -70,12 +70,12 @@ export class RSS extends Parser {
 							}
 
 							return {
-								image,
 								creator: creator ?? null,
 								categories: categories ?? [],
 								title: title!,
 								url: link!,
 								description: contentSnippet!,
+								image: image?.startsWith('http') ? image : null,
 								publishedAt: isoDate ? new Date(isoDate) : new Date(),
 							};
 						},
