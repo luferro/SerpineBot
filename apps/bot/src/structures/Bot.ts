@@ -205,7 +205,6 @@ export class Bot extends Client {
 					for (const embed of data) {
 						const index = embeds.findIndex((cachedEmbed) => hasCommonFields(embed.data, cachedEmbed.data));
 						if (index !== -1) embeds[index] = embed.data as Embed;
-						else embeds.push(embed.data as Embed);
 					}
 
 					const message = await webhook.editMessage(cachedMessage.id, { content, embeds });
