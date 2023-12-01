@@ -1,4 +1,3 @@
-import { BridgeProvider, BridgeSource } from '@discord-player/extractor';
 import { ExtendedPrismaClient, getExtendedPrismaClient, WebhookType } from '@luferro/database';
 import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from '@luferro/entertainment-api';
 import { RedditApi } from '@luferro/reddit-api';
@@ -80,7 +79,7 @@ export class Bot extends Client {
 	}
 
 	private initializePlayer() {
-		const player = new Player(this, { bridgeProvider: new BridgeProvider(BridgeSource.Auto) });
+		const player = new Player(this);
 		player.extractors.loadDefault();
 		logger.debug(player.scanDeps());
 		return player;
