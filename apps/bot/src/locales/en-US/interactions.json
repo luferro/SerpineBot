@@ -489,7 +489,7 @@
 			{ "name": "value", "description": "Gift value for the Secret Santa (€)." }
 		],
 		"embeds": [
-			{ "title": "A DM will be sent to each participant shortly." },
+			{ "title": "Secret Santa: A DM will be sent to each participant shortly." },
 			{
 				"title": "🎅 Secret Santa {{year}} 🎅",
 				"fields": [
