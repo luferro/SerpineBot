@@ -9,7 +9,7 @@ SerpineBot is a monorepo that consists in two applications: **bot** and **docs**
 
 -   **Slash commands**
     -   **15** slash commands that result in **60+** commands available to use.
-    -   An overview can be found [here](https://serpine-bot.vercel.app).
+    -   An overview can be found [here](https://serpine-bot-docs.vercel.app/).
 -   **Jobs**
     -   **30** scheduled jobs
         -   Feed text channels with data on news, deals, anime episodes, manga chapters, memes and more!
