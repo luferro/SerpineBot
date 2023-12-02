@@ -178,7 +178,7 @@ export class Bot extends Client {
 		const filter = <T>(message: T) => message instanceof EmbedBuilder;
 		const [embeds, contents] = ObjectUtil.partition<MessageType, EmbedBuilder>(allMessages, filter);
 
-		const hasCommonFields = <T extends object>(obj1: T, obj2: T) => ObjectUtil.hasCommonFields(fields, obj1, obj2);
+		const isMatch = <T extends object>(obj1: T, obj2: T) => ObjectUtil.hasCommonFields(fields, obj1, obj2);
 
 		for (const { 1: guild } of this.guilds.cache) {
 			const webhook = await this.webhook({ guild, type });
@@ -190,9 +190,7 @@ export class Bot extends Client {
 					const content = everyone ? `${guild.roles.everyone}` : undefined;
 
 					const cachedMessage = channel.messages.cache.find((message) =>
-						data.some((embed) =>
-							message.embeds.some((cachedEmbed) => hasCommonFields(embed.data, cachedEmbed.data)),
-						),
+						data.some((embed) => message.embeds.some((cached) => isMatch(embed.data, cached.data))),
 					);
 
 					if (!cachedMessage) {
@@ -203,7 +201,7 @@ export class Bot extends Client {
 
 					const { embeds } = cachedMessage;
 					for (const embed of data) {
-						const index = embeds.findIndex((cachedEmbed) => hasCommonFields(embed.data, cachedEmbed.data));
+						const index = embeds.findIndex((cachedEmbed) => isMatch(embed.data, cachedEmbed.data));
 						if (index !== -1) embeds[index] = embed.data as Embed;
 					}
 
