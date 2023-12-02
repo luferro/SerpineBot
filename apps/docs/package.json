@@ -1,8 +1,8 @@
 {
-	"name": "web",
+	"name": "docs",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Web client for the bot.",
+	"description": "General docs for SerpineBot.",
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",

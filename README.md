@@ -1,8 +1,9 @@
 ## SerpineBot
 
-SerpineBot is a monorepo that consists in two applications: **bot** and **web**.
+SerpineBot is a monorepo that consists in two applications: **bot** and **docs**.
+
 -   **Bot**: Multipurpose Discord bot for my private discord server.
--   **Web**: Overview of all available slash commands with embed samples.
+-   **Docs**: Overview of all available slash commands with embed samples.
 
 ## Features:
 
@@ -21,12 +22,14 @@ SerpineBot is a monorepo that consists in two applications: **bot** and **web**.
 ## Tech Stack
 
 Bot application:
+
 -   Node.js: >= 16.9.0
 -   Discord.js
 -   TypeScript
 -   Mongoose
 
-Web application:
+Docs application:
+
 -   Node.js
 -   Next.js
 -   TypeScript
@@ -34,11 +37,12 @@ Web application:
 
 ## Configuration
 
-Each application package uses its own configuration file. 
+Each application package uses its own configuration file.
 
 Please follow the **.env.example** file within each application package to create you own **.env**.
+
 -   [Example](/apps/bot/.env.example) for bot application .env file
--   [Example](/apps/web/.env.example) for web application .env file
+-   [Example](/apps/docs/.env.example) for docs application .env file
 
 ## Usage
 
@@ -55,7 +59,7 @@ Otherwise, you can skip to the [Node.js](#nodejs) section guide.
 
 #### Start the application
 
-**NOTE:** Docker configuration is not yet available for the web application.
+**NOTE:** Docker configuration is not yet available for the docs application.
 
 ```
 docker compose up bot
@@ -66,32 +70,40 @@ And that's it!
 ### Node.js
 
 #### Install pnpm
+
 ```
-corepack enable 
+corepack enable
 corepack prepare pnpm@latest --activate
 ```
+
 If you do not have Node.js v16.7 or newer, you may install pnpm with the following command:
+
 ```
 npm install -g pnpm
 ```
 
 #### Install dependencies
+
 ```
 pnpm install
 ```
 
 #### Build project
+
 ```
 pnpm run build
 ```
 
 #### Start the application
+
 ```
 pnpm start --filter bot
 ```
+
 or
+
 ```
-pnpm start --filter web
+pnpm start --filter docs
 ```
 
 And that's it!
