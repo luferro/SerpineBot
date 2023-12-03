@@ -24,8 +24,8 @@ export const getSteamLeaderboard = async (client: Bot) => {
 
 		await client.prisma.steam.update({ where: { userId }, data: { recentlyPlayed: updatedRecentlyPlayed } });
 
-		const { title, url } = recentlyPlayed.reduce((acc, el) => (el.weeklyHours > acc.weeklyHours ? el : acc));
-		const hours = +recentlyPlayed.reduce((acc, el) => acc + el.weeklyHours, 0).toFixed(2);
+		const { title, url } = updatedRecentlyPlayed.reduce((acc, el) => (el.weeklyHours > acc.weeklyHours ? el : acc));
+		const hours = +updatedRecentlyPlayed.reduce((acc, el) => acc + el.weeklyHours, 0).toFixed(2);
 
 		const user = await client.users.fetch(userId);
 		leaderboard.push({ user, hours, game: { title, url } });
@@ -65,8 +65,10 @@ export const getXboxLeaderboard = async (client: Bot) => {
 
 		await client.prisma.xbox.update({ where: { userId }, data: { recentlyPlayed: updatedRecentlyPlayed } });
 
-		const { title } = recentlyPlayed.reduce((acc, el) => (el.weeklyGamerscore > acc.weeklyGamerscore ? el : acc));
-		const gamerscore = +recentlyPlayed.reduce((acc, el) => acc + el.weeklyGamerscore, 0).toFixed(2);
+		const { title } = updatedRecentlyPlayed.reduce((acc, el) =>
+			el.weeklyGamerscore > acc.weeklyGamerscore ? el : acc,
+		);
+		const gamerscore = +updatedRecentlyPlayed.reduce((acc, el) => acc + el.weeklyGamerscore, 0).toFixed(2);
 
 		const user = await client.users.fetch(userId);
 		leaderboard.push({ user, gamerscore, game: { title } });
