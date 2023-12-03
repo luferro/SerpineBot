@@ -43,7 +43,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	});
 
 	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.webhooks.create.embed.title', { channel: `\`${channel.name}\`` }))
+		.setTitle(t('interactions.webhooks.create.embed.title', { channel: channel.name }))
 		.setColor('Random');
 
 	await interaction.reply({ embeds: [embed] });

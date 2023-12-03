@@ -77,7 +77,7 @@ const handleUserVoice = async ({
 
 	await command.execute({ client, queue, slots, rest: [userId] }).catch((error) => {
 		const embed = new EmbedBuilder()
-			.setTitle(t('errors.voice.failed', { intent: `\`${intent}\`` }))
+			.setTitle(t('errors.voice.failed', { intent }))
 			.setDescription((error as Error).message)
 			.setColor('Random');
 

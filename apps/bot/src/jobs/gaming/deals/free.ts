@@ -21,13 +21,7 @@ const getFreebies = async ({ client }: Parameters<typeof execute>[0]) => {
 		const embed = new EmbedBuilder()
 			.setTitle(title)
 			.setURL(url)
-			.setDescription(
-				t('jobs.gaming.deals.free.embed.description', {
-					discount: `**-${discount}%**`,
-					regular: `~~${regular}~~`,
-					store: `**${store}**`,
-				}),
-			)
+			.setDescription(t('jobs.gaming.deals.free.embed.description', { discount, regular, store }))
 			.setFooter(expiry ? { text: t('jobs.gaming.deals.free.embed.footer.text', { expiry }) } : null)
 			.setColor('Random');
 
