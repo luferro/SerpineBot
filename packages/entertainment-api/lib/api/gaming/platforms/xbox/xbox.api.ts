@@ -1,39 +1,8 @@
 import { Scraper } from '@luferro/scraper';
 import { DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
 
-import { ApiKey, Gamertag, Id } from '../../../types/args';
-
-type Payload<T> = { [key: string]: T };
-
-type Profile = {
-	xuid: string;
-	gamertag: string;
-	gamerScore: string;
-	displayPicRaw: string | null;
-	presentState: string;
-	presenceText: string;
-	preferredPlatforms: string[];
-};
-
-type RecentlyPlayed = {
-	titleId: string;
-	name: string;
-	displayImage: string;
-	achievement: {
-		currentAchievements: number;
-		totalAchievements: number;
-		currentGamerscore: number;
-		totalGamerscore: number;
-		progressPercentage: number;
-	};
-	titleHistory: { lastTimePlayed: string };
-};
-
-enum Chart {
-	TOP_SELLERS,
-	TOP_PLAYED,
-	UPCOMING_GAMES,
-}
+import { ApiKey, Gamertag, Id } from '../../../../types/args';
+import { Chart, Payload, Profile, RecentlyPlayed } from './xbox.types';
 
 export class XboxApi extends Scraper {
 	private static BASE_API_URL = 'https://xbl.io';

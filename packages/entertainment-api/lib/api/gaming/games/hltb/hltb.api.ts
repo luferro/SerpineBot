@@ -1,11 +1,8 @@
 import { Scraper } from '@luferro/scraper';
 import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 
-import { Id, Query } from '../../../types/args';
-
-type Payload<T> = { props: { pageProps: { game: { data: { game: T } } } } };
-type Result = { data: { game_id: string; game_name: string }[] };
-type Entry = { game_name: string; game_image: string; comp_main: number; comp_plus: number; comp_100: number };
+import { Id, Query } from '../../../../types/args';
+import { Payload, Playtime, Result } from './hltb.types';
 
 export class HLTBApi extends Scraper {
 	private static BASE_URL = 'https://howlongtobeat.com';
@@ -50,7 +47,7 @@ export class HLTBApi extends Scraper {
 		const $ = await this.static.loadUrl({ url: `${HLTBApi.BASE_URL}/game/${id}` });
 
 		const script = $('script[type="application/json"]').text();
-		const { props } = JSON.parse(script) as Payload<Entry[]>;
+		const { props } = JSON.parse(script) as Payload<Playtime[]>;
 		const [{ game_name, game_image, comp_main, comp_plus, comp_100 }] = props.pageProps.game.data.game;
 
 		return {

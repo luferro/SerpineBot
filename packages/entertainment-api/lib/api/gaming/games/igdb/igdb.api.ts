@@ -1,18 +1,7 @@
 import { DateUtil, FetchUtil } from '@luferro/shared-utils';
 
-import { Query } from '../../../types/args';
-
-type Result = { id: number; name: string; slug: string };
-
-type Event = {
-	name: string;
-	description?: string;
-	live_stream_url?: string;
-	event_logo?: { url: string };
-	event_networks?: { url: string }[];
-	start_time: number;
-	end_time?: number;
-};
+import { Query } from '../../../../types/args';
+import { Event, Result } from './igdb.types';
 
 export class IGDBApi {
 	private static BASE_OAUTH_URL = 'https://id.twitch.tv';

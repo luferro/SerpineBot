@@ -1,48 +1,8 @@
 import { Scraper } from '@luferro/scraper';
 import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
 
-import { ApiKey, Id } from '../../../types/args';
-
-enum Chart {
-	TOP_SELLERS,
-	TOP_PLAYED,
-	UPCOMING_GAMES,
-}
-
-enum Status {
-	Offline,
-	Online,
-	Busy,
-	Away,
-	Snooze,
-	LookingToTrade,
-	LookingToPlay,
-}
-
-type Payload<T> = { [key: string]: T };
-
-type Profile = {
-	personaname: string;
-	avatarfull: string;
-	lastlogoff: number;
-	personastate: number;
-	timecreated: number;
-};
-
-type Wishlist = {
-	name: string;
-	release_date: string | number;
-	priority: number;
-	is_free_game: boolean;
-	subs: { id: number; discount_block: string; price: number; discount_pct: number }[];
-};
-
-type RecentlyPlayed = {
-	appid: number;
-	name: string;
-	playtime_2weeks: number;
-	playtime_forever: number;
-};
+import { ApiKey, Id } from '../../../../types/args';
+import { Chart, Payload, Profile, RecentlyPlayed, Status, Wishlist } from './steam.types';
 
 export class SteamApi extends Scraper {
 	private static BASE_API_URL = 'https://api.steampowered.com';

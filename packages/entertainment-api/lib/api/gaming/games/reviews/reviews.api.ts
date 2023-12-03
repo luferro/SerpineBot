@@ -1,7 +1,7 @@
 import { Scraper } from '@luferro/scraper';
 import { DateUtil } from '@luferro/shared-utils';
 
-import { Id, Query, Slug } from '../../../types/args';
+import { Id, Query, Slug } from '../../../../types/args';
 
 export class ReviewsApi extends Scraper {
 	private static BASE_URL = 'https://opencritic.com';

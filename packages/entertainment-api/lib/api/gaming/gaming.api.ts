@@ -1,18 +1,8 @@
 import { ApiKey } from '../../types/args';
-import { DealsApi } from './games/deals.api';
-import { HLTBApi } from './games/hltb.api';
-import { IGDBApi } from './games/igdb.api';
-import { ReviewsApi } from './games/reviews.api';
-import { SubscriptionsApi } from './games/subscriptions.api';
-import { SteamApi } from './platforms/steam.api';
-import { XboxApi } from './platforms/xbox.api';
+import { DealsApi, HLTBApi, IGDBApi, ReviewsApi, SubscriptionsApi } from './games';
+import { SteamApi, XboxApi } from './platforms';
 
-type Config = {
-	igdb: { clientId: string; clientSecret: string };
-	deals: ApiKey;
-	steam: ApiKey;
-	xbox: ApiKey;
-};
+type Config = { igdb: { clientId: string; clientSecret: string }; deals: ApiKey; steam: ApiKey; xbox: ApiKey };
 
 type Games = { hltb: HLTBApi; deals: DealsApi; reviews: ReviewsApi; subscriptions: SubscriptionsApi };
 type Platforms = { steam: SteamApi; xbox: XboxApi };

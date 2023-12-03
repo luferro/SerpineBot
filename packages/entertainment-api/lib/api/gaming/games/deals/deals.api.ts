@@ -1,39 +1,7 @@
 import { ConverterUtil, DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
 
-import { ApiKey, Id, Query } from '../../../types/args';
-
-type Payload<T> = { data: T };
-type Game<T> = { [key: string]: T };
-type List<T> = { list: T };
-
-type Result = { results: { id: number; plain: string; title: string }[] };
-
-type HistoricalLow = { shop?: { id: string; name: string }; price?: number; cut?: number; added?: number };
-
-type Bundle = { title: string; bundle: string; start: number; expiry: number | null; url: string };
-type Bundles = { total: number } & List<Bundle[]>;
-
-type Price = {
-	shop: { id: string; name: string };
-	price_new: number;
-	price_old: number;
-	price_cut: string;
-	url: string | null;
-	drm: string[];
-};
-
-type Deal = {
-	plain: string;
-	title: string;
-	price_new: number;
-	price_old: number;
-	price_cut: number;
-	added: number;
-	expiry: number;
-	drm: string[];
-	shop: { id: string; name: string };
-	urls: { buy: string; game: string };
-};
+import { ApiKey, Id, Query } from '../../../../types/args';
+import { Bundles, Deal, Game, HistoricalLow, List, Payload, Price, Result } from './deals.types';
 
 export class DealsApi {
 	private static BASE_API_URL = 'https://api.isthereanydeal.com';
