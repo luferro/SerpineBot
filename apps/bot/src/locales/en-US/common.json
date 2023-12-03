@@ -2,6 +2,7 @@
 	"unavailable": "n/a",
 	"none": "None",
 	"tbd": "TBD",
+	"hours": "{{hours}}h",
 	"toggle": {
 		"on": "on",
 		"off": "off"

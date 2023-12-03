@@ -1,14 +1,43 @@
+import { t } from 'i18next';
+
 import type { Bot } from '../structures/Bot';
 
-enum Medals {
+export enum LeaderboardType {
+	STEAM = 'Steam',
+	XBOX = 'Xbox',
+}
+
+enum Medal {
 	'🥇' = 1,
 	'🥈',
 	'🥉',
 }
 
-export const getSteamLeaderboard = async (client: Bot) => {
-	const leaderboard = [];
+export const getLeaderboard = async (type: LeaderboardType, client: Bot) => {
+	const leaderboards = {
+		[LeaderboardType.STEAM]: getSteamLeaderboard,
+		[LeaderboardType.XBOX]: getXboxLeaderboard,
+	};
+	const leaderboard = await leaderboards[type](client);
+	return leaderboard.slice(0, 10).map(({ user, highlight, item }, index) => ({
+		position: index + 1,
+		medal: Medal[index + 1] ?? null,
+		user,
+		highlight,
+		item,
+	}));
+};
 
+export const resetLeaderboard = async (type: LeaderboardType, client: Bot) => {
+	const leaderboards = {
+		[LeaderboardType.STEAM]: resetSteamLeaderboard,
+		[LeaderboardType.XBOX]: resetXboxLeaderboard,
+	};
+	await leaderboards[type](client);
+};
+
+const getSteamLeaderboard = async (client: Bot) => {
+	const leaderboard = [];
 	const integrations = await client.prisma.steam.findMany();
 	for (const { userId, profile, recentlyPlayed } of integrations) {
 		const rawRecentlyPlayed = await client.api.gaming.platforms.steam.getRecentlyPlayed({ id: profile.id });
@@ -27,23 +56,28 @@ export const getSteamLeaderboard = async (client: Bot) => {
 		const { title, url } = updatedRecentlyPlayed.reduce((acc, el) => (el.weeklyHours > acc.weeklyHours ? el : acc));
 		const hours = +updatedRecentlyPlayed.reduce((acc, el) => acc + el.weeklyHours, 0).toFixed(2);
 
-		const user = await client.users.fetch(userId);
-		leaderboard.push({ user, hours, game: { title, url } });
+		leaderboard.push({
+			user: await client.users.fetch(userId),
+			highlight: { value: hours, formatted: t('common.hours', { hours }) },
+			item: { title, url },
+		});
 	}
 
-	return leaderboard
-		.sort((a, b) => b.hours - a.hours)
-		.slice(0, 10)
-		.map(({ user, hours, game }, index) => {
-			const position = Medals[index + 1] ?? `\`${index + 1}.\``;
-			const description = `**${user.username}** with \`${hours}h\`\nTop played game was **[${game.title}](${game.url})**`;
-			return `${position} ${description}`;
-		});
+	return leaderboard.sort((a, b) => b.highlight.value - a.highlight.value);
 };
 
-export const getXboxLeaderboard = async (client: Bot) => {
-	const leaderboard = [];
+const resetSteamLeaderboard = async (client: Bot) => {
+	const integrations = await client.prisma.steam.findMany();
+	for (const { userId, recentlyPlayed } of integrations) {
+		await client.prisma.steam.update({
+			where: { userId },
+			data: { recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })) },
+		});
+	}
+};
 
+const getXboxLeaderboard = async (client: Bot) => {
+	const leaderboard = [];
 	const integrations = await client.prisma.xbox.findMany();
 	for (const { userId, profile, recentlyPlayed } of integrations) {
 		const rawRecentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed({ id: profile.id });
@@ -70,16 +104,22 @@ export const getXboxLeaderboard = async (client: Bot) => {
 		);
 		const gamerscore = +updatedRecentlyPlayed.reduce((acc, el) => acc + el.weeklyGamerscore, 0).toFixed(2);
 
-		const user = await client.users.fetch(userId);
-		leaderboard.push({ user, gamerscore, game: { title } });
+		leaderboard.push({
+			user: await client.users.fetch(userId),
+			highlight: { value: gamerscore, formatted: `${gamerscore}G` },
+			item: { title, url: null },
+		});
 	}
 
-	return leaderboard
-		.sort((a, b) => b.gamerscore - a.gamerscore)
-		.slice(0, 10)
-		.map(({ user, gamerscore, game }, index) => {
-			const position = Medals[index + 1] ?? `\`${index + 1}.\``;
-			const description = `**${user.username}** with \`${gamerscore}G\`\nTop gamerscore achieved on **${game.title}**`;
-			return `${position} ${description}`;
+	return leaderboard.sort((a, b) => b.highlight.value - a.highlight.value);
+};
+
+const resetXboxLeaderboard = async (client: Bot) => {
+	const integrations = await client.prisma.xbox.findMany();
+	for (const { userId, recentlyPlayed } of integrations) {
+		await client.prisma.xbox.update({
+			where: { userId },
+			data: { recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyGamerscore: 0 })) },
 		});
+	}
 };

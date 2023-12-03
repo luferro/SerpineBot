@@ -66,7 +66,7 @@
 		},
 		"listening": "Already listening for voice commands.",
 		"standby": "Not listening to voice commands.",
-		"failed": "Voice command with intent {{intent}} failed."
+		"failed": "Voice command with intent `{{intent}}` failed."
 	},
 	"steam": {
 		"steamId64": "No SteamId64 found.",
@@ -75,18 +75,15 @@
 		},
 		"wishlist": {
 			"private": "Steam wishlist is private."
-		},
-		"leaderboard": {
-			"empty": "No Steam leaderboard is available."
 		}
 	},
 	"xbox": {
 		"profile": {
 			"gamertag": "Invalid Xbox gamertag."
-		},
-		"leaderboard": {
-			"empty": "No Xbox leaderboard is available."
 		}
+	},
+	"leaderboards": {
+		"empty": "No {{type}} leaderboard is available."
 	},
 	"reminders": {
 		"minimum": {

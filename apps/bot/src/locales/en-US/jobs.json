@@ -17,14 +17,14 @@
 	"birthdays": {
 		"embed": {
 			"title": "🎉🥳🎂🥳🎉 Happy Birthday! 🎉🥳🎂🥳🎉",
-			"description": "{{username}} is now {{age}} years old!"
+			"description": "`{{username}}` is now **{{age}}** years old!"
 		}
 	},
 	"gaming": {
 		"deals": {
 			"free": {
 				"embed": {
-					"description": "{{discount}} off! {{regular}} | **Free** @ {{store}}",
+					"description": "**-{{discount}}%** off! ~~{{regular}}~~ | **Free** @ **{{store}}**",
 					"footer": { "text": "Expires on {{expiry}}" }
 				}
 			}
@@ -37,12 +37,14 @@
 		"leaderboards": {
 			"steam": {
 				"embed": {
-					"title": "Weekly Steam Leaderboard ({{from}} - {{to}})"
+					"title": "Weekly Steam Leaderboard ({{from}} - {{to}})",
+					"description": "**{{username}}** with `{{hours}}h`\nTop played game was **[{{title}}]({{url}})**"
 				}
 			},
 			"xbox": {
 				"embed": {
-					"title": "Weekly Xbox Leaderboard ({{from}} - {{to}})"
+					"title": "Weekly Xbox Leaderboard ({{from}} - {{to}})",
+					"description": "**{{username}}** with `{{gamerscore}}G`\nTop gamerscore achieved on **{{title}}**"
 				}
 			}
 		},
@@ -82,6 +84,12 @@
 					"description": "{{item}} has been removed from:\n{{subscriptions}}"
 				}
 			}
+		}
+	},
+	"leaderboards": {
+		"embed": {
+			"title": "Weekly {{type}} Leaderboard ({{from}} - {{to}})",
+			"description": "{{position}} **{{username}}** with `{{highlight}}`\nHighlight was **{{item}}**"
 		}
 	},
 	"manga": {

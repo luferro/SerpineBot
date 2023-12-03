@@ -201,21 +201,11 @@
 	"leaderboards": {
 		"name": "leaderboards",
 		"description": "Check out the Steam and Xbox leaderboard for the current week.",
-		"steam": {
-			"name": "steam",
-			"description": "Steam leaderboard for the week.",
-			"embed": {
-				"title": "Weekly Steam Leaderboard",
-				"footer": { "text": "Leaderboard resets every sunday at 00:00 UTC." }
-			}
-		},
-		"xbox": {
-			"name": "xbox",
-			"description": "Xbox leaderboard for the week.",
-			"embed": {
-				"title": "Weekly Xbox Leaderboard",
-				"footer": { "text": "Leaderboard resets every sunday at 00:00 UTC." }
-			}
+		"options": [{ "name": "type", "description": "Leaderboard type." }],
+		"embed": {
+			"title": "{{type}} leaderboard for the week.",
+			"description": "{{position}} **{{username}}** with `{{highlight}}`",
+			"footer": { "text": "Leaderboard resets every sunday at 00:00 UTC." }
 		}
 	},
 	"music": {
@@ -462,7 +452,7 @@
 				{ "name": "type", "description": "Webhook type." },
 				{ "name": "channel", "description": "Text channel." }
 			],
-			"embed": { "title": "Webhook has been assigned to {{channel}}." }
+			"embed": { "title": "Webhook has been assigned to `{{channel}}`." }
 		},
 		"delete": {
 			"name": "delete",
