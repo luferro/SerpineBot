@@ -14,8 +14,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const { title, url, selfurl, hasEmbeddedMedia } = filteredPosts[Math.floor(Math.random() * filteredPosts.length)];
 
 	if (hasEmbeddedMedia) {
-		const content = `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}`;
-		await interaction.editReply({ content });
+		await interaction.editReply({ content: `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}` });
 		return;
 	}
 

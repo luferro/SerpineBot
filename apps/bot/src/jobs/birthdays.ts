@@ -26,22 +26,22 @@ export const execute: JobExecute = async ({ client }) => {
 
 		const target = await client.users.fetch(userId);
 
-		const embed = new EmbedBuilder()
-			.setTitle(t('jobs.birthdays.embed.title'))
-			.setDescription(
-				t('jobs.birthdays.embed.description', {
-					username: `\`${target.username}\``,
-					age: date.getFullYear() - year,
-				}),
-			)
-			.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL);
-
 		await client.propagate({
 			type: WebhookType.BIRTHDAYS,
 			cache: false,
 			everyone: true,
 			fields: ['title', 'description', 'thumbnail'],
-			messages: [embed],
+			messages: [
+				new EmbedBuilder()
+					.setTitle(t('jobs.birthdays.embed.title'))
+					.setDescription(
+						t('jobs.birthdays.embed.description', {
+							username: target.username,
+							age: date.getFullYear() - year,
+						}),
+					)
+					.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL),
+			],
 		});
 		logger.info(`Notified guild users about **${target.username}** birthday.`);
 	}

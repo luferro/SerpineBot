@@ -7,10 +7,10 @@ import type { Bot } from '../../structures/Bot';
 import type { JobData, JobExecute } from '../../types/bot';
 
 enum Alert {
-	Sale = 'sale',
-	Released = 'released',
-	AddedTo = 'addedTo',
-	RemovedFrom = 'removedFrom',
+	SALE = 'sale',
+	RELEASED = 'released',
+	ADDED_TO = 'addedTo',
+	REMOVED_FROm = 'removedFrom',
 }
 
 type SteamAlert = { addedTo?: string[]; removedFrom?: string[] } & SteamWishlistEntry;
@@ -25,10 +25,10 @@ export const execute: JobExecute = async ({ client }) => {
 	const integrations = await client.prisma.steam.findMany({ where: { notifications: true } });
 	for (const integration of integrations) {
 		const alerts: Record<Alert, SteamAlert[]> = {
-			[Alert.Sale]: [],
-			[Alert.Released]: [],
-			[Alert.AddedTo]: [],
-			[Alert.RemovedFrom]: [],
+			[Alert.SALE]: [],
+			[Alert.RELEASED]: [],
+			[Alert.ADDED_TO]: [],
+			[Alert.REMOVED_FROm]: [],
 		};
 
 		const wishlist = await client.api.gaming.platforms.steam.getWishlist({ id: integration.profile.id });
@@ -47,16 +47,16 @@ export const execute: JobExecute = async ({ client }) => {
 
 				const wasSale = storedGame?.onSale ?? game.onSale;
 				if (!wasSale && game.onSale && !updatedEntry.notified) {
-					alerts[Alert.Sale].push(updatedEntry);
+					alerts[Alert.SALE].push(updatedEntry);
 					updatedEntry.notified = true;
 				}
 
 				const wasReleased = storedGame?.isReleased ?? game.isReleased;
-				if (!wasReleased && game.isReleased) alerts[Alert.Released].push(updatedEntry);
+				if (!wasReleased && game.isReleased) alerts[Alert.RELEASED].push(updatedEntry);
 
 				const { addedTo, removedFrom } = getSubscriptionChanges(updatedEntry, storedGame);
-				if (addedTo.length > 0) alerts[Alert.AddedTo].push({ ...updatedEntry, addedTo });
-				if (removedFrom.length > 0) alerts[Alert.RemovedFrom].push({ ...updatedEntry, removedFrom });
+				if (addedTo.length > 0) alerts[Alert.ADDED_TO].push({ ...updatedEntry, addedTo });
+				if (removedFrom.length > 0) alerts[Alert.REMOVED_FROm].push({ ...updatedEntry, removedFrom });
 
 				return updatedEntry;
 			}),

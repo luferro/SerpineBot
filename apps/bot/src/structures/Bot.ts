@@ -216,7 +216,6 @@ export class Bot extends Client {
 	}
 
 	async stop() {
-		logger.info('Stopping SerpineBot.');
 		await this.cache.persistent.quit();
 		process.exit();
 	}
