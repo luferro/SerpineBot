@@ -1,4 +1,5 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
+import { QueryType } from 'discord-player';
 import { t } from 'i18next';
 
 import type {
@@ -30,6 +31,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		queue,
 		searchResult: { playlist },
 	} = await client.player.play(voiceChannel, query, {
+		searchEngine: QueryType.AUTO,
 		requestedBy: interaction.user,
 		nodeOptions: {
 			metadata: interaction.channel,
@@ -68,7 +70,7 @@ export const autocomplete: InteractionCommandAutoComplete = async ({ client, int
 	const { value: query } = interaction.options.getFocused(true);
 	if (query.length < 3) return await interaction.respond([]);
 
-	const results = await client.player.search(query);
+	const results = await client.player.search(query, { searchEngine: QueryType.AUTO });
 	await interaction.respond(
 		results.tracks
 			.slice(0, 10)
