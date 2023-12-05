@@ -64,9 +64,14 @@ export const autocomplete: InteractionCommandAutoComplete = async ({ client, int
 
 	const results = await client.player.search(query);
 	await interaction.respond(
-		results.tracks.slice(0, 10).map((track) => ({
-			name: `${track.author} - ${StringUtil.truncate(track.title, 80)} | ${track.duration}`,
-			value: track.url,
-		})),
+		results.tracks.slice(0, 10).map((track) => {
+			const maxLength = 100;
+			const limit = maxLength - track.author.length - track.duration.length - 6;
+
+			return {
+				name: `${track.author} - ${StringUtil.truncate(track.title, limit)} | ${track.duration}`,
+				value: track.url,
+			};
+		}),
 	);
 };
