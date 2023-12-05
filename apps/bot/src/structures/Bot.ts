@@ -5,7 +5,7 @@ import { Scraper } from '@luferro/scraper';
 import { DateUtil, logger, ObjectUtil } from '@luferro/shared-utils';
 import { CronJob } from 'cron';
 import { Client, ClientOptions, Collection, Embed, EmbedBuilder, Events, Guild, Message } from 'discord.js';
-import { GuildQueueEvent, GuildQueueEvents, Player } from 'discord-player';
+import { GuildQueueEvent, GuildQueueEvents } from 'discord-player';
 import i18next from 'i18next';
 
 import { getSanitizedConfig, SanitizedConfig } from '../config/environment';
@@ -16,6 +16,7 @@ import { getInitConfig } from '../helpers/i18n';
 import { initializeLeopard, initializePorcupine, initializeRhino, initializeTextToSpeech } from '../helpers/speech';
 import type { Api, Commands, Event, Job, Speech } from '../types/bot';
 import { Cache } from './Cache';
+import { Player } from './Player';
 
 type MessageType = string | EmbedBuilder;
 type WebhookArgs = { guild: Guild; type: WebhookType };
@@ -47,11 +48,11 @@ export class Bot extends Client {
 		super(options);
 		this.cache = new Cache();
 		this.scraper = new Scraper();
+		this.player = new Player(this);
 		this.prisma = getExtendedPrismaClient();
 		this.config = getSanitizedConfig();
 		this.api = this.initializeApi();
 		this.speech = this.initializeSpeech();
-		this.player = this.initializePlayer();
 	}
 
 	private initializeApi() {
@@ -76,13 +77,6 @@ export class Bot extends Client {
 			stt: initializeLeopard({ apiKey: this.config.PICOVOICE_API_KEY }),
 			wake: initializePorcupine({ apiKey: this.config.PICOVOICE_API_KEY }),
 		};
-	}
-
-	private initializePlayer() {
-		const player = new Player(this);
-		player.extractors.loadDefault();
-		logger.debug(player.scanDeps());
-		return player;
 	}
 
 	private initializeListeners() {

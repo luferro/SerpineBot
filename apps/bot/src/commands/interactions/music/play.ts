@@ -1,5 +1,5 @@
+import { StringUtil } from '@luferro/shared-utils';
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { QueryType } from 'discord-player';
 import { t } from 'i18next';
 
 import type {
@@ -31,16 +31,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		queue,
 		searchResult: { playlist },
 	} = await client.player.play(voiceChannel, query, {
-		searchEngine: QueryType.AUTO,
 		requestedBy: interaction.user,
-		nodeOptions: {
-			metadata: interaction.channel,
-			leaveOnEmpty: true,
-			leaveOnEmptyCooldown: 1000 * 60 * 5,
-			leaveOnEnd: false,
-			selfDeaf: false,
-			bufferingTimeout: 0,
-		},
+		nodeOptions: { metadata: interaction.channel, ...client.player.defaultNodeOptions },
 	});
 
 	const position = queue.node.getTrackPosition(playlist?.tracks[0] ?? track) + 1;
@@ -70,10 +62,11 @@ export const autocomplete: InteractionCommandAutoComplete = async ({ client, int
 	const { value: query } = interaction.options.getFocused(true);
 	if (query.length < 3) return await interaction.respond([]);
 
-	const results = await client.player.search(query, { searchEngine: QueryType.AUTO });
+	const results = await client.player.search(query);
 	await interaction.respond(
-		results.tracks
-			.slice(0, 10)
-			.map((track) => ({ name: `${track.author} - ${track.title} | ${track.duration}`, value: track.url })),
+		results.tracks.slice(0, 10).map((track) => ({
+			name: `${track.author} - ${StringUtil.truncate(track.title, 80)} | ${track.duration}`,
+			value: track.url,
+		})),
 	);
 };
