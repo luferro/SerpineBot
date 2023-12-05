@@ -1,34 +1,7 @@
 import { FetchUtil, StringUtil } from '@luferro/shared-utils';
 
 import { Id, Limit, Query } from '../../types/args';
-
-type Payload<T> = { data: T };
-
-type Relationship<T = unknown> = { id: string; type: 'manga' | 'cover_art'; attributes: T };
-
-type Chapter = {
-	id: string;
-	attributes: {
-		volume: string | null;
-		chapter: string;
-		title: string;
-		externalUrl: string;
-		publishedAt: string;
-		readableAt: string;
-	};
-	relationships: Relationship[];
-};
-
-type Manga = {
-	id: string;
-	attributes: {
-		title: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string };
-		status: string;
-		year: number;
-		tags: { attributes: { name: { en: string } } }[];
-	};
-	relationships: Relationship<{ fileName: string }>[];
-};
+import { Chapter, Manga, Payload } from './mangadex.types';
 
 export class MangadexApi {
 	private static BASE_URL = 'https://mangadex.org';

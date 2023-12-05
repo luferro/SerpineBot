@@ -1,52 +1,7 @@
 import { ConverterUtil, DateUtil, FetchUtil } from '@luferro/shared-utils';
 
 import { ApiKey, Id, Query } from '../../types/args';
-
-type Payload<T> = { results: T };
-
-type Result = {
-	id: number;
-	title: string;
-	name: string;
-	media_type: 'movie' | 'tv' | 'person';
-	poster_path: string | null;
-};
-
-type BaseEntry = {
-	'id': number;
-	'tagline': string;
-	'overview': string;
-	'homepage': string;
-	'poster_path': string;
-	'vote_average': number;
-	'vote_count': number;
-	'genres': { name: string }[];
-	'watch/providers': Payload<{
-		[key: string]: {
-			link: string;
-			flatrate?: { provider_name: string }[];
-			rent?: { provider_name: string }[];
-			buy?: { provider_name: string }[];
-		};
-	}>;
-};
-
-type Movie = BaseEntry & {
-	title: string;
-	release_date: string;
-	runtime: number;
-	genres: { name: string }[];
-};
-
-type Series = BaseEntry & {
-	name: string;
-	status: string;
-	number_of_episodes: number;
-	number_of_seasons: number;
-	last_episode_to_air: { episode_number: number; air_date: string };
-	next_episode_to_air?: { episode_number: number; air_date: string } | string;
-	episode_run_time: number[];
-};
+import { Movie, Payload, Result, Series } from './tmdb.types';
 
 export class TMDBApi {
 	private apiKey: string;
@@ -62,11 +17,7 @@ export class TMDBApi {
 
 		return payload.results
 			.filter(({ poster_path, media_type }) => media_type !== 'person' && !!poster_path)
-			.map(({ id, title, name, media_type }) => ({
-				id,
-				title: title ?? name,
-				type: media_type,
-			}));
+			.map(({ id, title, name, media_type }) => ({ id, title: title ?? name, type: media_type }));
 	}
 
 	async getMovieById({ id }: Id) {

@@ -1,57 +1,7 @@
 import { DateUtil, FetchUtil } from '@luferro/shared-utils';
 
-import { ApiKey, Id } from '../../types/args';
-
-type Streams = {
-	crunchyroll: string;
-	funimation: string;
-	wakanim: string;
-	amazon: string;
-	hidive: string;
-	hulu: string;
-	youtube: string;
-	netflix: string;
-};
-
-type Trackers = { mal: string; aniList: string; kitsu: string; animePlanet: string; anidb: string };
-
-type Websites = { official: string } & Streams & Trackers;
-
-type Anime = {
-	title: string;
-	names: { romaji: string; english: string; native: string; abbreviation: string };
-	route: string;
-	premier: string;
-	season: { title: string };
-	description: string;
-	genres: { name: string; route: string }[];
-	studios: { name: string; route: string }[];
-	sources: { name: string; route: string }[];
-	episodes: number;
-	lengthMin: number;
-	status: string;
-	imageVersionRoute: string;
-	stats: { averageScore: number };
-	websites: Websites;
-};
-
-type Schedule = {
-	title: string;
-	romaji: string;
-	english: string;
-	native: string;
-	route: string;
-	delayedFrom: string;
-	delayedUntil: string;
-	status: string;
-	episodeDate: string;
-	episodeNumber: number;
-	episodes: number;
-	lengthMin: number;
-	imageVersionRoute: string;
-	streams: Streams;
-	airingStatus: string;
-};
+import { ApiKey, Id } from '../../../types/args';
+import { Anime, Schedule } from './anime-schedule.types';
 
 export class AnimeScheduleApi {
 	private static BASE_URL = 'https://animeschedule.net';
