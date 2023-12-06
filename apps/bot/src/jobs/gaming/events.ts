@@ -1,4 +1,3 @@
-import { DateUtil } from '@luferro/shared-utils';
 import { GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel } from 'discord.js';
 import { t } from 'i18next';
 
@@ -31,8 +30,7 @@ export const execute: JobExecute = async ({ client }) => {
 				entityMetadata: { location: url.twitch ?? url.youtube ?? t('common.tbd') },
 			});
 
-			const seconds = DateUtil.differenceInSeconds(scheduledEndAt, Date.now());
-			await client.cache.persistent.set(hash, stringifiedEvent, 'EX', seconds);
+			await client.cache.persistent.set(hash, stringifiedEvent, 'EX', 60 * 60 * 24 * 7);
 		}
 	}
 };
