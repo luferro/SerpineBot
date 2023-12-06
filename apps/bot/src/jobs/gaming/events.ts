@@ -30,7 +30,7 @@ export const execute: JobExecute = async ({ client }) => {
 				entityMetadata: { location: url.twitch ?? url.youtube ?? t('common.tbd') },
 			});
 
-			await client.cache.persistent.set(hash, stringifiedEvent, 'EX', 60 * 60 * 24 * 7);
+			await client.cache.persistent.set(hash, stringifiedEvent, 'EX', 60 * 60 * 24 * 30);
 		}
 	}
 };
