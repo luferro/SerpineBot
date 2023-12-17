@@ -47,11 +47,8 @@ export const fetch = async <T>({ method = 'GET', url, customHeaders = new Map(),
 
 		return { headers, payload };
 	} catch (error) {
-		const isFetchError = error instanceof FetchError;
-		if (isFetchError) {
-			const status = error.status ?? 500;
-			if (handleStatusCode) await handleStatusCode(status);
-		} else (error as Error).message = `**${method}** request to **${url}** failed.`;
+		if (error instanceof FetchError) await handleStatusCode?.(error.status ?? 500);
+		else (error as Error).message = `**${method}** request to **${url}** failed.`;
 		throw error;
 	}
 };
