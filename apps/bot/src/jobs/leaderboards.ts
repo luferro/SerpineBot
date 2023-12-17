@@ -32,7 +32,7 @@ export const execute: JobExecute = async ({ client }) => {
 				fields: ['title', 'description'],
 				messages: [
 					new EmbedBuilder()
-						.setTitle(t('jobs.leaderboards.embed.title', { from, to }))
+						.setTitle(t('jobs.leaderboards.embed.title', { type: LeaderboardType[type], from, to }))
 						.setDescription(formattedLeaderboard.join('\n'))
 						.setColor('Random'),
 				],
