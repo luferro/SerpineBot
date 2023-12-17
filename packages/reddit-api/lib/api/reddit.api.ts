@@ -31,7 +31,7 @@ type Post = {
 };
 
 export class RedditApi extends Scraper {
-	private static BASE_URL = 'https://www.reddit.com';
+	private static BASE_URL = 'https://old.reddit.com';
 
 	private async getPostsByUrl({ url }: Url) {
 		const { payload } = await FetchUtil.fetch<Payload<Children<Post[]>>>({ url });
