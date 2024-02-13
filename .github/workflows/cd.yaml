@@ -1,4 +1,4 @@
-name: SerpineBot deployment
+name: Continuous deployment
 
 on:
   push:
@@ -24,9 +24,11 @@ jobs:
           echo "SB_SERVICES__REDIS__URI=${{ secrets.SB_SERVICES__REDIS__URI }}" >> .env
           echo "SB_SERVICES__PICOVOICE__API_KEY=${{ secrets.SB_SERVICES__PICOVOICE__API_KEY }}" >> .env
           echo "SB_SERVICES__STEAM__API_KEY=${{ secrets.SB_SERVICES__STEAM__API_KEY }}" >> .env
+          echo "SB_SERVICES__XBOX__API_KEY=${{ secrets.SB_SERVICES__XBOX__API_KEY }}" >> .env
           echo "SB_SERVICES__ITAD__API_KEY=${{ secrets.SB_SERVICES__ITAD__API_KEY }}" >> .env
           echo "SB_SERVICES__IGDB__CLIENT_ID=${{ secrets.SB_SERVICES__IGDB__CLIENT_ID }}" >> .env
           echo "SB_SERVICES__IGDB__CLIENT_SECRET=${{ secrets.SB_SERVICES__IGDB__CLIENT_SECRET }}" >> .env
+          echo "SB_SERVICES__TMDB__API_KEY=${{ secrets.SB_SERVICES__TMDB__API_KEY }}" >> .env
           echo "SB_SERVICES__GOOGLE__CREDENTIALS__PATH=${{ secrets.SB_SERVICES__GOOGLE__CREDENTIALS__PATH }}" >> .env
           cd ~/serpine-bot
           git pull origin master
