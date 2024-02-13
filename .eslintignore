@@ -1,9 +1,0 @@
-# dependencies
-node_modules
-
-# production
-dist
-.next
-
-#testing
-coverage
