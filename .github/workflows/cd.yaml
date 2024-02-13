@@ -19,8 +19,12 @@ jobs:
         port: 22
         script: |
           set -e
+          for secret_name in $(jq -r 'keys[]' <<< "${{ toJson(secrets) }}"); do
+            echo "$secret_name=${{ secrets[$secret_name] }}" >> .env
+          done
           cd ~/serpine-bot
           git pull origin master
           echo "SB_SERVICES__ITAD__API_KEY=${{ secrets.SB_SERVICES__ITAD__API_KEY }}"
-          docker compose --env-file .env up --build --force-recreate --no-deps -d bot
+          docker compose --env-file ~/.env up --build --force-recreate --no-deps -d bot
           docker system prune -f
+          rm ~/.env
