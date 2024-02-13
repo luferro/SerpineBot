@@ -19,16 +19,16 @@ jobs:
         port: 22
         script: |
           set -e
+          echo "SB_CLIENT__TOKEN=${{ secrets.SB_CLIENT__TOKEN }}" >> .env
+          echo "SB_SERVICES__MONGODB__URI=${{ secrets.SB_SERVICES__MONGODB__URI }}" >> .env
+          echo "SB_SERVICES__REDIS__URI=${{ secrets.SB_SERVICES__REDIS__URI }}" >> .env
+          echo "SB_SERVICES__PICOVOICE__API_KEY=${{ secrets.SB_SERVICES__PICOVOICE__API_KEY }}" >> .env
+          echo "SB_SERVICES__STEAM__API_KEY=${{ secrets.SB_SERVICES__STEAM__API_KEY }}" >> .env
+          echo "SB_SERVICES__ITAD__API_KEY=${{ secrets.SB_SERVICES__ITAD__API_KEY }}" >> .env
+          echo "SB_SERVICES__IGDB__CLIENT_ID=${{ secrets.SB_SERVICES__IGDB__CLIENT_ID }}" >> .env
+          echo "SB_SERVICES__IGDB__CLIENT_SECRET=${{ secrets.SB_SERVICES__IGDB__CLIENT_SECRET }}" >> .env
+          echo "SB_SERVICES__GOOGLE__CREDENTIALS__PATH=${{ secrets.SB_SERVICES__GOOGLE__CREDENTIALS__PATH }}" >> .env
           cd ~/serpine-bot
-          echo "SB_CLIENT__TOKEN=${{ secrets.SB_CLIENT__TOKEN }}" >> /apps/bot/.env
-          echo "SB_SERVICES__MONGODB__URI=${{ secrets.SB_SERVICES__MONGODB__URI }}" >> /apps/bot/.env
-          echo "SB_SERVICES__REDIS__URI=${{ secrets.SB_SERVICES__REDIS__URI }}" >> /apps/bot/.env
-          echo "SB_SERVICES__PICOVOICE__API_KEY=${{ secrets.SB_SERVICES__PICOVOICE__API_KEY }}" >> /apps/bot/.env
-          echo "SB_SERVICES__STEAM__API_KEY=${{ secrets.SB_SERVICES__STEAM__API_KEY }}" >> /apps/bot/.env
-          echo "SB_SERVICES__ITAD__API_KEY=${{ secrets.SB_SERVICES__ITAD__API_KEY }}" >> /apps/bot/.env
-          echo "SB_SERVICES__IGDB__CLIENT_ID=${{ secrets.SB_SERVICES__IGDB__CLIENT_ID }}" >> /apps/bot/.env
-          echo "SB_SERVICES__IGDB__CLIENT_SECRET=${{ secrets.SB_SERVICES__IGDB__CLIENT_SECRET }}" >> /apps/bot/.env
-          echo "SB_SERVICES__GOOGLE__CREDENTIALS__PATH=${{ secrets.SB_SERVICES__GOOGLE__CREDENTIALS__PATH }}" >> /apps/bot/.env
           git pull origin master
-          docker compose --build --force-recreate --no-deps -d bot
+          docker compose --env-file ~/.env up --build --force-recreate --no-deps -d bot
           docker system prune -f
