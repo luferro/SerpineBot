@@ -24,17 +24,17 @@ jobs:
           git status
           docker compose up --build --force-recreate --no-deps -d bot
           docker system prune -f
-        env:
-          # Discord client
-          SB_CLIENT__TOKEN: ${{ secrets.SB_CLIENT__TOKEN }}
-          # Database
-          SB_SERVICES__MONGODB__URI: ${{ secrets.SB_SERVICES__MONGODB__URI }}
-          # Cache
-          SB_SERVICES__REDIS__URI: ${{ secrets.SB_SERVICES__REDIS__URI }}
-          # APIs
-          SB_SERVICES__PICOVOICE__API_KEY: ${{ secrets.SB_SERVICES__PICOVOICE__API_KEY }}
-          SB_SERVICES__STEAM__API_KEY: ${{ secrets.SB_SERVICES__STEAM__API_KEY }}
-          SB_SERVICES__ITAD__API_KEY: ${{ secrets.SB_SERVICES__ITAD__API_KEY }}
-          SB_SERVICES__IGDB__CLIENT_ID: ${{ secrets.SB_SERVICES__IGDB__CLIENT_ID }}
-          SB_SERVICES__IGDB__CLIENT_SECRET: ${{ secrets.SB_SERVICES__IGDB__CLIENT_SECRET }}
-          SB_SERVICES__GOOGLE__CREDENTIALS__PATH: ${{ secrets.SB_SERVICES__GOOGLE__CREDENTIALS__PATH }}
+      env:
+        # Discord
+        SB_CLIENT__TOKEN: ${{ secrets.SB_CLIENT__TOKEN }}
+        # Database
+        SB_SERVICES__MONGODB__URI: ${{ secrets.SB_SERVICES__MONGODB__URI }}
+        # Cache
+        SB_SERVICES__REDIS__URI: ${{ secrets.SB_SERVICES__REDIS__URI }}
+        # APIs
+        SB_SERVICES__PICOVOICE__API_KEY: ${{ secrets.SB_SERVICES__PICOVOICE__API_KEY }}
+        SB_SERVICES__STEAM__API_KEY: ${{ secrets.SB_SERVICES__STEAM__API_KEY }}
+        SB_SERVICES__ITAD__API_KEY: ${{ secrets.SB_SERVICES__ITAD__API_KEY }}
+        SB_SERVICES__IGDB__CLIENT_ID: ${{ secrets.SB_SERVICES__IGDB__CLIENT_ID }}
+        SB_SERVICES__IGDB__CLIENT_SECRET: ${{ secrets.SB_SERVICES__IGDB__CLIENT_SECRET }}
+        SB_SERVICES__GOOGLE__CREDENTIALS__PATH: ${{ secrets.SB_SERVICES__GOOGLE__CREDENTIALS__PATH }}
