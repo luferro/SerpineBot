@@ -19,7 +19,6 @@ jobs:
         port: 22
         script: |
           set -e
-          cd ~/serpine-bot
           echo "SB_CLIENT__TOKEN=${{ secrets.SB_CLIENT__TOKEN }}" >> .env
           echo "SB_SERVICES__MONGODB__URI=${{ secrets.SB_SERVICES__MONGODB__URI }}" >> .env
           echo "SB_SERVICES__REDIS__URI=${{ secrets.SB_SERVICES__REDIS__URI }}" >> .env
@@ -29,6 +28,8 @@ jobs:
           echo "SB_SERVICES__IGDB__CLIENT_ID=${{ secrets.SB_SERVICES__IGDB__CLIENT_ID }}" >> .env
           echo "SB_SERVICES__IGDB__CLIENT_SECRET=${{ secrets.SB_SERVICES__IGDB__CLIENT_SECRET }}" >> .env
           echo "SB_SERVICES__GOOGLE__CREDENTIALS__PATH=${{ secrets.SB_SERVICES__GOOGLE__CREDENTIALS__PATH }}" >> .env
+          cd ~/serpine-bot
           git pull origin master
-          docker compose --env-file ./.env up --build --force-recreate --no-deps -d bot
+          docker compose --env-file ~/.env up --build --force-recreate --no-deps -d bot
           docker system prune -f
+          rm ~/.env
