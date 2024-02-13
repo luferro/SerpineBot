@@ -43,6 +43,7 @@ export class Bot extends Client {
 	constructor(options: ClientOptions) {
 		super(options);
 		this.config = loadConfig();
+		console.log(this.config);
 		this.logger = LoggerUtil.configureLogger();
 		this.cache = new Cache({ uri: this.config.get("services.redis.uri") });
 		this.prisma = new DatabaseClient({ uri: this.config.get("services.mongodb.uri") }).withExtensions();
