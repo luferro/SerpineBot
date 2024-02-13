@@ -33,5 +33,5 @@ jobs:
           cd ~/serpine-bot
           git pull origin master
           git status
-          docker compose up --build --force-recreate --no-deps -d bot --env-file .env
+          docker compose --env-file .env up --build --force-recreate --no-deps -d bot
           docker system prune -f
