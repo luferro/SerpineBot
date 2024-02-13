@@ -10,6 +10,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+    - name: Echo
+      run: echo "SB_SERVICES__ITAD__API_KEY: ${{ secrets.SB_SERVICES__ITAD__API_KEY }}"
     - name: Deploy Bot
       uses: appleboy/ssh-action@master
       with:
