@@ -20,7 +20,7 @@ jobs:
         script: |
           set -e
           for secret_name in $(jq -r 'keys[]' <<< "${{ toJson(secrets) }}"); do
-            echo "$secret_name=${{ secrets[$secret_name] }}" >> .env
+            echo "$secret_name=${{ secrets.[secret_name] }}" >> .env
           done
           cd ~/serpine-bot
           git pull origin master
