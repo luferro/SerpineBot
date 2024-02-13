@@ -1,0 +1,25 @@
+{
+	"name": "@luferro/config",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Module to handle configuration files.",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"lint": "eslint --fix ."
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/config": "^3.3.3",
+		"@types/node": "^20.11.16",
+		"tsup": "^8.0.1",
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"@luferro/shared-utils": "workspace:^",
+		"config": "^3.3.11"
+	}
+}
