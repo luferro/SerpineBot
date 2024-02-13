@@ -1,9 +1,9 @@
-import { Box, Typography } from '@mui/material';
-import parse from 'html-react-parser';
-import { marked } from 'marked';
-import { useEffect, useState } from 'react';
+import { Box, Typography } from "@mui/material";
+import parse from "html-react-parser";
+import { marked } from "marked";
+import { useEffect, useState } from "react";
 
-import samples from '../../samples.json';
+import samples from "../../samples.json";
 import {
 	StyledAuthor,
 	StyledContent,
@@ -13,7 +13,7 @@ import {
 	StyledImage,
 	StyledThumbnail,
 	StyledTitle,
-} from './Embed.styled';
+} from "./Embed.styled";
 
 type EmbedJson = {
 	author: { icon?: string; name: string } | null;
@@ -28,7 +28,7 @@ type EmbedJson = {
 type Props = { sample: string };
 
 export const Embed = ({ sample }: Props) => {
-	const [color, setColor] = useState('#fff');
+	const [color, setColor] = useState("#fff");
 
 	useEffect(() => setColor(`#${Math.floor(Math.random() * 16777215).toString(16)}`), []);
 
@@ -42,7 +42,7 @@ export const Embed = ({ sample }: Props) => {
 			<StyledContent>
 				<Box>
 					<StyledAuthor>
-						{author && author.icon && (
+						{author?.icon && (
 							<>
 								<picture>
 									<source srcSet={author.icon} type="image/webp" />
@@ -58,14 +58,14 @@ export const Embed = ({ sample }: Props) => {
 								{parse(marked.parse(title))}
 							</a>
 						) : (
-							parse(marked.parse(title ?? 'N/A'))
+							parse(marked.parse(title ?? "N/A"))
 						)}
 					</StyledTitle>
 					{description && <StyledDescription>{parse(marked.parse(description))}</StyledDescription>}
 					<StyledFields>
 						{!!fields.length &&
 							fields.map(({ key, value, inline }) => (
-								<Box className={inline ? 'inline-field' : 'field'} key={key}>
+								<Box className={inline ? "inline-field" : "field"} key={key}>
 									<Box>{parse(marked.parse(key))}</Box>
 									<Box>{parse(marked.parse(value))}</Box>
 								</Box>
@@ -76,7 +76,7 @@ export const Embed = ({ sample }: Props) => {
 					<StyledThumbnail>
 						<picture>
 							<source srcSet={thumbnail} type="image/webp" />
-							<img src={thumbnail} alt="Embed thumbnail" loading="lazy" />
+							<img src={thumbnail} alt="Embed content" loading="lazy" />
 						</picture>
 					</StyledThumbnail>
 				)}
@@ -85,7 +85,7 @@ export const Embed = ({ sample }: Props) => {
 				<StyledImage>
 					<picture>
 						<source srcSet={image} type="image/webp" />
-						<img src={image} alt="Embed image" loading="lazy" />
+						<img src={image} alt="Embed content" loading="lazy" />
 					</picture>
 				</StyledImage>
 			)}

@@ -2,29 +2,27 @@
 	"name": "@luferro/shared-utils",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Utilities shared between packages",
+	"description": "Various utilities",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
-		"lint": "eslint --ext .ts .",
-		"lint:fix": "eslint --fix --ext .ts .",
-		"prettier": "prettier --write ."
+		"lint": "eslint --fix ."
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.9.4",
-		"@types/ramda": "^0.29.9",
+		"@types/node": "^20.11.16",
+		"@types/ramda": "^0.29.10",
 		"date-fns": "^2.30.0",
 		"date-fns-tz": "^2.0.0",
-		"typescript": "^5.3.2"
+		"typescript": "^5.3.3"
 	},
 	"dependencies": {
-		"axios": "^1.6.2",
+		"axios": "^1.6.7",
 		"cron-parser": "^4.9.0",
-		"header-generator": "^2.1.43",
+		"header-generator": "^2.1.48",
 		"ramda": "^0.29.1",
 		"winston": "^3.11.0"
 	}

@@ -1,6 +1,6 @@
-import { Page, Route } from 'playwright-chromium';
-import { chromium } from 'playwright-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import { Page, Route } from "playwright-chromium";
+import { chromium } from "playwright-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 type Url = { url: string };
 export type Callback<T = unknown> = (page: Page) => Promise<T>;
@@ -15,11 +15,11 @@ export class InteractiveScraper {
 		const page = await browser.newPage();
 
 		try {
-			await page.route('**/*', (route: Route) => {
-				const hasResource = ['font', 'image'].some((resource) => resource === route.request().resourceType());
+			await page.route("**/*", (route: Route) => {
+				const hasResource = ["font", "image"].some((resource) => resource === route.request().resourceType());
 				return hasResource ? route.abort() : route.continue();
 			});
-			await page.goto(url, { waitUntil: 'networkidle' });
+			await page.goto(url, { waitUntil: "networkidle" });
 			return await cb(page);
 		} finally {
 			await page.close();
@@ -28,6 +28,6 @@ export class InteractiveScraper {
 	}
 
 	async getHtml({ url }: Url) {
-		return await this.load({ url, cb: async (page) => await page.content() });
+		return this.load({ url, cb: async (page) => await page.content() });
 	}
 }

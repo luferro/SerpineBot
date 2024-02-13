@@ -1,9 +1,9 @@
-import { GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel } from 'discord.js';
-import { t } from 'i18next';
+import { GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel } from "discord.js";
+import { t } from "i18next";
 
-import type { JobData, JobExecute } from '../../types/bot';
+import type { JobData, JobExecute } from "../../types/bot";
 
-export const data: JobData = { schedule: '0 0 * * * *' };
+export const data: JobData = { schedule: "0 0 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const events = await client.api.gaming.igdb.getUpcomingEvents();
@@ -12,25 +12,25 @@ export const execute: JobExecute = async ({ client }) => {
 		const guildEvents = await guild.scheduledEvents.fetch();
 		for (const { name, description, image, url, scheduledStartAt, scheduledEndAt } of events) {
 			const stringifiedEvent = JSON.stringify({ name, image, url });
-			const hash = client.cache.createHash(stringifiedEvent);
+			const hash = client.cache.hash(stringifiedEvent);
 			const hasGuildEvent = guildEvents.some((guildEvent) => guildEvent.name === name);
-			if (hasGuildEvent || (await client.cache.persistent.exists(hash))) continue;
+			if (hasGuildEvent || (await client.cache.some(hash))) continue;
 
 			await guild.scheduledEvents.create({
 				name,
 				image,
-				description: t('jobs.gaming.events.scheduled.description', {
+				description: t("jobs.gaming.events.scheduled.description", {
 					text: description,
-					url: url.youtube ?? url.twitch ?? '',
+					url: url.youtube ?? url.twitch ?? "",
 				}),
 				scheduledStartTime: scheduledStartAt,
 				scheduledEndTime: scheduledEndAt,
 				entityType: GuildScheduledEventEntityType.External,
 				privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
-				entityMetadata: { location: url.twitch ?? url.youtube ?? t('common.tbd') },
+				entityMetadata: { location: url.twitch ?? url.youtube ?? t("common.tbd") },
 			});
 
-			await client.cache.persistent.set(hash, stringifiedEvent, 'EX', 60 * 60 * 24 * 30);
+			await client.cache.set(hash, stringifiedEvent);
 		}
 	}
 };

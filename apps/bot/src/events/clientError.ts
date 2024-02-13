@@ -1,17 +1,17 @@
-import { FetchError, logger } from '@luferro/shared-utils';
+import { FetchUtil } from "@luferro/shared-utils";
 
-import type { EventData, EventExecute } from '../types/bot';
+import type { EventData, EventExecute } from "../types/bot";
 
 type Args = [error: Error];
 
-export const data: EventData = { type: 'on' };
+export const data: EventData = { type: "on" };
 
-export const execute: EventExecute<Args> = async ({ rest: [error] }) => {
-	if (error instanceof FetchError) {
+export const execute: EventExecute<Args> = async ({ client, rest: [error] }) => {
+	if (error instanceof FetchUtil.FetchError) {
 		const { url, status, payload } = error;
-		logger.warn(`Request to ${url} failed.`);
-		logger.debug({ url, status, payload });
+		client.logger.warn(`Fetch | Request to ${url} failed`);
+		client.logger.debug({ url, status, payload });
 		return;
 	}
-	logger.error(error);
+	client.logger.error(error);
 };

@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
-import { StyledMain } from './Main.styled';
+import { StyledMain } from "./Main.styled";
 
 type Props = { children: ReactNode };
 

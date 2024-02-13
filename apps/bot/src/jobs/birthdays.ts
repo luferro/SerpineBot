@@ -1,11 +1,10 @@
-import { WebhookType } from '@luferro/database';
-import { logger } from '@luferro/shared-utils';
-import { EmbedBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { WebhookType } from "@luferro/database";
+import { EmbedBuilder } from "discord.js";
+import { t } from "i18next";
 
-import type { JobData, JobExecute } from '../types/bot';
+import type { JobData, JobExecute } from "../types/bot";
 
-export const data: JobData = { schedule: '0 0 0 * * *' };
+export const data: JobData = { schedule: "0 0 0 * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const birthdays = await client.prisma.birthday.findMany({
@@ -28,14 +27,12 @@ export const execute: JobExecute = async ({ client }) => {
 
 		await client.propagate({
 			type: WebhookType.BIRTHDAYS,
-			cache: false,
 			everyone: true,
-			fields: ['title', 'description', 'thumbnail'],
 			messages: [
 				new EmbedBuilder()
-					.setTitle(t('jobs.birthdays.embed.title'))
+					.setTitle(t("jobs.birthdays.embed.title"))
 					.setDescription(
-						t('jobs.birthdays.embed.description', {
+						t("jobs.birthdays.embed.description", {
 							username: target.username,
 							age: date.getFullYear() - year,
 						}),
@@ -43,6 +40,6 @@ export const execute: JobExecute = async ({ client }) => {
 					.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL),
 			],
 		});
-		logger.info(`Notified guild users about **${target.username}** birthday.`);
+		client.logger.info(`Birthdays | **${target.username}**`);
 	}
 };

@@ -1,5 +1,5 @@
-import { FetchUtil } from '@luferro/shared-utils';
-import { load } from 'cheerio';
+import { FetchUtil } from "@luferro/shared-utils";
+import { load } from "cheerio";
 
 type Url = { url: string };
 type Html = { html: string };
@@ -12,7 +12,7 @@ export class StaticScraper {
 	async loadUrl({ url }: Url) {
 		const { payload } = await FetchUtil.fetch<string>({
 			url,
-			customHeaders: new Map([['content-type', 'plain/text']]),
+			customHeaders: new Map([["content-type", "plain/text"]]),
 		});
 		return this.loadHtml({ html: payload });
 	}

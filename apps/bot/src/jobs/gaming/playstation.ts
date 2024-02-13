@@ -1,10 +1,10 @@
-import { WebhookType } from '@luferro/database';
-import { StringUtil } from '@luferro/shared-utils';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookType } from "@luferro/database";
+import { StringUtil } from "@luferro/shared-utils";
+import { EmbedBuilder } from "discord.js";
 
-import type { JobData, JobExecute } from '../../types/bot';
+import type { JobData, JobExecute } from "../../types/bot";
 
-export const data: JobData = { schedule: '0 */10 * * * *' };
+export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const rss = await client.prisma.rss.findUnique({ where: { webhook: WebhookType.PLAYSTATION } });
@@ -16,7 +16,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.setTitle(StringUtil.truncate(title))
 			.setImage(image)
 			.setURL(url)
-			.setColor('Random');
+			.setColor("Random");
 
 		messages.push(embed);
 	}

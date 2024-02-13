@@ -2,26 +2,24 @@
 	"name": "@luferro/scraper",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Base scrapper for static and interactive pages.",
+	"description": "Scrapper for static and interactive pages.",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
-		"lint": "eslint --ext .ts .",
-		"lint:fix": "eslint --fix --ext .ts .",
-		"prettier": "prettier --write ."
+		"lint": "eslint --fix ."
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.9.4",
-		"typescript": "^5.3.2"
+		"@types/node": "^20.11.16",
+		"typescript": "^5.3.3"
 	},
 	"dependencies": {
 		"@luferro/shared-utils": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
-		"playwright-chromium": "^1.40.0",
+		"playwright-chromium": "^1.41.2",
 		"playwright-extra": "^4.3.6",
 		"puppeteer-extra-plugin-stealth": "^2.11.2",
 		"rss-parser": "^3.13.0",

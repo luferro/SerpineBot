@@ -1,5 +1,5 @@
-import { ConverterUtil } from '@luferro/shared-utils';
-import ytdl from 'ytdl-core';
+import { ConverterUtil } from "@luferro/shared-utils";
+import ytdl from "ytdl-core";
 
 type Url = { url: string };
 

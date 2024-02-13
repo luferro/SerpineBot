@@ -1,13 +1,19 @@
-import { ConverterUtil, DateUtil, FetchUtil } from '@luferro/shared-utils';
+import { ConverterUtil, DateUtil, FetchUtil } from "@luferro/shared-utils";
 
-import { ApiKey, Id, Query } from '../../types/args';
-import { Movie, Payload, Result, Series } from './tmdb.types';
+import { ApiKey, Id, Query } from "../../types/args";
+import { Movie, Payload, Result, Series } from "./tmdb.types";
 
 export class TMDBApi {
 	private apiKey: string;
+	private locale = "pt-PT";
 
 	constructor({ apiKey }: ApiKey) {
 		this.apiKey = apiKey;
+	}
+
+	withLocale(locale: string) {
+		this.locale = locale;
+		return this;
 	}
 
 	async search({ query }: Query) {
@@ -16,7 +22,7 @@ export class TMDBApi {
 		});
 
 		return payload.results
-			.filter(({ poster_path, media_type }) => media_type !== 'person' && !!poster_path)
+			.filter(({ poster_path, media_type }) => media_type !== "person" && !!poster_path)
 			.map(({ id, title, name, media_type }) => ({ id, title: title ?? name, type: media_type }));
 	}
 
@@ -26,14 +32,12 @@ export class TMDBApi {
 		});
 
 		const { tagline, overview } = payload;
-		const localeProviders = payload['watch/providers'].results[DateUtil.getDefaultLocale().code!.toUpperCase()];
+		const localeProviders = payload["watch/providers"].results[this.locale.split("-")[1]];
 
 		return {
 			tagline,
 			overview,
-			image: payload.poster_path
-				? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${payload.poster_path}`
-				: null,
+			image: payload.poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${payload.poster_path}` : null,
 			score: payload.vote_count > 0 && payload.vote_average > 0 ? `${payload.vote_average.toFixed(1)}/10` : null,
 			duration: payload.runtime > 0 ? ConverterUtil.formatTime(payload.runtime * 1000 * 60) : null,
 			name: payload.title,
@@ -54,23 +58,20 @@ export class TMDBApi {
 		});
 
 		const { name, tagline, overview, episode_run_time, next_episode_to_air, last_episode_to_air } = payload;
-		const localeProviders = payload['watch/providers'].results[DateUtil.getDefaultLocale().code!.toUpperCase()];
+		const localeProviders = payload["watch/providers"].results[this.locale.split("-")[1]];
 
 		return {
 			name,
 			tagline,
 			overview,
 			score: payload.vote_count > 0 && payload.vote_average > 0 ? `${payload.vote_average.toFixed(1)}/10` : null,
-			image: payload.poster_path
-				? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${payload.poster_path}`
-				: null,
+			image: payload.poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${payload.poster_path}` : null,
 			url: localeProviders?.link || payload.homepage || null,
 			genres: payload.genres,
 			seasons: payload.number_of_seasons,
 			episodes: {
 				total: payload.number_of_episodes,
-				duration:
-					episode_run_time.length > 0 ? ConverterUtil.formatTime(episode_run_time[0] * 1000 * 60) : null,
+				duration: episode_run_time.length > 0 ? ConverterUtil.formatTime(episode_run_time[0] * 1000 * 60) : null,
 				next: {
 					date: next_episode_to_air instanceof Object ? next_episode_to_air.air_date : next_episode_to_air,
 				},

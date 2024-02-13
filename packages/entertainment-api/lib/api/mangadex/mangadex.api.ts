@@ -1,12 +1,12 @@
-import { FetchUtil, StringUtil } from '@luferro/shared-utils';
+import { FetchUtil, StringUtil } from "@luferro/shared-utils";
 
-import { Id, Limit, Query } from '../../types/args';
-import { Chapter, Manga, Payload } from './mangadex.types';
+import { Id, Limit, Query } from "../../types/args";
+import { Chapter, Manga, Payload } from "./mangadex.types";
 
 export class MangadexApi {
-	private static BASE_URL = 'https://mangadex.org';
-	private static BASE_API_URL = 'https://api.mangadex.org';
-	private static BASE_IMAGE_URL = 'https://og.mangadex.org';
+	private static BASE_URL = "https://mangadex.org";
+	private static BASE_API_URL = "https://api.mangadex.org";
+	private static BASE_IMAGE_URL = "https://og.mangadex.org";
 
 	async search({ query }: Query) {
 		const { payload } = await FetchUtil.fetch<Payload<Manga[]>>({
@@ -15,7 +15,7 @@ export class MangadexApi {
 
 		return payload.data.map((result) => {
 			const { title } = result.attributes;
-			return { id: result.id, title: title.en ?? title['ja-ro'] ?? title.ja ?? title.jp };
+			return { id: result.id, title: title.en ?? title["ja-ro"] ?? title.ja ?? title.jp };
 		});
 	}
 
@@ -31,9 +31,9 @@ export class MangadexApi {
 		return {
 			id,
 			image,
-			title: title.en ?? title['ja-ro'] ?? title.ja ?? title.jp,
+			title: title.en ?? title["ja-ro"] ?? title.ja ?? title.jp,
 			url: `${MangadexApi.BASE_URL}/title/${id}`,
-			publication: release || publication ? `${release ?? ''} ${publication ?? ''}`.trim() : null,
+			publication: release || publication ? `${release ?? ""} ${publication ?? ""}`.trim() : null,
 			tags: tags.map((tag) => tag.attributes.name.en),
 		};
 	}
@@ -44,11 +44,11 @@ export class MangadexApi {
 		});
 
 		return payload.data.map(({ id, attributes: { title, chapter, externalUrl, readableAt }, relationships }) => ({
-			mangaId: relationships.find(({ type }) => type === 'manga')!.id,
+			mangaId: relationships.find(({ type }) => type === "manga")!.id,
 			chapter: {
 				id,
 				readableAt,
-				title: chapter || title ? `${chapter ? `Ch. ${chapter}` : ''} ${title ?? ''}`.trim() : 'Oneshot',
+				title: chapter || title ? `${chapter ? `Ch. ${chapter}` : ""} ${title ?? ""}`.trim() : "Oneshot",
 				url: externalUrl ?? `${MangadexApi.BASE_URL}/chapter/${id}`,
 			},
 		}));

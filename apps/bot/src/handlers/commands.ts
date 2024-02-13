@@ -1,138 +1,129 @@
-import { FileUtil, logger } from '@luferro/shared-utils';
+import path from "node:path";
+
+import { FsUtil } from "@luferro/shared-utils";
 import {
-	Client,
+	ApplicationCommandDataResolvable,
 	PermissionFlagsBits,
-	RESTPostAPIChatInputApplicationCommandsJSONBody,
 	SlashCommandBuilder,
 	SlashCommandIntegerOption,
 	SlashCommandStringOption,
 	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandGroupBuilder,
-} from 'discord.js';
-import { t } from 'i18next';
-import { resolve } from 'path';
+} from "discord.js";
+import { t } from "i18next";
 
-import { Bot } from '../structures/Bot';
-import { InteractionCommandData, InteractionCommandExecute, MetadataBuilder, VoiceCommand } from '../types/bot';
+import { Bot } from "../structures/Bot";
+import { InteractionCommand, MetadataBuilder, VoiceCommand } from "../types/bot";
 
-type RawInteractionCommand = { data: InteractionCommandData; execute: InteractionCommandExecute };
-
-export const registerCommands = async () => {
-	await registerVoiceCommands();
-	await registerInteractionCommands();
+export const registerCommands = async (client: Bot) => {
+	await registerVoiceCommands(client);
+	await registerInteractionCommands(client);
 };
 
-const registerVoiceCommands = async () => {
-	const files = FileUtil.getFiles(resolve(__dirname, '../commands/voice'));
+const registerVoiceCommands = async (client: Bot) => {
+	const files = FsUtil.getFiles(path.resolve(__dirname, "../commands/voice"));
 	for (const file of files) {
-		const name = FileUtil.getRelativePath(file, 'voice');
-		if (!name) continue;
+		const segment = FsUtil.extractPathSegments(file, "voice");
+		if (!segment) continue;
 
 		const command: VoiceCommand = await import(file);
-		Bot.commands.voice.set(name, command);
+		Bot.commands.voice.set(segment, command);
 	}
-	logger.info(`Commands handler registered **${files.length}** voice command(s).`);
+	client.logger.info(`Commands handler | **${files.length}** voice command(s) registered`);
 };
 
-const registerInteractionCommands = async () => {
-	const files = FileUtil.getFiles(resolve(__dirname, '../commands/interactions'));
+const registerInteractionCommands = async (client: Bot) => {
+	const files = FsUtil.getFiles(path.resolve(__dirname, "../commands/interactions"));
 
-	const metadata = new Map<string, Map<string, MetadataBuilder[]>>();
+	const metadata = new Map<string, MetadataBuilder[]>();
 	for (const file of files) {
-		const name = FileUtil.getRelativePath(file, 'interactions');
-		if (!name) continue;
+		const segment = FsUtil.extractPathSegments(file, "interactions");
+		if (!segment) continue;
 
-		const { data, ...methods }: RawInteractionCommand = await import(file);
+		const { data, ...methods }: InteractionCommand = await import(file);
 		const options = Array.isArray(data) ? data : [data];
 
-		const matches = name.split('.');
-		if (matches.length > 3) {
-			logger.warn(`Structure for command **${name}** is not supported. Ignoring it...`);
+		const keys = segment.split(".");
+		if (keys.length > 3) {
+			client.logger.warn(`Commands handler | Skipping command ${segment}`);
 			continue;
 		}
 
-		const [command] = matches;
-		const group = matches.length === 3 ? matches.at(-2) : null;
-		const category = group ?? command;
-		const storedMetadata = metadata.get(command);
-		if (storedMetadata) storedMetadata.get(category)?.push(...options) ?? storedMetadata.set(category, options);
-		else metadata.set(command, new Map([[category, options]]));
+		const metadataKey = [keys[0], ...keys.slice(1, -1)].join(".");
+		const storedMetadata = metadata.get(metadataKey);
+		if (storedMetadata) storedMetadata.push(...options);
+		else metadata.set(metadataKey, options);
 
-		Bot.commands.interactions.methods.set(name, methods);
+		Bot.commands.interactions.methods.set(segment, methods);
 	}
-	logger.info(`Commands handler registered **${files.length}** interaction command(s).`);
+	client.logger.info(`Commands handler | **${files.length}** interaction command(s) registered`);
 
-	buildSlashCommands(metadata);
+	Bot.commands.interactions.metadata.push(...generateSlashCommands(metadata));
+	client.logger.info(`Commands handler | **${metadata.size}** slash command(s) built`);
 };
 
-const getSlashCommandPermission = (key: string) => {
-	const permissions: Record<string, bigint> = {
-		prune: PermissionFlagsBits.ManageMessages,
-		channels: PermissionFlagsBits.ManageChannels,
-		webhooks: PermissionFlagsBits.ManageWebhooks,
+const generateSlashCommands = (metadata: Map<string, MetadataBuilder[]>) => {
+	const getSlashCommandPermission = (key: string) => {
+		const permissions: Record<string, bigint> = {
+			prune: PermissionFlagsBits.ManageMessages,
+			channels: PermissionFlagsBits.ManageChannels,
+			webhooks: PermissionFlagsBits.ManageWebhooks,
+		};
+		return permissions[key] ?? null;
 	};
-	return permissions[key] ?? null;
-};
 
-const buildSlashCommands = (map: Map<string, Map<string, InteractionCommandData[]>>) => {
-	for (const [key, metadata] of map.entries()) {
-		const command = new SlashCommandBuilder()
-			.setName(t(`interactions.${key}.name`))
-			.setDescription(t(`interactions.${key}.description`))
-			.setDefaultMemberPermissions(getSlashCommandPermission(key));
-		for (const [category, options] of metadata.entries()) {
-			const builder =
-				category === key
-					? command
-					: new SlashCommandSubcommandGroupBuilder()
-							.setName(t(`interactions.${key}.${category}.name`))
-							.setDescription(t(`interactions.${key}.${category}.description`));
+	const builders = new Map<string, SlashCommandBuilder>();
+	for (const [key, options] of metadata.entries()) {
+		const [command, ...groups] = key.split(".");
+		const [group] = groups;
 
+		const builder =
+			builders.get(command) ??
+			new SlashCommandBuilder()
+				.setName(t(`interactions.${command}.name`))
+				.setDescription(t(`interactions.${command}.description`))
+				.setDefaultMemberPermissions(getSlashCommandPermission(command));
+
+		const attachOptions = (builder: SlashCommandBuilder | SlashCommandSubcommandGroupBuilder) => {
 			for (const option of options) {
-				const isSubcommand = option instanceof SlashCommandSubcommandBuilder;
-				if (isSubcommand) builder.addSubcommand(option);
+				if (option instanceof SlashCommandSubcommandBuilder) builder.addSubcommand(option);
+				if (builder instanceof SlashCommandSubcommandGroupBuilder) continue;
 
-				const isSubcommandGroup = builder instanceof SlashCommandSubcommandGroupBuilder;
-				if (isSubcommandGroup) continue;
-
-				const isStringOption = option instanceof SlashCommandStringOption;
-				if (isStringOption) builder.addStringOption(option);
-
-				const isIntegerOption = option instanceof SlashCommandIntegerOption;
-				if (isIntegerOption) builder.addIntegerOption(option);
+				if (option instanceof SlashCommandStringOption) builder.addStringOption(option);
+				if (option instanceof SlashCommandIntegerOption) builder.addIntegerOption(option);
 			}
+		};
 
-			const isSubcommandGroup = builder instanceof SlashCommandSubcommandGroupBuilder;
-			if (isSubcommandGroup) command.addSubcommandGroup(builder);
-		}
+		if (groups.length > 0) {
+			const groupBuilder = new SlashCommandSubcommandGroupBuilder()
+				.setName(t(`interactions.${command}.${group}.name`))
+				.setDescription(t(`interactions.${command}.${group}.description`));
 
-		Bot.commands.interactions.metadata.push(command);
+			attachOptions(groupBuilder);
+			builder.addSubcommandGroup(groupBuilder);
+		} else attachOptions(builder);
+
+		builders.set(command, builder);
 	}
-	logger.info(`Commands handler built **${map.size}** slash command(s).`);
+	return builders.values();
 };
 
 export const deployCommands = async (client: Bot) => {
 	const commands = Bot.commands.interactions.metadata.map((metadata) => metadata.toJSON());
-
-	if (client.config.NODE_ENV === 'PRODUCTION') {
-		await deployGuildCommands(client, []);
-		await deployGlobalCommands(client, commands);
-		return;
-	}
-
-	await deployGuildCommands(client, commands);
+	if (client.config.runtimeEnvironment === "development") await deployGuildCommands(client, commands);
+	else await deployGlobalCommands(client, commands);
 };
 
-const deployGuildCommands = async (client: Client, commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]) => {
+const deployGuildCommands = async (client: Bot, commands: ApplicationCommandDataResolvable[]) => {
 	for (const { 1: guild } of client.guilds.cache) {
 		const guildCommands = await guild.commands.set(commands);
 		if (guildCommands.size === 0) continue;
-		logger.info(`Commands handler deployed **${guildCommands.size}** slash command(s) to guild **${guild.name}**.`);
+		client.logger.info(`Commands handler | **${guildCommands.size}** slash command(s) deployed | **${guild.name}**`);
 	}
 };
 
-const deployGlobalCommands = async (client: Client, commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]) => {
-	if (!client.application) throw new Error('Not a client application.');
+const deployGlobalCommands = async (client: Bot, commands: ApplicationCommandDataResolvable[]) => {
+	if (!client.application) throw new Error("Not a client application.");
 	const globalCommands = await client.application.commands.set(commands);
-	logger.info(`Commands handler deployed **${globalCommands.size}** slash command(s) globally.`);
+	client.logger.info(`Commands handler | **${globalCommands.size}** slash command(s) deployed | **Globally**`);
 };

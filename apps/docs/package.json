@@ -6,30 +6,25 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
-		"start": "next start",
-		"lint": "eslint --ext .ts,.tsx .",
-		"lint:fix": "eslint --fix --ext .ts,.tsx .",
-		"prettier": "prettier --write ."
+		"start": "next start"
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.9.4",
+		"@types/node": "^20.11.16",
 		"@types/react": "18.2.38",
 		"@types/react-dom": "18.2.17",
-		"eslint": "^8.54.0",
-		"eslint-config-next": "14.0.3",
-		"typescript": "^5.3.2"
+		"typescript": "^5.3.3"
 	},
 	"dependencies": {
-		"@emotion/react": "^11.11.1",
+		"@emotion/react": "^11.11.3",
 		"@emotion/styled": "^11.11.0",
-		"@mui/icons-material": "^5.14.18",
-		"@mui/material": "^5.14.18",
+		"@mui/icons-material": "^5.15.7",
+		"@mui/material": "^5.15.7",
 		"discord.js": "^14.14.1",
-		"dotenv": "^16.3.1",
-		"html-react-parser": "^5.0.6",
+		"dotenv": "^16.4.1",
+		"html-react-parser": "^5.1.1",
 		"marked": "^10.0.0",
 		"next": "14.0.3",
 		"react": "18.2.0",

@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from "crypto";
 import {
 	ActionRowBuilder,
 	ChannelType,
@@ -6,18 +6,18 @@ import {
 	EmbedBuilder,
 	SlashCommandSubcommandBuilder,
 	StringSelectMenuBuilder,
-} from 'discord.js';
-import { t } from 'i18next';
+} from "discord.js";
+import { t } from "i18next";
 
-import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
+import { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t('interactions.channels.roles.assign.name'))
-	.setDescription(t('interactions.channels.roles.assign.description'))
+	.setName(t("interactions.channels.roles.assign.name"))
+	.setDescription(t("interactions.channels.roles.assign.description"))
 	.addChannelOption((option) =>
 		option
-			.setName(t('interactions.channels.roles.assign.options.0.name'))
-			.setDescription(t('interactions.channels.roles.assign.options.0.description'))
+			.setName(t("interactions.channels.roles.assign.options.0.name"))
+			.setDescription(t("interactions.channels.roles.assign.options.0.description"))
 			.addChannelTypes(ChannelType.GuildText)
 			.setRequired(true),
 	);
@@ -32,12 +32,12 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.map((role) => ({ label: role.name, value: role.id }));
 
 	await interaction.reply({
-		embeds: [new EmbedBuilder().setTitle(t('interactions.channels.roles.assign.menu.title')).setColor('Random')],
+		embeds: [new EmbedBuilder().setTitle(t("interactions.channels.roles.assign.menu.title")).setColor("Random")],
 		components: [
 			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 				new StringSelectMenuBuilder()
 					.setCustomId(uuid)
-					.setPlaceholder(t('interactions.channels.roles.assign.menu.placeholder'))
+					.setPlaceholder(t("interactions.channels.roles.assign.menu.placeholder"))
 					.setMaxValues(options.length)
 					.addOptions(options),
 			),
@@ -50,7 +50,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		componentType: ComponentType.StringSelect,
 		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
 	});
-	if (!componentInteraction) throw new Error(t('errors.interaction.timeout'));
+	if (!componentInteraction) throw new Error(t("errors.interaction.timeout"));
 
 	await client.prisma.guild.update({
 		where: { id: interaction.guild.id },
@@ -58,9 +58,9 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	});
 
 	const updatedEmbed = new EmbedBuilder()
-		.setTitle(t('interactions.channels.roles.assign.embed.title', { channel: `\`${channel.name}\`` }))
-		.setColor('Random');
+		.setTitle(t("interactions.channels.roles.assign.embed.title", { channel: channel.name }))
+		.setColor("Random");
 
 	await componentInteraction.update({ embeds: [updatedEmbed], components: [] });
-	client.emit('rolesMessageUpdate', client);
+	client.emit("rolesMessageUpdate", client);
 };

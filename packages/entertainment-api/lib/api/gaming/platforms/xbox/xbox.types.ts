@@ -1,7 +1,7 @@
 export enum Chart {
-	TOP_SELLERS,
-	TOP_PLAYED,
-	UPCOMING_GAMES,
+	TOP_SELLERS = 0,
+	TOP_PLAYED = 1,
+	UPCOMING_GAMES = 2,
 }
 
 export type Payload<T> = { [key: string]: T };

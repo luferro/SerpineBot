@@ -1,10 +1,10 @@
-import { WebhookType } from '@luferro/database';
-import { StringUtil } from '@luferro/shared-utils';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookType } from "@luferro/database";
+import { StringUtil } from "@luferro/shared-utils";
+import { EmbedBuilder } from "discord.js";
 
-import type { JobData, JobExecute } from '../../types/bot';
+import type { JobData, JobExecute } from "../../types/bot";
 
-export const data: JobData = { schedule: '0 */10 * * * *' };
+export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	await client.propagate({
@@ -14,7 +14,7 @@ export const execute: JobExecute = async ({ client }) => {
 };
 
 const getRedditPosts = async ({ client }: Parameters<typeof execute>[0]) => {
-	const posts = await client.api.reddit.getPosts({ subreddit: 'Games', sort: 'new', limit: 25 });
+	const posts = await client.api.reddit.getPosts({ subreddit: "Games", sort: "new", limit: 25 });
 
 	const messages = [];
 	for (const { title, url, isTwitterEmbed, isYoutubeEmbed, isSelf, isCrosspost } of posts.reverse()) {
@@ -26,7 +26,7 @@ const getRedditPosts = async ({ client }: Parameters<typeof execute>[0]) => {
 			continue;
 		}
 
-		const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor('Random');
+		const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor("Random");
 		messages.push(embed);
 	}
 
@@ -43,7 +43,7 @@ const getRssNews = async ({ client }: Parameters<typeof execute>[0]) => {
 			.setTitle(StringUtil.truncate(title))
 			.setThumbnail(image)
 			.setURL(url)
-			.setColor('Random');
+			.setColor("Random");
 
 		messages.push(embed);
 	}

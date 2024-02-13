@@ -7,15 +7,13 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
-		"lint": "eslint --ext .ts .",
-		"lint:fix": "eslint --fix --ext .ts .",
-		"prettier": "prettier --write ."
+		"lint": "eslint --fix ."
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"typescript": "^5.3.2"
+		"typescript": "^5.3.3"
 	},
 	"dependencies": {
 		"@luferro/reddit-api": "workspace:^",

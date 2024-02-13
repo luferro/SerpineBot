@@ -1,10 +1,10 @@
-import { ConverterUtil, DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
+import { ConverterUtil, DateUtil, FetchUtil, StringUtil } from "@luferro/shared-utils";
 
-import { ApiKey, Id, Query } from '../../../../types/args';
-import { Bundles, Deal, Game, HistoricalLow, List, Payload, Price, Result } from './deals.types';
+import { ApiKey, Id, Query } from "../../../../types/args";
+import { Bundles, Deal, Game, HistoricalLow, List, Payload, Price, Result } from "./deals.types";
 
 export class DealsApi {
-	private static BASE_API_URL = 'https://api.isthereanydeal.com';
+	private static BASE_API_URL = "https://api.isthereanydeal.com";
 
 	private apiKey: string;
 
@@ -22,10 +22,10 @@ export class DealsApi {
 			total,
 			active: list.map(({ title, bundle, start, expiry, url }) => ({
 				title,
-				store: bundle,
-				start: DateUtil.format(start * 1000),
-				expiry: expiry ? DateUtil.format(expiry * 1000) : null,
 				url,
+				store: bundle,
+				start: start * 1000,
+				expiry: expiry ? expiry * 1000 : null,
 			})),
 		};
 	}
@@ -38,10 +38,10 @@ export class DealsApi {
 		if (!shop || !price || !cut || !added) return null;
 
 		return {
+			price,
 			store: shop.name,
-			price: ConverterUtil.formatCurrency(price),
 			discount: cut,
-			date: DateUtil.formatDistance(added * 1000),
+			date: added * 1000,
 		};
 	}
 
@@ -53,8 +53,8 @@ export class DealsApi {
 		return list.map(({ shop, price_old, price_new, price_cut, drm, url }) => ({
 			url,
 			store: shop.name,
-			regular: ConverterUtil.formatCurrency(price_old),
-			discounted: ConverterUtil.formatCurrency(price_new),
+			regular: price_old,
+			discounted: price_new,
 			discount: price_cut,
 			drm: drm.map(StringUtil.capitalize),
 		}));
@@ -87,12 +87,12 @@ export class DealsApi {
 				id: plain,
 				url: urls.buy,
 				store: shop.name,
-				drm: drm.every((platform) => !platform.includes('DRM Free')) ? drm.map(StringUtil.capitalize) : null,
+				drm: drm.every((platform) => !platform.includes("DRM Free")) ? drm.map(StringUtil.capitalize) : null,
 				discount: price_cut,
-				regular: ConverterUtil.formatCurrency(price_old),
-				current: ConverterUtil.formatCurrency(price_new),
-				expiry: expiry ? DateUtil.format(expiry * 1000) : null,
-				added: added ? DateUtil.format(added * 1000) : null,
+				regular: price_old,
+				current: price_new,
+				expiry: expiry ? expiry * 1000 : null,
+				added: added ? added * 1000 : null,
 			}));
 	}
 }

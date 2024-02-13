@@ -5,5 +5,5 @@
 		"declaration": true,
 		"declarationMap": true
 	},
-	"include": ["lib/**/*.ts"]
+	"include": ["prisma/**/*.ts"]
 }

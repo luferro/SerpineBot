@@ -1,6 +1,6 @@
-import { DealsApi, HLTBApi, IGDBApi, ReviewsApi, SubscriptionsApi } from './games';
-import { Config, Games, Platforms } from './gaming.types';
-import { SteamApi, XboxApi } from './platforms';
+import { DealsApi, HLTBApi, IGDBApi, ReviewsApi, SubscriptionsApi } from "./games";
+import { Config, Games, Platforms } from "./gaming.types";
+import { SteamApi, XboxApi } from "./platforms";
 
 export class GamingApi {
 	igdb: IGDBApi;

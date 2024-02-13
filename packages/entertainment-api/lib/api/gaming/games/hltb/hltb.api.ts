@@ -1,39 +1,39 @@
-import { Scraper } from '@luferro/scraper';
-import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
+import { Scraper } from "@luferro/scraper";
+import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
 
-import { Id, Query } from '../../../../types/args';
-import { Payload, Playtime, Result } from './hltb.types';
+import { Id, Query } from "../../../../types/args";
+import { Payload, Playtime, Result } from "./hltb.types";
 
 export class HLTBApi extends Scraper {
-	private static BASE_URL = 'https://howlongtobeat.com';
+	private static BASE_URL = "https://howlongtobeat.com";
 
 	async search({ query }: Query) {
 		const data = await FetchUtil.fetch<Result>({
-			method: 'POST',
+			method: "POST",
 			url: `${HLTBApi.BASE_URL}/api/search`,
 			customHeaders: new Map([
-				['origin', 'https://howlongtobeat.com'],
-				['referer', 'https://howlongtobeat.com'],
+				["origin", "https://howlongtobeat.com"],
+				["referer", "https://howlongtobeat.com"],
 			]),
 			body: JSON.stringify({
-				searchType: 'games',
+				searchType: "games",
 				searchTerms: [query],
 				searchPage: 1,
 				size: 20,
 				searchOptions: {
 					games: {
 						userId: 0,
-						platform: '',
-						sortCategory: 'popular',
-						rangeCategory: 'main',
-						rangeYear: { min: '', max: '' },
+						platform: "",
+						sortCategory: "popular",
+						rangeCategory: "main",
+						rangeYear: { min: "", max: "" },
 						rangeTime: { min: null, max: null },
-						gameplay: { perspective: '', flow: '', genre: '' },
-						modifier: '',
+						gameplay: { perspective: "", flow: "", genre: "" },
+						modifier: "",
 					},
-					lists: { sortCategory: 'follows' },
-					users: { sortCategory: 'postcount' },
-					filter: '',
+					lists: { sortCategory: "follows" },
+					users: { sortCategory: "postcount" },
+					filter: "",
 					sort: 0,
 					randomizer: 0,
 				},
@@ -56,9 +56,9 @@ export class HLTBApi extends Scraper {
 			url: `https://howlongtobeat.com/game/${id}`,
 			image: game_image ? `${HLTBApi.BASE_URL}/games/${game_image}` : null,
 			playtimes: {
-				main: comp_main != 0 ? `${ConverterUtil.toHours(comp_main * 1000)}h` : null,
-				mainExtra: comp_plus != 0 ? `${ConverterUtil.toHours(comp_plus * 1000)}h` : null,
-				completionist: comp_100 != 0 ? `${ConverterUtil.toHours(comp_100 * 1000)}h` : null,
+				main: comp_main !== 0 ? `${ConverterUtil.toHours(comp_main * 1000)}h` : null,
+				mainExtra: comp_plus !== 0 ? `${ConverterUtil.toHours(comp_plus * 1000)}h` : null,
+				completionist: comp_100 !== 0 ? `${ConverterUtil.toHours(comp_100 * 1000)}h` : null,
 			},
 		};
 	}

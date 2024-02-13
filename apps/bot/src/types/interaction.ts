@@ -5,9 +5,9 @@ import type {
 	Guild,
 	GuildMember,
 	StringSelectMenuInteraction,
-} from 'discord.js';
+} from "discord.js";
 
-type GenericInteraction<T> = { guild: Guild; member: GuildMember } & T;
+type GenericInteraction<T> = { guild: Guild; member: GuildMember; isVoiceCommand: () => boolean } & T;
 
 export type ExtendedChatInputCommandInteraction = GenericInteraction<ChatInputCommandInteraction>;
 export type ExtendedAutocompleteInteraction = GenericInteraction<AutocompleteInteraction>;

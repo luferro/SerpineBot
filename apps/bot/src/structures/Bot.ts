@@ -1,56 +1,53 @@
-import { ExtendedPrismaClient, getExtendedPrismaClient, WebhookType } from '@luferro/database';
-import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from '@luferro/entertainment-api';
-import { RedditApi } from '@luferro/reddit-api';
-import { Scraper } from '@luferro/scraper';
-import { DateUtil, logger, ObjectUtil } from '@luferro/shared-utils';
-import { CronJob } from 'cron';
-import { Client, ClientOptions, Collection, Embed, EmbedBuilder, Events, Guild, Message } from 'discord.js';
-import { GuildQueueEvent, GuildQueueEvents } from 'discord-player';
-import i18next from 'i18next';
+import { Cache } from "@luferro/cache";
+import { type Config, loadConfig } from "@luferro/config";
+import { DatabaseClient, type ExtendedDatabaseClient, WebhookType } from "@luferro/database";
+import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from "@luferro/entertainment-api";
+import { RedditApi } from "@luferro/reddit-api";
+import { Scraper } from "@luferro/scraper";
+import { ObjectUtil, LoggerUtil } from "@luferro/shared-utils";
+import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordClient } from "@luferro/speech";
+import { CronJob } from "cron";
+import { Client, ClientOptions, Collection, Embed, EmbedBuilder, Events, Guild, Message } from "discord.js";
+import { GuildQueueEvent, GuildQueueEvents } from "discord-player";
+import i18next, { t } from "i18next";
+import Backend from "i18next-fs-backend";
+import path from "node:path";
 
-import { getSanitizedConfig, SanitizedConfig } from '../config/environment';
-import * as CommandsHandler from '../handlers/commands';
-import * as EventsHandler from '../handlers/events';
-import * as JobsHandler from '../handlers/jobs';
-import { getInitConfig } from '../helpers/i18n';
-import { initializeLeopard, initializePorcupine, initializeRhino, initializeTextToSpeech } from '../helpers/speech';
-import type { Api, Commands, Event, Job, Speech } from '../types/bot';
-import { Cache } from './Cache';
-import { Player } from './Player';
+import * as CommandsHandler from "../handlers/commands";
+import * as EventsHandler from "../handlers/events";
+import * as JobsHandler from "../handlers/jobs";
+import type { Api, Commands, Event, Job, Speech } from "../types/bot";
+import { Player } from "./Player";
 
 type MessageType = string | EmbedBuilder;
 type WebhookArgs = { guild: Guild; type: WebhookType };
-type PropagateArgs = {
-	type: WebhookType;
-	cache?: boolean;
-	everyone?: boolean;
-	fields?: string[];
-	messages: MessageType[];
-};
+type PropagateArgs = { type: WebhookType; everyone?: boolean; messages: MessageType[] };
 
 export class Bot extends Client {
 	private static readonly MAX_EMBEDS_CHUNK_SIZE = 10;
-	static readonly ROLES_MESSAGE_ID = 'CLAIM_YOUR_ROLES';
+	static readonly ROLES_MESSAGE_ID = "CLAIM_YOUR_ROLES";
 
 	static jobs: Collection<string, Job> = new Collection();
 	static events: Collection<string, Event> = new Collection();
 	static commands: Commands = { voice: new Collection(), interactions: { metadata: [], methods: new Collection() } };
 
-	api: Api;
-	scraper: Scraper;
+	config: Config;
+	logger: LoggerUtil.Logger;
 	cache: Cache;
-	prisma: ExtendedPrismaClient;
+	prisma: ExtendedDatabaseClient;
+	scraper: Scraper;
 	player: Player;
+	api: Api;
 	speech: Speech;
-	config: SanitizedConfig;
 
 	constructor(options: ClientOptions) {
 		super(options);
-		this.cache = new Cache();
+		this.config = loadConfig();
+		this.logger = LoggerUtil.configureLogger();
+		this.cache = new Cache({ uri: this.config.get("services.redis.uri") });
+		this.prisma = new DatabaseClient({ uri: this.config.get("services.mongodb.uri") }).withExtensions();
 		this.scraper = new Scraper();
 		this.player = new Player(this);
-		this.prisma = getExtendedPrismaClient();
-		this.config = getSanitizedConfig();
 		this.api = this.initializeApi();
 		this.speech = this.initializeSpeech();
 	}
@@ -59,23 +56,27 @@ export class Bot extends Client {
 		return {
 			reddit: new RedditApi(),
 			mangadex: new MangadexApi(),
-			shows: new TMDBApi({ apiKey: this.config.THE_MOVIE_DB_API_KEY }),
-			anime: new AnimeScheduleApi({ apiKey: this.config.ANIME_SCHEDULE_API_KEY }),
+			shows: new TMDBApi({ apiKey: this.config.get("services.tmdb.apiKey") }),
+			anime: new AnimeScheduleApi({ apiKey: this.config.get("services.animeSchedule.apiKey") }),
 			gaming: new GamingApi({
-				igdb: { clientId: this.config.IGDB_CLIENT_ID, clientSecret: this.config.IGDB_CLIENT_SECRET },
-				deals: { apiKey: this.config.ITAD_API_KEY },
-				steam: { apiKey: this.config.STEAM_API_KEY },
-				xbox: { apiKey: this.config.XBOX_API_KEY },
+				igdb: {
+					clientId: this.config.get("services.igdb.clientId"),
+					clientSecret: this.config.get("services.igdb.clientSecret"),
+				},
+				deals: { apiKey: this.config.get("services.itad.apiKey") },
+				steam: { apiKey: this.config.get("services.steam.apiKey") },
+				xbox: { apiKey: this.config.get("services.xbox.apiKey") },
 			}),
 		};
 	}
 
 	private initializeSpeech() {
+		const apiKey = this.config.get<string>("services.picovoice.apiKey");
 		return {
-			tts: initializeTextToSpeech(),
-			sti: initializeRhino({ apiKey: this.config.PICOVOICE_API_KEY }),
-			stt: initializeLeopard({ apiKey: this.config.PICOVOICE_API_KEY }),
-			wake: initializePorcupine({ apiKey: this.config.PICOVOICE_API_KEY }),
+			wakeWord: new WakeWordClient({ apiKey }),
+			speechToText: new SpeechToTextClient({ apiKey, modelPath: "" }),
+			speechToIntent: new SpeechToIntentClient({ apiKey, modelPath: "" }),
+			textToSpeech: new TextToSpeechClient({ credentialsPath: this.config.get("services.google.credentials.path") }),
 		};
 	}
 
@@ -83,7 +84,7 @@ export class Bot extends Client {
 		for (const [name, { data, execute }] of Bot.events.entries()) {
 			const callback = (...args: unknown[]) =>
 				execute({ client: this, rest: args }).catch((error) => {
-					this.emit('clientError', error);
+					this.emit("clientError", error);
 				});
 
 			const isDiscordEvent = ObjectUtil.enumToArray(Events).some((key) => Events[key] === name);
@@ -93,7 +94,7 @@ export class Bot extends Client {
 			if (isClientEvent) this[data.type](name, callback);
 			else this.player.events[data.type](name as keyof GuildQueueEvents, callback);
 
-			logger.info(`**${isClientEvent ? 'Client' : 'Player'}** is listening ${data.type} **${name}**.`);
+			this.logger.info(`Events | **${isClientEvent ? "Client" : "Player"}** | ${data.type} | **${name}**`);
 		}
 	}
 
@@ -101,92 +102,98 @@ export class Bot extends Client {
 		for (const [name, job] of Bot.jobs.entries()) {
 			const cronjob = new CronJob(job.data.schedule, () =>
 				job.execute({ client: this }).catch((error) => {
-					error.message = `Job **${name}** failed. Reason: ${error.message}`;
-					this.emit('clientError', error);
+					error.message = `Jobs | **${name}** failed | Reason: ${error.message}`;
+					this.emit("clientError", error);
 				}),
 			);
 			cronjob.start();
-			logger.info(`Job **${name}** is set to run. Schedule: **(${job.data.schedule})**.`);
+			this.logger.info(`Jobs | **${name}** | **(${job.data.schedule})**`);
 		}
 	}
 
 	async start() {
-		logger.info(`Starting SerpineBot in **${this.config.NODE_ENV.trim()}**.`);
+		this.logger.info(`Bot | Starting | **${this.config.runtimeEnvironment}**`);
 
 		try {
-			i18next.init(await getInitConfig(this.config.LOCALE));
-			if (i18next.resolvedLanguage) DateUtil.setI18nLocale(i18next.resolvedLanguage);
+			i18next.use(Backend).init({
+				fallbackLng: "en-US",
+				backend: { loadPath: path.join(__dirname, "../locales/{{lng}}.json") },
+				interpolation: { escapeValue: true },
+			});
 
-			await this.login(this.config.BOT_TOKEN);
-			await JobsHandler.registerJobs();
-			await EventsHandler.registerEvents();
-			await CommandsHandler.registerCommands();
+			await this.login(this.config.get("client.token"));
+			await JobsHandler.registerJobs(this);
+			await EventsHandler.registerEvents(this);
+			await CommandsHandler.registerCommands(this);
 
 			this.initializeListeners();
 			this.initializeSchedulers();
 
-			this.emit('ready', this as Client<true>);
+			this.emit("ready", this as Client<true>);
 		} catch (error) {
-			logger.error('Fatal error during application start.', error);
+			this.logger.error("Bot | Fatal error during application start.", error);
 			this.stop();
 		}
 	}
 
-	async webhook({ guild, type }: WebhookArgs) {
+	async getWebhook({ guild, type }: WebhookArgs) {
 		const settings = await this.prisma.guild.findUnique({ where: { id: guild.id } });
-		const webhook = settings?.webhooks.find((webhook) => webhook.type === type);
-		if (!webhook) return null;
+		const storedWebhook = settings?.webhooks.find((webhook) => webhook.type === type);
+		if (!storedWebhook) return { webhook: null, config: {} };
 
 		const guildWebhooks = await guild.fetchWebhooks();
-		if (!guildWebhooks.has(webhook.id)) {
+		if (!guildWebhooks.has(storedWebhook.id)) {
 			await this.prisma.guild.update({
 				where: { id: guild.id },
 				data: { webhooks: { deleteMany: { where: { type } } } },
 			});
-			return null;
+			return { webhook: null, config: {} };
 		}
 
-		return await this.fetchWebhook(webhook.id, webhook.token);
+		return {
+			webhook: await this.fetchWebhook(storedWebhook.id, storedWebhook.token),
+			config: { fields: storedWebhook.fields, cache: storedWebhook.cache },
+		};
 	}
 
-	async propagate({ type, cache = true, everyone = false, fields = ['url'], messages }: PropagateArgs) {
-		const allMessages = cache
-			? (
-					await Promise.all(
-						messages.map(async (message) => {
-							const isEmbed = message instanceof EmbedBuilder;
-							const stringifiedMessage = isEmbed
-								? JSON.stringify({ ...message.data, color: null })
-								: message;
+	async propagate({ type, everyone = false, messages }: PropagateArgs) {
+		const getMessages = async (shouldBeCached: boolean) => {
+			if (!shouldBeCached) return messages;
 
-							const hash = this.cache.createHash(stringifiedMessage);
-							if (await this.cache.persistent.exists(hash)) return;
+			const filteredMessages = await Promise.all(
+				messages.map(async (message) => {
+					const isEmbed = message instanceof EmbedBuilder;
+					const stringifiedMessage = isEmbed ? JSON.stringify({ ...message.data, color: null }) : message;
 
-							await this.cache.persistent.set(hash, stringifiedMessage, 'EX', 60 * 60 * 24 * 30);
-							return message;
-						}),
-					)
-			  ).filter((item): item is NonNullable<(typeof messages)[0]> => !!item)
-			: messages;
+					const hash = this.cache.hash(stringifiedMessage);
+					if (await this.cache.some(hash)) return;
 
-		const filter = <T>(message: T) => message instanceof EmbedBuilder;
-		const [embeds, contents] = ObjectUtil.partition<MessageType, EmbedBuilder>(allMessages, filter);
-
-		const isMatch = <T extends object>(obj1: T, obj2: T) => ObjectUtil.hasCommonFields(fields, obj1, obj2);
+					await this.cache.set(hash, stringifiedMessage);
+					return message;
+				}),
+			);
+			return filteredMessages.filter((item): item is NonNullable<(typeof messages)[0]> => !!item);
+		};
 
 		for (const { 1: guild } of this.guilds.cache) {
-			const webhook = await this.webhook({ guild, type });
+			const { webhook, config } = await this.getWebhook({ guild, type });
 			const channel = webhook?.channel;
 			if (!webhook || !channel) continue;
+
+			const [embeds, contents] = ObjectUtil.partition<MessageType, EmbedBuilder>(
+				await getMessages(config.cache),
+				(message: MessageType) => message instanceof EmbedBuilder,
+			);
 
 			for (const data of [...contents, ...ObjectUtil.splitIntoChunks(embeds, Bot.MAX_EMBEDS_CHUNK_SIZE)]) {
 				if (Array.isArray(data)) {
 					const content = everyone ? `${guild.roles.everyone}` : undefined;
 
 					const cachedMessage = channel.messages.cache.find((message) =>
-						data.some((embed) => message.embeds.some((cached) => isMatch(embed.data, cached.data))),
+						data.some((embed) =>
+							message.embeds.some((cached) => ObjectUtil.hasCommonFields(config.fields, embed.data, cached.data)),
+						),
 					);
-
 					if (!cachedMessage) {
 						const message = await webhook.send({ content, embeds: data });
 						webhook.channel.messages.cache.set(message.id, message as Message<true>);
@@ -195,7 +202,9 @@ export class Bot extends Client {
 
 					const { embeds } = cachedMessage;
 					for (const embed of data) {
-						const index = embeds.findIndex((cachedEmbed) => isMatch(embed.data, cachedEmbed.data));
+						const index = embeds.findIndex((cachedEmbed) =>
+							ObjectUtil.hasCommonFields(config.fields, embed.data, cachedEmbed.data),
+						);
 						if (index !== -1) embeds[index] = embed.data as Embed;
 					}
 
@@ -210,7 +219,8 @@ export class Bot extends Client {
 	}
 
 	async stop() {
-		await this.cache.persistent.quit();
+		this.logger.info("Bot | Stopping");
+		await this.cache.quit();
 		process.exit();
 	}
 }

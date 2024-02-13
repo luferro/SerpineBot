@@ -1,9 +1,9 @@
-import { WebhookType } from '@luferro/database';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookType } from "@luferro/database";
+import { EmbedBuilder } from "discord.js";
 
-import type { JobData, JobExecute } from '../../../types/bot';
+import type { JobData, JobExecute } from "../../../types/bot";
 
-export const data: JobData = { schedule: '0 */20 * * * *' };
+export const data: JobData = { schedule: "0 */20 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const rss = await client.prisma.rss.findUnique({ where: { webhook: WebhookType.GAME_DEALS } });
@@ -16,7 +16,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.setImage(image)
 			.setURL(url)
 			.setDescription(description)
-			.setColor('Random');
+			.setColor("Random");
 
 		messages.push(embed);
 	}

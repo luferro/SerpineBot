@@ -1,10 +1,10 @@
-import { ActionRowBuilder, Collection, EmbedBuilder, Message, StringSelectMenuBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { ActionRowBuilder, Collection, EmbedBuilder, Message, StringSelectMenuBuilder } from "discord.js";
+import { t } from "i18next";
 
-import { Bot } from '../../structures/Bot';
-import type { EventData, EventExecute } from '../../types/bot';
+import { Bot } from "../../structures/Bot";
+import type { EventData, EventExecute } from "../../types/bot";
 
-export const data: EventData = { type: 'on' };
+export const data: EventData = { type: "on" };
 
 export const execute: EventExecute = async ({ client }) => {
 	for (const { 0: guildId, 1: guild } of client.guilds.cache) {
@@ -25,7 +25,7 @@ export const execute: EventExecute = async ({ client }) => {
 		const component = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 			new StringSelectMenuBuilder()
 				.setCustomId(Bot.ROLES_MESSAGE_ID)
-				.setPlaceholder(t('events.roles.rolesMessageUpdate.menu.placeholder'))
+				.setPlaceholder(t("events.roles.rolesMessageUpdate.menu.placeholder"))
 				.setMaxValues(roles.length)
 				.addOptions(roles),
 		);
@@ -43,10 +43,10 @@ export const execute: EventExecute = async ({ client }) => {
 		await channel.send({
 			embeds: [
 				new EmbedBuilder()
-					.setTitle(t('events.roles.rolesMessageUpdate.menu.title'))
-					.setDescription(t('events.roles.rolesMessageUpdate.menu.description'))
-					.setFooter({ text: t('events.roles.rolesMessageUpdate.menu.footer.text') })
-					.setColor('Random'),
+					.setTitle(t("events.roles.rolesMessageUpdate.menu.title"))
+					.setDescription(t("events.roles.rolesMessageUpdate.menu.description"))
+					.setFooter({ text: t("events.roles.rolesMessageUpdate.menu.footer.text") })
+					.setColor("Random"),
 			],
 			components: [component],
 		});

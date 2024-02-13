@@ -1,15 +1,19 @@
-import { FileUtil, logger } from '@luferro/shared-utils';
-import path from 'path';
+import path from "node:path";
 
-import { Bot } from '../structures/Bot';
-import type { Job } from '../types/bot';
+import { FsUtil } from "@luferro/shared-utils";
 
-export const registerJobs = async () => {
-	const files = FileUtil.getFiles(path.resolve(__dirname, '../jobs'));
+import { Bot } from "../structures/Bot";
+import type { Job } from "../types/bot";
+
+export const registerJobs = async (client: Bot) => {
+	const files = FsUtil.getFiles(path.resolve(__dirname, "../jobs"));
 	for (const file of files) {
+		const segment = FsUtil.extractPathSegments(file, "jobs");
+		if (!segment) continue;
+
 		const job: Job = await import(file);
-		Bot.jobs.set(FileUtil.getRelativePath(file, 'jobs'), job);
+		Bot.jobs.set(segment, job);
 	}
 
-	logger.info(`Jobs handler registered **${files.length}** job(s).`);
+	client.logger.info(`Jobs handler | **${files.length}** job(s) registered`);
 };

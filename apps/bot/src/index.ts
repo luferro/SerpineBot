@@ -1,9 +1,8 @@
-import 'dotenv/config';
+import "dotenv/config";
 
-import { logger } from '@luferro/shared-utils';
-import { GatewayIntentBits } from 'discord.js';
+import { GatewayIntentBits } from "discord.js";
 
-import { Bot } from './structures/Bot';
+import { Bot } from "./structures/Bot";
 
 (async () => {
 	const client = new Bot({
@@ -19,7 +18,7 @@ import { Bot } from './structures/Bot';
 	});
 	await client.start();
 
-	process.on('uncaughtException', logger.error);
-	process.on('SIGINT', client.stop);
-	process.on('SIGTERM', client.stop);
+	process.on("uncaughtException", client.logger.error);
+	process.on("SIGINT", client.stop);
+	process.on("SIGTERM", client.stop);
 })();

@@ -1,12 +1,12 @@
-import { Scraper } from '@luferro/scraper';
-import { ConverterUtil, FetchUtil } from '@luferro/shared-utils';
+import { Scraper } from "@luferro/scraper";
+import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
 
-import { ApiKey, Id } from '../../../../types/args';
-import { Chart, Payload, Profile, RecentlyPlayed, Status, Wishlist } from './steam.types';
+import { ApiKey, Id } from "../../../../types/args";
+import { Chart, Payload, Profile, RecentlyPlayed, Status, Wishlist } from "./steam.types";
 
 export class SteamApi extends Scraper {
-	private static BASE_API_URL = 'https://api.steampowered.com';
-	private static BASE_STORE_URL = 'https://store.steampowered.com';
+	private static BASE_API_URL = "https://api.steampowered.com";
+	private static BASE_STORE_URL = "https://store.steampowered.com";
 
 	private apiKey: string;
 
@@ -63,29 +63,31 @@ export class SteamApi extends Scraper {
 				url: `${SteamApi.BASE_STORE_URL}/wishlist/profiles/${id}/wishlistdata?p=${page}`,
 			});
 
-			const hasMore = Object.keys(payload).some((id) => !isNaN(Number(id)));
+			const hasMore = Object.keys(payload).some((id) => !Number.isNaN(Number(id)));
 			if (!hasMore) break;
 
 			for (const [id, { name, release_date, priority, is_free_game, subs }] of Object.entries(payload)) {
 				const isPriced = !is_free_game && subs.length > 0;
 
 				const discount = isPriced ? subs[0].discount_pct : null;
-				const discounted = isPriced ? ConverterUtil.centsToEuros(subs[0].price) : null;
+				const originalPriceBlock = isPriced
+					? this.static.loadHtml({ html: subs[0].discount_block })(".discount_original_price")
+					: null;
 				const regular = isPriced
-					? ConverterUtil.centsToEuros(Math.round((100 * subs[0].price) / (100 - subs[0].discount_pct)))
+					? Number(originalPriceBlock?.text().replace(/[^\d-]/g, "") || subs[0].price) / 100
 					: null;
 
 				wishlist.push({
 					id,
 					priority,
-					discount,
-					discounted,
 					regular,
+					discount,
+					discounted: isPriced && discount ? subs[0].price / 100 : null,
 					title: name,
 					url: `${SteamApi.BASE_STORE_URL}/app/${id}`,
 					isFree: is_free_game,
-					isReleased: typeof release_date === 'string',
-					onSale: Boolean(discount && discounted),
+					isReleased: typeof release_date === "string",
+					onSale: Boolean(discount),
 				});
 			}
 			page++;
@@ -97,18 +99,18 @@ export class SteamApi extends Scraper {
 	}
 
 	async getUpcomingSales() {
-		const $ = await this.static.loadUrl({ url: 'https://prepareyourwallet.com' });
+		const $ = await this.static.loadUrl({ url: "https://prepareyourwallet.com" });
 
-		const sale = $('p').first().attr('content') ?? null;
-		const status = $('span.status').first().text();
-		const upcoming = $('.row')
+		const sale = $("p").first().attr("content") ?? null;
+		const status = $("span.status").first().text();
+		const upcoming = $(".row")
 			.first()
-			.children('div')
+			.children("div")
 			.get()
 			.map((element) => {
-				const name = $(element).find('span').first().text();
-				const date = $(element).find('p').first().text().trim();
-				const fixedDate = date?.replace(/Confirmed|Not confirmed/, '').trim() ?? '';
+				const name = $(element).find("span").first().text();
+				const date = $(element).find("p").first().text().trim();
+				const fixedDate = date?.replace(/Confirmed|Not confirmed/, "").trim() ?? "";
 				return `> __${name}__ ${fixedDate}`;
 			});
 
@@ -117,32 +119,32 @@ export class SteamApi extends Scraper {
 
 	async getChart({ chart }: { chart: Chart }) {
 		const chartUrl: Record<typeof chart, string> = {
-			[Chart.TOP_PLAYED]: 'https://steamcharts.com',
+			[Chart.TOP_PLAYED]: "https://steamcharts.com",
 			[Chart.TOP_SELLERS]: `${SteamApi.BASE_STORE_URL}/search/?filter=topsellers&os=win`,
 			[Chart.UPCOMING_GAMES]: `${SteamApi.BASE_STORE_URL}/search/?filter=popularcomingsoon&os=win`,
 		};
 		const $ = await this.static.loadUrl({ url: chartUrl[chart] });
 
 		if (chart === Chart.TOP_PLAYED) {
-			return $('table#top-games tbody tr')
+			return $("table#top-games tbody tr")
 				.get()
 				.map((element, index) => {
 					const position = index + 1;
-					const name = $(element).find('.game-name a').text().trim();
-					const href = $(element).find('.game-name a').attr('href');
+					const name = $(element).find(".game-name a").text().trim();
+					const href = $(element).find(".game-name a").attr("href");
 					const url = `${SteamApi.BASE_STORE_URL}${href}`;
-					const count = $(element).find('.num').first().text();
+					const count = $(element).find(".num").first().text();
 
 					return { position, name, url, count };
 				});
 		}
 
-		return $('.search_result_row')
+		return $(".search_result_row")
 			.get()
 			.map((element, index) => {
 				const position = index + 1;
-				const name = $(element).find('.responsive_search_name_combined .title').first().text();
-				const url = $(element).first().attr('href')!;
+				const name = $(element).find(".responsive_search_name_combined .title").first().text();
+				const url = $(element).first().attr("href")!;
 				return { position, name, url, count: null };
 			})
 			.filter(({ url }, index, self) => index === self.findIndex(({ url: nestedUrl }) => nestedUrl === url))

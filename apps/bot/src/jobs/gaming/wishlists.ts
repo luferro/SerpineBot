@@ -1,16 +1,16 @@
-import { SteamWishlistEntry } from '@luferro/database';
-import { logger } from '@luferro/shared-utils';
-import { EmbedBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { SteamWishlistEntry } from "@luferro/database";
+import { EmbedBuilder } from "discord.js";
+import { t } from "i18next";
 
-import type { Bot } from '../../structures/Bot';
-import type { JobData, JobExecute } from '../../types/bot';
+import type { Bot } from "../../structures/Bot";
+import type { JobData, JobExecute } from "../../types/bot";
+import { ConverterUtil } from "@luferro/shared-utils";
 
 enum Alert {
-	SALE = 'sale',
-	RELEASED = 'released',
-	ADDED_TO = 'addedTo',
-	REMOVED_FROm = 'removedFrom',
+	SALE = "sale",
+	RELEASED = "released",
+	ADDED_TO = "addedTo",
+	REMOVED_FROm = "removedFrom",
 }
 
 type SteamAlert = { addedTo?: string[]; removedFrom?: string[] } & SteamWishlistEntry;
@@ -19,7 +19,7 @@ type Entries<T> = {
 	[K in keyof T]: [K, T[K]];
 }[keyof T][];
 
-export const data: JobData = { schedule: '0 */15 7-23 * * *' };
+export const data: JobData = { schedule: "0 */15 7-23 * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const integrations = await client.prisma.steam.findMany({ where: { notifications: true } });
@@ -80,7 +80,7 @@ const getSubscriptionChanges = (newGame: SteamWishlistEntry, oldGame?: SteamWish
 		const storedSubscription = Object.entries(newGame.subscriptions).find(([key]) => key === name);
 		if (!storedSubscription) continue;
 
-		const subscription = name.replace(/_/g, ' ').toUpperCase();
+		const subscription = name.replace(/_/g, " ").toUpperCase();
 		const { 1: storedItemIsIncluded } = storedSubscription;
 		if (!storedItemIsIncluded && isIncluded) addedTo.push(`> • **${subscription}**`);
 		if (storedItemIsIncluded && !isIncluded) removedFrom.push(`> • **${subscription}**`);
@@ -105,18 +105,24 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 							`> ${t(`jobs.gaming.wishlists.${alert}.embed.description`, {
 								item: `**[${title}](${url})**`,
 								discount: `***${discount}%***`,
-								regular: `~~${regular}~~`,
-								discounted: `**${discounted}**`,
-								addedTo: (addedTo ?? []).join('\n'),
-								removedFrom: (removedFrom ?? []).join('\n'),
+								regular: `~~${ConverterUtil.formatCurrency({
+									amount: regular!,
+									locale: client.config.get("locale"),
+								})}~~`,
+								discounted: `**${ConverterUtil.formatCurrency({
+									amount: discounted!,
+									locale: client.config.get("locale"),
+								})}**`,
+								addedTo: (addedTo ?? []).join("\n"),
+								removedFrom: (removedFrom ?? []).join("\n"),
 							})}`,
 					)
-					.join('\n'),
+					.join("\n"),
 			)
-			.setColor('Random');
+			.setColor("Random");
 
 		await user.send({ embeds: [embed] });
-		logger.info(`Steam alerts sent to **${user.username}** (**${alert}** | **${queue.length}** update(s)).`);
-		logger.debug({ queue });
+		client.logger.info(`Steam wishlist | **${alert}** | **${user.username}** | **${queue.length}** update(s)).`);
+		client.logger.debug({ queue });
 	}
 };

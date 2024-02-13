@@ -1,13 +1,13 @@
-import { ApplicationCommandOptionType, Client, GatewayIntentBits } from 'discord.js';
-import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { ApplicationCommandOptionType, Client, GatewayIntentBits } from "discord.js";
+import Head from "next/head";
+import { useEffect, useState } from "react";
 
-import { Accordion } from '../components/Accordion/Accordion';
-import { Footer } from '../components/Footer/Footer';
-import { Landing } from '../components/Landing/Landing';
-import { Main } from '../components/Main/Main';
-import { StyledSkeleton } from '../components/Skeleton/Skeleton.styled';
-import { Command, Group, Option, Subcommand } from '../types/bot';
+import { Accordion } from "../components/Accordion/Accordion";
+import { Footer } from "../components/Footer/Footer";
+import { Landing } from "../components/Landing/Landing";
+import { Main } from "../components/Main/Main";
+import { StyledSkeleton } from "../components/Skeleton/Skeleton.styled";
+import { Command, Group, Option, Subcommand } from "../types/bot";
 
 const getSubcommandGroups = ({ options }: { options?: Option[] }) => {
 	return (
@@ -41,20 +41,25 @@ const getOptions = ({ options }: { options?: Option[] }) => {
 		(
 			options?.filter(
 				({ type }) =>
-					type !== ApplicationCommandOptionType.SubcommandGroup &&
-					type !== ApplicationCommandOptionType.Subcommand,
+					type !== ApplicationCommandOptionType.SubcommandGroup && type !== ApplicationCommandOptionType.Subcommand,
 			) as Option[]
-		)?.map(({ name, description, required, choices }) => ({ name, description, required, choices })) ?? []
+		)?.map(({ name, description, required, choices }) => ({
+			name,
+			description,
+			required,
+			choices,
+		})) ?? []
 	);
 };
 
 export const getStaticProps = async () => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 	await client.login(process.env.BOT_TOKEN);
-	if (!client.application) throw new Error('Cannot fetch registered slash commands.');
+	if (!client.application) throw new Error("Cannot fetch registered slash commands.");
 
 	const commands = (await client.application.commands.fetch())
 		.map((command) => ({
+			id: command.id,
 			name: command.name,
 			description: command.description,
 			groups: getSubcommandGroups({ options: command.options as Option[] }),
@@ -63,7 +68,12 @@ export const getStaticProps = async () => {
 		}))
 		.sort((a, b) => a.name.localeCompare(b.name));
 
-	return { props: { commands: JSON.parse(JSON.stringify(commands)), revalidate: 60 * 60 * 24 } };
+	return {
+		props: {
+			commands: JSON.parse(JSON.stringify(commands)),
+			revalidate: 60 * 60 * 24,
+		},
+	};
 };
 
 const Home = ({ commands }: { commands: Command[] }) => {
@@ -87,7 +97,7 @@ const Home = ({ commands }: { commands: Command[] }) => {
 					<>
 						<StyledSkeleton variant="rectangular" height={200} />
 						<br />
-						<StyledSkeleton variant="rectangular" height={'calc(100vh - 380px)'} />
+						<StyledSkeleton variant="rectangular" height={"calc(100vh - 380px)"} />
 					</>
 				) : (
 					<>
@@ -97,10 +107,11 @@ const Home = ({ commands }: { commands: Command[] }) => {
 								Does not include webhooks or jobs documentation.<br/>
 								Github repository can be found [here](https://github.com/luferro/SerpineBot).`}
 						/>
-						{commands.map(({ name, description, groups, subcommands, options }, index) => {
+						{commands.map(({ id, name, description, groups, subcommands, options }) => {
 							return (
 								<Accordion
-									key={index}
+									key={id}
+									id={id}
 									name={name}
 									description={description}
 									groups={groups}

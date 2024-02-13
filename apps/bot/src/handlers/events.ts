@@ -1,16 +1,17 @@
-import { FileUtil, logger } from '@luferro/shared-utils';
-import path from 'path';
+import path from "node:path";
 
-import { Bot } from '../structures/Bot';
-import type { Event } from '../types/bot';
+import { FsUtil } from "@luferro/shared-utils";
 
-export const registerEvents = async () => {
-	const files = FileUtil.getFiles(path.resolve(__dirname, '../events'));
+import { Bot } from "../structures/Bot";
+import type { Event } from "../types/bot";
+
+export const registerEvents = async (client: Bot) => {
+	const files = FsUtil.getFiles(path.resolve(__dirname, "../events"));
 	for (const file of files) {
 		const event: Event = await import(file);
-		const [filename] = path.basename(file).split('.');
+		const [filename] = path.basename(file).split(".");
 		Bot.events.set(filename, event);
 	}
 
-	logger.info(`Events handler registered **${files.length}** event(s).`);
+	client.logger.info(`Events handler | **${files.length}** event(s) registered`);
 };

@@ -1,10 +1,10 @@
-import { WebhookType } from '@luferro/database';
-import { EmbedBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { WebhookType } from "@luferro/database";
+import { EmbedBuilder } from "discord.js";
+import { t } from "i18next";
 
-import type { JobData, JobExecute } from '../../../types/bot';
+import type { JobData, JobExecute } from "../../../types/bot";
 
-export const data: JobData = { schedule: '0 */10 * * * *' };
+export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	await client.propagate({
@@ -21,9 +21,9 @@ const getFreebies = async ({ client }: Parameters<typeof execute>[0]) => {
 		const embed = new EmbedBuilder()
 			.setTitle(title)
 			.setURL(url)
-			.setDescription(t('jobs.gaming.deals.free.embed.description', { discount, regular, store }))
-			.setFooter(expiry ? { text: t('jobs.gaming.deals.free.embed.footer.text', { expiry }) } : null)
-			.setColor('Random');
+			.setDescription(t("jobs.gaming.deals.free.embed.description", { discount, regular, store }))
+			.setFooter(expiry ? { text: t("jobs.gaming.deals.free.embed.footer.text", { expiry }) } : null)
+			.setColor("Random");
 
 		messages.push(embed);
 	}
@@ -42,7 +42,7 @@ const getRssFeeds = async ({ client }: Parameters<typeof execute>[0]) => {
 			.setURL(url)
 			.setImage(image)
 			.setDescription(description)
-			.setColor('Random');
+			.setColor("Random");
 
 		messages.push(embed);
 	}

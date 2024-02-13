@@ -1,17 +1,11 @@
 {
 	"compilerOptions": {
 		// https://www.typescriptlang.org/tsconfig#Type_Checking_6248
-		"allowUnreachableCode": false,
-		"allowUnusedLabels": false,
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitOverride": true,
-		"noImplicitReturns": true,
-		"noUnusedParameters": true,
 		"strict": true,
 
 		// https://www.typescriptlang.org/tsconfig#Modules_6244
-		"module": "commonjs",
-		"moduleResolution": "node",
+		"module": "CommonJS",
+		"moduleResolution": "Node10",
 		"resolveJsonModule": true,
 
 		// https://www.typescriptlang.org/tsconfig#Interop_Constraints_6252
@@ -20,9 +14,9 @@
 
 		// https://www.typescriptlang.org/tsconfig#Language_and_Environment_6254
 		"lib": ["ESNext"],
-		"target": "esnext",
+		"target": "ESNext",
 
 		// https://www.typescriptlang.org/tsconfig#Completeness_6257
-		"skipLibCheck": true
+		"skipLibCheck": true,
 	}
 }

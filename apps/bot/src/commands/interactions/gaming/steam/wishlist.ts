@@ -1,15 +1,15 @@
-import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { EmbedBuilder, GuildMember, SlashCommandSubcommandBuilder } from "discord.js";
+import { t } from "i18next";
 
-import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
+import { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t('interactions.gaming.steam.wishlist.name'))
-	.setDescription(t('interactions.gaming.steam.wishlist.description'))
+	.setName(t("interactions.gaming.steam.wishlist.name"))
+	.setDescription(t("interactions.gaming.steam.wishlist.description"))
 	.addMentionableOption((option) =>
 		option
-			.setName(t('interactions.gaming.steam.wishlist.options.0.name'))
-			.setDescription(t('interactions.gaming.steam.wishlist.options.0.description')),
+			.setName(t("interactions.gaming.steam.wishlist.options.0.name"))
+			.setDescription(t("interactions.gaming.steam.wishlist.options.0.description")),
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
@@ -18,22 +18,22 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const user = mention?.user ?? interaction.user;
 	const integration = await client.prisma.steam.findUnique({ where: { userId: user.id } });
-	if (!integration) throw new Error(t('errors.unprocessable'));
+	if (!integration) throw new Error(t("errors.unprocessable"));
 
 	const formattedWishlist = integration.wishlist
 		.slice(0, 10)
 		.map(
 			({ title, url, discounted, isFree }, index) =>
-				`\`${index + 1}.\` **[${title}](${url})** | ${discounted || (isFree && 'Free') || 'N/A'}`,
+				`\`${index + 1}.\` **[${title}](${url})** | ${discounted || (isFree && "Free") || "N/A"}`,
 		);
 	const hiddenCount = integration.wishlist.length - formattedWishlist.length;
-	if (hiddenCount > 0) formattedWishlist.push(t('common.lists.hidden', { size: hiddenCount }));
+	if (hiddenCount > 0) formattedWishlist.push(t("common.lists.hidden", { size: hiddenCount }));
 
 	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.gaming.steam.wishlist.embed.title', { username: `\`${user.username}\`` }))
+		.setTitle(t("interactions.gaming.steam.wishlist.embed.title", { username: `\`${user.username}\`` }))
 		.setURL(`https://store.steampowered.com/wishlist/profiles/${integration.profile.id}/#sort=order`)
-		.setDescription(formattedWishlist.join('\n'))
-		.setColor('Random');
+		.setDescription(formattedWishlist.join("\n"))
+		.setColor("Random");
 
 	await interaction.editReply({ embeds: [embed] });
 };

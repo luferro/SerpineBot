@@ -1,15 +1,15 @@
-import { ChannelType, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { ChannelType, EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
+import { t } from "i18next";
 
-import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
+import { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t('interactions.channels.roles.unassign.name'))
-	.setDescription(t('interactions.channels.roles.unassign.description'))
+	.setName(t("interactions.channels.roles.unassign.name"))
+	.setDescription(t("interactions.channels.roles.unassign.description"))
 	.addChannelOption((option) =>
 		option
-			.setName(t('interactions.channels.roles.unassign.options.0.name'))
-			.setDescription(t('interactions.channels.roles.unassign.options.0.description'))
+			.setName(t("interactions.channels.roles.unassign.options.0.name"))
+			.setDescription(t("interactions.channels.roles.unassign.options.0.description"))
 			.addChannelTypes(ChannelType.GuildText)
 			.setRequired(true),
 	);
@@ -23,8 +23,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	});
 
 	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.channels.roles.unassign.options.embed.title', { channel: `\`${channel.name}\`` }))
-		.setColor('Random');
+		.setTitle(t("interactions.channels.roles.unassign.options.embed.title", { channel: channel.name }))
+		.setColor("Random");
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

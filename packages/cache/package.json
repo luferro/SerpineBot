@@ -1,0 +1,21 @@
+{
+	"name": "@luferro/cache",
+	"private": true,
+	"version": "1.0.0",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"lint": "eslint --fix ."
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^20.11.16",
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"ioredis": "^5.3.2"
+	}
+}

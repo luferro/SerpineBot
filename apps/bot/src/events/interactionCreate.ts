@@ -1,71 +1,71 @@
-import { FetchError, logger } from '@luferro/shared-utils';
-import { DiscordAPIError, EmbedBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { FetchUtil } from "@luferro/shared-utils";
+import { DiscordAPIError, EmbedBuilder } from "discord.js";
+import i18next, { t } from "i18next";
 
-import { Bot } from '../structures/Bot';
-import type { EventData, EventExecute } from '../types/bot';
+import { Bot } from "../structures/Bot";
+import type { EventData, EventExecute, BaseInteractionArgs } from "../types/bot";
 import type {
 	ExtendedAutocompleteInteraction,
 	ExtendedChatInputCommandInteraction,
 	ExtendedStringSelectMenuInteraction,
 	Interaction,
-} from '../types/interaction';
+} from "../types/interaction";
 
-type Client = Pick<Parameters<typeof execute>[0], 'client'>;
 type Args<T> = [interaction: T];
-type ChatInputArgs = Client & { interaction: ExtendedChatInputCommandInteraction };
-type AutocompleteArgs = Client & { interaction: ExtendedAutocompleteInteraction };
-type StringSelectArgs = Client & { interaction: ExtendedStringSelectMenuInteraction };
+type ChatInputArgs = BaseInteractionArgs<ExtendedChatInputCommandInteraction>;
+type AutocompleteArgs = BaseInteractionArgs<ExtendedAutocompleteInteraction>;
+type StringSelectArgs = BaseInteractionArgs<ExtendedStringSelectMenuInteraction>;
 
-export const data: EventData = { type: 'on' };
+export const data: EventData = { type: "on" };
 
 export const execute: EventExecute<Args<Interaction>> = async ({ client, rest: [interaction] }) => {
-	if (interaction.isChatInputCommand()) await handleChatInputCommandInteraction({ client, interaction });
-	if (interaction.isAutocomplete()) await handleAutocomplete({ client, interaction });
+	const localization = await client.prisma.guild.getLocalization({ where: { id: interaction.guild.id } });
+	await i18next.changeLanguage(localization.locale);
+
+	if (interaction.isChatInputCommand()) await handleChatInputCommandInteraction({ client, interaction, localization });
+	if (interaction.isAutocomplete()) await handleAutocomplete({ client, interaction, localization });
 	if (interaction.isStringSelectMenu()) await handleSelectMenuInteraction({ client, interaction });
 };
 
-const extractInteractionMethods = ({
-	interaction,
-}: Pick<ChatInputArgs, 'interaction'> | Pick<AutocompleteArgs, 'interaction'>) => {
-	const { commandName: command, options } = interaction;
-	const group = options.getSubcommandGroup(false);
-	const subcommand = options.getSubcommand(false);
+const extractInteractionMethods = ({ interaction }: Pick<ChatInputArgs | AutocompleteArgs, "interaction">) => {
+	const command = interaction.commandName;
+	const group = interaction.options.getSubcommandGroup(false);
+	const subcommand = interaction.options.getSubcommand(false);
 
 	const key = group ? `${command}.${group}.${subcommand}` : subcommand ? `${command}.${subcommand}` : command;
 	return { key, methods: Bot.commands.interactions.methods.get(key) ?? null };
 };
 
-const handleChatInputCommandInteraction = async ({ client, interaction }: ChatInputArgs) => {
+const handleChatInputCommandInteraction = async ({ client, interaction, localization }: ChatInputArgs) => {
 	const { key, methods } = extractInteractionMethods({ interaction });
-	logger.info(`Command **${key}** used by **${interaction.user.username}** in guild **${interaction.guild.name}**.`);
+	client.logger.info(`Interaction | **${key}** | **${interaction.user.username}** | **${interaction.guild.name}**`);
 
 	try {
-		if (!methods) throw new Error(t('errors.interaction.unregistered', { key: `"${key}"` }));
-		await methods.execute({ client, interaction });
+		if (!methods) throw new Error(t("errors.interaction.unregistered", { key: `"${key}"` }));
+		await methods.execute({ client, interaction, localization });
 	} catch (error) {
 		const isDiscordAPIError = error instanceof DiscordAPIError;
-		const isFetchError = error instanceof FetchError;
+		const isFetchError = error instanceof FetchUtil.FetchError;
 		if (isDiscordAPIError || (isFetchError && error.status && error.status >= 500)) {
-			error.message = `Command **${key}** in guild ${interaction.guild.name} failed. Reason: ${error.message}`;
+			error.message = `Interaction | **${key}** | ${interaction.guild.name} | Reason: ${error.message}`;
 			throw error;
 		}
 
 		const embed = new EmbedBuilder()
-			.setTitle(t('errors.generic.title'))
+			.setTitle(t("errors.generic.title"))
 			.setDescription(isFetchError ? t(`errors.fetch.status.${error.status}`) : (error as Error).message)
-			.setColor('Random');
+			.setColor("Random");
 
 		if (interaction.deferred) await interaction.editReply({ content: null, embeds: [embed], components: [] });
 		else await interaction.reply({ embeds: [embed], ephemeral: true });
 	}
 };
 
-const handleAutocomplete = async ({ client, interaction }: AutocompleteArgs) => {
+const handleAutocomplete = async ({ client, interaction, localization }: AutocompleteArgs) => {
 	const { methods } = extractInteractionMethods({ interaction });
-	await methods?.autocomplete?.({ client, interaction });
+	await methods?.autocomplete?.({ client, interaction, localization });
 };
 
 const handleSelectMenuInteraction = async ({ client, interaction }: StringSelectArgs) => {
-	if (interaction.customId === Bot.ROLES_MESSAGE_ID) client.emit('rolesMessageRoleUpdate', interaction);
+	if (interaction.customId === Bot.ROLES_MESSAGE_ID) client.emit("userRolesUpdate", interaction);
 };

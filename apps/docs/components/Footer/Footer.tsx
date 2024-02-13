@@ -1,15 +1,15 @@
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import { Box, Typography } from '@mui/material';
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import { Box, Typography } from "@mui/material";
 
-import { StyledFooter } from './Footer.styled';
+import { StyledFooter } from "./Footer.styled";
 
 export const Footer = () => (
 	<StyledFooter>
 		<Typography display="flex" alignItems="center">
 			Made with&nbsp;
-			<FavoriteIcon sx={{ fill: 'red' }} />
+			<FavoriteIcon sx={{ fill: "red" }} />
 			&nbsp;in Portugal
 		</Typography>
 		<Box>

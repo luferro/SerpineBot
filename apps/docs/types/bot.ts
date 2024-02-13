@@ -24,6 +24,7 @@ export type Group = {
 };
 
 export type Command = {
+	id: string;
 	name: string;
 	description: string;
 	groups: Group[];

@@ -1,7 +1,7 @@
-import { DateUtil, logger } from '@luferro/shared-utils';
-import Parser from 'rss-parser';
+import { DateUtil, LoggerUtil } from "@luferro/shared-utils";
+import Parser from "rss-parser";
 
-import { StaticScraper } from '../web-pages/static';
+import { StaticScraper } from "../web-pages/static";
 
 type Instance = { staticScraper: StaticScraper };
 type Url = { url: string };
@@ -11,22 +11,24 @@ type Image = { isExternal?: boolean } & Selector;
 export type Feeds = { feeds: { url: string; options: { image: Image } | null }[] };
 
 export class RSS extends Parser {
+	private logger: LoggerUtil.Logger;
 	private staticScraper: StaticScraper;
 
 	constructor({ staticScraper }: Instance) {
 		super();
+		this.logger = LoggerUtil.configureLogger();
 		this.staticScraper = staticScraper;
 	}
 
 	private async retrieveExternalImage({ url, selector }: Url & Selector) {
 		const $ = await this.staticScraper.loadUrl({ url });
-		return $(selector).first().attr('src') ?? null;
+		return $(selector).first().attr("src") ?? null;
 	}
 
 	private async retrieveInternalImage({ html, selector, url }: Html & Selector & Partial<Url>) {
 		const $ = this.staticScraper.loadHtml({ html });
-		const image = $(selector).first().attr('src');
-		if (!image && url) return await this.retrieveExternalImage({ url, selector });
+		const image = $(selector).first().attr("src");
+		if (!image && url) return this.retrieveExternalImage({ url, selector });
 		return image ?? null;
 	}
 
@@ -34,7 +36,7 @@ export class RSS extends Parser {
 		try {
 			return await this.parseURL(url);
 		} catch (error) {
-			logger.warn(`Failed to parse ${url}.`);
+			this.logger.warn(`RSS | Failed to parse ${url}`);
 			return null;
 		}
 	}
@@ -55,7 +57,7 @@ export class RSS extends Parser {
 							title,
 							link,
 							content,
-							'content:encoded': encodedContent,
+							"content:encoded": encodedContent,
 							contentSnippet,
 							isoDate,
 						}) => {
@@ -75,7 +77,7 @@ export class RSS extends Parser {
 								title: title!,
 								url: link!,
 								description: contentSnippet!,
-								image: image?.startsWith('http') ? image : null,
+								image: image?.startsWith("http") ? image : null,
 								publishedAt: isoDate ? new Date(isoDate) : new Date(),
 							};
 						},

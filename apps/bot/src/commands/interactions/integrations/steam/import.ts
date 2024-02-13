@@ -1,34 +1,34 @@
-import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
+import { t } from "i18next";
 
-import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
+import { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t('interactions.integrations.steam.import.name'))
-	.setDescription(t('interactions.integrations.steam.import.description'))
+	.setName(t("interactions.integrations.steam.import.name"))
+	.setDescription(t("interactions.integrations.steam.import.description"))
 	.addStringOption((option) =>
 		option
-			.setName(t('interactions.integrations.steam.import.options.0.name'))
-			.setDescription(t('interactions.integrations.steam.import.options.0.description'))
+			.setName(t("interactions.integrations.steam.import.options.0.name"))
+			.setDescription(t("interactions.integrations.steam.import.options.0.description"))
 			.setRequired(true),
 	);
 
-export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+export const execute: InteractionCommandExecute = async ({ client, interaction, localization }) => {
 	await interaction.deferReply({ ephemeral: true });
 	const profile = interaction.options.getString(data.options[0].name, true);
 
 	const exists = await client.prisma.steam.exists({ where: { userId: interaction.user.id } });
-	if (exists) throw new Error(t('errors.unprocessable'));
+	if (exists) throw new Error(t("errors.unprocessable"));
 
 	const url = profile.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
-	if (!url) throw new Error(t('errors.steam.profile.url'));
+	if (!url) throw new Error(t("errors.steam.profile.url"));
 
 	const { 1: type, 2: id } = url;
-	const steamId64 = type === 'id' ? await client.api.gaming.platforms.steam.getSteamId64({ id }) : id;
-	if (!steamId64) throw new Error(t('errors.steam.steamId64'));
+	const steamId64 = type === "id" ? await client.api.gaming.platforms.steam.getSteamId64({ id }) : id;
+	if (!steamId64) throw new Error(t("errors.steam.steamId64"));
 
 	const rawWishlist = await client.api.gaming.platforms.steam.getWishlist({ id: steamId64 });
-	if (!rawWishlist) throw new Error(t('errors.steam.wishlist.private'));
+	if (!rawWishlist) throw new Error(t("errors.steam.wishlist.private"));
 	const wishlist = await Promise.all(
 		rawWishlist.map(async (game) => {
 			const subscriptions = await client.prisma.subscription.search({ query: game.title });
@@ -47,9 +47,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		},
 	});
 
-	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.integrations.steam.import.embed.title'))
-		.setColor('Random');
+	const embed = new EmbedBuilder().setTitle(t("interactions.integrations.steam.import.embed.title")).setColor("Random");
 
 	await interaction.editReply({ embeds: [embed] });
 };

@@ -1,13 +1,13 @@
-import { WebhookType } from '@luferro/database';
-import { StringUtil } from '@luferro/shared-utils';
-import { EmbedBuilder } from 'discord.js';
+import { WebhookType } from "@luferro/database";
+import { StringUtil } from "@luferro/shared-utils";
+import { EmbedBuilder } from "discord.js";
 
-import type { JobData, JobExecute } from '../types/bot';
+import type { JobData, JobExecute } from "../types/bot";
 
-export const data: JobData = { schedule: '0 */45 * * * *' };
+export const data: JobData = { schedule: "0 */45 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	for (const subreddit of client.config.MEMES_SUBREDDITS) {
+	for (const subreddit of client.config.get<string[]>("services.reddit.subreddits.memes")) {
 		const posts = await client.api.reddit.getPosts({ subreddit, limit: 25 });
 
 		const messages = [];
@@ -23,7 +23,7 @@ export const execute: JobExecute = async ({ client }) => {
 				.setTitle(StringUtil.truncate(title))
 				.setURL(selfurl)
 				.setImage(url)
-				.setColor('Random');
+				.setColor("Random");
 
 			messages.push(embed);
 		}

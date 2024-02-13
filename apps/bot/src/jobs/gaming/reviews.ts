@@ -1,10 +1,11 @@
-import { WebhookType } from '@luferro/database';
-import { EmbedBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { WebhookType } from "@luferro/database";
+import { EmbedBuilder } from "discord.js";
+import { t } from "i18next";
 
-import type { JobData, JobExecute } from '../../types/bot';
+import type { JobData, JobExecute } from "../../types/bot";
+import { DateUtil } from "@luferro/shared-utils";
 
-export const data: JobData = { schedule: '0 */30 * * * *' };
+export const data: JobData = { schedule: "0 */30 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const results = await client.api.gaming.games.reviews.search({});
@@ -22,33 +23,35 @@ export const execute: JobExecute = async ({ client }) => {
 			.setImage(image)
 			.addFields([
 				{
-					name: t('jobs.gaming.reviews.embed.fields.0.name'),
-					value: releaseDate ?? t('jobs.gaming.reviews.embed.fields.0.value'),
+					name: t("jobs.gaming.reviews.embed.fields.0.name"),
+					value: releaseDate
+						? DateUtil.format({ date: releaseDate, format: "dd/MM/yyyy" })
+						: t("jobs.gaming.reviews.embed.fields.0.value"),
 				},
 				{
-					name: t('jobs.gaming.reviews.embed.fields.1.name'),
-					value: platforms.join('\n') || t('common.unavailable'),
+					name: t("jobs.gaming.reviews.embed.fields.1.name"),
+					value: platforms.join("\n") || t("common.unavailable"),
 				},
 				{
-					name: t('jobs.gaming.reviews.embed.fields.2.name'),
-					value: score ?? t('common.unavailable'),
+					name: t("jobs.gaming.reviews.embed.fields.2.name"),
+					value: score ?? t("common.unavailable"),
 					inline: true,
 				},
 				{
-					name: t('jobs.gaming.reviews.embed.fields.3.name'),
-					value: count ?? t('common.unavailable'),
+					name: t("jobs.gaming.reviews.embed.fields.3.name"),
+					value: count ?? t("common.unavailable"),
 					inline: true,
 				},
 				{
-					name: t('jobs.gaming.reviews.embed.fields.4.name'),
-					value: recommended ?? t('common.unavailable'),
+					name: t("jobs.gaming.reviews.embed.fields.4.name"),
+					value: recommended ?? t("common.unavailable"),
 					inline: true,
 				},
 			])
-			.setColor('Random');
+			.setColor("Random");
 
 		messages.push(embed);
 	}
 
-	await client.propagate({ type: WebhookType.GAME_REVIEWS, fields: ['title', 'url'], messages });
+	await client.propagate({ type: WebhookType.GAME_REVIEWS, messages });
 };

@@ -1,6 +1,6 @@
-import { logger } from '@luferro/shared-utils';
-import { Client, VoiceChannel } from 'discord.js';
-import { GuildNodeCreateOptions, Player as DiscordPlayer } from 'discord-player';
+import { VoiceChannel } from "discord.js";
+import { GuildNodeCreateOptions, Player as DiscordPlayer } from "discord-player";
+import { Bot } from "./Bot";
 
 export class Player extends DiscordPlayer {
 	defaultNodeOptions: GuildNodeCreateOptions<VoiceChannel> = {
@@ -12,9 +12,9 @@ export class Player extends DiscordPlayer {
 		bufferingTimeout: 0,
 	};
 
-	constructor(client: Client) {
+	constructor(client: Bot) {
 		super(client);
 		this.extractors.loadDefault();
-		logger.debug(this.scanDeps());
+		client.logger.debug(this.scanDeps());
 	}
 }

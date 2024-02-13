@@ -2,21 +2,19 @@
 	"name": "@luferro/reddit-api",
 	"private": true,
 	"version": "1.0.0",
-	"description": "Everything related to reddit",
+	"description": "Reddit API wrapper",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
-		"lint": "eslint --ext .ts .",
-		"lint:fix": "eslint --fix --ext .ts .",
-		"prettier": "prettier --write ."
+		"lint": "eslint --fix ."
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.9.4",
-		"typescript": "^5.3.2"
+		"@types/node": "^20.11.16",
+		"typescript": "^5.3.3"
 	},
 	"dependencies": {
 		"@luferro/scraper": "workspace:^",

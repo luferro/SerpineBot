@@ -1,28 +1,28 @@
-import { DateUtil } from '@luferro/shared-utils';
-import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { DateUtil } from "@luferro/shared-utils";
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
+import { t } from "i18next";
 
-import { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
+import { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t('interactions.birthdays.create.name'))
-	.setDescription(t('interactions.birthdays.create.description'))
+	.setName(t("interactions.birthdays.create.name"))
+	.setDescription(t("interactions.birthdays.create.description"))
 	.addIntegerOption((option) =>
 		option
-			.setName(t('interactions.birthdays.create.options.0.name'))
-			.setDescription(t('interactions.birthdays.create.options.0.description'))
+			.setName(t("interactions.birthdays.create.options.0.name"))
+			.setDescription(t("interactions.birthdays.create.options.0.description"))
 			.setRequired(true),
 	)
 	.addIntegerOption((option) =>
 		option
-			.setName(t('interactions.birthdays.create.options.1.name'))
-			.setDescription(t('interactions.birthdays.create.options.1.description'))
+			.setName(t("interactions.birthdays.create.options.1.name"))
+			.setDescription(t("interactions.birthdays.create.options.1.description"))
 			.setRequired(true),
 	)
 	.addIntegerOption((option) =>
 		option
-			.setName(t('interactions.birthdays.create.options.2.name'))
-			.setDescription(t('interactions.birthdays.create.options.2.description'))
+			.setName(t("interactions.birthdays.create.options.2.name"))
+			.setDescription(t("interactions.birthdays.create.options.2.description"))
 			.setRequired(true),
 	);
 
@@ -31,7 +31,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const month = interaction.options.getInteger(data.options[1].name, true);
 	const year = interaction.options.getInteger(data.options[2].name, true);
 
-	if (!DateUtil.isValid(year, month, day)) throw new Error(t('errors.date.invalid'));
+	if (!DateUtil.isValid(year, month, day)) throw new Error(t("errors.date.invalid"));
 
 	const userId = interaction.user.id;
 	await client.prisma.birthday.upsert({
@@ -40,6 +40,6 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		update: { day, month, year },
 	});
 
-	const embed = new EmbedBuilder().setTitle(t('interactions.birthdays.create.embed.title')).setColor('Random');
+	const embed = new EmbedBuilder().setTitle(t("interactions.birthdays.create.embed.title")).setColor("Random");
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

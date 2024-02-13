@@ -1,15 +1,15 @@
-import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
+import { t } from "i18next";
 
-import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t('interactions.gaming.deals.name'))
-	.setDescription(t('interactions.gaming.deals.description'))
+	.setName(t("interactions.gaming.deals.name"))
+	.setDescription(t("interactions.gaming.deals.description"))
 	.addStringOption((option) =>
 		option
-			.setName(t('interactions.gaming.deals.options.0.name'))
-			.setDescription(t('interactions.gaming.deals.options.0.description'))
+			.setName(t("interactions.gaming.deals.options.0.name"))
+			.setDescription(t("interactions.gaming.deals.options.0.description"))
 			.setRequired(true),
 	);
 
@@ -18,7 +18,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const query = interaction.options.getString(data.options[0].name, true);
 
 	const results = await client.api.gaming.games.deals.search({ query });
-	if (results.length === 0) throw new Error(t('errors.search.lookup', { query }));
+	if (results.length === 0) throw new Error(t("errors.search.lookup", { query }));
 	const { id, title } = results[0];
 
 	const subscriptions = await client.prisma.subscription.search({ query });
@@ -37,23 +37,23 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setTitle(title)
 		.addFields([
 			{
-				name: t('interactions.gaming.deals.embed.fields.0.name'),
-				value: formattedHistoricalLow ?? t('common.unavailable'),
+				name: t("interactions.gaming.deals.embed.fields.0.name"),
+				value: formattedHistoricalLow ?? t("common.unavailable"),
 			},
 			{
-				name: t('interactions.gaming.deals.embed.fields.1.name'),
-				value: formattedPrices.join('\n') || t('common.unavailable'),
+				name: t("interactions.gaming.deals.embed.fields.1.name"),
+				value: formattedPrices.join("\n") || t("common.unavailable"),
 			},
 			{
-				name: t('interactions.gaming.deals.embed.fields.2.name'),
-				value: formattedBundles.join('\n') || t('common.unavailable'),
+				name: t("interactions.gaming.deals.embed.fields.2.name"),
+				value: formattedBundles.join("\n") || t("common.unavailable"),
 			},
 			{
-				name: t('interactions.gaming.deals.embed.fields.3.name'),
-				value: formattedSubscriptions.join('\n') || t('common.unavailable'),
+				name: t("interactions.gaming.deals.embed.fields.3.name"),
+				value: formattedSubscriptions.join("\n") || t("common.unavailable"),
 			},
 		])
-		.setColor('Random');
+		.setColor("Random");
 
 	await interaction.editReply({ embeds: [embed] });
 };

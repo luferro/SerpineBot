@@ -1,11 +1,11 @@
-import { Scraper } from '@luferro/scraper';
-import { DateUtil, FetchUtil, StringUtil } from '@luferro/shared-utils';
+import { Scraper } from "@luferro/scraper";
+import { DateUtil, FetchUtil, StringUtil } from "@luferro/shared-utils";
 
-import { ApiKey, Gamertag, Id } from '../../../../types/args';
-import { Chart, Payload, Profile, RecentlyPlayed } from './xbox.types';
+import { ApiKey, Gamertag, Id } from "../../../../types/args";
+import { Chart, Payload, Profile, RecentlyPlayed } from "./xbox.types";
 
 export class XboxApi extends Scraper {
-	private static BASE_API_URL = 'https://xbl.io';
+	private static BASE_API_URL = "https://xbl.io";
 
 	private apiKey: string;
 
@@ -16,8 +16,8 @@ export class XboxApi extends Scraper {
 
 	private getCustomHeaders() {
 		return new Map([
-			['x-authorization', this.apiKey],
-			['accept', 'application/json'],
+			["x-authorization", this.apiKey],
+			["accept", "application/json"],
 		]);
 	}
 
@@ -72,19 +72,19 @@ export class XboxApi extends Scraper {
 
 	async getChart({ chart }: { chart: Chart }) {
 		const chartUrl: Record<typeof chart, string> = {
-			[Chart.TOP_PLAYED]: 'https://www.microsoft.com/pt-pt/store/most-played/games/xbox',
-			[Chart.TOP_SELLERS]: 'https://www.microsoft.com/pt-pt/store/top-paid/games/xbox',
-			[Chart.UPCOMING_GAMES]: 'https://www.microsoft.com/pt-pt/store/coming-soon/games/xbox',
+			[Chart.TOP_PLAYED]: "https://www.microsoft.com/pt-pt/store/most-played/games/xbox",
+			[Chart.TOP_SELLERS]: "https://www.microsoft.com/pt-pt/store/top-paid/games/xbox",
+			[Chart.UPCOMING_GAMES]: "https://www.microsoft.com/pt-pt/store/coming-soon/games/xbox",
 		};
 		const $ = await this.static.loadUrl({ url: chartUrl[chart] });
 
-		return $('section > ul li')
+		return $("section > ul li")
 			.get()
 			.slice(0, 10)
 			.map((element, index) => {
 				const position = index + 1;
-				const name = $(element).find('.card-body a').text();
-				const url = $(element).find('.card-body a').attr('href')!;
+				const name = $(element).find(".card-body a").text();
+				const url = $(element).find(".card-body a").attr("href")!;
 
 				return { position, name, url };
 			});

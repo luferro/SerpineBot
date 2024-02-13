@@ -1,50 +1,46 @@
-import type { TextToSpeechClient } from '@google-cloud/text-to-speech';
-import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from '@luferro/entertainment-api';
-import type { RedditApi } from '@luferro/reddit-api';
-import { Leopard } from '@picovoice/leopard-node';
-import { Porcupine } from '@picovoice/porcupine-node';
-import { Rhino } from '@picovoice/rhino-node';
+import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from "@luferro/entertainment-api";
+import type { RedditApi } from "@luferro/reddit-api";
+import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordClient } from "@luferro/speech";
 import type {
 	Collection,
 	SlashCommandBuilder,
-	SlashCommandIntegerOption,
-	SlashCommandStringOption,
+	ApplicationCommandOptionBase,
 	SlashCommandSubcommandBuilder,
-	SlashCommandSubcommandGroupBuilder,
 	TextBasedChannel,
-} from 'discord.js';
-import { GuildQueue } from 'discord-player';
+} from "discord.js";
+import { GuildQueue } from "discord-player";
 
-import type { Bot } from '../structures/Bot';
-import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from './interaction';
+import type { Bot } from "../structures/Bot";
+import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from "./interaction";
 
 type Client = { client: Bot };
 
-export type SlashCommandOption = SlashCommandStringOption | SlashCommandIntegerOption;
-export type MetadataBuilder = SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder | SlashCommandOption;
+export type MetadataBuilder = SlashCommandSubcommandBuilder | ApplicationCommandOptionBase;
 
 type VoiceCommandArgs<T> = Client & { queue: GuildQueue<TextBasedChannel>; slots: Record<string, string>; rest: T };
 export type VoiceCommandExecute<T = unknown> = { (args: VoiceCommandArgs<T>): Promise<void> };
 export type VoiceCommand = { execute: VoiceCommandExecute };
 
-type InteractionCommandArgs<T> = Client & { interaction: T };
-export type InteractionCommandData = Exclude<MetadataBuilder, 'SlashCommandOption'> | SlashCommandOption[];
-type BaseInteractionCommandMethod<T> = { (args: InteractionCommandArgs<T>): Promise<void> };
-export type InteractionCommandExecute = BaseInteractionCommandMethod<ExtendedChatInputCommandInteraction>;
-export type InteractionCommandAutoComplete = BaseInteractionCommandMethod<ExtendedAutocompleteInteraction>;
+type Localization = { locale: string; timezone: string };
+export type BaseInteractionArgs<T> = Client & { interaction: T; localization?: Localization };
+type BaseInteraction<T> = { (args: BaseInteractionArgs<T>): Promise<void> };
+
+export type InteractionCommandData = Exclude<MetadataBuilder, "SlashCommandOption"> | ApplicationCommandOptionBase[];
+export type InteractionCommandExecute = BaseInteraction<ExtendedChatInputCommandInteraction>;
+export type InteractionCommandAutoComplete = BaseInteraction<ExtendedAutocompleteInteraction>;
 export type InteractionCommandMethods = {
 	execute: InteractionCommandExecute;
 	autocomplete?: InteractionCommandAutoComplete;
 };
-export type InteractionCommand = {
-	metadata: SlashCommandBuilder[];
-	methods: Collection<string, InteractionCommandMethods>;
+export type InteractionCommand = { data: InteractionCommandData; execute: InteractionCommandExecute };
+
+export type Commands = {
+	voice: Collection<string, VoiceCommand>;
+	interactions: { metadata: SlashCommandBuilder[]; methods: Collection<string, InteractionCommandMethods> };
 };
 
-export type Commands = { voice: Collection<string, VoiceCommand>; interactions: InteractionCommand };
-
 type EventArgs<T> = Client & { rest: T };
-export type EventData = { type: 'on' | 'once' };
+export type EventData = { type: "on" | "once" };
 export type EventExecute<T = void> = { (args: EventArgs<T>): Promise<void> };
 export type Event = { data: EventData; execute: EventExecute<unknown[]> };
 
@@ -62,8 +58,8 @@ export type Api = {
 };
 
 export type Speech = {
-	wake: Porcupine | null;
-	sti: Rhino | null;
-	stt: Leopard | null;
-	tts: TextToSpeechClient;
+	wakeWord: WakeWordClient;
+	speechToIntent: SpeechToIntentClient;
+	speechToText: SpeechToTextClient;
+	textToSpeech: TextToSpeechClient;
 };

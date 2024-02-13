@@ -1,16 +1,16 @@
-import { t } from 'i18next';
+import { t } from "i18next";
 
-import type { Bot } from '../structures/Bot';
+import type { Bot } from "../structures/Bot";
 
 export enum LeaderboardType {
-	STEAM = 'Steam',
-	XBOX = 'Xbox',
+	STEAM = "Steam",
+	XBOX = "Xbox",
 }
 
 enum Medal {
-	'🥇' = 1,
-	'🥈',
-	'🥉',
+	"🥇" = 1,
+	"🥈" = 2,
+	"🥉" = 3,
 }
 
 export const getLeaderboard = async (type: LeaderboardType, client: Bot) => {
@@ -58,7 +58,7 @@ const getSteamLeaderboard = async (client: Bot) => {
 
 		leaderboard.push({
 			user: await client.users.fetch(userId),
-			highlight: { value: hours, formatted: t('common.hours', { hours }) },
+			highlight: { value: hours, formatted: t("common.hours", { hours }) },
 			item: { title, url },
 		});
 	}

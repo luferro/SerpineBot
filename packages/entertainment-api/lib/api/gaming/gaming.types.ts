@@ -1,6 +1,6 @@
-import { ApiKey } from '../../types/args';
-import { DealsApi, HLTBApi, ReviewsApi, SubscriptionsApi } from './games';
-import { SteamApi, XboxApi } from './platforms';
+import { ApiKey } from "../../types/args";
+import { DealsApi, HLTBApi, ReviewsApi, SubscriptionsApi } from "./games";
+import { SteamApi, XboxApi } from "./platforms";
 
 export type Config = { igdb: { clientId: string; clientSecret: string }; deals: ApiKey; steam: ApiKey; xbox: ApiKey };
 

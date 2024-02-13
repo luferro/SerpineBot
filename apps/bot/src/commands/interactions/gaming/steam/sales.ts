@@ -1,28 +1,28 @@
-import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
+import { t } from "i18next";
 
-import { InteractionCommandData, InteractionCommandExecute } from '../../../../types/bot';
+import { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t('interactions.gaming.steam.sales.name'))
-	.setDescription(t('interactions.gaming.steam.sales.description'));
+	.setName(t("interactions.gaming.steam.sales.name"))
+	.setDescription(t("interactions.gaming.steam.sales.description"));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
 
 	const { sale, status, upcoming } = await client.api.gaming.platforms.steam.getUpcomingSales();
-	if (!sale) throw new Error(t('errors.search.none'));
+	if (!sale) throw new Error(t("errors.search.none"));
 
 	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.gaming.steam.sales.embed.title'))
-		.setDescription(`*${status || ''}*\n**${sale}**`)
+		.setTitle(t("interactions.gaming.steam.sales.embed.title"))
+		.setDescription(`*${status || ""}*\n**${sale}**`)
 		.addFields([
 			{
-				name: t('interactions.gaming.steam.sales.embed.fields.0.name'),
-				value: upcoming.join('\n') || t('common.unavailable'),
+				name: t("interactions.gaming.steam.sales.embed.fields.0.name"),
+				value: upcoming.join("\n") || t("common.unavailable"),
 			},
 		])
-		.setColor('Random');
+		.setColor("Random");
 
 	await interaction.editReply({ embeds: [embed] });
 };

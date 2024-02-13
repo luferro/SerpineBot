@@ -1,20 +1,26 @@
-import { DateUtil, FetchUtil } from '@luferro/shared-utils';
+import { DateUtil, FetchUtil } from "@luferro/shared-utils";
 
-import { ApiKey, Id } from '../../../types/args';
-import { Anime, Schedule } from './anime-schedule.types';
+import { ApiKey, Id } from "../../../types/args";
+import { Anime, Schedule } from "./anime-schedule.types";
 
 export class AnimeScheduleApi {
-	private static BASE_URL = 'https://animeschedule.net';
-	private static BASE_IMAGE_URL = 'https://img.animeschedule.net';
+	private static BASE_URL = "https://animeschedule.net";
+	private static BASE_IMAGE_URL = "https://img.animeschedule.net";
 
 	private apiKey: string;
+	private timezone = "Europe/Lisbon";
 
 	constructor({ apiKey }: ApiKey) {
 		this.apiKey = apiKey;
 	}
 
+	withTimezone(timezone: string) {
+		this.timezone = timezone;
+		return this;
+	}
+
 	private getCustomHeaders() {
-		return new Map([['Authorization', `Bearer ${this.apiKey}`]]);
+		return new Map([["Authorization", `Bearer ${this.apiKey}`]]);
 	}
 
 	async getAnimeById({ id }: Id) {
@@ -58,10 +64,9 @@ export class AnimeScheduleApi {
 
 	async getWeeklySchedule() {
 		const year = new Date().getFullYear();
-		const week = DateUtil.getWeek();
-		const tz = DateUtil.getTimezone();
+		const week = DateUtil.getWeek(new Date());
 		const { payload } = await FetchUtil.fetch<Schedule[]>({
-			url: `${AnimeScheduleApi.BASE_URL}/api/v3/timetables/sub?year=${year}&week=${week}&tz=${tz}`,
+			url: `${AnimeScheduleApi.BASE_URL}/api/v3/timetables/sub?year=${year}&week=${week}&tz=${this.timezone}`,
 			customHeaders: this.getCustomHeaders(),
 		});
 
@@ -76,14 +81,14 @@ export class AnimeScheduleApi {
 				duration: anime.lengthMin,
 				current: { number: anime.episodeNumber, date: anime.episodeDate },
 				delay: {
-					from: anime.delayedFrom !== '0001-01-01T00:00:00Z' ? anime.delayedFrom : null,
-					until: anime.delayedUntil !== '0001-01-01T00:00:00Z' ? anime.delayedUntil : null,
+					from: anime.delayedFrom !== "0001-01-01T00:00:00Z" ? anime.delayedFrom : null,
+					until: anime.delayedUntil !== "0001-01-01T00:00:00Z" ? anime.delayedUntil : null,
 				},
 			},
 			streams: Object.entries(anime.streams).map(([stream, href]) => ({ stream, url: `https://${href}` })),
-			hasAired: anime.airingStatus === 'aired',
-			isAiring: anime.airingStatus === 'airing',
-			isDelayed: anime.airingStatus === 'delayed-air',
+			hasAired: anime.airingStatus === "aired",
+			isAiring: anime.airingStatus === "airing",
+			isDelayed: anime.airingStatus === "delayed-air",
 		}));
 	}
 }

@@ -1,24 +1,24 @@
-import { ConverterUtil } from '@luferro/shared-utils';
-import { EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { ConverterUtil } from "@luferro/shared-utils";
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
+import { t } from "i18next";
 
-import type { InteractionCommandData, InteractionCommandExecute } from '../../../types/bot';
+import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
 
 type TimeUnit = Parameters<typeof ConverterUtil.toMilliseconds>[1];
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t('interactions.reminders.create.name'))
-	.setDescription(t('interactions.reminders.create.description'))
+	.setName(t("interactions.reminders.create.name"))
+	.setDescription(t("interactions.reminders.create.description"))
 	.addIntegerOption((option) =>
 		option
-			.setName(t('interactions.reminders.create.options.0.name'))
-			.setDescription(t('interactions.reminders.create.options.0.description'))
+			.setName(t("interactions.reminders.create.options.0.name"))
+			.setDescription(t("interactions.reminders.create.options.0.description"))
 			.setRequired(true),
 	)
 	.addStringOption((option) =>
 		option
-			.setName(t('interactions.reminders.create.options.1.name'))
-			.setDescription(t('interactions.reminders.create.options.1.description'))
+			.setName(t("interactions.reminders.create.options.1.name"))
+			.setDescription(t("interactions.reminders.create.options.1.description"))
 			.setRequired(true)
 			.addChoices(
 				...Array.from({ length: 7 }).map((_, index) => ({
@@ -29,8 +29,8 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	)
 	.addStringOption((option) =>
 		option
-			.setName(t('interactions.reminders.create.options.2.name'))
-			.setDescription(t('interactions.reminders.create.options.2.description'))
+			.setName(t("interactions.reminders.create.options.2.name"))
+			.setDescription(t("interactions.reminders.create.options.2.description"))
 			.setRequired(true),
 	);
 
@@ -39,8 +39,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const unit = interaction.options.getString(data.options[1].name, true) as TimeUnit;
 	const message = interaction.options.getString(data.options[2].name, true);
 
-	if (unit === 'Seconds' && time < 300) throw new Error(t('interactions.reminders.minimum.seconds'));
-	if (unit === 'Minutes' && time < 5) throw new Error(t('interactions.reminders.minimum.minutes'));
+	if (unit === "Seconds" && time < 300) throw new Error(t("interactions.reminders.minimum.seconds"));
+	if (unit === "Minutes" && time < 5) throw new Error(t("interactions.reminders.minimum.minutes"));
 
 	const reminder = await client.prisma.reminder.create({
 		data: {
@@ -52,16 +52,16 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	});
 
 	const embed = new EmbedBuilder()
-		.setTitle(t('interactions.reminders.create.embed.title'))
+		.setTitle(t("interactions.reminders.create.embed.title"))
 		.setDescription(
-			t('interactions.reminders.create.embed.description', {
+			t("interactions.reminders.create.embed.description", {
 				time,
 				message: `**"${message}"**`,
 				unit: unit.toLocaleLowerCase(),
 			}),
 		)
-		.setFooter({ text: t('interactions.reminders.create.embed.footer.text', { reminderId: reminder.id }) })
-		.setColor('Random');
+		.setFooter({ text: t("interactions.reminders.create.embed.footer.text", { reminderId: reminder.id }) })
+		.setColor("Random");
 
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

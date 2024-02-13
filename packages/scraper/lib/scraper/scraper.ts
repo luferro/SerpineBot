@@ -1,8 +1,8 @@
-import { RSS } from './rss/rss';
-import { SearchEngine } from './search-engine/searchEngine';
-import { InteractiveScraper } from './web-pages/interactive';
-import { StaticScraper } from './web-pages/static';
-import { Youtube } from './youtube/youtube';
+import { RSS } from "./rss/rss";
+import { SearchEngine } from "./search-engine/searchEngine";
+import { InteractiveScraper } from "./web-pages/interactive";
+import { StaticScraper } from "./web-pages/static";
+import { Youtube } from "./youtube/youtube";
 
 export class Scraper {
 	rss: RSS;

@@ -1,6 +1,6 @@
 export type Payload<T> = { data: T };
 
-export type Relationship<T = unknown> = { id: string; type: 'manga' | 'cover_art'; attributes: T };
+export type Relationship<T = unknown> = { id: string; type: "manga" | "cover_art"; attributes: T };
 
 export type Chapter = {
 	id: string;
@@ -18,7 +18,7 @@ export type Chapter = {
 export type Manga = {
 	id: string;
 	attributes: {
-		title: { 'en': string; 'ja': string; 'jp': string; 'ja-ro': string };
+		title: { en: string; ja: string; jp: string; "ja-ro": string };
 		status: string;
 		year: number;
 		tags: { attributes: { name: { en: string } } }[];

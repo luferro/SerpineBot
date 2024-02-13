@@ -1,11 +1,11 @@
-import { WebhookType } from '@luferro/database';
-import { DateUtil, StringUtil } from '@luferro/shared-utils';
-import { EmbedBuilder } from 'discord.js';
-import { t } from 'i18next';
+import { WebhookType } from "@luferro/database";
+import { DateUtil, StringUtil } from "@luferro/shared-utils";
+import { EmbedBuilder } from "discord.js";
+import { t } from "i18next";
 
-import type { JobData, JobExecute } from '../types/bot';
+import type { JobData, JobExecute } from "../types/bot";
 
-export const data: JobData = { schedule: '0 */10 * * * *' };
+export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const latestChapters = await client.api.mangadex.getChapters({});
@@ -33,7 +33,7 @@ export const execute: JobExecute = async ({ client }) => {
 			.reverse()
 			.map(({ chapter }) => `**[${chapter.title}](${chapter.url})**`);
 		const hiddenCount = chapters.length - formattedChapters.length;
-		if (hiddenCount > 0) formattedChapters.push(t('common.lists.hidden', { size: hiddenCount }));
+		if (hiddenCount > 0) formattedChapters.push(t("common.lists.hidden", { size: hiddenCount }));
 
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title))
@@ -42,18 +42,18 @@ export const execute: JobExecute = async ({ client }) => {
 			.setDescription(`*${publication}*`)
 			.addFields([
 				{
-					name: t('jobs.manga.embed.fields.0.name'),
-					value: tags.map((tag) => `\`${tag}\``).join() || t('common.unavailable'),
+					name: t("jobs.manga.embed.fields.0.name"),
+					value: tags.map((tag) => `\`${tag}\``).join() || t("common.unavailable"),
 				},
 				{
-					name: t('jobs.manga.embed.fields.1.name'),
-					value: formattedChapters.join('\n') || t('common.unavailable'),
+					name: t("jobs.manga.embed.fields.1.name"),
+					value: formattedChapters.join("\n") || t("common.unavailable"),
 				},
 			])
-			.setColor('Random');
+			.setColor("Random");
 
 		messages.push(embed);
 	}
 
-	await client.propagate({ type: WebhookType.MANGA, fields: ['title', 'url', 'fields'], messages });
+	await client.propagate({ type: WebhookType.MANGA, messages });
 };

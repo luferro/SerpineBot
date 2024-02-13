@@ -4,20 +4,20 @@ export type Result = {
 	id: number;
 	title: string;
 	name: string;
-	media_type: 'movie' | 'tv' | 'person';
+	media_type: "movie" | "tv" | "person";
 	poster_path: string | null;
 };
 
 type Base = {
-	'id': number;
-	'tagline': string;
-	'overview': string;
-	'homepage': string;
-	'poster_path': string;
-	'vote_average': number;
-	'vote_count': number;
-	'genres': { name: string }[];
-	'watch/providers': Payload<{
+	id: number;
+	tagline: string;
+	overview: string;
+	homepage: string;
+	poster_path: string;
+	vote_average: number;
+	vote_count: number;
+	genres: { name: string }[];
+	"watch/providers": Payload<{
 		[key: string]: {
 			link: string;
 			flatrate?: { provider_name: string }[];

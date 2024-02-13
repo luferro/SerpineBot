@@ -1,10 +1,10 @@
-import type { VoiceState } from 'discord.js';
+import type { VoiceState } from "discord.js";
 
-import type { EventData, EventExecute } from '../types/bot';
+import type { EventData, EventExecute } from "../types/bot";
 
 type Args = [oldState: VoiceState, newState: VoiceState];
 
-export const data: EventData = { type: 'on' };
+export const data: EventData = { type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [oldState, newState] }) => {
 	const isSelf = oldState.guild.members.me?.user.id === oldState.member?.user.id;
