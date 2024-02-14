@@ -22,7 +22,7 @@ jobs:
             - "apps/docs/**"
     - name: Deploy bot application
       uses: appleboy/ssh-action@master
-      if: steps.changes.outputs.bot == 'true'
+      # if: steps.changes.outputs.bot == 'true'
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
