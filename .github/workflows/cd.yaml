@@ -30,10 +30,10 @@ jobs:
         port: 22
         script: |
           set -e
-          for secret_key in $(echo "${!secrets[@]}"); do
+          for secret_key in $(echo "$SECRETS" | jq -r 'keys[]'); do
+            secret_value=$(echo "$SECRETS" | jq -r --arg key "$secret_key" '.[$key]')
             echo $secret_key
-            secret_value="${secrets[$secret_key]}"
-            echo "$secret_key=$secret_value" >> .env
+            echo "$secret_key=$secret_value >> .env"
           done
           cd ~/serpine-bot
           git pull origin master
