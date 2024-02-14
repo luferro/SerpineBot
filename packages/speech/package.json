@@ -13,11 +13,11 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.11.16",
+		"@types/node": "^20.11.17",
 		"typescript": "^5.3.3"
 	},
 	"dependencies": {
-		"@google-cloud/text-to-speech": "^5.0.2",
+		"@google-cloud/text-to-speech": "^5.1.0",
 		"@luferro/shared-utils": "workspace:^",
 		"@picovoice/leopard-node": "^1.2.0",
 		"@picovoice/porcupine-node": "^3.0.2",
