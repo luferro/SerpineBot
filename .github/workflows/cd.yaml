@@ -7,39 +7,51 @@ on:
   workflow_dispatch:
 
 jobs:
+  detect-changes:
+    name: Detect what files changed
+    runs-on: ubuntu-latest
+    outputs:
+      any: ${{ steps.changes.outputs.any }}
+      bot: ${{ steps.changes.outputs.bot }}
+      docs: ${{ steps.changes.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Detect changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            any:
+              - "apps/**"
+            bot:
+              - "apps/bot/**"
+            docs:
+              - "apps/docs/**"
   deploy:
+    needs: detect-changes
+    name: "Deploys applications to production"
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Detect changes
-      uses: dorny/paths-filter@v3
-      with:
-        filters: |
-          bot:
-            - "apps/bot/**"
-          docs:
-            - "apps/docs/**"
-    - name: Deploy bot application
-      uses: appleboy/ssh-action@master
-      # if: steps.changes.outputs.bot == 'true'
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.PRIVATE_KEY }}
-        port: 22
-        envs: SECRETS
-        script: |
-          set -e
-          for secret_key in $(echo "$SECRETS" | jq -r 'keys[]'); do
-            if [[ "$secret_key" == "SB_"* ]]; then
-              secret_value=$(echo "$SECRETS" | jq -r --arg key "$secret_key" '.[$key]')
-              echo "$secret_key=$secret_value" >> .env
-            fi
-          done
-          cd ~/serpine-bot
-          git pull origin master
-          docker compose --env-file ~/.env up --build --force-recreate --no-deps -d bot
-          docker system prune -f
-      env:
-        SECRETS: ${{ toJson(secrets) }}
+      - name: Bot deployment
+        uses: appleboy/ssh-action@master
+        if: needs.changes.outputs.bot == 'true'
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          envs: SECRETS
+          script: |
+            set -e
+            for secret_key in $(echo "$SECRETS" | jq -r 'keys[]'); do
+              if [[ "$secret_key" == "SB_"* ]]; then
+                secret_value=$(echo "$SECRETS" | jq -r --arg key "$secret_key" '.[$key]')
+                echo "$secret_key=$secret_value" >> .env
+              fi
+            done
+            cd ~/serpine-bot
+            git pull origin master
+            docker compose --env-file ~/.env up --build --force-recreate --no-deps -d bot
+            docker system prune -f && rm ~/.env
+        env:
+          SECRETS: ${{ toJson(secrets) }}
