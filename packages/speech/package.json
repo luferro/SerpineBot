@@ -19,7 +19,7 @@
 	"dependencies": {
 		"@google-cloud/text-to-speech": "^5.1.0",
 		"@luferro/shared-utils": "workspace:^",
-		"@picovoice/leopard-node": "^1.2.0",
+		"@picovoice/leopard-node": "^2.0.2",
 		"@picovoice/porcupine-node": "^3.0.2",
 		"@picovoice/rhino-node": "^3.0.3",
 		"prism-media": "^1.3.5"

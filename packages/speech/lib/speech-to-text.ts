@@ -1,7 +1,7 @@
 import { LoggerUtil } from "@luferro/shared-utils";
 import {
 	Leopard,
-	LeopardActivationLimitReached,
+	LeopardActivationLimitReachedError,
 	LeopardInvalidArgumentError,
 	type LeopardTranscript,
 } from "@picovoice/leopard-node";
@@ -28,7 +28,7 @@ export class SpeechToTextClient {
 		try {
 			this.leopard = new Leopard(apiKey, { modelPath });
 		} catch (error) {
-			const isLimitReachedError = error instanceof LeopardActivationLimitReached;
+			const isLimitReachedError = error instanceof LeopardActivationLimitReachedError;
 			const isInvalidArgument = error instanceof LeopardInvalidArgumentError;
 
 			if (isLimitReachedError) this.logger.warn("Leopard: User limit reached.");
