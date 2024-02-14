@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Bot deployment
         uses: appleboy/ssh-action@master
-        if: needs.changes.outputs.bot == 'true'
+        if: needs.detect-changes.outputs.bot == 'true'
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
