@@ -15,7 +15,7 @@ jobs:
       bot: ${{ steps.changes.outputs.bot }}
       docs: ${{ steps.changes.outputs.docs }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Detect changes
         uses: dorny/paths-filter@v3
         id: changes
@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Bot deployment
         uses: appleboy/ssh-action@master
-        # if: needs.changes.outputs.bot == 'true'
+        if: needs.changes.outputs.bot == 'true'
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
