@@ -31,6 +31,7 @@ jobs:
         script: |
           set -e
           for secret_key in $(echo "${!secrets[@]}"); do
+            echo $secret_key
             secret_value="${secrets[$secret_key]}"
             echo "$secret_key=$secret_value" >> .env
           done
