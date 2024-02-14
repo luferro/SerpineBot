@@ -39,3 +39,5 @@ jobs:
           git pull origin master
           docker compose --env-file ~/.env up --build --force-recreate --no-deps -d bot
           docker system prune -f
+      env:
+        SECRETS: ${{ toJson(secrets) }}
