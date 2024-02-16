@@ -8,7 +8,7 @@ on:
 
 jobs:
   detect-changes:
-    name: Detect what files changed
+    name: Detect relevant file changes
     runs-on: ubuntu-latest
     outputs:
       any: ${{ steps.changes.outputs.any }}
