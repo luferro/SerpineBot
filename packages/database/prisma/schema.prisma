@@ -181,12 +181,17 @@ type Feed {
   options Options?
 }
 
-model Rss {
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  webhook   WebhookType @unique
-  feeds     Feed[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+type WebhookConfig {
+  webhook    WebhookType
+  feeds      Feed[]
+  subreddits String[]
+}
 
-  @@map("rss")
+model Config {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  webhooks  WebhookConfig[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@map("config")
 }

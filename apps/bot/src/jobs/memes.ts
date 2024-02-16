@@ -7,7 +7,8 @@ import type { JobData, JobExecute } from "../types/bot";
 export const data: JobData = { schedule: "0 */45 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	for (const subreddit of client.config.get<string[]>("services.reddit.subreddits.memes")) {
+	const { subreddits } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.MEMES });
+	for (const subreddit of subreddits) {
 		const posts = await client.api.reddit.getPosts({ subreddit, limit: 25 });
 
 		const messages = [];

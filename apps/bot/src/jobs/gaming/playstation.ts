@@ -7,8 +7,8 @@ import type { JobData, JobExecute } from "../../types/bot";
 export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const rss = await client.prisma.rss.findUnique({ where: { webhook: WebhookType.PLAYSTATION } });
-	const feed = await client.scraper.rss.consume({ feeds: rss?.feeds ?? [] });
+	const { feeds } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.PLAYSTATION });
+	const feed = await client.scraper.rss.consume({ feeds });
 
 	const messages = [];
 	for (const { title, url, image } of feed.reverse()) {

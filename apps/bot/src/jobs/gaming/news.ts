@@ -34,8 +34,8 @@ const getRedditPosts = async ({ client }: Parameters<typeof execute>[0]) => {
 };
 
 const getRssNews = async ({ client }: Parameters<typeof execute>[0]) => {
-	const rss = await client.prisma.rss.findUnique({ where: { webhook: WebhookType.GAMING_NEWS } });
-	const feed = await client.scraper.rss.consume({ feeds: rss?.feeds ?? [] });
+	const { feeds } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.GAMING_NEWS });
+	const feed = await client.scraper.rss.consume({ feeds });
 
 	const messages = [];
 	for (const { title, url, image } of feed.reverse()) {

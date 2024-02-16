@@ -32,8 +32,8 @@ const getFreebies = async ({ client }: Parameters<typeof execute>[0]) => {
 };
 
 const getRssFeeds = async ({ client }: Parameters<typeof execute>[0]) => {
-	const rss = await client.prisma.rss.findUnique({ where: { webhook: WebhookType.FREE_GAMES } });
-	const feed = await client.scraper.rss.consume({ feeds: rss?.feeds ?? [] });
+	const { feeds } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.FREE_GAMES });
+	const feed = await client.scraper.rss.consume({ feeds });
 
 	const messages = [];
 	for (const { title, url, image, description } of feed.reverse()) {
