@@ -1,9 +1,7 @@
 import { Box, Typography } from "@mui/material";
-import parse from "html-react-parser";
-import { marked } from "marked";
 import { useEffect, useState } from "react";
 
-import samples from "../../samples.json";
+import samples from "../../../samples.json";
 import {
 	StyledAuthor,
 	StyledContent,
@@ -14,6 +12,7 @@ import {
 	StyledThumbnail,
 	StyledTitle,
 } from "./Embed.styled";
+import { parse } from "../../utils/markdown";
 
 type EmbedJson = {
 	author: { icon?: string; name: string } | null;
@@ -55,19 +54,19 @@ export const Embed = ({ sample }: Props) => {
 					<StyledTitle>
 						{url ? (
 							<a href={url} rel="noreferrer noopener" target="_blank">
-								{parse(marked.parse(title))}
+								{parse(title)}
 							</a>
 						) : (
-							parse(marked.parse(title ?? "N/A"))
+							parse(title ?? "N/A")
 						)}
 					</StyledTitle>
-					{description && <StyledDescription>{parse(marked.parse(description))}</StyledDescription>}
+					{description && <StyledDescription>{parse(description)}</StyledDescription>}
 					<StyledFields>
 						{!!fields.length &&
 							fields.map(({ key, value, inline }) => (
 								<Box className={inline ? "inline-field" : "field"} key={key}>
-									<Box>{parse(marked.parse(key))}</Box>
-									<Box>{parse(marked.parse(value))}</Box>
+									<Box>{parse(key)}</Box>
+									<Box>{parse(value)}</Box>
 								</Box>
 							))}
 					</StyledFields>

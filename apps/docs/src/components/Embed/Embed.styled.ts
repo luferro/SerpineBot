@@ -17,7 +17,7 @@ export const StyledEmbed = styled(Box)(({ theme }) => ({
 export const StyledContent = styled(Box)(({ theme }) => ({
 	width: "100%",
 	display: "flex",
-	"& > div:first-child": { flexGrow: 1 },
+	"& > div:first-of-type": { flexGrow: 1 },
 	"& > div": { marginRight: theme.spacing(1) },
 }));
 

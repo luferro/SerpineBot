@@ -1,22 +1,22 @@
 import { createTheme, GlobalStyles, ThemeProvider } from "@mui/material";
 import type { AppProps } from "next/app";
 
-const theme = createTheme({
-	typography: {
-		fontFamily:
-			"-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji",
-	},
-	palette: {
-		common: { black: "#18191c" },
-		background: { default: "#36393f", paper: "#202225" },
-		primary: { main: "#5865f2" },
-		secondary: { main: "#292b2f" },
-		text: { primary: "#fff", secondary: "#868e96" },
-		info: { main: "#ff3131" },
-	},
-});
-
 const App = ({ Component, pageProps }: AppProps) => {
+	const theme = createTheme({
+		typography: {
+			fontFamily:
+				"-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji",
+		},
+		palette: {
+			common: { black: "#18191c" },
+			background: { default: "#36393f", paper: "#202225" },
+			primary: { main: "#5865f2" },
+			secondary: { main: "#292b2f" },
+			text: { primary: "#fff", secondary: "#868e96" },
+			info: { main: "#ff3131" },
+		},
+	});
+
 	return (
 		<ThemeProvider theme={theme}>
 			<GlobalStyles

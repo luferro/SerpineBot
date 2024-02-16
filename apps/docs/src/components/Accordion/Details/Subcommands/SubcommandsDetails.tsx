@@ -1,21 +1,21 @@
-import { Group } from "../../../../types/bot";
+import { Subcommand } from "../../../../../types/bot";
 import { Accordion } from "../../Accordion";
 
 type Props = {
 	id: string;
 	metadata: { name: string; description?: string };
-	groups: Group[];
+	subcommands: Subcommand[];
 };
 
-export const GroupsDetails = ({ id, metadata, groups }: Props) =>
-	groups.map(({ name, description, subcommands }) => (
+export const SubcommandsDetails = ({ id, metadata, subcommands }: Props) =>
+	subcommands.map(({ name, description, options }) => (
 		<Accordion
 			key={`${id}.${metadata.name}.${name}`}
 			id={id}
 			name={`${metadata.name}.${name}`}
 			description={description}
 			groups={[]}
-			subcommands={subcommands}
-			options={[]}
+			subcommands={[]}
+			options={options}
 		/>
 	));

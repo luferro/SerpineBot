@@ -1,6 +1,6 @@
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 
-import { Group, Option, Subcommand } from "../../types/bot";
+import { Group, Option, Subcommand } from "../../../types/bot";
 import {
 	StyledAccordion,
 	StyledAccordionSummary,

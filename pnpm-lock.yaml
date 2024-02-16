@@ -102,6 +102,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.0
         version: 11.11.0(@emotion/react@11.11.3)(@types/react@18.2.55)(react@18.2.0)
+      '@luferro/config':
+        specifier: workspace:^
+        version: link:../../packages/config
       '@mui/icons-material':
         specifier: ^5.15.10
         version: 5.15.10(@mui/material@5.15.10)(@types/react@18.2.55)(react@18.2.0)
@@ -111,9 +114,6 @@ importers:
       discord.js:
         specifier: ^14.14.1
         version: 14.14.1
-      dotenv:
-        specifier: ^16.4.4
-        version: 16.4.4
       html-react-parser:
         specifier: ^5.1.5
         version: 5.1.5(react@18.2.0)
@@ -2332,11 +2332,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       is-obj: 2.0.0
-    dev: false
-
-  /dotenv@16.4.4:
-    resolution: {integrity: sha512-XvPXc8XAQThSjAbY6cQ/9PcBXmFoWuw1sQ3b8HqUCR6ziGXjkTi//kB9SWa2UwqlgdAIuRqAa/9hVljzPehbYg==}
-    engines: {node: '>=12'}
     dev: false
 
   /duplexify@4.1.2:

@@ -1,15 +1,21 @@
 import { ApplicationCommandOptionType, Client, GatewayIntentBits } from "discord.js";
 import Head from "next/head";
 import { useEffect, useState } from "react";
+import { loadConfig } from "@luferro/config";
 
 import { Accordion } from "../components/Accordion/Accordion";
 import { Footer } from "../components/Footer/Footer";
 import { Landing } from "../components/Landing/Landing";
 import { Main } from "../components/Main/Main";
 import { StyledSkeleton } from "../components/Skeleton/Skeleton.styled";
-import { Command, Group, Option, Subcommand } from "../types/bot";
+import { Command, Group, Option, Subcommand } from "../../types/bot";
 
-const getSubcommandGroups = ({ options }: { options?: Option[] }) => {
+const config = loadConfig();
+
+type Options = { options: Option[] };
+type Commands = { commands: Command[] };
+
+const getSubcommandGroups = ({ options }: Partial<Options>) => {
 	return (
 		(options?.filter(({ type }) => type === ApplicationCommandOptionType.SubcommandGroup) as Group[])?.map(
 			({ name, description, options, required }) => ({
@@ -23,7 +29,7 @@ const getSubcommandGroups = ({ options }: { options?: Option[] }) => {
 	);
 };
 
-const getSubcommands = ({ options }: { options?: Option[] }) => {
+const getSubcommands = ({ options }: Partial<Options>) => {
 	return (
 		(options?.filter(({ type }) => type === ApplicationCommandOptionType.Subcommand) as Subcommand[])?.map(
 			({ name, description, options, required }) => ({
@@ -36,7 +42,7 @@ const getSubcommands = ({ options }: { options?: Option[] }) => {
 	);
 };
 
-const getOptions = ({ options }: { options?: Option[] }) => {
+const getOptions = ({ options }: Partial<Options>) => {
 	return (
 		(
 			options?.filter(
@@ -54,7 +60,7 @@ const getOptions = ({ options }: { options?: Option[] }) => {
 
 export const getStaticProps = async () => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-	await client.login(process.env.BOT_TOKEN);
+	await client.login(config.get("client.token"));
 	if (!client.application) throw new Error("Cannot fetch registered slash commands.");
 
 	const commands = (await client.application.commands.fetch())
@@ -76,7 +82,7 @@ export const getStaticProps = async () => {
 	};
 };
 
-const Home = ({ commands }: { commands: Command[] }) => {
+const Home = ({ commands }: Commands) => {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => setLoading(false), []);
