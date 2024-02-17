@@ -90,14 +90,11 @@ export class RedditApi extends Scraper {
 			.sort((a, b) => b.data.created_utc - a.data.created_utc)
 			.map(({ data }) => {
 				const isTwitterEmbed = /^(?:https?:)?(?:\/\/)?(?:www\.)?(twitter.com|x.com)/.test(data.url);
-				const url = isTwitterEmbed
-					? data.url.split("?")[0].replace("twitter.com", "vxtwitter.com").replace("x.com", "fixvx.com")
-					: data.url;
 
 				return {
-					url,
 					isTwitterEmbed,
 					title: data.title,
+					url: isTwitterEmbed ? data.url.split("?")[0] : data.url,
 					selftext: data.selftext || null,
 					selfurl: `https://www.reddit.com${data.permalink}`,
 					isCrosspost: Boolean(data.crosspost_parent),
