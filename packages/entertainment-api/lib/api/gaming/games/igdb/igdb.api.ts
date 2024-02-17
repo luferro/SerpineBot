@@ -3,6 +3,8 @@ import { DateUtil, FetchUtil } from "@luferro/shared-utils";
 import { Query } from "../../../../types/args";
 import { Event, Result } from "./igdb.types";
 
+type Options = { clientId: string; clientSecret: string };
+
 export class IGDBApi {
 	private static BASE_OAUTH_URL = "https://id.twitch.tv";
 	private static BASE_API_URL = "https://api.igdb.com";
@@ -11,7 +13,7 @@ export class IGDBApi {
 	private clientSecret: string;
 	private authorization?: string;
 
-	constructor({ clientId, clientSecret }: { clientId: string; clientSecret: string }) {
+	constructor({ clientId, clientSecret }: Options) {
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 	}
