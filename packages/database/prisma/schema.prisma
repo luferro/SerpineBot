@@ -181,10 +181,15 @@ type Feed {
   options Options?
 }
 
+type Subreddit {
+  subreddit String
+  flairs    String[]
+}
+
 type WebhookConfig {
   webhook    WebhookType
   feeds      Feed[]
-  subreddits String[]
+  subreddits Subreddit[]
 }
 
 model Config {
