@@ -54,10 +54,13 @@ export class Bot extends Client {
 
 	private initializeApi() {
 		return {
-			reddit: new RedditApi(),
 			mangadex: new MangadexApi(),
 			shows: new TMDBApi({ apiKey: this.config.get("services.tmdb.apiKey") }),
 			anime: new AnimeScheduleApi({ apiKey: this.config.get("services.animeSchedule.apiKey") }),
+			reddit: new RedditApi({
+				clientId: this.config.get("services.reddit.clientId"),
+				clientSecret: this.config.get("services.reddit.clientSecret"),
+			}),
 			gaming: new GamingApi({
 				igdb: {
 					clientId: this.config.get("services.igdb.clientId"),
