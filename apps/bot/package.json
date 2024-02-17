@@ -6,8 +6,8 @@
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"start": "pnpm build && RUNTIME_ENV=production node dist/index.js",
-		"dev": "pnpm build && RUNTIME_ENV=development node dist/index.js",
+		"start": "RUNTIME_ENV=production node dist/index.js",
+		"dev": "RUNTIME_ENV=development node dist/index.js",
 		"build": "tsc",
 		"lint": "eslint --fix ."
 	},
