@@ -7,7 +7,7 @@ import type { JobData, JobExecute } from "../../types/bot";
 export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const { subreddits } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.NSFW });
+	const { subreddits } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.NINTENDO });
 	for (const { subreddit, flairs } of subreddits) {
 		const posts = await client.api.reddit.getPosts({ subreddit, flairs, sort: "new" });
 
