@@ -19,7 +19,7 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const { userId, day, month, year } of birthdays) {
 		const date = new Date();
 		date.setHours(0, 0, 0, 0);
-		const birthdate = new Date(day, month - 1, date.getFullYear());
+		const birthdate = new Date(date.getFullYear(), month - 1, day);
 		birthdate.setHours(0, 0, 0, 0);
 		if (date.getTime() !== birthdate.getTime()) continue;
 
