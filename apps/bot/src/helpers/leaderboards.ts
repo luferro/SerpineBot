@@ -58,7 +58,7 @@ const getSteamLeaderboard = async (client: Bot) => {
 
 		leaderboard.push({
 			user: await client.users.fetch(userId),
-			highlight: { value: hours, formatted: t("common.hours", { hours }) },
+			highlight: { value: hours, formatted: t("common.time.hours", { hours }) },
 			item: { title, url },
 		});
 	}

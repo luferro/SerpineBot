@@ -3,22 +3,13 @@
 		"unavailable": "n/a",
 		"none": "None",
 		"tbd": "TBD",
-		"hours": "{{hours}}h",
-		"toggle": {
-			"on": "on",
-			"off": "off"
-		},
-		"lists": {
-			"hidden": "And {{size}} more!"
-		},
+		"time": { "minutes": "{{minutes}} min(s)", "hours": "{{hours}}h" },
+		"episodes": "{{episodes}} episode(s)",
+		"toggle": { "on": "on", "off": "off" },
+		"lists": { "hidden": "And {{size}} more!" },
 		"player": {
-			"playback": {
-				"playing": "Currently playing.",
-				"nothing": "Nothing is playing."
-			},
-			"queue": {
-				"empty": "Empty."
-			}
+			"playback": { "playing": "Currently playing.", "nothing": "Nothing is playing." },
+			"queue": { "empty": "Empty." }
 		}
 	},
 	"errors": {
@@ -632,15 +623,8 @@
 		"anime": {
 			"episode": {
 				"embed": {
-					"title": "{{anime}} - Episode {{episode}}",
-					"fields": [
-						{ "name": "**Alternative title**" },
-						{ "name": "**Total**", "value": "{{episodes}} episodes" },
-						{ "name": "**Duration**", "value": "{{duration}} min per episode" },
-						{ "name": "**Score**" },
-						{ "name": "**Where to watch?**" },
-						{ "name": "**Where to track?**" }
-					]
+					"description": "Episode **{{episode}}** (__{{type}}__) has just aired.",
+					"fields": [{ "name": "**Score**" }, { "name": "**Streams**" }, { "name": "**Trackers**" }]
 				}
 			}
 		},
