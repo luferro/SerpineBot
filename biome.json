@@ -8,7 +8,8 @@
 		"rules": {
 			"recommended": true,
 			"style": { "noNonNullAssertion": "off", "noParameterAssign": "off" }
-		}
+		},
+		"ignore": ["__generated__/**/*.ts"]
 	},
 	"formatter": {
 		"enabled": true,
