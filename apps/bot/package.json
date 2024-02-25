@@ -8,8 +8,7 @@
 	"scripts": {
 		"start": "RUNTIME_ENV=production node dist/index.js",
 		"dev": "RUNTIME_ENV=development node dist/index.js",
-		"build": "tsc",
-		"lint": "eslint --fix ."
+		"build": "tsc"
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
@@ -27,11 +26,13 @@
 	"dependencies": {
 		"@discord-player/extractor": "^4.4.6",
 		"@discordjs/voice": "^0.16.1",
+		"@luferro/animanga": "workspace:^",
 		"@luferro/cache": "workspace:^",
 		"@luferro/config": "workspace:^",
 		"@luferro/database": "workspace:^",
-		"@luferro/entertainment-api": "workspace:^",
-		"@luferro/reddit-api": "workspace:^",
+		"@luferro/entertainment": "workspace:^",
+		"@luferro/gaming": "workspace:^",
+		"@luferro/reddit": "workspace:^",
 		"@luferro/scraper": "workspace:^",
 		"@luferro/shared-utils": "workspace:^",
 		"@luferro/speech": "workspace:^",
