@@ -1,5 +1,5 @@
 {
-	"name": "@luferro/reddit-api",
+	"name": "@luferro/reddit",
 	"private": true,
 	"version": "1.0.0",
 	"description": "Reddit API wrapper",
