@@ -1,5 +1,7 @@
-import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from "@luferro/entertainment-api";
-import type { RedditApi } from "@luferro/reddit-api";
+import type { AnimeApi, MangadexApi } from "@luferro/animanga";
+import type { TMDBApi } from "@luferro/entertainment";
+import type { GamingApi } from "@luferro/gaming";
+import type { RedditApi } from "@luferro/reddit";
 import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordClient } from "@luferro/speech";
 import type {
 	Collection,
@@ -8,7 +10,7 @@ import type {
 	SlashCommandSubcommandBuilder,
 	TextBasedChannel,
 } from "discord.js";
-import { GuildQueue } from "discord-player";
+import type { GuildQueue } from "discord-player";
 
 import type { Bot } from "../structures/Bot";
 import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from "./interaction";
@@ -50,7 +52,7 @@ export type JobExecute = { (args: JobArgs): Promise<void> };
 export type Job = { data: JobData; execute: JobExecute };
 
 export type Api = {
-	anime: AnimeScheduleApi;
+	anime: AnimeApi;
 	mangadex: MangadexApi;
 	gaming: GamingApi;
 	reddit: RedditApi;
