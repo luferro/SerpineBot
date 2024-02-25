@@ -1,0 +1,29 @@
+{
+	"name": "@luferro/animanga",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Provides everything related to anime and manga",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"gql:generate": "graphql-codegen --config codegen.ts",
+		"build": "pnpm gql:generate && tsc",
+		"lint": "biome lint ."
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@graphql-codegen/cli": "^5.0.2",
+		"@graphql-codegen/client-preset": "^4.2.2",
+		"@graphql-typed-document-node/core": "^3.2.0",
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"@apollo/client": "^3.9.5",
+		"@luferro/reddit": "workspace:^",
+		"@luferro/scraper": "workspace:^",
+		"@luferro/shared-utils": "workspace:^",
+		"graphql": "^16.8.1"
+	}
+}

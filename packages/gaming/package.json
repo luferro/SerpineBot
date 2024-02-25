@@ -1,0 +1,25 @@
+{
+	"name": "@luferro/gaming",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Provides everything related to gaming",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"lint": "eslint --fix ."
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"@apollo/client": "^3.9.5",
+		"@luferro/reddit": "workspace:^",
+		"@luferro/scraper": "workspace:^",
+		"@luferro/shared-utils": "workspace:^",
+		"graphql": "^16.8.1"
+	}
+}

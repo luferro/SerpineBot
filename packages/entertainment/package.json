@@ -1,0 +1,21 @@
+{
+	"name": "@luferro/entertainment",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Provides everything related to entertainment media (tv shows and movies)",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"lint": "eslint --fix ."
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"@luferro/shared-utils": "workspace:^"
+	}
+}
