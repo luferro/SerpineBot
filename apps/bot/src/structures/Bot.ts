@@ -1,8 +1,10 @@
 import { Cache } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
 import { DatabaseClient, type ExtendedDatabaseClient, WebhookType } from "@luferro/database";
-import { AnimeScheduleApi, GamingApi, MangadexApi, TMDBApi } from "@luferro/entertainment-api";
-import { RedditApi } from "@luferro/reddit-api";
+import { AnimeApi, MangadexApi } from "@luferro/animanga";
+import { TMDBApi } from "@luferro/entertainment";
+import { GamingApi } from "@luferro/gaming";
+import { RedditApi } from "@luferro/reddit";
 import { Scraper } from "@luferro/scraper";
 import { ObjectUtil, LoggerUtil } from "@luferro/shared-utils";
 import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordClient } from "@luferro/speech";
@@ -56,7 +58,7 @@ export class Bot extends Client {
 		return {
 			mangadex: new MangadexApi(),
 			shows: new TMDBApi({ apiKey: this.config.get("services.tmdb.apiKey") }),
-			anime: new AnimeScheduleApi({ apiKey: this.config.get("services.animeSchedule.apiKey") }),
+			anime: new AnimeApi({ animeSchedule: { apiKey: this.config.get("services.animeSchedule.apiKey") } }),
 			reddit: new RedditApi({
 				clientId: this.config.get("services.reddit.clientId"),
 				clientSecret: this.config.get("services.reddit.clientSecret"),
@@ -97,7 +99,7 @@ export class Bot extends Client {
 			if (isClientEvent) this[data.type](name, callback);
 			else this.player.events[data.type](name as keyof GuildQueueEvents, callback);
 
-			this.logger.info(`Events | **${isClientEvent ? "Client" : "Player"}** | ${data.type} | **${name}**`);
+			this.logger.info(`Events | **${isClientEvent ? "Client" : "Player"}** ${data.type} **${name}**`);
 		}
 	}
 
@@ -110,7 +112,7 @@ export class Bot extends Client {
 				}),
 			);
 			cronjob.start();
-			this.logger.info(`Jobs | **${name}** | **(${job.data.schedule})**`);
+			this.logger.info(`Jobs | **${name}** | Schedule **(${job.data.schedule})**`);
 		}
 	}
 
@@ -134,7 +136,7 @@ export class Bot extends Client {
 
 			this.emit("ready", this as Client<true>);
 		} catch (error) {
-			this.logger.error("Bot | Fatal error during application start.", error);
+			this.logger.error("Bot | Fatal error during application start", error);
 			this.stop();
 		}
 	}
@@ -222,8 +224,7 @@ export class Bot extends Client {
 	}
 
 	async stop() {
-		this.logger.info("Bot | Stopping");
 		await this.cache.quit();
-		process.exit();
+		process.exit(1);
 	}
 }
