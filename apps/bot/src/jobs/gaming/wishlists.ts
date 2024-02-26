@@ -122,7 +122,7 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 			.setColor("Random");
 
 		await user.send({ embeds: [embed] });
-		client.logger.info(`Steam wishlist | **${alert}** | **${user.username}** | **${queue.length}** update(s)).`);
+		client.logger.info(`Steam wishlist | ${alert} | Notified ${user.username}  about ${queue.length} update(s)`);
 		client.logger.debug({ queue });
 	}
 };

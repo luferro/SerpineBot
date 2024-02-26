@@ -71,7 +71,7 @@ const handleUserVoice = async ({
 
 	const user = client.users.cache.get(userId)?.username ?? userId;
 	const guild = client.guilds.cache.get(guildId)?.name ?? guildId;
-	client.logger.info(`Command **${intent}** used by **${user}** in guild **${guild}**.`);
+	client.logger.info(`Voice | ${intent} invoked by ${user} in guild ${guild}.`);
 
 	await command.execute({ client, queue, slots, rest: [userId] }).catch((error) => {
 		const embed = new EmbedBuilder()

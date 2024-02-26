@@ -8,11 +8,11 @@ export const execute: JobExecute = async ({ client }) => {
 	const catalogs = await client.api.gaming.games.subscriptions.getCatalogs();
 	for (const { type, catalog } of catalogs) {
 		const name = type.toLowerCase().split("_").map(StringUtil.capitalize).join(" ");
-		client.logger.debug(`Subscriptions | **${name}** | **${catalog.length}** entries`);
+		client.logger.debug(`Subscriptions | Found ${catalog.length} entries in ${name} catalog`);
 
 		const storedSubscription = await client.prisma.subscription.findUnique({ where: { type } });
 		if (catalog.length < Math.round((storedSubscription?.count ?? 0) * 0.6)) {
-			client.logger.warn(`Subscriptions | **${name}** catalog update ignored`);
+			client.logger.warn(`Subscriptions | ${name} catalog update ignored`);
 			continue;
 		}
 
@@ -21,6 +21,6 @@ export const execute: JobExecute = async ({ client }) => {
 			create: { type, name, catalog, count: catalog.length },
 			update: { catalog, count: catalog.length },
 		});
-		client.logger.info(`Subscriptions | **${name}** catalog updated`);
+		client.logger.info(`Subscriptions | ${name} catalog updated`);
 	}
 };

@@ -24,6 +24,6 @@ export const execute: JobExecute = async ({ client }) => {
 
 		await client.prisma.reminder.delete({ where: { id } });
 
-		client.logger.info(`Reminders | **${id}** | **${target.username}** | Sent`);
+		client.logger.info(`Reminders | Reminder ${id} sent to ${target.username}`);
 	}
 };

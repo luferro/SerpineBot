@@ -99,7 +99,7 @@ export class Bot extends Client {
 			if (isClientEvent) this[data.type](name, callback);
 			else this.player.events[data.type](name as keyof GuildQueueEvents, callback);
 
-			this.logger.info(`Events | **${isClientEvent ? "Client" : "Player"}** ${data.type} **${name}**`);
+			this.logger.info(`Events | ${isClientEvent ? "Client" : "Player"} ${data.type} ${name}`);
 		}
 	}
 
@@ -112,12 +112,12 @@ export class Bot extends Client {
 				}),
 			);
 			cronjob.start();
-			this.logger.info(`Jobs | **${name}** | Schedule **(${job.data.schedule})**`);
+			this.logger.info(`Jobs | ${name} scheduled (${job.data.schedule})`);
 		}
 	}
 
 	async start() {
-		this.logger.info(`Bot | Starting | **${this.config.runtimeEnvironment}**`);
+		this.logger.info(`Bot | Starting in ${this.config.runtimeEnvironment}`);
 
 		try {
 			i18next.use(Backend).init({
@@ -136,8 +136,7 @@ export class Bot extends Client {
 
 			this.emit("ready", this as Client<true>);
 		} catch (error) {
-			this.logger.error("Bot | Fatal error during application start", error);
-			this.stop();
+			this.logger.fatal(error, "Bot | Fatal error during application start");
 		}
 	}
 
@@ -224,7 +223,11 @@ export class Bot extends Client {
 	}
 
 	async stop() {
-		await this.cache.quit();
-		process.exit(1);
+		try {
+			await this.cache.quit();
+			this.logger.info("Bot | Stopping");
+		} finally {
+			process.exit();
+		}
 	}
 }

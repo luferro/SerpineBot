@@ -40,6 +40,6 @@ export const execute: JobExecute = async ({ client }) => {
 					.setThumbnail(target.avatarURL() ?? target.defaultAvatarURL),
 			],
 		});
-		client.logger.info(`Birthdays | **${target.username}**`);
+		client.logger.info(`Birthdays | ${target.username}'s birthday has been announced`);
 	}
 };

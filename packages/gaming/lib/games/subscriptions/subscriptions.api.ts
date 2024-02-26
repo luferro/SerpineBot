@@ -126,7 +126,7 @@ export class SubscriptionsApi extends Scraper {
 					}
 					return { type, catalog };
 				} catch (error) {
-					this.logger.warn(`Cannot retrieve **${type}** catalog.`);
+					this.logger.warn(`Cannot retrieve ${type} catalog`);
 					return { type, catalog: [] };
 				}
 			},

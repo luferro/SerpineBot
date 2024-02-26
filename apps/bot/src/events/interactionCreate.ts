@@ -38,7 +38,7 @@ const extractInteractionMethods = ({ interaction }: Pick<ChatInputArgs | Autocom
 
 const handleChatInputCommandInteraction = async ({ client, interaction, localization }: ChatInputArgs) => {
 	const { key, methods } = extractInteractionMethods({ interaction });
-	client.logger.info(`Interaction | **${key}** | **${interaction.user.username}** | **${interaction.guild.name}**`);
+	client.logger.info(`Interaction | ${key} invoked by ${interaction.user.username} in ${interaction.guild.name}`);
 
 	try {
 		if (!methods) throw new Error(t("errors.interaction.unregistered", { key: `"${key}"` }));

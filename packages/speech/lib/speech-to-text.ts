@@ -31,8 +31,8 @@ export class SpeechToTextClient {
 			const isLimitReachedError = error instanceof LeopardActivationLimitReachedError;
 			const isInvalidArgument = error instanceof LeopardInvalidArgumentError;
 
-			if (isLimitReachedError) this.logger.warn("Leopard: User limit reached.");
-			else if (isInvalidArgument) this.logger.warn("Leopard: Invalid model path.");
+			if (isLimitReachedError) this.logger.warn("Leopard | User limit reached");
+			else if (isInvalidArgument) this.logger.warn("Leopard | Invalid model path");
 			else throw error;
 		}
 	}

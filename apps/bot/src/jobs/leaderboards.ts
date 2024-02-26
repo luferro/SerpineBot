@@ -36,10 +36,10 @@ export const execute: JobExecute = async ({ client }) => {
 						.setColor("Random"),
 				],
 			});
-			client.logger.info(`Leaderboards | **${LeaderboardType[type]}** | Created`);
+			client.logger.info(`Leaderboards | ${LeaderboardType[type]} has been created`);
 		} finally {
 			await resetLeaderboard(LeaderboardType[type], client);
-			client.logger.info(`Leaderboards | **${LeaderboardType[type]}** | Reset`);
+			client.logger.info(`Leaderboards | ${LeaderboardType[type]} has been reset`);
 		}
 	}
 };

@@ -29,7 +29,7 @@ const registerVoiceCommands = async (client: Bot) => {
 		const command: VoiceCommand = await import(file);
 		Bot.commands.voice.set(segment, command);
 	}
-	client.logger.info(`Commands handler | **${files.length}** voice command(s) registered`);
+	client.logger.info(`Commands handler | ${files.length} voice command(s) registered`);
 };
 
 const registerInteractionCommands = async (client: Bot) => {
@@ -56,10 +56,10 @@ const registerInteractionCommands = async (client: Bot) => {
 
 		Bot.commands.interactions.methods.set(segment, methods);
 	}
-	client.logger.info(`Commands handler | **${files.length}** interaction command(s) registered`);
+	client.logger.info(`Commands handler | ${files.length} interaction command(s) registered`);
 
 	Bot.commands.interactions.metadata.push(...generateSlashCommands(metadata));
-	client.logger.info(`Commands handler | **${metadata.size}** slash command(s) built`);
+	client.logger.info(`Commands handler | ${metadata.size} slash command(s) built`);
 };
 
 const generateSlashCommands = (metadata: Map<string, MetadataBuilder[]>) => {
@@ -118,12 +118,12 @@ const deployGuildCommands = async (client: Bot, commands: ApplicationCommandData
 	for (const { 1: guild } of client.guilds.cache) {
 		const guildCommands = await guild.commands.set(commands);
 		if (guildCommands.size === 0) continue;
-		client.logger.info(`Commands handler | **${guildCommands.size}** slash command(s) deployed | **${guild.name}**`);
+		client.logger.info(`Commands handler | ${guildCommands.size} slash command(s) deployed in ${guild.name}`);
 	}
 };
 
 const deployGlobalCommands = async (client: Bot, commands: ApplicationCommandDataResolvable[]) => {
 	if (!client.application) throw new Error("Not a client application.");
 	const globalCommands = await client.application.commands.set(commands);
-	client.logger.info(`Commands handler | **${globalCommands.size}** slash command(s) deployed | **Globally**`);
+	client.logger.info(`Commands handler | ${globalCommands.size} slash command(s) deployed globally`);
 };

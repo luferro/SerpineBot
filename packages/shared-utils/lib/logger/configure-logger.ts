@@ -1,6 +1,16 @@
-import { createLogger, format, transports } from "winston";
+import pino from "pino";
 
-export { type Logger } from "winston";
+export { Logger } from "pino";
+
+const isProduction = process.env.RUNTIME_ENV === "production";
+
+const logger = pino({
+	formatters: { level: (label) => ({ level: label.toUpperCase() }), bindings: () => ({}) },
+	timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
+	...(isProduction
+		? { messageKey: "message", errorKey: "error", transport: { target: "pino/file" } }
+		: { transport: { target: "pino-pretty", options: { colorize: true } } }),
+});
 
 type Options = {
 	/**
@@ -8,25 +18,12 @@ type Options = {
 	 * @default "debug"
 	 */
 	level?: string;
+	/**
+	 * Sensitive information to be redacted
+	 */
+	redact?: string[];
 };
 
-export const configureLogger = ({ level = "debug" }: Options = {}) => {
-	const { colorize, combine, errors, timestamp, printf } = format;
-
-	return createLogger({
-		format: combine(
-			errors({ stack: true }),
-			timestamp(),
-			printf(({ timestamp, level, message, stack }) => {
-				const colorizedMessage =
-					typeof message !== "string"
-						? JSON.stringify(message, null, 4)
-						: message.replace(/\*\*(.*?)\*\*/g, "\x1b[36m$1\x1b[0m");
-
-				const log = `${colorize().colorize(level, `[${timestamp}] ${level.toUpperCase()}:`)} ${colorizedMessage}`;
-				return stack && level === "error" ? `${log}\n${stack}` : log;
-			}),
-		),
-		transports: [new transports.Console({ level })],
-	});
+export const configureLogger = ({ level = "debug", redact }: Options = {}) => {
+	return logger.child({}, { level, redact });
 };
