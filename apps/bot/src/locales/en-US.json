@@ -4,7 +4,10 @@
 		"none": "None",
 		"tbd": "TBD",
 		"time": { "minutes": "{{minutes}} min(s)", "hours": "{{hours}}h" },
-		"episodes": "{{episodes}} episode(s)",
+		"episodes": {
+			"total": "{{total}} episode(s)",
+			"duration": "{{duration}} min(s) per episode"
+		},
 		"toggle": { "on": "on", "off": "off" },
 		"lists": { "hidden": "And {{size}} more!" },
 		"player": {
@@ -624,7 +627,7 @@
 			"episode": {
 				"embed": {
 					"description": "Episode **{{episode}}** (__{{type}}__) has just aired.",
-					"fields": [{ "name": "**Score**" }, { "name": "**Streams**" }, { "name": "**Trackers**" }]
+					"fields": [{ "name": "**Where to watch?**" }, { "name": "**Where to track?**" }]
 				}
 			}
 		},

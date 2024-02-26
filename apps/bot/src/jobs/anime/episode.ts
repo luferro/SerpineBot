@@ -14,12 +14,12 @@ export const execute: JobExecute = async ({ client }) => {
 
 	const messages = [];
 	for (const anime of schedule) {
-		const { title, coverImage, format, score, airing, episodes, duration, streams, trackers, isDelayed } = anime;
+		const { title, coverImage, format, airing, episodes, duration, streams, trackers, isDelayed } = anime;
 
 		const notAiredYet = Date.now() < new Date(airing.sub.at ?? airing.raw.at).getTime();
 		if (notAiredYet || isDelayed || !title.romaji) continue;
 
-		const type = airing.sub.at ? "SUB" : "RAW";
+		const type = airing.sub.at ? "sub" : "raw";
 		const formattedTracking = trackers?.map(({ name, url }) => `> **[${StringUtil.capitalize(name)}](${url})**`);
 		const formattedStreams = streams?.map(({ name, url }) => `> **[${StringUtil.capitalize(name)}](${url})**`);
 
@@ -30,24 +30,20 @@ export const execute: JobExecute = async ({ client }) => {
 			.addFields([
 				{
 					name: t("jobs.anime.episode.embed.fields.0.name"),
-					value: score ? `${score} / 10` : t("common.unavailable"),
-				},
-				{
-					name: t("jobs.anime.episode.embed.fields.1.name"),
 					value: formattedStreams.join("\n") || t("common.unavailable"),
 					inline: true,
 				},
 				{
-					name: t("jobs.anime.episode.embed.fields.2.name"),
+					name: t("jobs.anime.episode.embed.fields.1.name"),
 					value: formattedTracking.join("\n") || t("common.unavailable"),
 					inline: true,
 				},
 			])
 			.setFooter({
 				text: [
-					episodes ? t("common.episodes", { episodes }) : null,
-					format,
-					duration ? t("common.time.minutes", { minutes: duration }) : null,
+					format?.replace("_", " ") ?? null,
+					episodes ? t("common.episodes.total", { total: episodes }) : null,
+					duration ? t("common.episodes.duration", { duration }) : null,
 				]
 					.filter((item) => !!item)
 					.join(" • "),
