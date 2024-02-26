@@ -7,7 +7,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"gql:generate": "graphql-codegen --config codegen.ts",
-		"build": "pnpm gql:generate && tsc",
+		"build": "tsc",
 		"lint": "biome lint ."
 	},
 	"keywords": [],

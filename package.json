@@ -9,6 +9,7 @@
 		"db:validate": "turbo run db:validate",
 		"db:generate": "turbo run db:generate",
 		"db:push": "turbo run db:push",
+		"gql:generate": "turbo run gql:generate",
 		"lint": "biome lint .",
 		"lint:fix": "biome check --apply .",
 		"format": "biome format --write ."
