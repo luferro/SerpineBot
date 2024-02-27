@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, NormalizedCacheObject } from "@apollo/client";
+import { createClient, type Client, cacheExchange, fetchExchange } from "@urql/core";
 import { GET_ANIME } from "./graphql/queries/media";
 import { GET_SCHEDULE } from "./graphql/queries/schedule";
 import { DateUtil, StringUtil } from "@luferro/shared-utils";
@@ -7,13 +7,10 @@ import { AiringSchedule, ExternalLinkType, Media, MediaExternalLink, MediaType }
 export class AniListApi {
 	static BASE_API_URL = "https://graphql.anilist.co";
 
-	private client: ApolloClient<NormalizedCacheObject>;
+	private client: Client;
 
 	constructor() {
-		this.client = new ApolloClient({
-			uri: AniListApi.BASE_API_URL,
-			cache: new InMemoryCache({ typePolicies: { MediaCoverImage: { merge: true } } }),
-		});
+		this.client = createClient({ url: AniListApi.BASE_API_URL, exchanges: [cacheExchange, fetchExchange] });
 	}
 
 	private getTrackers(media: Media) {
@@ -30,11 +27,8 @@ export class AniListApi {
 	}
 
 	async getAnimeById(id: number) {
-		const { data } = await this.client.query({
-			query: GET_ANIME,
-			variables: { type: MediaType.Anime, id },
-		});
-		const media = data.Media as unknown as Media;
+		const { data } = await this.client.query(GET_ANIME, { type: MediaType.Anime, id });
+		const media = data?.Media as unknown as Media;
 
 		return {
 			id: `${media.idMal ?? media.id}`,
@@ -69,18 +63,13 @@ export class AniListApi {
 		let page = 1;
 		let hasNextPage = true;
 		while (hasNextPage) {
-			try {
-				const { data } = await this.client.query({
-					query: GET_SCHEDULE,
-					variables: { page, start, end },
-				});
-				const pageResult = data.Page;
-				const airingSchedules = (pageResult?.airingSchedules ?? []) as (AiringSchedule & { media: Media })[];
+			const { data } = await this.client.query(GET_SCHEDULE, { page, start, end });
+			const pageResult = data?.Page;
+			const airingSchedules = (pageResult?.airingSchedules ?? []) as (AiringSchedule & { media: Media })[];
 
-				schedule.push(...airingSchedules);
-				hasNextPage = !!pageResult?.pageInfo?.hasNextPage;
-				page++;
-			} catch (error) {}
+			schedule.push(...airingSchedules);
+			hasNextPage = !!pageResult?.pageInfo?.hasNextPage;
+			page++;
 		}
 
 		return schedule.map(({ airingAt, episode, media }) => ({
