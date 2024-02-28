@@ -1,4 +1,3 @@
-import { DateUtil } from "@luferro/shared-utils";
 import { AniListApi } from "./anilist/anilist.api";
 import { AnimeScheduleApi } from "./anime-schedule/anime-schedule.api";
 import { Config } from "./anime.types";
@@ -13,7 +12,7 @@ export class AnimeApi extends AniListApi {
 
 	override async getWeeklySchedule() {
 		const rawsSchedule = await super.getWeeklySchedule();
-		const subsSchedule = await this.animeScheduleApi.getWeeklySchedule();
+		const subsSchedule = await this.animeScheduleApi.getWeeklySchedule().catch(() => []);
 
 		const prepare = (record: Record<string, unknown>) => {
 			return Object.values(record)
