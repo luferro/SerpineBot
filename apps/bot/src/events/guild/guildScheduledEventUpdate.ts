@@ -20,6 +20,9 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 	const location = entityMetadata?.location ?? channel;
 	if (!guild || !location) return;
 
+	const subscribers = await event.fetchSubscribers({ withMember: true });
+	if (subscribers.size === 0) return;
+
 	const role = await guild.roles.create({
 		name,
 		color: "Default",
@@ -28,13 +31,14 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 		position: guild.roles.cache.size + 1,
 	});
 
-	const subscribers = await event.fetchSubscribers({ withMember: true });
 	for (const { 1: subscriber } of subscribers) {
 		subscriber.member.roles.add(role);
 	}
 
+	const timezone = client.config.get<string>("timezone");
+
 	const embed = new EmbedBuilder()
-		.setTitle(t("events.guild.guildScheduledEventUpdate.embed.title", { name: `\`${name}\`` }))
+		.setTitle(t("events.guild.guildScheduledEventUpdate.embed.title", { name }))
 		.setURL(url)
 		.setDescription(description || null)
 		.addFields([
@@ -44,16 +48,12 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 			},
 			{
 				name: t("events.guild.guildScheduledEventUpdate.embed.fields.1.name"),
-				value: scheduledStartAt
-					? DateUtil.format({ date: scheduledStartAt, timezone: client.config.get("timezone") })
-					: t("common.unavailable"),
+				value: scheduledStartAt ? DateUtil.format({ date: scheduledStartAt, timezone }) : t("common.unavailable"),
 				inline: true,
 			},
 			{
 				name: t("events.guild.guildScheduledEventUpdate.embed.fields.2.name"),
-				value: scheduledEndAt
-					? DateUtil.format({ date: scheduledEndAt, timezone: client.config.get("timezone") })
-					: t("common.unavailable"),
+				value: scheduledEndAt ? DateUtil.format({ date: scheduledEndAt, timezone }) : t("common.unavailable"),
 				inline: true,
 			},
 			{
@@ -61,7 +61,6 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 				value: creator?.username ?? t("common.unavailable"),
 			},
 		])
-		.setThumbnail(guild.iconURL())
 		.setImage(event.coverImageURL({ size: 4096 }))
 		.setColor("Random");
 
