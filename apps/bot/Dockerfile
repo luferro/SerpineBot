@@ -11,7 +11,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY --from=builder /usr/src/app/tsconfig.json .
 COPY --from=builder /usr/src/app/out/json/ .
 COPY --from=builder /usr/src/app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-RUN pnpm ci
+RUN pnpm install --frozen-lockfile
 COPY --from=builder /usr/src/app/out/full/ .
 ARG CONCURRENCY
 RUN pnpm build --filter=bot... --concurrency=$CONCURRENCY
