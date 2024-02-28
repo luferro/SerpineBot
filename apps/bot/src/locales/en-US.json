@@ -571,7 +571,7 @@
 		"guild": {
 			"guildScheduledEventUpdate": {
 				"embed": {
-					"title": "{{name}} is starting!",
+					"title": "`{{name}}` is starting!",
 					"fields": [
 						{ "name": "**Event location**" },
 						{ "name": "**Start**" },
