@@ -2,6 +2,7 @@ import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
 
 import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import { ConverterUtil, DateUtil } from "@luferro/shared-utils";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.gaming.deals.name"))
@@ -21,16 +22,22 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (results.length === 0) throw new Error(t("errors.search.lookup", { query }));
 	const { id, title } = results[0];
 
+	const formatPrice = (price: { amount: number; currency: string }) => {
+		return ConverterUtil.formatCurrency({ amount: price.amount, currency: price.currency });
+	};
+
 	const subscriptions = await client.prisma.subscription.search({ query });
 	const formattedSubscriptions = subscriptions.map((subscription) => `> **${subscription.name}**`);
 
-	const { historicalLow, bundles, prices } = await client.api.gaming.games.deals.getDealById({ id });
-	const formattedBundles = bundles.active.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
+	const { historicalLow, bundles, prices } = await client.api.gaming.games.deals.getDealsById({ id });
+	const formattedBundles = bundles.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
 	const formattedPrices = prices
 		.slice(0, 5)
-		.map(({ store, discounted, url }) => `**[${store}](${url})** - **${discounted}**`);
-	const formattedHistoricalLow = historicalLow
-		? `**${historicalLow.price}** @ ${historicalLow.store} - *${historicalLow.date}*`
+		.map(({ store, discounted, url }) => `**[${store}](${url})** - **${formatPrice(discounted)}**`);
+	const formattedHistoricalLow = historicalLow?.timestamp
+		? `**${formatPrice(historicalLow.discounted)}** @ ${historicalLow.store} - *${DateUtil.formatDistance({
+				from: historicalLow.timestamp,
+		  })}*`
 		: null;
 
 	const embed = new EmbedBuilder()

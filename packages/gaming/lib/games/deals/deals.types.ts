@@ -1,39 +1,36 @@
-export type Payload<T> = { data: T };
-
-export type Game<T> = { [key: string]: T };
-
 export type List<T> = { list: T };
 
-export type Result = { results: { id: number; plain: string; title: string }[] };
+export type Result = { id: string; title: string }[];
 
-export type HistoricalLow = {
-	shop?: { id: string; name: string };
-	price?: number;
-	cut?: number;
-	added?: number;
+type Entry = { id: number; name: string };
+type Price = { amount: number; currency: string };
+
+export type Game = { id: string; slug: string; title: string; mature: boolean };
+
+export type Bundle = {
+	id: number;
+	title: string;
+	page: Entry;
+	url: string;
+	details: string;
+	isMature: boolean;
+	publish: string;
+	expiry: string | null;
+	counts: { games: number; media: number };
+	tiers: { price: Price; games: Game[] }[];
 };
 
-type Bundle = { title: string; bundle: string; start: number; expiry: number | null; url: string };
-export type Bundles = { total: number } & List<Bundle[]>;
-
-export type Price = {
-	shop: { id: string; name: string };
-	price_new: number;
-	price_old: number;
-	price_cut: string;
-	url: string | null;
-	drm: string[];
-};
+export type HistoricalLow = Pick<Deal, "shop" | "price" | "regular" | "cut" | "timestamp">;
 
 export type Deal = {
-	plain: string;
-	title: string;
-	price_new: number;
-	price_old: number;
-	price_cut: number;
-	added: number;
-	expiry: number;
-	drm: string[];
-	shop: { id: string; name: string };
-	urls: { buy: string; game: string };
+	shop: Entry;
+	price: Price;
+	regular: Price;
+	cut: number;
+	voucher: string | null;
+	drm: Entry[];
+	platforms: Entry[];
+	timestamp: string;
+	expiry: string | null;
+	url: string;
 };
