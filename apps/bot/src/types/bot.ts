@@ -24,7 +24,7 @@ export type VoiceCommandExecute<T = unknown> = { (args: VoiceCommandArgs<T>): Pr
 export type VoiceCommand = { execute: VoiceCommandExecute };
 
 export type Localization = { locale: string; timezone: string };
-export type BaseInteractionArgs<T> = Client & { interaction: T; localization: Localization };
+export type BaseInteractionArgs<T> = Client & { interaction: T; localization?: Localization };
 type BaseInteraction<T> = { (args: BaseInteractionArgs<T>): Promise<void> };
 
 export type InteractionCommandData = Exclude<MetadataBuilder, "SlashCommandOption"> | ApplicationCommandOptionBase[];
