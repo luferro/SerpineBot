@@ -79,6 +79,7 @@ export class AniListApi {
 				english: media.title?.english ?? null,
 				native: media.title?.native ?? null,
 			},
+			isMature: !!media.isAdult,
 			format: media.format ?? null,
 			season:
 				media.season && media.seasonYear
