@@ -3,7 +3,6 @@ import { DateUtil } from "@luferro/shared-utils";
 import { BaseGuildVoiceChannel, EmbedBuilder, GuildScheduledEvent } from "discord.js";
 import { t } from "i18next";
 
-import { Bot } from "../../structures/Bot";
 import type { EventData, EventExecute } from "../../types/bot";
 
 type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent: GuildScheduledEvent];
@@ -15,7 +14,9 @@ export const execute: EventExecute<Args> = async ({ client, rest: [oldState, new
 	if (oldState.isActive() && newState.isCompleted()) await handleEventEnd({ event: newState });
 };
 
-const handleEventStart = async ({ client, event }: { client: Bot; event: GuildScheduledEvent }) => {
+type Handler = Omit<Parameters<EventExecute>[0], "rest"> & { event: Args[0] };
+
+const handleEventStart = async ({ client, event }: Handler) => {
 	const { guild, name, url, description, channel, entityMetadata, creator, scheduledStartAt, scheduledEndAt } = event;
 	const location = entityMetadata?.location ?? channel;
 	if (!guild || !location) return;
@@ -35,7 +36,7 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 		subscriber.member.roles.add(role);
 	}
 
-	const timezone = client.config.get<string>("timezone");
+	const localization = client.getLocalization();
 
 	const embed = new EmbedBuilder()
 		.setTitle(t("events.guild.guildScheduledEventUpdate.embed.title", { name }))
@@ -48,12 +49,14 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 			},
 			{
 				name: t("events.guild.guildScheduledEventUpdate.embed.fields.1.name"),
-				value: scheduledStartAt ? DateUtil.format({ date: scheduledStartAt, timezone }) : t("common.unavailable"),
+				value: scheduledStartAt
+					? DateUtil.format({ date: scheduledStartAt, ...localization })
+					: t("common.unavailable"),
 				inline: true,
 			},
 			{
 				name: t("events.guild.guildScheduledEventUpdate.embed.fields.2.name"),
-				value: scheduledEndAt ? DateUtil.format({ date: scheduledEndAt, timezone }) : t("common.unavailable"),
+				value: scheduledEndAt ? DateUtil.format({ date: scheduledEndAt, ...localization }) : t("common.unavailable"),
 				inline: true,
 			},
 			{
@@ -68,7 +71,7 @@ const handleEventStart = async ({ client, event }: { client: Bot; event: GuildSc
 	webhook?.send({ content: `${role}`, embeds: [embed] });
 };
 
-const handleEventEnd = async ({ event }: { event: GuildScheduledEvent }) => {
+const handleEventEnd = async ({ event }: Pick<Handler, "event">) => {
 	const { guild, name } = event;
 	if (!guild) return;
 

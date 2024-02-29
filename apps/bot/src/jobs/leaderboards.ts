@@ -14,9 +14,9 @@ export const execute: JobExecute = async ({ client }) => {
 			const leaderboard = await getLeaderboard(LeaderboardType[type], client);
 			if (leaderboard.length === 0) continue;
 
-			const timezone = client.config.get<string>("timezone");
-			const from = DateUtil.format({ date: Date.now() - 7 * 24 * 60 * 60 * 1000, timezone });
-			const to = DateUtil.format({ date: Date.now(), timezone });
+			const localization = client.getLocalization();
+			const from = DateUtil.format({ date: Date.now() - 7 * 24 * 60 * 60 * 1000, ...localization });
+			const to = DateUtil.format({ date: Date.now(), ...localization });
 
 			const formattedLeaderboard = leaderboard.map(({ position, medal, user, highlight, item }) =>
 				t("jobs.leaderboards.embed.description", {

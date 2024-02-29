@@ -24,7 +24,7 @@ export const execute: EventExecute<Args<Interaction>> = async ({ client, rest: [
 
 	if (interaction.isChatInputCommand()) await handleChatInputCommandInteraction({ client, interaction, localization });
 	if (interaction.isAutocomplete()) await handleAutocomplete({ client, interaction, localization });
-	if (interaction.isStringSelectMenu()) await handleSelectMenuInteraction({ client, interaction });
+	if (interaction.isStringSelectMenu()) await handleSelectMenuInteraction({ client, interaction, localization });
 };
 
 const extractInteractionMethods = ({ interaction }: Pick<ChatInputArgs | AutocompleteArgs, "interaction">) => {

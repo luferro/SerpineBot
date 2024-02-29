@@ -10,7 +10,7 @@ enum Alert {
 	SALE = "sale",
 	RELEASED = "released",
 	ADDED_TO = "addedTo",
-	REMOVED_FROm = "removedFrom",
+	REMOVED_FROM = "removedFrom",
 }
 
 type SteamAlert = { addedTo?: string[]; removedFrom?: string[] } & SteamWishlistEntry;
@@ -28,7 +28,7 @@ export const execute: JobExecute = async ({ client }) => {
 			[Alert.SALE]: [],
 			[Alert.RELEASED]: [],
 			[Alert.ADDED_TO]: [],
-			[Alert.REMOVED_FROm]: [],
+			[Alert.REMOVED_FROM]: [],
 		};
 
 		const wishlist = await client.api.gaming.platforms.steam.getWishlist({ id: integration.profile.id });
@@ -56,7 +56,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 				const { addedTo, removedFrom } = getSubscriptionChanges(updatedEntry, storedGame);
 				if (addedTo.length > 0) alerts[Alert.ADDED_TO].push({ ...updatedEntry, addedTo });
-				if (removedFrom.length > 0) alerts[Alert.REMOVED_FROm].push({ ...updatedEntry, removedFrom });
+				if (removedFrom.length > 0) alerts[Alert.REMOVED_FROM].push({ ...updatedEntry, removedFrom });
 
 				return updatedEntry;
 			}),
@@ -93,6 +93,7 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 	for (const [alert, queue] of Object.entries(alerts) as unknown as Entries<typeof alerts>) {
 		if (queue.length === 0) continue;
 
+		const localization = client.getLocalization();
 		const user = await client.users.fetch(userId);
 
 		const embed = new EmbedBuilder()
@@ -105,14 +106,8 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 							`> ${t(`jobs.gaming.wishlists.${alert}.embed.description`, {
 								item: `**[${title}](${url})**`,
 								discount: `***${discount}%***`,
-								regular: `~~${ConverterUtil.formatCurrency({
-									amount: regular!,
-									locale: client.config.get("locale"),
-								})}~~`,
-								discounted: `**${ConverterUtil.formatCurrency({
-									amount: discounted!,
-									locale: client.config.get("locale"),
-								})}**`,
+								regular: `~~${ConverterUtil.formatCurrency({ amount: regular!, ...localization })}~~`,
+								discounted: `**${ConverterUtil.formatCurrency({ amount: discounted!, ...localization })}**`,
 								addedTo: (addedTo ?? []).join("\n"),
 								removedFrom: (removedFrom ?? []).join("\n"),
 							})}`,

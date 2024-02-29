@@ -12,11 +12,14 @@ export const execute: JobExecute = async ({ client }) => {
 		const target = await client.users.fetch(userId);
 		if (!target) continue;
 
-		const date = DateUtil.format({ date: timeStart, timezone: client.config.get("timezone") });
 		await target.send({
 			embeds: [
 				new EmbedBuilder()
-					.setTitle(t("jobs.reminders.embed.title", { date }))
+					.setTitle(
+						t("jobs.reminders.embed.title", {
+							date: DateUtil.format({ date: timeStart, ...client.getLocalization() }),
+						}),
+					)
 					.addFields([{ name: t("jobs.reminders.embed.fields.0.name"), value: message.trim() }])
 					.setColor("Random"),
 			],

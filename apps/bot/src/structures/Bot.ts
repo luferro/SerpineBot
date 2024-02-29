@@ -11,7 +11,7 @@ import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordC
 import { CronJob } from "cron";
 import { Client, ClientOptions, Collection, Embed, EmbedBuilder, Events, Guild, Message } from "discord.js";
 import { GuildQueueEvent, GuildQueueEvents } from "discord-player";
-import i18next, { t } from "i18next";
+import i18next from "i18next";
 import Backend from "i18next-fs-backend";
 import path from "node:path";
 
@@ -98,7 +98,6 @@ export class Bot extends Client {
 
 			if (isClientEvent) this[data.type](name, callback);
 			else this.player.events[data.type](name as keyof GuildQueueEvents, callback);
-
 			this.logger.info(`Events | ${isClientEvent ? "Client" : "Player"} ${data.type} ${name}`);
 		}
 	}
@@ -143,7 +142,7 @@ export class Bot extends Client {
 	async getWebhook({ guild, type }: WebhookArgs) {
 		const settings = await this.prisma.guild.findUnique({ where: { id: guild.id } });
 		const storedWebhook = settings?.webhooks.find((webhook) => webhook.type === type);
-		if (!storedWebhook) return { webhook: null, config: {} };
+		if (!storedWebhook) return {};
 
 		const guildWebhooks = await guild.fetchWebhooks();
 		if (!guildWebhooks.has(storedWebhook.id)) {
@@ -151,7 +150,7 @@ export class Bot extends Client {
 				where: { id: guild.id },
 				data: { webhooks: { deleteMany: { where: { type } } } },
 			});
-			return { webhook: null, config: {} };
+			return {};
 		}
 
 		return {
@@ -176,7 +175,7 @@ export class Bot extends Client {
 					return message;
 				}),
 			);
-			return filteredMessages.filter((item): item is NonNullable<(typeof messages)[0]> => !!item);
+			return filteredMessages.filter((item): item is NonNullable<MessageType> => !!item);
 		};
 
 		for (const { 1: guild } of this.guilds.cache) {
@@ -220,6 +219,13 @@ export class Bot extends Client {
 				await webhook.send({ content: everyone ? `${guild.roles.everyone}, ${data}` : data });
 			}
 		}
+	}
+
+	getLocalization() {
+		return {
+			locale: this.config.get<string>("locale"),
+			timezone: this.config.get<string>("timezone"),
+		};
 	}
 
 	async stop() {
