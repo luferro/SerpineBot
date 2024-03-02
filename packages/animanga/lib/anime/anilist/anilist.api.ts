@@ -1,8 +1,8 @@
-import { createClient, type Client, cacheExchange, fetchExchange } from "@urql/core";
+import { DateUtil, StringUtil } from "@luferro/shared-utils";
+import { type Client, cacheExchange, createClient, fetchExchange } from "@urql/core";
+import { AiringSchedule, ExternalLinkType, Media, MediaExternalLink, MediaType } from "../__generated__/graphql";
 import { GET_ANIME } from "./graphql/queries/media";
 import { GET_SCHEDULE } from "./graphql/queries/schedule";
-import { DateUtil, StringUtil } from "@luferro/shared-utils";
-import { AiringSchedule, ExternalLinkType, Media, MediaExternalLink, MediaType } from "../__generated__/graphql";
 
 export class AniListApi {
 	static BASE_API_URL = "https://graphql.anilist.co";

@@ -1,6 +1,5 @@
 import { QueryType } from "discord-player";
 import { t } from "i18next";
-
 import type { VoiceCommandExecute } from "../../../types/bot";
 
 type Args = [userId: string];

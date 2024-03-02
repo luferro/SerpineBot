@@ -1,7 +1,7 @@
-import { LoggerUtil } from "@luferro/shared-utils";
-import { BuiltinKeyword, getInt16Frames, Porcupine, PorcupineErrors } from "@picovoice/porcupine-node";
-import prism from "prism-media";
 import { Readable } from "stream";
+import { LoggerUtil } from "@luferro/shared-utils";
+import { BuiltinKeyword, Porcupine, PorcupineErrors, getInt16Frames } from "@picovoice/porcupine-node";
+import prism from "prism-media";
 
 type Options = {
 	/**

@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-
 import { extension } from "./extension";
 
 export type ExtendedDatabaseClient = ReturnType<DatabaseClient["withExtensions"]>;

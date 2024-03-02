@@ -1,5 +1,4 @@
 import type { VoiceState } from "discord.js";
-
 import type { EventData, EventExecute } from "../types/bot";
 
 type Args = [oldState: VoiceState, newState: VoiceState];

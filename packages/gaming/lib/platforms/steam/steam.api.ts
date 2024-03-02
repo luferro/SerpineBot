@@ -1,6 +1,5 @@
 import { Scraper } from "@luferro/scraper";
 import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
-
 import { Chart, Payload, Profile, RecentlyPlayed, Status, Wishlist } from "./steam.types";
 
 export class SteamApi extends Scraper {

@@ -1,7 +1,6 @@
+import { Readable } from "stream";
 import { createAudioResource } from "discord-voip";
 import { t } from "i18next";
-import { Readable } from "stream";
-
 import type { VoiceCommandExecute } from "../../../../types/bot";
 
 export const execute: VoiceCommandExecute = async ({ client, queue }) => {

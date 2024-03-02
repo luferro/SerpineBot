@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-
 import { Redis, type RedisKey } from "ioredis";
 
 export class Cache {

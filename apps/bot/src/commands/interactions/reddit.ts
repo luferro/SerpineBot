@@ -1,7 +1,6 @@
 import { StringUtil } from "@luferro/shared-utils";
 import { EmbedBuilder, SlashCommandStringOption } from "discord.js";
 import { t } from "i18next";
-
 import type { InteractionCommandData, InteractionCommandExecute } from "../../types/bot";
 
 export const data: InteractionCommandData = [

@@ -8,7 +8,6 @@ import {
 	StringSelectMenuBuilder,
 } from "discord.js";
 import { t } from "i18next";
-
 import { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()

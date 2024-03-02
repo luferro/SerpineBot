@@ -1,5 +1,4 @@
 import { FetchUtil } from "@luferro/shared-utils";
-
 import type { EventData, EventExecute } from "../types/bot";
 
 type Args = [error: Error];

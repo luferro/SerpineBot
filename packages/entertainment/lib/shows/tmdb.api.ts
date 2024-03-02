@@ -1,5 +1,4 @@
 import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
-
 import { Movie, Payload, Result, Series } from "./tmdb.types";
 
 export class TMDBApi {

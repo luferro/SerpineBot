@@ -1,6 +1,5 @@
 import { SlashCommandIntegerOption, TextChannel } from "discord.js";
 import { t } from "i18next";
-
 import type { InteractionCommandData, InteractionCommandExecute } from "../../types/bot";
 
 export const data: InteractionCommandData = [

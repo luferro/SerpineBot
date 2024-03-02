@@ -1,5 +1,4 @@
 import { t } from "i18next";
-
 import type { Bot } from "../structures/Bot";
 
 export enum LeaderboardType {

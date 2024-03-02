@@ -2,8 +2,7 @@ import { WebhookType } from "@luferro/database";
 import { DateUtil, ObjectUtil } from "@luferro/shared-utils";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-
-import { getLeaderboard, LeaderboardType, resetLeaderboard } from "../helpers/leaderboards";
+import { LeaderboardType, getLeaderboard, resetLeaderboard } from "../helpers/leaderboards";
 import type { JobData, JobExecute } from "../types/bot";
 
 export const data: JobData = { schedule: "0 0 0 * * 0" };

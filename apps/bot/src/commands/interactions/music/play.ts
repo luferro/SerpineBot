@@ -1,7 +1,6 @@
 import { StringUtil } from "@luferro/shared-utils";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-
 import type {
 	InteractionCommandAutoComplete,
 	InteractionCommandData,

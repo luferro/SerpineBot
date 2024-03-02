@@ -1,5 +1,4 @@
 import { FetchUtil } from "@luferro/shared-utils";
-
 import { Bundle, Deal, Game, HistoricalLow, List, Result } from "./deals.types";
 
 export class DealsApi {

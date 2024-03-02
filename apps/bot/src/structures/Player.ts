@@ -1,5 +1,5 @@
-import { VoiceChannel } from "discord.js";
 import { GuildNodeCreateOptions, Player as DiscordPlayer } from "discord-player";
+import { VoiceChannel } from "discord.js";
 import { Bot } from "./Bot";
 
 export class Player extends DiscordPlayer {

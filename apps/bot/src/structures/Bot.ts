@@ -1,20 +1,19 @@
+import path from "node:path";
+import { AnimeApi, MangadexApi } from "@luferro/animanga";
 import { Cache } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
 import { DatabaseClient, type ExtendedDatabaseClient, WebhookType } from "@luferro/database";
-import { AnimeApi, MangadexApi } from "@luferro/animanga";
 import { TMDBApi } from "@luferro/entertainment";
 import { GamingApi } from "@luferro/gaming";
 import { RedditApi } from "@luferro/reddit";
 import { Scraper } from "@luferro/scraper";
-import { ObjectUtil, LoggerUtil } from "@luferro/shared-utils";
+import { LoggerUtil, ObjectUtil } from "@luferro/shared-utils";
 import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordClient } from "@luferro/speech";
 import { CronJob } from "cron";
-import { Client, ClientOptions, Collection, Embed, EmbedBuilder, Events, Guild, Message } from "discord.js";
 import { GuildQueueEvent, GuildQueueEvents } from "discord-player";
+import { Client, ClientOptions, Collection, Embed, EmbedBuilder, Events, Guild, Message } from "discord.js";
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
-import path from "node:path";
-
 import * as CommandsHandler from "../handlers/commands";
 import * as EventsHandler from "../handlers/events";
 import * as JobsHandler from "../handlers/jobs";

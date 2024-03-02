@@ -1,5 +1,4 @@
 import { StringUtil } from "@luferro/shared-utils";
-
 import { JobData, JobExecute } from "../../types/bot";
 
 export const data: JobData = { schedule: "0 0 2 * * *" };

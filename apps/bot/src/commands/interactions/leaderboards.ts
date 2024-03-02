@@ -1,8 +1,7 @@
 import { ObjectUtil } from "@luferro/shared-utils";
 import { EmbedBuilder, SlashCommandStringOption } from "discord.js";
 import { t } from "i18next";
-
-import { getLeaderboard, LeaderboardType } from "../../helpers/leaderboards";
+import { LeaderboardType, getLeaderboard } from "../../helpers/leaderboards";
 import { InteractionCommandData, InteractionCommandExecute } from "../../types/bot";
 
 export const data: InteractionCommandData = [

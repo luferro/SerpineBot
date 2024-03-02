@@ -1,8 +1,7 @@
 import { StringUtil } from "@luferro/shared-utils";
-import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { FiltersName } from "discord-player";
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-
 import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 type Filter = FiltersName | "off";

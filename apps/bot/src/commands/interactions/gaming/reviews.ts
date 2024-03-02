@@ -1,8 +1,7 @@
+import { DateUtil } from "@luferro/shared-utils";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-
 import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
-import { DateUtil } from "@luferro/shared-utils";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.gaming.reviews.name"))

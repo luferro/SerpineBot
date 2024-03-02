@@ -5,7 +5,6 @@ import {
 	LeopardInvalidArgumentError,
 	type LeopardTranscript,
 } from "@picovoice/leopard-node";
-
 import { bufferToInt16 } from "./utils/audio";
 
 export class SpeechToTextClient {

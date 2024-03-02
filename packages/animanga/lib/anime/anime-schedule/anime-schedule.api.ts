@@ -1,8 +1,5 @@
 import { DateUtil, FetchUtil } from "@luferro/shared-utils";
-
 import { Schedule } from "./anime-schedule.types";
-
-type ApiKey = { apiKey: string };
 
 export class AnimeScheduleApi {
 	private static BASE_URL = "https://animeschedule.net";

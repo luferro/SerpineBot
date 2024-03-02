@@ -1,5 +1,4 @@
 import { Box, Typography } from "@mui/material";
-
 import { Option } from "../../../../../types/bot";
 import { Embed } from "../../../Embed/Embed";
 import { StyledOption } from "./OptionsDetails.styled";

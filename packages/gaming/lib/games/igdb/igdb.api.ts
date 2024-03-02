@@ -1,5 +1,4 @@
 import { DateUtil, FetchUtil } from "@luferro/shared-utils";
-
 import { Event, Result } from "./igdb.types";
 
 export class IGDBApi {

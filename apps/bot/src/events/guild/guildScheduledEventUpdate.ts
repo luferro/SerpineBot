@@ -2,7 +2,6 @@ import { WebhookType } from "@luferro/database";
 import { DateUtil } from "@luferro/shared-utils";
 import { BaseGuildVoiceChannel, EmbedBuilder, GuildScheduledEvent } from "discord.js";
 import { t } from "i18next";
-
 import type { EventData, EventExecute } from "../../types/bot";
 
 type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent: GuildScheduledEvent];

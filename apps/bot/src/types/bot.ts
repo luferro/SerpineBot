@@ -3,15 +3,14 @@ import type { TMDBApi } from "@luferro/entertainment";
 import type { GamingApi } from "@luferro/gaming";
 import type { RedditApi } from "@luferro/reddit";
 import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordClient } from "@luferro/speech";
+import type { GuildQueue } from "discord-player";
 import type {
+	ApplicationCommandOptionBase,
 	Collection,
 	SlashCommandBuilder,
-	ApplicationCommandOptionBase,
 	SlashCommandSubcommandBuilder,
 	TextBasedChannel,
 } from "discord.js";
-import type { GuildQueue } from "discord-player";
-
 import type { Bot } from "../structures/Bot";
 import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from "./interaction";
 

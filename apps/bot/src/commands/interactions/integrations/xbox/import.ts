@@ -1,6 +1,5 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-
 import { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
@@ -20,7 +19,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const exists = await client.prisma.xbox.exists({ where: { userId: interaction.user.id } });
 	if (exists) throw new Error(t("errors.unprocessable"));
 
-	const results = await client.api.gaming.platforms.xbox.search({ gamertag: profile });
+	const results = await client.api.gaming.platforms.xbox.search(profile);
 	if (results.length === 0) throw new Error(t("errors.xbox.profile.gamertag"));
 	const { id, gamertag } = results[0];
 

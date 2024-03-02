@@ -1,7 +1,6 @@
 import { Typography } from "@mui/material";
-
-import { StyledLanding } from "./Landing.styles";
 import { parse } from "../../utils/markdown";
+import { StyledLanding } from "./Landing.styles";
 
 type Props = { title: string; description: string };
 

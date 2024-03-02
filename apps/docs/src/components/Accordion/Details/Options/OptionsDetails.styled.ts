@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { Typography, styled } from "@mui/material";
 
 export const StyledOption = styled(Typography)(({ theme }) => ({
 	padding: theme.spacing(0.5, 1),

@@ -1,10 +1,5 @@
 import { FetchUtil, StringUtil } from "@luferro/shared-utils";
-
 import { Chapter, Manga, Payload } from "./mangadex.types";
-
-type Id = { id: string };
-type Limit = { limit: number };
-type Query = { query: string };
 
 export class MangadexApi {
 	private static BASE_URL = "https://mangadex.org";

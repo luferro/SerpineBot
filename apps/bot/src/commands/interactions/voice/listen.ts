@@ -1,7 +1,6 @@
-import { EmbedBuilder, SlashCommandSubcommandBuilder, TextBasedChannel } from "discord.js";
 import { EndBehaviorType, VoiceReceiver } from "discord-voip";
+import { EmbedBuilder, SlashCommandSubcommandBuilder, TextBasedChannel } from "discord.js";
 import { t } from "i18next";
-
 import { Bot } from "../../../structures/Bot";
 import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
 

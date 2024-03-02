@@ -1,4 +1,4 @@
-import { createTheme, GlobalStyles, ThemeProvider } from "@mui/material";
+import { GlobalStyles, ThemeProvider, createTheme } from "@mui/material";
 import type { AppProps } from "next/app";
 
 const App = ({ Component, pageProps }: AppProps) => {

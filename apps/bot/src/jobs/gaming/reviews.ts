@@ -1,9 +1,8 @@
 import { WebhookType } from "@luferro/database";
+import { DateUtil } from "@luferro/shared-utils";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-
 import type { JobData, JobExecute } from "../../types/bot";
-import { DateUtil } from "@luferro/shared-utils";
 
 export const data: JobData = { schedule: "0 */30 * * * *" };
 

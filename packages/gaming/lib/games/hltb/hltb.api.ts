@@ -1,6 +1,5 @@
 import { Scraper } from "@luferro/scraper";
 import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
-
 import { Payload, Playtime, Result } from "./hltb.types";
 
 export class HLTBApi extends Scraper {

@@ -1,5 +1,4 @@
 import { DateUtil } from "@luferro/shared-utils";
-
 import { InteractiveScraper } from "../web-pages/interactive";
 import { StaticScraper } from "../web-pages/static";
 

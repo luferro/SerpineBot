@@ -1,7 +1,5 @@
 import path from "node:path";
-
 import { FsUtil } from "@luferro/shared-utils";
-
 import { Bot } from "../structures/Bot";
 import type { Job } from "../types/bot";
 

@@ -1,7 +1,6 @@
-import { EmbedBuilder, TextBasedChannel } from "discord.js";
 import { GuildQueue, Track } from "discord-player";
+import { EmbedBuilder, TextBasedChannel } from "discord.js";
 import { t } from "i18next";
-
 import type { EventData, EventExecute } from "../../types/bot";
 
 type Args = [queue: GuildQueue<TextBasedChannel>, tracks: Track[]];

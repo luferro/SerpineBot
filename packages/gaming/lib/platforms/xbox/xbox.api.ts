@@ -1,10 +1,6 @@
 import { Scraper } from "@luferro/scraper";
 import { DateUtil, FetchUtil, StringUtil } from "@luferro/shared-utils";
-
-import { ApiKey, Id } from "../../types/args";
 import { Chart, Payload, Profile, RecentlyPlayed } from "./xbox.types";
-
-type Gamertag = { gamertag: string };
 
 export class XboxApi extends Scraper {
 	private static BASE_API_URL = "https://xbl.io";
@@ -20,7 +16,7 @@ export class XboxApi extends Scraper {
 		]);
 	}
 
-	async search(gamertag: Gamertag) {
+	async search(gamertag: string) {
 		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>(`${XboxApi.BASE_API_URL}/api/v2/search/${gamertag}`, {
 			headers: this.getHeaders(),
 		});

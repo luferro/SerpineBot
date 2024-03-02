@@ -1,6 +1,5 @@
 import axios from "axios";
 import { HeaderGenerator, Headers } from "header-generator";
-
 import { FetchError } from "./errors/FetchError";
 
 type Options = {

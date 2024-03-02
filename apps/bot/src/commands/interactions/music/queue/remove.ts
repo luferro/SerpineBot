@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { Playlist } from "discord-player";
 import {
 	ActionRowBuilder,
 	ComponentType,
@@ -6,9 +7,7 @@ import {
 	SlashCommandSubcommandBuilder,
 	StringSelectMenuBuilder,
 } from "discord.js";
-import { Playlist } from "discord-player";
 import { t } from "i18next";
-
 import { Bot } from "../../../../structures/Bot";
 import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 import { ExtendedStringSelectMenuInteraction } from "../../../../types/interaction";

@@ -1,9 +1,8 @@
 import { FetchUtil } from "@luferro/shared-utils";
 import { DiscordAPIError, EmbedBuilder } from "discord.js";
 import i18next, { t } from "i18next";
-
 import { Bot } from "../structures/Bot";
-import type { EventData, EventExecute, BaseInteractionArgs } from "../types/bot";
+import type { BaseInteractionArgs, EventData, EventExecute } from "../types/bot";
 import type {
 	ExtendedAutocompleteInteraction,
 	ExtendedChatInputCommandInteraction,

@@ -2,7 +2,6 @@ import { WebhookType } from "@luferro/database";
 import { ObjectUtil } from "@luferro/shared-utils";
 import { ChannelType, EmbedBuilder, SlashCommandSubcommandBuilder, TextChannel } from "discord.js";
 import { t } from "i18next";
-
 import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()

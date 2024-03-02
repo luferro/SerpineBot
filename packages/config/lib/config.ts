@@ -1,8 +1,6 @@
 import os from "node:os";
 import path from "node:path";
-
 import type { IConfig } from "config";
-
 import { processEnv } from "./processors/env";
 
 const DEFAULT_LOCAL_PATH = path.join(os.homedir(), ".sb-config");

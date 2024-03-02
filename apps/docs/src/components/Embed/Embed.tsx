@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-
 import samples from "../../../samples.json";
+import { parse } from "../../utils/markdown";
 import {
 	StyledAuthor,
 	StyledContent,
@@ -12,7 +12,6 @@ import {
 	StyledThumbnail,
 	StyledTitle,
 } from "./Embed.styled";
-import { parse } from "../../utils/markdown";
 
 type EmbedJson = {
 	author: { icon?: string; name: string } | null;
