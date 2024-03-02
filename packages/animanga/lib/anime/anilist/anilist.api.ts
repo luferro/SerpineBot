@@ -26,8 +26,8 @@ export class AniListApi {
 			.map((externalLink) => ({ name: externalLink.site, url: externalLink.url }));
 	}
 
-	async getAnimeById(id: number) {
-		const { data } = await this.client.query(GET_ANIME, { type: MediaType.Anime, id });
+	async getAnimeById(id: string) {
+		const { data } = await this.client.query(GET_ANIME, { type: MediaType.Anime, id: Number(id) });
 		const media = data?.Media as unknown as Media;
 
 		return {

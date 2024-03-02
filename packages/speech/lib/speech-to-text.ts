@@ -8,22 +8,11 @@ import {
 
 import { bufferToInt16 } from "./utils/audio";
 
-type Options = {
-	/**
-	 * Picovoice API key
-	 */
-	apiKey: string;
-	/**
-	 * Path to the Leopard model
-	 */
-	modelPath: string;
-};
-
 export class SpeechToTextClient {
 	private logger: LoggerUtil.Logger;
 	private leopard?: Leopard;
 
-	constructor({ apiKey, modelPath }: Options) {
+	constructor(apiKey: string, modelPath: string) {
 		this.logger = LoggerUtil.configureLogger();
 		try {
 			this.leopard = new Leopard(apiKey, { modelPath });

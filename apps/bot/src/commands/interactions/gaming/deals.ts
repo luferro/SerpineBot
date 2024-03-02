@@ -14,30 +14,30 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setRequired(true),
 	);
 
-export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+export const execute: InteractionCommandExecute = async ({ client, interaction, localization = {} }) => {
 	await interaction.deferReply();
 	const query = interaction.options.getString(data.options[0].name, true);
 
-	const results = await client.api.gaming.games.deals.search({ query });
+	const results = await client.api.gaming.games.deals.search(query);
 	if (results.length === 0) throw new Error(t("errors.search.lookup", { query }));
 	const { id, title } = results[0];
 
 	const formatPrice = (price: { amount: number; currency: string }) => {
-		return ConverterUtil.formatCurrency({ amount: price.amount, currency: price.currency });
+		return ConverterUtil.formatCurrency(price.amount, { currency: price.currency, ...localization });
 	};
 
 	const subscriptions = await client.prisma.subscription.search({ query });
 	const formattedSubscriptions = subscriptions.map((subscription) => `> **${subscription.name}**`);
 
-	const { historicalLow, bundles, prices } = await client.api.gaming.games.deals.getDealsById({ id });
+	const { historicalLow, bundles, prices } = await client.api.gaming.games.deals.getDealsById(id);
 	const formattedBundles = bundles.map(({ title, url, store }) => `> **${title}** @ [${store}](${url})`);
 	const formattedPrices = prices
 		.slice(0, 5)
 		.map(({ store, discounted, url }) => `**[${store}](${url})** - **${formatPrice(discounted)}**`);
 	const formattedHistoricalLow = historicalLow?.timestamp
-		? `**${formatPrice(historicalLow.discounted)}** @ ${historicalLow.store} - *${DateUtil.formatDistance({
-				from: historicalLow.timestamp,
-		  })}*`
+		? `**${formatPrice(historicalLow.discounted)}** @ ${historicalLow.store} - *${DateUtil.formatDistance(
+				historicalLow.timestamp,
+		  )}*`
 		: null;
 
 	const embed = new EmbedBuilder()

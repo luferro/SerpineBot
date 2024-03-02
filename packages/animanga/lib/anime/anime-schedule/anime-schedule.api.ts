@@ -7,27 +7,21 @@ type ApiKey = { apiKey: string };
 export class AnimeScheduleApi {
 	private static BASE_URL = "https://animeschedule.net";
 
-	private apiKey: string;
-	private timezone = "Europe/Lisbon";
+	constructor(private apiKey: string) {}
 
-	constructor({ apiKey }: ApiKey) {
-		this.apiKey = apiKey;
+	private getHeaders() {
+		return new Map([["Authorization", `Bearer ${this.apiKey}`]]);
 	}
 
-	withTimezone(timezone: string) {
-		this.timezone = timezone;
-		return this;
-	}
-
-	async getWeeklySchedule() {
+	async getWeeklySchedule({ timezone = "Europe/Lisbon" } = {}) {
 		const date = new Date();
 		const year = date.getFullYear();
 		const week = DateUtil.getWeek(date, { weekStartsOn: 1 });
 
-		const { payload } = await FetchUtil.fetch<Schedule[]>({
-			url: `${AnimeScheduleApi.BASE_URL}/api/v3/timetables/sub?year=${year}&week=${week}&tz=${this.timezone}`,
-			customHeaders: new Map([["Authorization", `Bearer ${this.apiKey}`]]),
-		});
+		const { payload } = await FetchUtil.fetch<Schedule[]>(
+			`${AnimeScheduleApi.BASE_URL}/api/v3/timetables/sub?year=${year}&week=${week}&tz=${timezone}`,
+			{ headers: this.getHeaders() },
+		);
 
 		return payload.map((media) => ({
 			id: media.route,

@@ -16,7 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const subreddit = interaction.options.getString(data[0].name, true);
 
-	const posts = await client.api.reddit.getPosts({ subreddit });
+	const posts = await client.api.reddit.getPosts(subreddit);
 	const filteredPosts = posts.filter((post) => !post.isSelf && !post.isNsfw);
 	if (filteredPosts.length === 0) throw new Error(t("errors.search.none"));
 

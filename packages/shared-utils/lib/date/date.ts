@@ -25,7 +25,6 @@ export const getPrevious = (expression: string) => {
 };
 
 type FormatOptions = {
-	date: number | Date;
 	/**
 	 * Date format
 	 * @default "dd/MM/yyyy HH:mm"
@@ -42,15 +41,14 @@ type FormatOptions = {
 	locale?: string;
 };
 
-export const format = ({ date, format = "dd/MM/yyyy HH:mm", timezone = "utc", locale = "en-US" }: FormatOptions) => {
+export const format = (
+	date: number | Date,
+	{ format = "dd-MM-yyyy HH:mm", timezone = "utc", locale = "en-US" }: FormatOptions = {},
+) => {
 	return DateFnsTz.formatInTimeZone(date, timezone, format, { locale: getLocale(locale) });
 };
 
 type FormatDistanceOptions = {
-	/**
-	 * Start date
-	 */
-	from: number | Date;
 	/**
 	 * End date
 	 * @default new Date()
@@ -62,6 +60,9 @@ type FormatDistanceOptions = {
 	locale?: string;
 };
 
-export const formatDistance = ({ from, to = new Date(), locale = "en-US" }: FormatDistanceOptions) => {
+export const formatDistance = (
+	from: number | Date,
+	{ to = new Date(), locale = "en-US" }: FormatDistanceOptions = {},
+) => {
 	return DateFns.formatDistance(from, to, { addSuffix: true, locale: getLocale(locale) });
 };

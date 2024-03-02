@@ -1,12 +1,5 @@
 import { TextToSpeechClient as _TextToSpeechClient } from "@google-cloud/text-to-speech";
 
-type Options = {
-	/**
-	 * Path to your JSON credentials
-	 */
-	credentialsPath: string;
-};
-
 type SynthesizeSpeech = InstanceType<typeof _TextToSpeechClient>["synthesizeSpeech"];
 type VoiceConfig = Parameters<SynthesizeSpeech>["0"]["voice"];
 type AudioConfig = Parameters<SynthesizeSpeech>["0"]["audioConfig"];
@@ -17,7 +10,7 @@ export class TextToSpeechClient {
 	private voiceConfig: VoiceConfig = { name: "en-US-Standard-J", languageCode: "en-US", ssmlGender: "MALE" };
 	private audioConfig: AudioConfig = { audioEncoding: "OGG_OPUS" };
 
-	constructor({ credentialsPath }: Options) {
+	constructor(credentialsPath: string) {
 		this.tts = new _TextToSpeechClient({ keyFilename: credentialsPath });
 	}
 

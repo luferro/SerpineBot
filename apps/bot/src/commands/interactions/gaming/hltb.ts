@@ -17,11 +17,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.deferReply();
 	const query = interaction.options.getString(data.options[0].name, true);
 
-	const results = await client.api.gaming.games.hltb.search({ query });
+	const results = await client.api.gaming.games.hltb.search(query);
 	if (results.length === 0) throw new Error(t("errors.search.lookup", { query }));
 	const { id } = results[0];
 
-	const { title, url, image, playtimes } = await client.api.gaming.games.hltb.getPlaytimesById({ id });
+	const { title, url, image, playtimes } = await client.api.gaming.games.hltb.getPlaytimesById(id);
 	const { main, mainExtra, completionist } = playtimes;
 
 	const hasPlaytimes = main || mainExtra || completionist;

@@ -2,40 +2,26 @@ import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
 
 import { Movie, Payload, Result, Series } from "./tmdb.types";
 
-type Id = { id: string };
-type Query = { query: string };
-type ApiKey = { apiKey: string };
-
 export class TMDBApi {
-	private apiKey: string;
-	private locale = "pt-PT";
+	constructor(private apiKey: string) {}
 
-	constructor({ apiKey }: ApiKey) {
-		this.apiKey = apiKey;
-	}
-
-	withLocale(locale: string) {
-		this.locale = locale;
-		return this;
-	}
-
-	async search({ query }: Query) {
-		const { payload } = await FetchUtil.fetch<Payload<Result[]>>({
-			url: `https://api.themoviedb.org/3/search/multi?api_key=${this.apiKey}&query=${query}`,
-		});
+	async search(query: string) {
+		const { payload } = await FetchUtil.fetch<Payload<Result[]>>(
+			`https://api.themoviedb.org/3/search/multi?api_key=${this.apiKey}&query=${query}`,
+		);
 
 		return payload.results
 			.filter(({ poster_path, media_type }) => media_type !== "person" && !!poster_path)
 			.map(({ id, title, name, media_type }) => ({ id, title: title ?? name, type: media_type }));
 	}
 
-	async getMovieById({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Movie>({
-			url: `https://api.themoviedb.org/3/movie/${id}?api_key=${this.apiKey}&append_to_response=watch/providers`,
-		});
+	async getMovieById(id: string, { locale = "pt-PT" } = {}) {
+		const { payload } = await FetchUtil.fetch<Movie>(
+			`https://api.themoviedb.org/3/movie/${id}?api_key=${this.apiKey}&append_to_response=watch/providers`,
+		);
 
 		const { tagline, overview } = payload;
-		const localeProviders = payload["watch/providers"].results[this.locale.split("-")[1]];
+		const localeProviders = payload["watch/providers"].results[locale.split("-")[1]];
 
 		return {
 			tagline,
@@ -55,13 +41,13 @@ export class TMDBApi {
 		};
 	}
 
-	async getSeriesById({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Series>({
-			url: `https://api.themoviedb.org/3/tv/${id}?api_key=${this.apiKey}&append_to_response=watch/providers`,
-		});
+	async getSeriesById(id: string, { locale = "pt-PT" } = {}) {
+		const { payload } = await FetchUtil.fetch<Series>(
+			`https://api.themoviedb.org/3/tv/${id}?api_key=${this.apiKey}&append_to_response=watch/providers`,
+		);
 
 		const { name, tagline, overview, episode_run_time, next_episode_to_air, last_episode_to_air } = payload;
-		const localeProviders = payload["watch/providers"].results[this.locale.split("-")[1]];
+		const localeProviders = payload["watch/providers"].results[locale.split("-")[1]];
 
 		return {
 			name,

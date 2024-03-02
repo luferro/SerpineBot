@@ -53,13 +53,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const embed = new EmbedBuilder()
 		.setTitle(t("interactions.reminders.create.embed.title"))
-		.setDescription(
-			t("interactions.reminders.create.embed.description", {
-				time,
-				message: `**"${message}"**`,
-				unit: unit.toLocaleLowerCase(),
-			}),
-		)
+		.setDescription(t("interactions.reminders.create.embed.description", { time, message, unit: unit.toLowerCase() }))
 		.setFooter({ text: t("interactions.reminders.create.embed.footer.text", { reminderId: reminder.id }) })
 		.setColor("Random");
 

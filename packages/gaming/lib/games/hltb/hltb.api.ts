@@ -1,20 +1,22 @@
 import { Scraper } from "@luferro/scraper";
 import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
 
-import { Id, Query } from "../../types/args";
 import { Payload, Playtime, Result } from "./hltb.types";
 
 export class HLTBApi extends Scraper {
 	private static BASE_URL = "https://howlongtobeat.com";
 
-	async search({ query }: Query) {
-		const data = await FetchUtil.fetch<Result>({
+	private getHeaders() {
+		return new Map([
+			["origin", "https://howlongtobeat.com"],
+			["referer", "https://howlongtobeat.com"],
+		]);
+	}
+
+	async search(query: string) {
+		const data = await FetchUtil.fetch<Result>(`${HLTBApi.BASE_URL}/api/search`, {
 			method: "POST",
-			url: `${HLTBApi.BASE_URL}/api/search`,
-			customHeaders: new Map([
-				["origin", "https://howlongtobeat.com"],
-				["referer", "https://howlongtobeat.com"],
-			]),
+			headers: this.getHeaders(),
 			body: JSON.stringify({
 				searchType: "games",
 				searchTerms: [query],
@@ -43,8 +45,8 @@ export class HLTBApi extends Scraper {
 		return data.payload.data.map((result) => ({ id: result.game_id, title: result.game_name }));
 	}
 
-	async getPlaytimesById({ id }: Id) {
-		const $ = await this.static.loadUrl({ url: `${HLTBApi.BASE_URL}/game/${id}` });
+	async getPlaytimesById(id: string) {
+		const $ = await this.static.loadUrl(`${HLTBApi.BASE_URL}/game/${id}`);
 
 		const script = $('script[type="application/json"]').text();
 		const { props } = JSON.parse(script) as Payload<Playtime[]>;

@@ -18,7 +18,7 @@ export class Scraper {
 		this.youtube = new Youtube();
 		this.static = staticScraper;
 		this.interactive = interactiveScraper;
-		this.rss = new RSS({ staticScraper });
-		this.engine = new SearchEngine({ staticScraper, interactiveScraper });
+		this.rss = new RSS(staticScraper);
+		this.engine = new SearchEngine(staticScraper, interactiveScraper);
 	}
 }

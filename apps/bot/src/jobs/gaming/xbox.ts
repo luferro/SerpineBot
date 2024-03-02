@@ -8,11 +8,11 @@ export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const { feeds } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.XBOX });
-	const feed = await client.scraper.rss.consume({ feeds });
+	const feed = await client.scraper.rss.consume(feeds);
 
 	const messages = [];
 	for (const { title, url, image } of feed.reverse()) {
-		if (client.scraper.youtube.isVideo({ url })) {
+		if (client.scraper.youtube.isVideo(url)) {
 			messages.push(`**${title}**\n${url}`);
 			continue;
 		}

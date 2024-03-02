@@ -23,7 +23,6 @@ export const toMinutes = (ms: number) => Number((ms / (1000 * 60)).toFixed(2));
 export const toHours = (ms: number) => Number((ms / (1000 * 60 * 60)).toFixed(2));
 
 type FormatCurrencyOptions = {
-	amount: number;
 	/**
 	 * @default "EUR"
 	 */
@@ -31,7 +30,7 @@ type FormatCurrencyOptions = {
 	locale?: string;
 };
 
-export const formatCurrency = ({ amount, currency = "EUR", locale }: FormatCurrencyOptions) => {
+export const formatCurrency = (amount: number, { currency = "EUR", locale }: FormatCurrencyOptions) => {
 	return new Intl.NumberFormat(locale, { style: "currency", currency })
 		.format(amount)
 		.replace(String.fromCharCode(160), " ");

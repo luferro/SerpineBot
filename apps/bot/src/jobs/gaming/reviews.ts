@@ -8,11 +8,11 @@ import { DateUtil } from "@luferro/shared-utils";
 export const data: JobData = { schedule: "0 */30 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const results = await client.api.gaming.games.reviews.search({});
+	const results = await client.api.gaming.games.reviews.getRecentReviews();
 
 	const messages = [];
 	for (const { id, slug } of results.reverse()) {
-		const aggregation = await client.api.gaming.games.reviews.getReviewsByIdAndSlug({ id, slug });
+		const aggregation = await client.api.gaming.games.reviews.getReviewsByIdAndSlug(id, slug);
 		const { title, url, releaseDate, platforms, tier, score, count, recommended, image } = aggregation;
 		if (!tier || !score) continue;
 
@@ -25,7 +25,7 @@ export const execute: JobExecute = async ({ client }) => {
 				{
 					name: t("jobs.gaming.reviews.embed.fields.0.name"),
 					value: releaseDate
-						? DateUtil.format({ date: releaseDate, format: "dd/MM/yyyy" })
+						? DateUtil.format(releaseDate, { format: "dd-MM-yyyy" })
 						: t("jobs.gaming.reviews.embed.fields.0.value"),
 				},
 				{

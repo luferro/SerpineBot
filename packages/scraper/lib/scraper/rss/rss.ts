@@ -3,32 +3,27 @@ import Parser from "rss-parser";
 
 import { StaticScraper } from "../web-pages/static";
 
-type Instance = { staticScraper: StaticScraper };
-type Url = { url: string };
-type Html = { html: string };
-type Selector = { selector: string };
-type Image = { isExternal?: boolean } & Selector;
-export type Feeds = { feeds: { url: string; options: { image: Image } | null }[] };
+type Image = { isExternal?: boolean; selector: string };
+type ImageOptions = { image: Image } | null;
+type Feeds = { url: string; options: ImageOptions }[];
 
 export class RSS extends Parser {
 	private logger: LoggerUtil.Logger;
-	private staticScraper: StaticScraper;
 
-	constructor({ staticScraper }: Instance) {
+	constructor(private staticScraper: StaticScraper) {
 		super();
 		this.logger = LoggerUtil.configureLogger();
-		this.staticScraper = staticScraper;
 	}
 
-	private async retrieveExternalImage({ url, selector }: Url & Selector) {
-		const $ = await this.staticScraper.loadUrl({ url });
+	private async retrieveExternalImage(url: string, selector: string) {
+		const $ = await this.staticScraper.loadUrl(url);
 		return $(selector).first().attr("src") ?? null;
 	}
 
-	private async retrieveInternalImage({ html, selector, url }: Html & Selector & Partial<Url>) {
-		const $ = this.staticScraper.loadHtml({ html });
+	private async retrieveInternalImage(html: string, selector: string, url?: string) {
+		const $ = this.staticScraper.loadHtml(html);
 		const image = $(selector).first().attr("src");
-		if (!image && url) return this.retrieveExternalImage({ url, selector });
+		if (!image && url) return this.retrieveExternalImage(url, selector);
 		return image ?? null;
 	}
 
@@ -41,7 +36,7 @@ export class RSS extends Parser {
 		}
 	}
 
-	async consume({ feeds }: Feeds) {
+	async consume(feeds: Feeds) {
 		const data = [];
 		for (const { url, options } of feeds) {
 			const output = await this.parse(url);
@@ -67,8 +62,8 @@ export class RSS extends Parser {
 								const html = encodedContent ?? content;
 								image =
 									isExternal && link
-										? await this.retrieveExternalImage({ url: link, selector })
-										: await this.retrieveInternalImage({ html, selector, url: link });
+										? await this.retrieveExternalImage(link, selector)
+										: await this.retrieveInternalImage(html, selector, link);
 							}
 
 							return {

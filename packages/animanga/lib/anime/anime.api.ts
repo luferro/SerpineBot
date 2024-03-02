@@ -7,7 +7,7 @@ export class AnimeApi extends AniListApi {
 
 	constructor(config: Config) {
 		super();
-		this.animeScheduleApi = new AnimeScheduleApi(config.animeSchedule);
+		this.animeScheduleApi = new AnimeScheduleApi(config.animeSchedule.apiKey);
 	}
 
 	override async getWeeklySchedule() {

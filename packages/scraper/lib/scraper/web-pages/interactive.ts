@@ -2,7 +2,6 @@ import { Page, Route } from "playwright-chromium";
 import { chromium } from "playwright-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
-type Url = { url: string };
 export type Callback<T = unknown> = (page: Page) => Promise<T>;
 
 export class InteractiveScraper {
@@ -10,7 +9,7 @@ export class InteractiveScraper {
 		chromium.use(StealthPlugin());
 	}
 
-	async load<T = unknown>({ url, cb }: Url & { cb: Callback<T> }) {
+	async load<T = unknown>(url: string, cb: Callback<T>) {
 		const browser = await chromium.launch();
 		const page = await browser.newPage();
 
@@ -27,7 +26,7 @@ export class InteractiveScraper {
 		}
 	}
 
-	async getHtml({ url }: Url) {
-		return this.load({ url, cb: async (page) => await page.content() });
+	async getHtml(url: string) {
+		return this.load(url, (page) => page.content());
 	}
 }

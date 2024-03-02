@@ -49,14 +49,12 @@ const handleEventStart = async ({ client, event }: Handler) => {
 			},
 			{
 				name: t("events.guild.guildScheduledEventUpdate.embed.fields.1.name"),
-				value: scheduledStartAt
-					? DateUtil.format({ date: scheduledStartAt, ...localization })
-					: t("common.unavailable"),
+				value: scheduledStartAt ? DateUtil.format(scheduledStartAt, localization) : t("common.unavailable"),
 				inline: true,
 			},
 			{
 				name: t("events.guild.guildScheduledEventUpdate.embed.fields.2.name"),
-				value: scheduledEndAt ? DateUtil.format({ date: scheduledEndAt, ...localization }) : t("common.unavailable"),
+				value: scheduledEndAt ? DateUtil.format(scheduledEndAt, localization) : t("common.unavailable"),
 				inline: true,
 			},
 			{

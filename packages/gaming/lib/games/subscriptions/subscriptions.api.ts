@@ -17,7 +17,7 @@ export class SubscriptionsApi extends Scraper {
 		this.logger = LoggerUtil.configureLogger();
 	}
 
-	private getSelectors({ type }: { type: keyof typeof CatalogType }) {
+	private getSelectors(type: keyof typeof CatalogType) {
 		const options = {
 			[CatalogType.XBOX_GAME_PASS]: {
 				list: {
@@ -69,7 +69,7 @@ export class SubscriptionsApi extends Scraper {
 		return options[type];
 	}
 
-	async getCatalog({ type }: { type: keyof typeof CatalogType }) {
+	async getCatalog(type: keyof typeof CatalogType) {
 		const catalogUrl = {
 			[CatalogType.XBOX_GAME_PASS]: "https://www.xbox.com/pt-PT/xbox-game-pass/games",
 			[CatalogType.PC_GAME_PASS]: "https://www.xbox.com/pt-PT/xbox-game-pass/games#pcgames",
@@ -78,65 +78,62 @@ export class SubscriptionsApi extends Scraper {
 			[CatalogType.UBISOFT_PLUS]: "https://store.ubisoft.com/ie/Ubisoftplus/games",
 		};
 
-		return this.interactive.load({
-			url: catalogUrl[type],
-			cb: async (page) => {
-				try {
-					await page.waitForTimeout(5000);
+		return this.interactive.load(catalogUrl[type], async (page) => {
+			try {
+				await page.waitForTimeout(5000);
 
-					const catalog: { title: string; slug: string; url: string | null }[] = [];
-					const { list, pagination, cookies, region } = this.getSelectors({ type });
+				const catalog: { title: string; slug: string; url: string | null }[] = [];
+				const { list, pagination, cookies, region } = this.getSelectors(type);
 
-					const cookiesButton = cookies ? page.locator(cookies) : null;
-					if (cookiesButton && (await cookiesButton.isVisible())) await cookiesButton.click();
+				const cookiesButton = cookies ? page.locator(cookies) : null;
+				if (cookiesButton && (await cookiesButton.isVisible())) await cookiesButton.click();
 
-					const regionButton = region ? page.locator(region) : null;
-					if (regionButton && (await regionButton?.isVisible())) await regionButton.click();
+				const regionButton = region ? page.locator(region) : null;
+				if (regionButton && (await regionButton?.isVisible())) await regionButton.click();
 
-					let currentPage = 1;
-					while (true) {
-						await page.waitForTimeout(2000);
+				let currentPage = 1;
+				while (true) {
+					await page.waitForTimeout(2000);
 
-						const containers = await page.locator(list.element).elementHandles();
-						for (const container of containers) {
-							const name = await (await container.$(list.item.name))?.textContent();
-							const href = list.item.href ? await (await container.$(list.item.href))?.getAttribute("href") : null;
-							const url = list.item.base ? `${list.item.base}${href}` : href;
-							if (!name) continue;
+					const containers = await page.locator(list.element).elementHandles();
+					for (const container of containers) {
+						const name = await (await container.$(list.item.name))?.textContent();
+						const href = list.item.href ? await (await container.$(list.item.href))?.getAttribute("href") : null;
+						const url = list.item.base ? `${list.item.base}${href}` : href;
+						if (!name) continue;
 
-							// biome-ignore lint/suspicious/noControlCharactersInRegex: <explanation>
-							const fixedName = name.replace(/[^\x00-\x7F]/g, "");
-							if (catalog.find((item) => item.title === fixedName)) continue;
+						// biome-ignore lint/suspicious/noControlCharactersInRegex: <explanation>
+						const fixedName = name.replace(/[^\x00-\x7F]/g, "");
+						if (catalog.find((item) => item.title === fixedName)) continue;
 
-							catalog.push({ title: fixedName, slug: StringUtil.slug(name), url: url ?? null });
-						}
-
-						const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
-						const totalPages =
-							pagination.element && pagination.total
-								? Number((await page.locator(pagination.element).nth(pagination.nth).getAttribute(pagination.total))!)
-								: null;
-
-						const hasMore = totalPages ? totalPages !== currentPage : (await nextPageButton.count()) > 0;
-						if (!hasMore) break;
-
-						await nextPageButton.scrollIntoViewIfNeeded();
-						await nextPageButton.click();
-						currentPage++;
+						catalog.push({ title: fixedName, slug: StringUtil.slug(name), url: url ?? null });
 					}
-					return { type, catalog };
-				} catch (error) {
-					this.logger.warn(`Cannot retrieve ${type} catalog`);
-					return { type, catalog: [] };
+
+					const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
+					const totalPages =
+						pagination.element && pagination.total
+							? Number((await page.locator(pagination.element).nth(pagination.nth).getAttribute(pagination.total))!)
+							: null;
+
+					const hasMore = totalPages ? totalPages !== currentPage : (await nextPageButton.count()) > 0;
+					if (!hasMore) break;
+
+					await nextPageButton.scrollIntoViewIfNeeded();
+					await nextPageButton.click();
+					currentPage++;
 				}
-			},
+				return { type, catalog };
+			} catch (error) {
+				this.logger.warn(`Cannot retrieve ${type} catalog`);
+				return { type, catalog: [] };
+			}
 		});
 	}
 
 	async getCatalogs() {
 		const data = [];
 		for (const type of ObjectUtil.enumToArray(CatalogType)) {
-			data.push(await this.getCatalog({ type }));
+			data.push(await this.getCatalog(type));
 		}
 		return data;
 	}

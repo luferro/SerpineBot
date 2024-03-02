@@ -9,7 +9,7 @@ export const data: JobData = { schedule: "0 */10 * * * *" };
 export const execute: JobExecute = async ({ client }) => {
 	const { subreddits } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.NINTENDO });
 	for (const { subreddit, flairs } of subreddits) {
-		const posts = await client.api.reddit.getPosts({ subreddit, flairs, sort: "new" });
+		const posts = await client.api.reddit.getPosts(subreddit, { flairs, sort: "new" });
 
 		const messages = [];
 		for (const { title, url, isTwitterEmbed, isYoutubeEmbed, isSelf } of posts.reverse()) {

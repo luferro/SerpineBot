@@ -15,11 +15,7 @@ export const execute: JobExecute = async ({ client }) => {
 		await target.send({
 			embeds: [
 				new EmbedBuilder()
-					.setTitle(
-						t("jobs.reminders.embed.title", {
-							date: DateUtil.format({ date: timeStart, ...client.getLocalization() }),
-						}),
-					)
+					.setTitle(t("jobs.reminders.embed.title", { date: DateUtil.format(timeStart, client.getLocalization()) }))
 					.addFields([{ name: t("jobs.reminders.embed.fields.0.name"), value: message.trim() }])
 					.setColor("Random"),
 			],

@@ -1,31 +1,27 @@
 import { Scraper } from "@luferro/scraper";
 import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
 
-import { ApiKey, Id } from "../../types/args";
 import { Chart, Payload, Profile, RecentlyPlayed, Status, Wishlist } from "./steam.types";
 
 export class SteamApi extends Scraper {
 	private static BASE_API_URL = "https://api.steampowered.com";
 	private static BASE_STORE_URL = "https://store.steampowered.com";
 
-	private apiKey: string;
-
-	constructor({ apiKey }: ApiKey) {
+	constructor(private apiKey: string) {
 		super();
-		this.apiKey = apiKey;
 	}
 
-	async getSteamId64({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Payload<{ steamid?: string }>>({
-			url: `${SteamApi.BASE_API_URL}/ISteamUser/ResolveVanityURL/v0001/?key=${this.apiKey}&vanityurl=${id}`,
-		});
+	async getSteamId64(id: string) {
+		const { payload } = await FetchUtil.fetch<Payload<{ steamid?: string }>>(
+			`${SteamApi.BASE_API_URL}/ISteamUser/ResolveVanityURL/v0001/?key=${this.apiKey}&vanityurl=${id}`,
+		);
 		return payload.response?.steamid ?? null;
 	}
 
-	async getProfile({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Payload<{ players: Profile[] }>>({
-			url: `${SteamApi.BASE_API_URL}/ISteamUser/GetPlayerSummaries/v0002/?key=${this.apiKey}&steamids=${id}`,
-		});
+	async getProfile(id: string) {
+		const { payload } = await FetchUtil.fetch<Payload<{ players: Profile[] }>>(
+			`${SteamApi.BASE_API_URL}/ISteamUser/GetPlayerSummaries/v0002/?key=${this.apiKey}&steamids=${id}`,
+		);
 
 		if (payload.response.players.length === 0) throw new Error(`Cannot find a profile for steamId64 ${id}.`);
 		const { personaname, avatarfull, personastate, lastlogoff, timecreated } = payload.response.players[0];
@@ -40,10 +36,10 @@ export class SteamApi extends Scraper {
 		};
 	}
 
-	async getRecentlyPlayed({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Payload<{ games: RecentlyPlayed[] }>>({
-			url: `${SteamApi.BASE_API_URL}/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${this.apiKey}&steamid=${id}&format=json`,
-		});
+	async getRecentlyPlayed(id: string) {
+		const { payload } = await FetchUtil.fetch<Payload<{ games: RecentlyPlayed[] }>>(
+			`${SteamApi.BASE_API_URL}/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${this.apiKey}&steamid=${id}&format=json`,
+		);
 
 		return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
 			id: appid.toString(),
@@ -54,14 +50,14 @@ export class SteamApi extends Scraper {
 		}));
 	}
 
-	async getWishlist({ id }: Id) {
+	async getWishlist(id: string) {
 		const wishlist = [];
 
 		let page = 0;
 		while (true) {
-			const { payload } = await FetchUtil.fetch<Payload<Wishlist>>({
-				url: `${SteamApi.BASE_STORE_URL}/wishlist/profiles/${id}/wishlistdata?p=${page}`,
-			});
+			const { payload } = await FetchUtil.fetch<Payload<Wishlist>>(
+				`${SteamApi.BASE_STORE_URL}/wishlist/profiles/${id}/wishlistdata?p=${page}`,
+			);
 
 			const hasMore = Object.keys(payload).some((id) => !Number.isNaN(Number(id)));
 			if (!hasMore) break;
@@ -71,7 +67,7 @@ export class SteamApi extends Scraper {
 
 				const discount = isPriced ? subs[0].discount_pct : null;
 				const originalPriceBlock = isPriced
-					? this.static.loadHtml({ html: subs[0].discount_block })(".discount_original_price")
+					? this.static.loadHtml(subs[0].discount_block)(".discount_original_price")
 					: null;
 				const regular = isPriced
 					? Number(originalPriceBlock?.text().replace(/[^\d-]/g, "") || subs[0].price) / 100
@@ -99,7 +95,7 @@ export class SteamApi extends Scraper {
 	}
 
 	async getUpcomingSales() {
-		const $ = await this.static.loadUrl({ url: "https://prepareyourwallet.com" });
+		const $ = await this.static.loadUrl("https://prepareyourwallet.com");
 
 		const sale = $("p").first().attr("content") ?? null;
 		const status = $("span.status").first().text();
@@ -117,13 +113,13 @@ export class SteamApi extends Scraper {
 		return { sale, status, upcoming };
 	}
 
-	async getChart({ chart }: { chart: Chart }) {
+	async getChart(chart: Chart) {
 		const chartUrl: Record<typeof chart, string> = {
 			[Chart.TOP_PLAYED]: "https://steamcharts.com",
 			[Chart.TOP_SELLERS]: `${SteamApi.BASE_STORE_URL}/search/?filter=topsellers&os=win`,
 			[Chart.UPCOMING_GAMES]: `${SteamApi.BASE_STORE_URL}/search/?filter=popularcomingsoon&os=win`,
 		};
-		const $ = await this.static.loadUrl({ url: chartUrl[chart] });
+		const $ = await this.static.loadUrl(chartUrl[chart]);
 
 		if (chart === Chart.TOP_PLAYED) {
 			return $("table#top-games tbody tr")

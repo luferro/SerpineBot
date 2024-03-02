@@ -2,18 +2,11 @@ import crypto from "node:crypto";
 
 import { Redis, type RedisKey } from "ioredis";
 
-type Options = {
-	/**
-	 * Redis URI
-	 */
-	uri: string;
-};
-
 export class Cache {
 	private client: Redis;
 	private expirySeconds = 60 * 60 * 24 * 30;
 
-	constructor({ uri }: Options) {
+	constructor(uri: string) {
 		this.client = new Redis(uri);
 	}
 

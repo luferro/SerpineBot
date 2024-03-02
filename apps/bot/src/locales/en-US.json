@@ -447,7 +447,7 @@
 				],
 				"embed": {
 					"title": "Reminder created",
-					"description": "I'll remind you about {{message}} in {{time}} {{unit}}.",
+					"description": "I'll remind you about **\"{{message}}\"** in {{time}} {{unit}}.",
 					"footer": { "text": "ReminderId {{reminderId}}" }
 				}
 			},

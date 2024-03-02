@@ -8,7 +8,7 @@ export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const { feeds } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.PLAYSTATION });
-	const feed = await client.scraper.rss.consume({ feeds });
+	const feed = await client.scraper.rss.consume(feeds);
 
 	const messages = [];
 	for (const { title, url, image } of feed.reverse()) {

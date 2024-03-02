@@ -5,10 +5,25 @@ import { Id, Query, Slug } from "../../types/args";
 export class ReviewsApi extends Scraper {
 	private static BASE_URL = "https://opencritic.com";
 
-	async search({ query }: Partial<Query>) {
-		const results = await this.engine.search({
-			query: `${query ?? "reviews"} site:${ReviewsApi.BASE_URL}/game`,
-			interval: query ? undefined : { start: Date.now() },
+	async search(query: string) {
+		const results = await this.engine.search(`${query} site:${ReviewsApi.BASE_URL}/game`);
+
+		const regex = /\/(\d+)\/([^/?]*$)/g;
+		return results
+			.map(({ title, url }) => {
+				const result = regex.exec(url);
+				if (!result) return;
+
+				const { 1: id, 2: slug } = result;
+				const name = title.split("Reviews").at(0)!.trim();
+				return { id, slug, name, url };
+			})
+			.filter((item): item is NonNullable<typeof item> => !!item);
+	}
+
+	async getRecentReviews() {
+		const results = await this.engine.search(`reviews site:${ReviewsApi.BASE_URL}/game`, {
+			interval: { start: Date.now() },
 		});
 
 		const regex = /\/(\d+)\/([^/?]*$)/g;
@@ -24,9 +39,9 @@ export class ReviewsApi extends Scraper {
 			.filter((item): item is NonNullable<typeof item> => !!item);
 	}
 
-	async getReviewsByIdAndSlug({ id, slug }: Id & Slug) {
+	async getReviewsByIdAndSlug(id: string, slug: string) {
 		const url = `${ReviewsApi.BASE_URL}/game/${id}/${slug}`;
-		const $ = await this.static.loadUrl({ url });
+		const $ = await this.static.loadUrl(url);
 
 		const title = $("app-game-overview h1").first().text();
 		const image = $("app-game-overview .top-container img").first().attr("src");

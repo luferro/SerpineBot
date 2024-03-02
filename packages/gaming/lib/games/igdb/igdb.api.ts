@@ -1,32 +1,27 @@
 import { DateUtil, FetchUtil } from "@luferro/shared-utils";
 
-import { Query } from "../../types/args";
 import { Event, Result } from "./igdb.types";
-
-type Options = { clientId: string; clientSecret: string };
 
 export class IGDBApi {
 	private static BASE_OAUTH_URL = "https://id.twitch.tv";
 	private static BASE_API_URL = "https://api.igdb.com";
 
-	private clientId: string;
-	private clientSecret: string;
 	private authorization?: string;
 
-	constructor({ clientId, clientSecret }: Options) {
-		this.clientId = clientId;
-		this.clientSecret = clientSecret;
-	}
+	constructor(
+		private clientId: string,
+		private clientSecret: string,
+	) {}
 
 	private async authenticate() {
-		const { payload } = await FetchUtil.fetch<{ access_token: string }>({
-			method: "POST",
-			url: `${IGDBApi.BASE_OAUTH_URL}/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=client_credentials`,
-		});
+		const { payload } = await FetchUtil.fetch<{ access_token: string }>(
+			`${IGDBApi.BASE_OAUTH_URL}/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=client_credentials`,
+			{ method: "POST" },
+		);
 		this.authorization = payload.access_token;
 	}
 
-	private async getCustomHeaders() {
+	private async getHeaders() {
 		if (!this.authorization) await this.authenticate();
 		return new Map([
 			["Authorization", `Bearer ${this.authorization}`],
@@ -39,13 +34,12 @@ export class IGDBApi {
 		if (status === 401) await this.authenticate();
 	}
 
-	async search({ query }: Query) {
-		const { payload } = await FetchUtil.fetch<Result[]>({
+	async search(query: string) {
+		const { payload } = await FetchUtil.fetch<Result[]>(`${IGDBApi.BASE_API_URL}/v4/games`, {
 			method: "POST",
-			url: `${IGDBApi.BASE_API_URL}/v4/games`,
-			customHeaders: await this.getCustomHeaders(),
+			headers: await this.getHeaders(),
 			body: `fields id, name, slug; where name ~ "${query}"* & version_parent = null; limit 10;`,
-			handleStatusCode: (status) => this.handleStatusCode(status),
+			cb: (status) => this.handleStatusCode(status),
 		});
 		return payload.map(({ id, name, slug }) => ({ id: id.toString(), title: name, slug }));
 	}
@@ -55,12 +49,11 @@ export class IGDBApi {
 		date.setHours(0, 0, 0, 0);
 		const timestamp = Math.floor(date.getTime() / 1000);
 
-		const { payload } = await FetchUtil.fetch<Event[]>({
+		const { payload } = await FetchUtil.fetch<Event[]>(`${IGDBApi.BASE_API_URL}/v4/events`, {
 			method: "POST",
-			url: `${IGDBApi.BASE_API_URL}/v4/events`,
-			customHeaders: await this.getCustomHeaders(),
+			headers: await this.getHeaders(),
 			body: `fields name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, created_at; where start_time >= ${timestamp}; sort start_time asc;`,
-			handleStatusCode: (status) => this.handleStatusCode(status),
+			cb: (status) => this.handleStatusCode(status),
 		});
 
 		return payload.map(({ name, description, live_stream_url, start_time, end_time, event_logo, event_networks }) => {

@@ -3,6 +3,7 @@ import { t } from "i18next";
 
 import type { EventData, EventExecute } from "../../types/bot";
 import { ExtendedStringSelectMenuInteraction } from "../../types/interaction";
+import { Bot } from "../../structures/Bot";
 
 type Args = [interaction: ExtendedStringSelectMenuInteraction];
 
@@ -18,7 +19,7 @@ export const execute: EventExecute<Args> = async ({ client, rest: [interaction] 
 		const role = guild.roles.cache.find(({ id }) => id === value);
 		if (!role) continue;
 
-		const restrictionsRole = guild.roles.cache.find(({ name }) => name === "Restrictions");
+		const restrictionsRole = guild.roles.cache.find(({ name }) => name === Bot.RESTRICTIONS_ROLE);
 		if (restrictionsRole && member.roles.cache.has(restrictionsRole.id)) continue;
 
 		if (!member.roles.cache.has(role.id)) {

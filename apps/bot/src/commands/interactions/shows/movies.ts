@@ -19,12 +19,12 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setAutocomplete(true),
 	);
 
-export const execute: InteractionCommandExecute = async ({ client, interaction, localization }) => {
+export const execute: InteractionCommandExecute = async ({ client, interaction, localization = {} }) => {
 	await interaction.deferReply();
 	const query = interaction.options.getString(data.options[0].name, true);
 
 	const { name, tagline, overview, url, image, releaseDate, score, duration, genres, providers } =
-		await client.api.shows.getMovieById({ id: query });
+		await client.api.shows.getMovieById(query);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
@@ -35,7 +35,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 			{
 				name: t("interactions.shows.movies.embed.fields.0.name"),
 				value: releaseDate
-					? DateUtil.format({ date: new Date(releaseDate), format: "dd/MM/yyyy", ...localization })
+					? DateUtil.format(new Date(releaseDate), { format: "dd-MM-yyyy", ...localization })
 					: t("common.unavailable"),
 				inline: true,
 			},
@@ -79,7 +79,7 @@ export const autocomplete: InteractionCommandAutoComplete = async ({ client, int
 	const { value: query } = interaction.options.getFocused(true);
 	if (query.length < 3) return interaction.respond([]);
 
-	const results = await client.api.shows.search({ query });
+	const results = await client.api.shows.search(query);
 	await interaction.respond(
 		results
 			.filter(({ type }) => type === "movie")

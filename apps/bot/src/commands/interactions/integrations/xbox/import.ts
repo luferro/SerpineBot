@@ -24,7 +24,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (results.length === 0) throw new Error(t("errors.xbox.profile.gamertag"));
 	const { id, gamertag } = results[0];
 
-	const recentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed({ id });
+	const recentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed(id);
 
 	await client.prisma.xbox.create({
 		data: {

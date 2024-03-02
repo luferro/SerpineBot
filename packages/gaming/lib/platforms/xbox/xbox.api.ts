@@ -9,33 +9,29 @@ type Gamertag = { gamertag: string };
 export class XboxApi extends Scraper {
 	private static BASE_API_URL = "https://xbl.io";
 
-	private apiKey: string;
-
-	constructor({ apiKey }: ApiKey) {
+	constructor(private apiKey: string) {
 		super();
-		this.apiKey = apiKey;
 	}
 
-	private getCustomHeaders() {
+	private getHeaders() {
 		return new Map([
 			["x-authorization", this.apiKey],
 			["accept", "application/json"],
 		]);
 	}
 
-	async search({ gamertag }: Gamertag) {
-		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>({
-			url: `${XboxApi.BASE_API_URL}/api/v2/search/${gamertag}`,
-			customHeaders: this.getCustomHeaders(),
+	async search(gamertag: Gamertag) {
+		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>(`${XboxApi.BASE_API_URL}/api/v2/search/${gamertag}`, {
+			headers: this.getHeaders(),
 		});
 		return payload.people.map(({ xuid, gamertag }) => ({ id: xuid, gamertag }));
 	}
 
-	async getProfile({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>({
-			url: `${XboxApi.BASE_API_URL}/api/v2/player/summary/${id}`,
-			customHeaders: this.getCustomHeaders(),
-		});
+	async getProfile(id: string) {
+		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>(
+			`${XboxApi.BASE_API_URL}/api/v2/player/summary/${id}`,
+			{ headers: this.getHeaders() },
+		);
 
 		if (payload.people.length === 0) throw new Error(`Cannot find a profile for id ${id}.`);
 		const { gamertag, gamerScore, displayPicRaw, presenceText, preferredPlatforms } = payload.people[0];
@@ -50,11 +46,11 @@ export class XboxApi extends Scraper {
 		};
 	}
 
-	async getRecentlyPlayed({ id }: Id) {
-		const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed[]>>({
-			url: `${XboxApi.BASE_API_URL}/api/v2/player/titleHistory/${id}`,
-			customHeaders: this.getCustomHeaders(),
-		});
+	async getRecentlyPlayed(id: string) {
+		const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed[]>>(
+			`${XboxApi.BASE_API_URL}/api/v2/player/titleHistory/${id}`,
+			{ headers: this.getHeaders() },
+		);
 
 		return payload.titles
 			.filter(
@@ -72,13 +68,13 @@ export class XboxApi extends Scraper {
 			}));
 	}
 
-	async getChart({ chart }: { chart: Chart }) {
+	async getChart(chart: Chart) {
 		const chartUrl: Record<typeof chart, string> = {
 			[Chart.TOP_PLAYED]: "https://www.microsoft.com/pt-pt/store/most-played/games/xbox",
 			[Chart.TOP_SELLERS]: "https://www.microsoft.com/pt-pt/store/top-paid/games/xbox",
 			[Chart.UPCOMING_GAMES]: "https://www.microsoft.com/pt-pt/store/coming-soon/games/xbox",
 		};
-		const $ = await this.static.loadUrl({ url: chartUrl[chart] });
+		const $ = await this.static.loadUrl(chartUrl[chart]);
 
 		return $("section > ul li")
 			.get()

@@ -3,22 +3,11 @@ import { getInt16Frames, Rhino, RhinoErrors, RhinoInference } from "@picovoice/r
 
 import { bufferToInt16 } from "./utils/audio";
 
-type Options = {
-	/**
-	 * Picovoice API key
-	 */
-	apiKey: string;
-	/**
-	 * Path to the Rhino model
-	 */
-	modelPath: string;
-};
-
 export class SpeechToIntentClient {
 	private logger: LoggerUtil.Logger;
 	private rhino?: Rhino;
 
-	constructor({ apiKey, modelPath }: Options) {
+	constructor(apiKey: string, modelPath: string) {
 		this.logger = LoggerUtil.configureLogger();
 		try {
 			this.rhino = new Rhino(apiKey, modelPath, 0.5, 0.5, false);

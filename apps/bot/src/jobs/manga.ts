@@ -26,7 +26,7 @@ export const execute: JobExecute = async ({ client }) => {
 	for (const [mangaId, chapters] of chaptersByManga) {
 		if (chapters.length === 0) continue;
 
-		const { title, url, image, publication, tags } = await client.api.mangadex.getMangaById({ id: mangaId });
+		const { title, url, image, publication, tags } = await client.api.mangadex.getMangaById(mangaId);
 
 		const formattedChapters = chapters
 			.slice(0, 10)

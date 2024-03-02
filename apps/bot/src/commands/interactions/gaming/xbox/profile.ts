@@ -20,9 +20,9 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const integration = await client.prisma.xbox.findUnique({ where: { userId } });
 	if (!integration) throw new Error(t("errors.unprocessable"));
 
-	const { gamertag, gamerscore, image, status } = await client.api.gaming.platforms.xbox.getProfile({
-		id: integration.profile.id,
-	});
+	const { gamertag, gamerscore, image, status } = await client.api.gaming.platforms.xbox.getProfile(
+		integration.profile.id,
+	);
 
 	const embed = new EmbedBuilder()
 		.setTitle(gamertag)

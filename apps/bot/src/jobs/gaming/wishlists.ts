@@ -31,7 +31,7 @@ export const execute: JobExecute = async ({ client }) => {
 			[Alert.REMOVED_FROM]: [],
 		};
 
-		const wishlist = await client.api.gaming.platforms.steam.getWishlist({ id: integration.profile.id });
+		const wishlist = await client.api.gaming.platforms.steam.getWishlist(integration.profile.id);
 		if (!wishlist || wishlist.length === 0) continue;
 
 		const updatedWishlist = await Promise.all(
@@ -106,8 +106,8 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 							`> ${t(`jobs.gaming.wishlists.${alert}.embed.description`, {
 								item: `**[${title}](${url})**`,
 								discount: `***${discount}%***`,
-								regular: `~~${ConverterUtil.formatCurrency({ amount: regular!, ...localization })}~~`,
-								discounted: `**${ConverterUtil.formatCurrency({ amount: discounted!, ...localization })}**`,
+								regular: `~~${ConverterUtil.formatCurrency(regular!, localization)}~~`,
+								discounted: `**${ConverterUtil.formatCurrency(discounted!, localization)}**`,
 								addedTo: (addedTo ?? []).join("\n"),
 								removedFrom: (removedFrom ?? []).join("\n"),
 							})}`,

@@ -11,12 +11,12 @@ export const execute: JobExecute = async ({ client }) => {
 	const { subreddits, feeds } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.GAMING_NEWS });
 
 	for (const { subreddit, flairs } of subreddits) {
-		const posts = await client.api.reddit.getPosts({ subreddit, flairs, sort: "new", limit: 25 });
+		const posts = await client.api.reddit.getPosts(subreddit, { flairs, sort: "new", limit: 25 });
 		for (const { title, url, isTwitterEmbed, isYoutubeEmbed, isSelf, isCrosspost } of posts.reverse()) {
 			if (isSelf || isCrosspost) continue;
 
 			if (isTwitterEmbed || isYoutubeEmbed) {
-				if (isYoutubeEmbed && (await client.scraper.youtube.getSubscribers({ url })) < 50_000) continue;
+				if (isYoutubeEmbed && (await client.scraper.youtube.getSubscribers(url)) < 50_000) continue;
 				messages.push(`**${title}**\n${url}`);
 				continue;
 			}
@@ -26,7 +26,7 @@ export const execute: JobExecute = async ({ client }) => {
 		}
 	}
 
-	const feed = await client.scraper.rss.consume({ feeds });
+	const feed = await client.scraper.rss.consume(feeds);
 	for (const { title, url, image } of feed.reverse()) {
 		const embed = new EmbedBuilder()
 			.setTitle(StringUtil.truncate(title))

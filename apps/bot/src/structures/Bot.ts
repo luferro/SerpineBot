@@ -28,6 +28,7 @@ type PropagateArgs = { type: WebhookType; everyone?: boolean; messages: MessageT
 export class Bot extends Client {
 	private static readonly MAX_EMBEDS_CHUNK_SIZE = 10;
 	static readonly ROLES_MESSAGE_ID = "CLAIM_YOUR_ROLES";
+	static readonly RESTRICTIONS_ROLE = "Restrictions";
 
 	static jobs: Collection<string, Job> = new Collection();
 	static events: Collection<string, Event> = new Collection();
@@ -46,8 +47,8 @@ export class Bot extends Client {
 		super(options);
 		this.config = loadConfig();
 		this.logger = LoggerUtil.configureLogger();
-		this.cache = new Cache({ uri: this.config.get("services.redis.uri") });
-		this.prisma = new DatabaseClient({ uri: this.config.get("services.mongodb.uri") }).withExtensions();
+		this.cache = new Cache(this.config.get("services.redis.uri"));
+		this.prisma = new DatabaseClient(this.config.get("services.mongodb.uri")).withExtensions();
 		this.scraper = new Scraper();
 		this.player = new Player(this);
 		this.api = this.initializeApi();
@@ -57,12 +58,12 @@ export class Bot extends Client {
 	private initializeApi() {
 		return {
 			mangadex: new MangadexApi(),
-			shows: new TMDBApi({ apiKey: this.config.get("services.tmdb.apiKey") }),
+			shows: new TMDBApi(this.config.get("services.tmdb.apiKey")),
 			anime: new AnimeApi({ animeSchedule: { apiKey: this.config.get("services.animeSchedule.apiKey") } }),
-			reddit: new RedditApi({
-				clientId: this.config.get("services.reddit.clientId"),
-				clientSecret: this.config.get("services.reddit.clientSecret"),
-			}),
+			reddit: new RedditApi(
+				this.config.get("services.reddit.clientId"),
+				this.config.get("services.reddit.clientSecret"),
+			),
 			gaming: new GamingApi({
 				igdb: {
 					clientId: this.config.get("services.igdb.clientId"),
@@ -78,10 +79,10 @@ export class Bot extends Client {
 	private initializeSpeech() {
 		const apiKey = this.config.get<string>("services.picovoice.apiKey");
 		return {
-			wakeWord: new WakeWordClient({ apiKey }),
-			speechToText: new SpeechToTextClient({ apiKey, modelPath: "" }),
-			speechToIntent: new SpeechToIntentClient({ apiKey, modelPath: "" }),
-			textToSpeech: new TextToSpeechClient({ credentialsPath: this.config.get("services.google.credentials.path") }),
+			wakeWord: new WakeWordClient(apiKey),
+			speechToText: new SpeechToTextClient(apiKey, ""),
+			speechToIntent: new SpeechToIntentClient(apiKey, ""),
+			textToSpeech: new TextToSpeechClient(this.config.get("services.google.credentials.path")),
 		};
 	}
 

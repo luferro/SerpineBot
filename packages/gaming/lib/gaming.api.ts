@@ -17,16 +17,16 @@ export class GamingApi {
 	platforms: Platforms;
 
 	constructor(options: Options) {
-		this.igdb = new IGDBApi(options.igdb);
+		this.igdb = new IGDBApi(options.igdb.clientId, options.igdb.clientSecret);
 		this.games = {
 			hltb: new HLTBApi(),
-			deals: new DealsApi(options.deals),
+			deals: new DealsApi(options.deals.apiKey),
 			reviews: new ReviewsApi(),
 			subscriptions: new SubscriptionsApi(),
 		};
 		this.platforms = {
-			steam: new SteamApi(options.steam),
-			xbox: new XboxApi(options.xbox),
+			steam: new SteamApi(options.steam.apiKey),
+			xbox: new XboxApi(options.xbox.apiKey),
 		};
 	}
 }

@@ -14,15 +14,15 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setRequired(true),
 	);
 
-export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+export const execute: InteractionCommandExecute = async ({ client, interaction, localization = {} }) => {
 	await interaction.deferReply();
 	const query = interaction.options.getString(data.options[0].name, true);
 
-	const results = await client.api.gaming.games.reviews.search({ query });
+	const results = await client.api.gaming.games.reviews.search(query);
 	if (results.length === 0) throw new Error(t("errors.search.lookup", { query }));
 	const { id, slug } = results[0];
 
-	const review = await client.api.gaming.games.reviews.getReviewsByIdAndSlug({ id, slug });
+	const review = await client.api.gaming.games.reviews.getReviewsByIdAndSlug(id, slug);
 	const { title, url, releaseDate, platforms, tier, score, count, recommended, image } = review;
 	if (!tier || !score) throw new Error(t("errors.search.lookup", { query }));
 
@@ -34,7 +34,9 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.addFields([
 			{
 				name: t("interactions.gaming.reviews.embed.fields.0.name"),
-				value: releaseDate ? DateUtil.format({ date: releaseDate, format: "dd/MM/yyyy" }) : t("common.unavailable"),
+				value: releaseDate
+					? DateUtil.format(releaseDate, { format: "dd-MM-yyyy", ...localization })
+					: t("common.unavailable"),
 			},
 			{
 				name: t("interactions.gaming.reviews.embed.fields.1.name"),

@@ -22,7 +22,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.deferReply();
 	const chart = interaction.options.getInteger(data.options[0].name, true);
 
-	const result = await client.api.gaming.platforms.xbox.getChart({ chart });
+	const result = await client.api.gaming.platforms.xbox.getChart(chart);
 	if (result.length === 0) throw new Error(t("errors.search.none"));
 
 	const embed = new EmbedBuilder()

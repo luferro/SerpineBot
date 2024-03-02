@@ -23,7 +23,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 	if (!integration) throw new Error(t("errors.unprocessable"));
 	const { id, url } = integration.profile;
 
-	const { name, image, status, logoutAt, createdAt } = await client.api.gaming.platforms.steam.getProfile({ id });
+	const { name, image, status, logoutAt, createdAt } = await client.api.gaming.platforms.steam.getProfile(id);
 
 	const embed = new EmbedBuilder()
 		.setTitle(name)
@@ -40,12 +40,12 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 			},
 			{
 				name: t("interactions.gaming.steam.profile.embed.fields.2.name"),
-				value: DateUtil.format({ date: createdAt, ...localization }),
+				value: DateUtil.format(createdAt, localization ?? {}),
 				inline: true,
 			},
 			{
 				name: t("interactions.gaming.steam.profile.embed.fields.3.name"),
-				value: DateUtil.format({ date: logoutAt, ...localization }),
+				value: DateUtil.format(logoutAt, localization ?? {}),
 				inline: true,
 			},
 		])

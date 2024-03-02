@@ -9,7 +9,7 @@ export const data: JobData = { schedule: "0 */45 * * * *" };
 export const execute: JobExecute = async ({ client }) => {
 	const { subreddits } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.MEMES });
 	for (const { subreddit, flairs } of subreddits) {
-		const posts = await client.api.reddit.getPosts({ subreddit, flairs, limit: 25 });
+		const posts = await client.api.reddit.getPosts(subreddit, { flairs, limit: 25 });
 
 		const messages = [];
 		for (const { title, url, selfurl, hasEmbeddedMedia, isSelf } of posts.reverse()) {

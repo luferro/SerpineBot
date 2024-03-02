@@ -1,14 +1,12 @@
 import { ConverterUtil } from "@luferro/shared-utils";
 import ytdl from "ytdl-core";
 
-type Url = { url: string };
-
 export class Youtube {
-	isVideo({ url }: Url) {
-		return Boolean(this.getVideoId({ url }));
+	isVideo(url: string) {
+		return Boolean(this.getVideoId(url));
 	}
 
-	getVideoId({ url }: Url) {
+	getVideoId(url: string) {
 		try {
 			return ytdl.getVideoID(url);
 		} catch (error) {
@@ -16,7 +14,7 @@ export class Youtube {
 		}
 	}
 
-	async getSubscribers({ url }: Url) {
+	async getSubscribers(url: string) {
 		try {
 			const { videoDetails } = await ytdl.getBasicInfo(url);
 			return videoDetails.author.subscriber_count ?? 0;
@@ -25,7 +23,7 @@ export class Youtube {
 		}
 	}
 
-	async getVideoInfo({ url }: Url) {
+	async getVideoInfo(url: string) {
 		const { videoDetails } = await ytdl.getBasicInfo(url);
 		const { title, author, thumbnails, lengthSeconds, isLiveContent } = videoDetails;
 

@@ -5,10 +5,6 @@ import { Readable } from "stream";
 
 type Options = {
 	/**
-	 * Picovoice API key
-	 */
-	apiKey: string;
-	/**
 	 * Built-in keywords
 	 * @default "BUMBLEBEE"
 	 */
@@ -23,7 +19,7 @@ export class WakeWordClient {
 	private logger: LoggerUtil.Logger;
 	private porcupine?: Porcupine;
 
-	constructor({ apiKey, standardKeywords = ["BUMBLEBEE"], customKeywords = [] }: Options) {
+	constructor(apiKey: string, { standardKeywords = ["BUMBLEBEE"], customKeywords = [] }: Options = {}) {
 		this.logger = LoggerUtil.configureLogger();
 		try {
 			const keywords = [...standardKeywords.map((keyword) => BuiltinKeyword[keyword]), ...customKeywords];

@@ -1,19 +1,15 @@
 import { FetchUtil } from "@luferro/shared-utils";
 import { load } from "cheerio";
 
-type Url = { url: string };
-type Html = { html: string };
-
 export class StaticScraper {
-	loadHtml({ html }: Html) {
+	loadHtml(html: string) {
 		return load(html);
 	}
 
-	async loadUrl({ url }: Url) {
-		const { payload } = await FetchUtil.fetch<string>({
-			url,
-			customHeaders: new Map([["content-type", "plain/text"]]),
+	async loadUrl(url: string) {
+		const { payload } = await FetchUtil.fetch<string>(url, {
+			headers: new Map([["content-type", "plain/text"]]),
 		});
-		return this.loadHtml({ html: payload });
+		return this.loadHtml(payload);
 	}
 }

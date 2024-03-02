@@ -13,7 +13,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setRequired(true),
 	);
 
-export const execute: InteractionCommandExecute = async ({ client, interaction, localization }) => {
+export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
 	const profile = interaction.options.getString(data.options[0].name, true);
 
@@ -24,10 +24,10 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 	if (!url) throw new Error(t("errors.steam.profile.url"));
 
 	const { 1: type, 2: id } = url;
-	const steamId64 = type === "id" ? await client.api.gaming.platforms.steam.getSteamId64({ id }) : id;
+	const steamId64 = type === "id" ? await client.api.gaming.platforms.steam.getSteamId64(id) : id;
 	if (!steamId64) throw new Error(t("errors.steam.steamId64"));
 
-	const rawWishlist = await client.api.gaming.platforms.steam.getWishlist({ id: steamId64 });
+	const rawWishlist = await client.api.gaming.platforms.steam.getWishlist(steamId64);
 	if (!rawWishlist) throw new Error(t("errors.steam.wishlist.private"));
 	const wishlist = await Promise.all(
 		rawWishlist.map(async (game) => {
@@ -36,7 +36,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 		}),
 	);
 
-	const recentlyPlayed = await client.api.gaming.platforms.steam.getRecentlyPlayed({ id: steamId64 });
+	const recentlyPlayed = await client.api.gaming.platforms.steam.getRecentlyPlayed(steamId64);
 
 	await client.prisma.steam.create({
 		data: {

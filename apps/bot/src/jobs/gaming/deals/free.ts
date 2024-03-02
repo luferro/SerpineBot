@@ -24,14 +24,14 @@ export const execute: JobExecute = async ({ client }) => {
 				t("jobs.gaming.deals.free.embed.description", {
 					store,
 					discount,
-					regular: ConverterUtil.formatCurrency({ amount, currency, ...localization }),
+					regular: ConverterUtil.formatCurrency(amount, { currency, ...localization }),
 				}),
 			)
 			.setFooter(
 				expiry
 					? {
 							text: t("jobs.gaming.deals.free.embed.footer.text", {
-								expiry: DateUtil.format({ date: expiry, ...localization }),
+								expiry: DateUtil.format(expiry, localization),
 							}),
 					  }
 					: null,
@@ -41,7 +41,7 @@ export const execute: JobExecute = async ({ client }) => {
 		messages.push(embed);
 	}
 
-	const feed = await client.scraper.rss.consume({ feeds });
+	const feed = await client.scraper.rss.consume(feeds);
 	for (const { title, url, image, description } of feed.reverse()) {
 		const embed = new EmbedBuilder()
 			.setTitle(title)

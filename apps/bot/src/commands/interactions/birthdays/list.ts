@@ -16,8 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 		.reduce(
 			(acc, birthday) => {
 				const month = StringUtil.capitalize(
-					DateUtil.format({
-						date: new Date(birthday.year, birthday.month - 1, birthday.day),
+					DateUtil.format(new Date(birthday.year, birthday.month - 1, birthday.day), {
 						format: "MMMM",
 						...localization,
 					}),

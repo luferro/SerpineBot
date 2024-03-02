@@ -17,7 +17,7 @@ export const data: InteractionCommandData = [
 		.setRequired(true),
 ];
 
-export const execute: InteractionCommandExecute = async ({ client, interaction, localization }) => {
+export const execute: InteractionCommandExecute = async ({ client, interaction, localization = {} }) => {
 	const mentions = interaction.options.getString(data[0].name, true).match(/\d+/g);
 	const value = interaction.options.getInteger(data[1].name, true);
 
@@ -59,11 +59,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 			.addFields([
 				{
 					name: t("interactions.secret-santa.embeds.1.fields.0.name"),
-					value: DateUtil.format({ date, ...localization }),
+					value: DateUtil.format(date, localization),
 				},
 				{
 					name: t("interactions.secret-santa.embeds.1.fields.1.name"),
-					value: ConverterUtil.formatCurrency({ amount: value, locale: localization?.locale }),
+					value: ConverterUtil.formatCurrency(value, localization),
 				},
 				{
 					name: t("interactions.secret-santa.embeds.1.fields.2.name"),

@@ -40,7 +40,7 @@ const getSteamLeaderboard = async (client: Bot) => {
 	const leaderboard = [];
 	const integrations = await client.prisma.steam.findMany();
 	for (const { userId, profile, recentlyPlayed } of integrations) {
-		const rawRecentlyPlayed = await client.api.gaming.platforms.steam.getRecentlyPlayed({ id: profile.id });
+		const rawRecentlyPlayed = await client.api.gaming.platforms.steam.getRecentlyPlayed(profile.id);
 		if (rawRecentlyPlayed.length === 0) continue;
 
 		const updatedRecentlyPlayed = rawRecentlyPlayed.map((game) => {
@@ -80,7 +80,7 @@ const getXboxLeaderboard = async (client: Bot) => {
 	const leaderboard = [];
 	const integrations = await client.prisma.xbox.findMany();
 	for (const { userId, profile, recentlyPlayed } of integrations) {
-		const rawRecentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed({ id: profile.id });
+		const rawRecentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed(profile.id);
 		if (rawRecentlyPlayed.length === 0) continue;
 
 		const updatedRecentlyPlayed = rawRecentlyPlayed.map(({ id, title, gamerscore }) => {
