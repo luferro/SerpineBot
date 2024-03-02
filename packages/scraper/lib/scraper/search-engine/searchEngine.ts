@@ -11,12 +11,12 @@ export class SearchEngine {
 	) {}
 
 	async search(query: string, { interval }: SearchOptions = {}) {
-		const url = `https://duckduckgo.com/?q=${query}`;
+		let url = `https://duckduckgo.com/?q=${query}`;
 
 		if (interval) {
 			const fromStr = DateUtil.format(interval.start, { format: "yyyy-MM-dd" });
 			const toStr = interval.end ? DateUtil.format(interval.end, { format: "yyyy-MM-dd" }) : fromStr;
-			url.concat(`&df=${fromStr}..${toStr}`);
+			url = url.concat(`&df=${fromStr}..${toStr}`);
 		}
 
 		const html = await this.interactiveScraper.getHtml(url);
