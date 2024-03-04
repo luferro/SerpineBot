@@ -13,8 +13,8 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.11.19",
-		"@types/ramda": "^0.29.10",
+		"@types/node": "^20.11.24",
+		"@types/ramda": "^0.29.11",
 		"date-fns": "^2.30.0",
 		"date-fns-tz": "^2.0.0",
 		"typescript": "^5.3.3"
@@ -22,7 +22,7 @@
 	"dependencies": {
 		"axios": "^1.6.7",
 		"cron-parser": "^4.9.0",
-		"header-generator": "^2.1.48",
+		"header-generator": "^2.1.49",
 		"pino": "^8.19.0",
 		"pino-pretty": "^10.3.1",
 		"ramda": "^0.29.1"

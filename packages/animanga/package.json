@@ -15,7 +15,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@graphql-codegen/cli": "^5.0.2",
-		"@graphql-codegen/client-preset": "^4.2.2",
+		"@graphql-codegen/client-preset": "^4.2.4",
 		"@graphql-typed-document-node/core": "^3.2.0",
 		"typescript": "^5.3.3"
 	},
@@ -23,7 +23,7 @@
 		"@luferro/reddit": "workspace:^",
 		"@luferro/scraper": "workspace:^",
 		"@luferro/shared-utils": "workspace:^",
-		"@urql/core": "^4.2.3",
+		"@urql/core": "^4.3.0",
 		"graphql": "^16.8.1"
 	}
 }
