@@ -6,11 +6,13 @@ type Args = [error: Error];
 export const data: EventData = { type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [error] }) => {
-	if (error instanceof FetchUtil.FetchError) {
-		const { url, status, payload } = error;
-		client.logger.warn(`Fetch | Request to ${url} failed`);
-		client.logger.debug({ url, status, payload });
+	const isFetchError = error instanceof FetchUtil.FetchError;
+	if (!isFetchError) {
+		client.logger.error(error);
 		return;
 	}
-	client.logger.error(error);
+
+	const { url, status, payload } = error;
+	client.logger.warn(`Fetch | Request to ${url} failed`);
+	client.logger.debug({ url, status, payload });
 };
