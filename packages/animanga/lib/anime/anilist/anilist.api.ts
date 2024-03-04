@@ -72,34 +72,36 @@ export class AniListApi {
 			page++;
 		}
 
-		return schedule.map(({ airingAt, episode, media }) => ({
-			id: `${media.idMal ?? media.id}`,
-			title: {
-				romaji: media.title?.romaji ?? null,
-				english: media.title?.english ?? null,
-				native: media.title?.native ?? null,
-			},
-			isMature: !!media.isAdult,
-			format: media.format ?? null,
-			season:
-				media.season && media.seasonYear
-					? `${StringUtil.capitalize(media.season.toLowerCase())} ${media.seasonYear}`
-					: null,
-			coverImage: {
-				medium: media.coverImage?.medium ?? null,
-				large: media.coverImage?.large ?? null,
-				extraLarge: media.coverImage?.extraLarge ?? null,
-			},
-			airing: {
-				episode,
-				raw: { at: airingAt * 1000 },
-			},
-			score: media.averageScore ? media.averageScore / 10 : null,
-			episodes: media.episodes ?? null,
-			duration: media.duration ?? null,
-			streams: this.getStreams(media),
-			trackers: this.getTrackers(media),
-		}));
+		return schedule
+			.filter(({ media }) => media.countryOfOrigin === "JP")
+			.map(({ airingAt, episode, media }) => ({
+				id: `${media.idMal ?? media.id}`,
+				title: {
+					romaji: media.title?.romaji ?? null,
+					english: media.title?.english ?? null,
+					native: media.title?.native ?? null,
+				},
+				isMature: !!media.isAdult,
+				format: media.format ?? null,
+				season:
+					media.season && media.seasonYear
+						? `${StringUtil.capitalize(media.season.toLowerCase())} ${media.seasonYear}`
+						: null,
+				coverImage: {
+					medium: media.coverImage?.medium ?? null,
+					large: media.coverImage?.large ?? null,
+					extraLarge: media.coverImage?.extraLarge ?? null,
+				},
+				airing: {
+					episode,
+					raw: { at: airingAt * 1000 },
+				},
+				score: media.averageScore ? media.averageScore / 10 : null,
+				episodes: media.episodes ?? null,
+				duration: media.duration ?? null,
+				streams: this.getStreams(media),
+				trackers: this.getTrackers(media),
+			}));
 	}
 
 	// getRecommendations;
