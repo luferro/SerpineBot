@@ -6,8 +6,7 @@
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"build": "tsc",
-		"lint": "eslint --fix ."
+		"build": "tsc"
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
@@ -15,11 +14,9 @@
 	"devDependencies": {
 		"@types/config": "^3.3.3",
 		"@types/node": "^20.11.24",
-		"tsup": "^8.0.2",
 		"typescript": "^5.3.3"
 	},
 	"dependencies": {
-		"@luferro/shared-utils": "workspace:^",
 		"config": "^3.3.11"
 	}
 }

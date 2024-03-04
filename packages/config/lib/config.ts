@@ -59,7 +59,6 @@ export const _loadConfig = ({
 
 	environmentVariables.SUPPRESS_NO_CONFIG_WARNING = "true";
 
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const config = require("config") as IConfig;
 	config.util.extendDeep(config, processEnv());
 	return Object.assign(config, { runtimeEnvironment });
