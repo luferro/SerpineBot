@@ -5,57 +5,44 @@ import { t } from "i18next";
 import type { Bot } from "../../structures/Bot";
 import type { JobData, JobExecute } from "../../types/bot";
 
-enum Alert {
-	SALE = "sale",
-	RELEASED = "released",
-	ADDED_TO = "addedTo",
-	REMOVED_FROM = "removedFrom",
-}
-
-type SteamAlert = { addedTo?: string[]; removedFrom?: string[] } & SteamWishlistEntry;
-
-type Entries<T> = {
-	[K in keyof T]: [K, T[K]];
-}[keyof T][];
+type Alert = "sale" | "released" | "addedTo" | "removedFrom";
+type Entry = SteamWishlistEntry & { addedTo?: string[]; removedFrom?: string[] };
+type Alerts = Record<Alert, Entry[]>;
+type Entries<T> = { [K in keyof T]: [K, T[K]] }[keyof T][];
 
 export const data: JobData = { schedule: "0 */15 7-23 * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const integrations = await client.prisma.steam.findMany({ where: { notifications: true } });
 	for (const integration of integrations) {
-		const alerts: Record<Alert, SteamAlert[]> = {
-			[Alert.SALE]: [],
-			[Alert.RELEASED]: [],
-			[Alert.ADDED_TO]: [],
-			[Alert.REMOVED_FROM]: [],
-		};
+		const alerts: Alerts = { sale: [], released: [], addedTo: [], removedFrom: [] };
 
 		const wishlist = await client.api.gaming.platforms.steam.getWishlist(integration.profile.id);
 		if (!wishlist || wishlist.length === 0) continue;
 
 		const updatedWishlist = await Promise.all(
-			wishlist.map(async (game) => {
-				const storedGame = integration.wishlist.find((storedGame) => storedGame.title === game.title);
-				const subscriptions = await client.prisma.subscription.search({ query: game.title });
+			wishlist.map(async (newEntry) => {
+				const oldEntry = integration.wishlist.find((oldEntry) => oldEntry.title === newEntry.title);
+				const subscriptions = await client.prisma.subscription.search({ query: newEntry.title });
 
 				const updatedEntry = {
-					...game,
-					notified: storedGame?.notified ?? false,
+					...newEntry,
+					notified: !!oldEntry?.notified,
 					subscriptions: subscriptions.map((subscription) => subscription.type),
 				};
+				if (!oldEntry) return updatedEntry;
 
-				const wasSale = storedGame?.onSale ?? game.onSale;
-				if (!wasSale && game.onSale && !updatedEntry.notified) {
-					alerts[Alert.SALE].push(updatedEntry);
-					updatedEntry.notified = true;
-				}
+				const isRelease = !oldEntry.isReleased && newEntry.isReleased;
+				if (isRelease) alerts.released.push(updatedEntry);
 
-				const wasReleased = storedGame?.isReleased ?? game.isReleased;
-				if (!wasReleased && game.isReleased) alerts[Alert.RELEASED].push(updatedEntry);
+				const isSale = !oldEntry.onSale && newEntry.onSale;
+				if (!isRelease && isSale && !updatedEntry.notified) alerts.sale.push(updatedEntry);
 
-				const { addedTo, removedFrom } = getSubscriptionChanges(updatedEntry, storedGame);
-				if (addedTo.length > 0) alerts[Alert.ADDED_TO].push({ ...updatedEntry, addedTo });
-				if (removedFrom.length > 0) alerts[Alert.REMOVED_FROM].push({ ...updatedEntry, removedFrom });
+				const { addedTo, removedFrom } = getSubscriptionChanges(updatedEntry, oldEntry);
+				if (addedTo.length > 0) alerts.addedTo.push({ ...updatedEntry, addedTo });
+				if (removedFrom.length > 0) alerts.removedFrom.push({ ...updatedEntry, removedFrom });
+
+				if (isSale) updatedEntry.notified = true;
 
 				return updatedEntry;
 			}),
@@ -70,25 +57,23 @@ export const execute: JobExecute = async ({ client }) => {
 	}
 };
 
-const getSubscriptionChanges = (newGame: SteamWishlistEntry, oldGame?: SteamWishlistEntry) => {
+const getSubscriptionChanges = (newEntry: SteamWishlistEntry, oldEntry: SteamWishlistEntry) => {
 	const addedTo = [];
 	const removedFrom = [];
-	for (const [name, isIncluded] of Object.entries(newGame.subscriptions)) {
-		if (!oldGame) break;
-
-		const storedSubscription = Object.entries(newGame.subscriptions).find(([key]) => key === name);
-		if (!storedSubscription) continue;
+	for (const [name, newEntryIsIncluded] of Object.entries(newEntry.subscriptions)) {
+		const oldSubscription = Object.entries(oldEntry.subscriptions).find(([key]) => key === name);
+		if (!oldSubscription) continue;
 
 		const subscription = name.replace(/_/g, " ").toUpperCase();
-		const { 1: storedItemIsIncluded } = storedSubscription;
-		if (!storedItemIsIncluded && isIncluded) addedTo.push(`> • **${subscription}**`);
-		if (storedItemIsIncluded && !isIncluded) removedFrom.push(`> • **${subscription}**`);
+		const { 1: oldEntryIsIncluded } = oldSubscription;
+		if (!oldEntryIsIncluded && newEntryIsIncluded) addedTo.push(`> • **${subscription}**`);
+		if (oldEntryIsIncluded && !newEntryIsIncluded) removedFrom.push(`> • **${subscription}**`);
 	}
 
 	return { addedTo, removedFrom };
 };
 
-const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, SteamAlert[]>) => {
+const notifyUser = async (client: Bot, userId: string, alerts: Alerts) => {
 	for (const [alert, queue] of Object.entries(alerts) as unknown as Entries<typeof alerts>) {
 		if (queue.length === 0) continue;
 
@@ -107,6 +92,7 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 								discount: `***${discount}%***`,
 								regular: `~~${ConverterUtil.formatCurrency(regular!, localization)}~~`,
 								discounted: `**${ConverterUtil.formatCurrency(discounted!, localization)}**`,
+								price: `**${ConverterUtil.formatCurrency(discounted || regular!, localization)}**`,
 								addedTo: (addedTo ?? []).join("\n"),
 								removedFrom: (removedFrom ?? []).join("\n"),
 							})}`,
@@ -116,7 +102,7 @@ const notifyUser = async (client: Bot, userId: string, alerts: Record<Alert, Ste
 			.setColor("Random");
 
 		await user.send({ embeds: [embed] });
-		client.logger.info(`Steam wishlist | ${alert} | Notified ${user.username}  about ${queue.length} update(s)`);
+		client.logger.info(`Steam wishlist | ${alert} | Notified ${user.username} about ${queue.length} update(s) `);
 		client.logger.debug({ queue });
 	}
 };

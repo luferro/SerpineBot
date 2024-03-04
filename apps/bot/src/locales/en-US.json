@@ -686,7 +686,7 @@
 				"released": {
 					"embed": {
 						"title": "{{size}} item(s) from your wishlist now available for purchase.",
-						"description": "{{item}} is now available for {{discounted}}"
+						"description": "{{item}} is now available for {{price}}"
 					}
 				},
 				"addedTo": {
