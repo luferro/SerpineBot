@@ -22,12 +22,7 @@ export const execute: EventExecute<Args> = async ({ client, rest: [queue, track]
 	if (!currentTrack && queue.tracks.size === 1) {
 		embed
 			.setAuthor({ iconURL: clientIconUrl, name: t("events.player.audioTrackAdd.embeds.0.author.name") })
-			.setFields([
-				{
-					name: t("events.player.audioTrackAdd.embeds.0.fields.0.name"),
-					value: `**${track.duration}**`,
-				},
-			])
+			.setFields([{ name: t("events.player.audioTrackAdd.embeds.0.fields.0.name"), value: `**${track.duration}**` }])
 			.setFooter({
 				iconURL: userIconUrl,
 				text: t("events.player.audioTrackAdd.embeds.0.footer.text", { user: track.requestedBy?.username }),

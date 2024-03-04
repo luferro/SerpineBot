@@ -9,13 +9,11 @@ type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent
 export const data: EventData = { type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [oldState, newState] }) => {
-	if (oldState.isScheduled() && newState.isActive()) await handleEventStart({ client, event: newState });
-	if (oldState.isActive() && newState.isCompleted()) await handleEventEnd({ event: newState });
+	if (oldState.isScheduled() && newState.isActive()) await handleEventStart(client, newState);
+	if (oldState.isActive() && newState.isCompleted()) await handleEventEnd(newState);
 };
 
-type Handler = Omit<Parameters<EventExecute>[0], "rest"> & { event: Args[0] };
-
-const handleEventStart = async ({ client, event }: Handler) => {
+const handleEventStart = async (client: Parameters<EventExecute>[0]["client"], event: Args[0]) => {
 	const { guild, name, url, description, channel, entityMetadata, creator, scheduledStartAt, scheduledEndAt } = event;
 	const location = entityMetadata?.location ?? channel;
 	if (!guild || !location) return;
@@ -68,7 +66,7 @@ const handleEventStart = async ({ client, event }: Handler) => {
 	webhook?.send({ content: `${role}`, embeds: [embed] });
 };
 
-const handleEventEnd = async ({ event }: Pick<Handler, "event">) => {
+const handleEventEnd = async (event: Args[0]) => {
 	const { guild, name } = event;
 	if (!guild) return;
 

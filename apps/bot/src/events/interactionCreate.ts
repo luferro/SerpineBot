@@ -26,17 +26,8 @@ export const execute: EventExecute<Args<Interaction>> = async ({ client, rest: [
 	if (interaction.isStringSelectMenu()) await handleSelectMenuInteraction({ client, interaction, localization });
 };
 
-const extractInteractionMethods = ({ interaction }: Pick<ChatInputArgs | AutocompleteArgs, "interaction">) => {
-	const command = interaction.commandName;
-	const group = interaction.options.getSubcommandGroup(false);
-	const subcommand = interaction.options.getSubcommand(false);
-
-	const key = group ? `${command}.${group}.${subcommand}` : subcommand ? `${command}.${subcommand}` : command;
-	return { key, methods: Bot.commands.interactions.methods.get(key) ?? null };
-};
-
 const handleChatInputCommandInteraction = async ({ client, interaction, localization }: ChatInputArgs) => {
-	const { key, methods } = extractInteractionMethods({ interaction });
+	const { key, methods } = extractInteractionMethods(interaction);
 	client.logger.info(`Interaction | ${key} invoked by ${interaction.user.username} in ${interaction.guild.name}`);
 
 	try {
@@ -61,10 +52,19 @@ const handleChatInputCommandInteraction = async ({ client, interaction, localiza
 };
 
 const handleAutocomplete = async ({ client, interaction, localization }: AutocompleteArgs) => {
-	const { methods } = extractInteractionMethods({ interaction });
+	const { methods } = extractInteractionMethods(interaction);
 	await methods?.autocomplete?.({ client, interaction, localization });
 };
 
 const handleSelectMenuInteraction = async ({ client, interaction }: StringSelectArgs) => {
 	if (interaction.customId === Bot.ROLES_MESSAGE_ID) client.emit("userRolesUpdate", interaction);
+};
+
+const extractInteractionMethods = (interaction: (ChatInputArgs | AutocompleteArgs)["interaction"]) => {
+	const command = interaction.commandName;
+	const group = interaction.options.getSubcommandGroup(false);
+	const subcommand = interaction.options.getSubcommand(false);
+
+	const key = group ? `${command}.${group}.${subcommand}` : subcommand ? `${command}.${subcommand}` : command;
+	return { key, methods: Bot.commands.interactions.methods.get(key) ?? null };
 };
