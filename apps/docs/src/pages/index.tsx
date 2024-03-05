@@ -91,7 +91,7 @@ const Home = ({ commands }: Commands) => {
 			<Head>
 				<title>SerpineBot Slash Commands Overview</title>
 				<meta name="author" content="Luís Ferro" />
-				<meta name="description" content="Overview of all SerpineBot slash commands" />
+				<meta name="description" content="SerpineBot: Overview of all slash commands" />
 				<meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<link rel="icon" href="/favicon.ico" />
@@ -107,10 +107,9 @@ const Home = ({ commands }: Commands) => {
 				) : (
 					<>
 						<Landing
-							title="SerpineBot, a multipurpose discord bot for my private discord server"
-							description={`This page is an overview of all available slash commands.<br/>
-								Does not include webhooks or jobs documentation.<br/>
-								Github repository can be found [here](https://github.com/luferro/SerpineBot).`}
+							title="[SerpineBot](https://github.com/luferro/SerpineBot)"
+							subtitle="Multipurpose discord bot for my private discord server"
+							description={"Overview of all slash commands"}
 						/>
 						{commands.map(({ id, name, description, groups, subcommands, options }) => {
 							return (
