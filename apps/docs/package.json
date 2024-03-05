@@ -12,22 +12,22 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
+		"@emotion/react": "^11.11.4",
+		"@emotion/styled": "^11.11.0",
 		"@types/node": "^20.11.24",
 		"@types/react": "18.2.62",
 		"@types/react-dom": "18.2.19",
+		"react-dom": "18.2.0",
 		"typescript": "^5.3.3"
 	},
 	"dependencies": {
-		"@emotion/react": "^11.11.4",
-		"@emotion/styled": "^11.11.0",
 		"@luferro/config": "workspace:^",
-		"@mui/icons-material": "^5.15.11",
-		"@mui/material": "^5.15.11",
+		"@mui/icons-material": "^5.15.12",
+		"@mui/material": "^5.15.12",
 		"discord.js": "^14.14.1",
 		"html-react-parser": "^5.1.8",
 		"marked": "^12.0.0",
 		"next": "14.1.2",
-		"react": "18.2.0",
-		"react-dom": "18.2.0"
+		"react": "18.2.0"
 	}
 }
