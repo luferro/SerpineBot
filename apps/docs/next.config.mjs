@@ -2,10 +2,20 @@
 const nextConfig = {
 	reactStrictMode: true,
 	swcMinify: true,
-	cleanDistDir: true,
-	i18n: { locales: ["en"], defaultLocale: "en" },
-	compiler: { styledComponents: true },
-	eslint: { ignoreDuringBuilds: true },
+	i18n: {
+		defaultLocale: "en",
+		locales: ["en"],
+	},
+	compiler: {
+		styledComponents: true,
+	},
+	eslint: {
+		ignoreDuringBuilds: true,
+	},
+	webpack: (config) => {
+		config.externals.push({ "thread-stream": "commonjs thread-stream" });
+		return config;
+	},
 };
 
 export default nextConfig;
