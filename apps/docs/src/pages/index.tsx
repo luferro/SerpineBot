@@ -89,7 +89,7 @@ const Home = ({ commands }: Commands) => {
 	return (
 		<>
 			<Head>
-				<title>SerpineBot Slash Commands Overview</title>
+				<title>SerpineBot docs</title>
 				<meta name="author" content="Luís Ferro" />
 				<meta name="description" content="SerpineBot: Overview of all slash commands" />
 				<meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
