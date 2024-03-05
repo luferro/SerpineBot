@@ -1,3 +1,5 @@
+import { StringUtil } from "@luferro/shared-utils";
+
 type Options = {
 	prefix?: string;
 	filter?: RegExp;
@@ -11,7 +13,7 @@ export const processEnv = ({ prefix = "SB_", filter = /^SB_/ }: Options = {}) =>
 			.toLowerCase()
 			.replace(/__/g, ".")
 			.split("_")
-			.map((item, index) => (index === 0 ? item : item.charAt(0).toUpperCase() + item.slice(1)))
+			.map((item, index) => (index === 0 ? item : StringUtil.capitalize(item)))
 			.join("");
 		accumulator[propertyPath] = process.env[key];
 		return accumulator;

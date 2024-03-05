@@ -17,6 +17,7 @@
 		"typescript": "^5.3.3"
 	},
 	"dependencies": {
+		"@luferro/shared-utils": "workspace:^",
 		"config": "^3.3.11"
 	}
 }
