@@ -140,13 +140,11 @@ export class AniListApi {
 			.filter((edge): edge is NonNullable<typeof edge> => !!edge);
 	}
 
-	private async extractTrackers(media: Media) {
+	private extractTrackers(media: Media) {
 		const type = media.type!.toLowerCase();
-		const [animePlanet] = await this.scraper.engine.search(`${media.title!.romaji} site:www.anime-planet.com/${type}`);
 
 		return [
 			media.idMal ? { name: "MyAnimeList", url: `https://myanimelist.net/${type}/${media.idMal}` } : null,
-			animePlanet ? { name: "AnimePlanet", url: animePlanet.url } : null,
 			{ name: "AniList", url: `https://anilist.co/${type}/${media.id}` },
 		].filter((tracker): tracker is NonNullable<typeof tracker> => !!tracker);
 	}
@@ -192,7 +190,7 @@ export class AniListApi {
 			studios: this.extractStudios(media),
 			rankings: this.extractRankings(media),
 			streams: this.extractStreams(media),
-			trackers: await this.extractTrackers(media),
+			trackers: this.extractTrackers(media),
 			preview: { characters: this.extractCharacters(media), staff: this.extractStaff(media) },
 			...this.extractMediaFields(media),
 		};
@@ -309,7 +307,7 @@ export class AniListApi {
 						rankings: this.extractRankings(media),
 						studios: this.extractStudios(media),
 						streams: this.extractStreams(media),
-						trackers: await this.extractTrackers(media),
+						trackers: this.extractTrackers(media),
 					};
 				}),
 		);
