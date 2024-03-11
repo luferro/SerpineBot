@@ -1,4 +1,4 @@
-import { graphql } from "../../../__generated__";
+import { graphql } from "../../__generated__";
 
 export const CHARACTER_FIELDS = graphql(`
   fragment CharacterFields on Character {
@@ -17,7 +17,6 @@ export const CHARACTER_CONNECTION_FIELDS = graphql(`
     edges {
       id
       role
-      name
       voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
         ...StaffFields
       }

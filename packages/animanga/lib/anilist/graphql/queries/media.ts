@@ -1,7 +1,7 @@
-import { graphql } from "../../../__generated__";
+import { graphql } from "../../__generated__";
 
-export const GET_ANIME = graphql(`
-  query getAnime($id: Int, $type: MediaType) {
+export const GET_MEDIA = graphql(`
+  query getMedia($id: Int, $type: MediaType) {
     Media(id: $id, type: $type) {
       id
       idMal
@@ -48,10 +48,10 @@ export const GET_ANIME = graphql(`
       relations {
         ...MediaConnectionFields
       }
-      characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
+      characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
         ...CharacterConnectionFields
       }
-      staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
+      staff(perPage: 8, sort: [RELEVANCE, ID]) {
         ...StaffConnectionFields
       }
       studios {
@@ -71,12 +71,6 @@ export const GET_ANIME = graphql(`
         notes
         isDisabled
       }
-      streamingEpisodes {
-        site
-        title
-        thumbnail
-        url
-      }
       trailer {
         id
         site
@@ -85,19 +79,9 @@ export const GET_ANIME = graphql(`
         id
         rank
         type
-        format
         year
-        season
         allTime
         context
-      }
-      tags {
-        id
-        name
-        description
-        rank
-        isMediaSpoiler
-        isGeneralSpoiler
       }
       stats {
         statusDistribution {
@@ -171,7 +155,3 @@ export const GET_STAFF = graphql(`
     }
   }
 `);
-
-// export const GET_STATS = graphql(``);
-
-// export const GET_EPISODES = graphql(``);

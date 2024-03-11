@@ -1,5 +1,5 @@
 import path from "node:path";
-import { AnimeApi, MangadexApi } from "@luferro/animanga";
+import { AniListApi, MangadexApi } from "@luferro/animanga";
 import { Cache } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
 import { DatabaseClient, type ExtendedDatabaseClient, WebhookType } from "@luferro/database";
@@ -57,8 +57,8 @@ export class Bot extends Client {
 	private initializeApi() {
 		return {
 			mangadex: new MangadexApi(),
+			aniList: new AniListApi().withAnimeScheduleApi(this.config.get("services.animeSchedule.apiKey")),
 			shows: new TMDBApi(this.config.get("services.tmdb.apiKey")),
-			anime: new AnimeApi({ animeSchedule: { apiKey: this.config.get("services.animeSchedule.apiKey") } }),
 			reddit: new RedditApi(
 				this.config.get("services.reddit.clientId"),
 				this.config.get("services.reddit.clientSecret"),

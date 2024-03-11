@@ -22,6 +22,7 @@ export type Manga = {
 		status: string;
 		year: number;
 		tags: { attributes: { name: { en: string } } }[];
+		links: { al?: string; mal?: string; ap?: string };
 	};
 	relationships: Relationship<{ fileName: string }>[];
 };

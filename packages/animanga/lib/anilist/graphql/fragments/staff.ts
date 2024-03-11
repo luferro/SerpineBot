@@ -1,4 +1,4 @@
-import { graphql } from "../../../__generated__";
+import { graphql } from "../../__generated__";
 
 export const STAFF_FIELDS = graphql(`
   fragment StaffFields on Staff {
@@ -6,7 +6,7 @@ export const STAFF_FIELDS = graphql(`
     name {
       full
     }
-    language: languageV2
+    languageV2
     image {
       large
     }

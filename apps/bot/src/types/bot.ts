@@ -1,4 +1,4 @@
-import type { AnimeApi, MangadexApi } from "@luferro/animanga";
+import type { AniListApi, MangadexApi } from "@luferro/animanga";
 import type { TMDBApi } from "@luferro/entertainment";
 import type { GamingApi } from "@luferro/gaming";
 import type { RedditApi } from "@luferro/reddit";
@@ -51,7 +51,7 @@ export type JobExecute = { (args: JobArgs): Promise<void> };
 export type Job = { data: JobData; execute: JobExecute };
 
 export type Api = {
-	anime: AnimeApi;
+	aniList: AniListApi;
 	mangadex: MangadexApi;
 	gaming: GamingApi;
 	reddit: RedditApi;

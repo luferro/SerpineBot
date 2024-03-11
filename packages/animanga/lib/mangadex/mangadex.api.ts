@@ -10,8 +10,12 @@ export class MangadexApi {
 		const { payload } = await FetchUtil.fetch<Payload<Manga[]>>(`${MangadexApi.BASE_API_URL}/manga?title=${query}`);
 
 		return payload.data.map((result) => {
-			const { title } = result.attributes;
-			return { id: result.id, title: title.en ?? title["ja-ro"] ?? title.ja ?? title.jp };
+			const { title, links } = result.attributes;
+			return {
+				id: result.id,
+				title: title.en ?? title["ja-ro"] ?? title.ja ?? title.jp,
+				trackers: { aniList: links.al ?? null, myAnimeList: links.mal ?? null, animePlanet: links.ap ?? null },
+			};
 		});
 	}
 
@@ -34,7 +38,7 @@ export class MangadexApi {
 		};
 	}
 
-	async getChapters({ limit = 20 } = {}) {
+	async getLatestChapters({ limit = 20 } = {}) {
 		const { payload } = await FetchUtil.fetch<Payload<Chapter[]>>(
 			`${MangadexApi.BASE_API_URL}/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&includes[]=manga&limit=${limit}`,
 		);

@@ -1,4 +1,4 @@
-import { graphql } from "../../../__generated__";
+import { graphql } from "../../__generated__";
 
 export const MEDIA_TITLE_FIELDS = graphql(`
   fragment MediaTitleFields on MediaTitle {
@@ -23,7 +23,9 @@ export const MEDIA_CONNECTION = graphql(`
         status(version: 2)
         bannerImage
         coverImage {
+          medium
           large
+          extraLarge
         }
       }
     }

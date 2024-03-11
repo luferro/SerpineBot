@@ -1,4 +1,4 @@
-import { graphql } from "../../../__generated__";
+import { graphql } from "../../__generated__";
 
 export const GET_SCHEDULE = graphql(`
   query getSchedule($page: Int, $start: Int, $end: Int) {
@@ -25,8 +25,8 @@ export const GET_SCHEDULE = graphql(`
           episodes
           source(version: 2)
           countryOfOrigin
+          meanScore
           averageScore
-          siteUrl
           description
           isAdult
           coverImage {
@@ -34,24 +34,24 @@ export const GET_SCHEDULE = graphql(`
             large
             extraLarge
           }
+          bannerImage
           externalLinks {
             type
             site
             url
           }
           rankings {
+            id
             rank
             type
-            season
+            year
             allTime
+            context
           }
           studios(isMain: true) {
             nodes {
               ...StudioFields
             }
-          }
-          relations {
-            ...MediaConnectionFields
           }
         }
       }

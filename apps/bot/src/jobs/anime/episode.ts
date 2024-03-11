@@ -7,7 +7,7 @@ import type { JobData, JobExecute } from "../../types/bot";
 export const data: JobData = { schedule: "0 */5 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const schedule = (await client.api.anime.getWeeklySchedule()).filter(
+	const schedule = (await client.api.aniList.getWeeklySchedule()).filter(
 		({ airing }) => new Date(airing.sub.at ?? airing.raw.at).getDay() === new Date().getDay(),
 	);
 

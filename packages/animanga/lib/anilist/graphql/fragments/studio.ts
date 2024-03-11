@@ -1,4 +1,4 @@
-import { graphql } from "../../../__generated__";
+import { graphql } from "../../__generated__";
 
 export const STUDIO_FIELDS = graphql(`
   fragment StudioFields on Studio {
