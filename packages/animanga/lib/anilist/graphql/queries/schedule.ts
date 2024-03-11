@@ -20,6 +20,7 @@ export const GET_SCHEDULE = graphql(`
           status
           season
           seasonYear
+          type
           format
           duration
           episodes
