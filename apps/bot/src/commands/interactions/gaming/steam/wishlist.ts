@@ -22,9 +22,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const formattedWishlist = integration.wishlist
 		.slice(0, 10)
 		.map(
-			({ title, url, discounted, isFree }, index) =>
-				`\`${index + 1}.\` **[${title}](${url})** | ${discounted || (isFree && "Free") || "N/A"}`,
+			({ priority, title, url, discounted, isFree }) =>
+				`\`${priority}.\` **[${title}](${url})** | ${discounted || (isFree && "Free") || t("common.unavailable")}`,
 		);
+
+	console.log(formattedWishlist.at(-1));
 	const hiddenCount = integration.wishlist.length - formattedWishlist.length;
 	if (hiddenCount > 0) formattedWishlist.push(t("common.lists.hidden", { size: hiddenCount }));
 

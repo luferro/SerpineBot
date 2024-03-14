@@ -86,8 +86,8 @@ const notifyUser = async (client: Bot, userId: string, alerts: Alerts) => {
 				queue
 					.slice(0, 10)
 					.map(
-						({ title, url, discount, discounted, regular, addedTo, removedFrom }) =>
-							`> ${t(`jobs.gaming.wishlists.${alert}.embed.description`, {
+						({ priority, title, url, discount, discounted, regular, addedTo, removedFrom }) =>
+							`\`${priority}.\` ${t(`jobs.gaming.wishlists.${alert}.embed.description`, {
 								item: `**[${title}](${url})**`,
 								discount: `***${discount}%***`,
 								regular: `~~${ConverterUtil.formatCurrency(regular!, localization)}~~`,
