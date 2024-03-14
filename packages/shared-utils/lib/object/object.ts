@@ -39,6 +39,14 @@ export const enumToArray = <T extends { [name: string]: number | string }>(enume
 		.map((value) => value as keyof T);
 };
 
-export const hasCommonFields = <T extends object>(fields: string[], obj1: T, obj2: T) => {
-	return R.any((field) => R.equals(R.path(field.split("."), obj1), R.path(field.split("."), obj2)), fields ?? []);
+const fieldExists = <T extends object>(field: string, obj1: T, obj2: T) => {
+	return R.equals(R.path(field.split("."), obj1), R.path(field.split("."), obj2));
+};
+
+export const someFieldExists = <T extends object>(fields: string[], obj1: T, obj2: T) => {
+	return R.any((field) => fieldExists(field, obj1, obj2), fields ?? []);
+};
+
+export const everyFieldExists = <T extends object>(fields: string[], obj1: T, obj2: T) => {
+	return R.all((field) => fieldExists(field, obj1, obj2), fields ?? []);
 };

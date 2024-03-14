@@ -183,6 +183,10 @@ export class Bot extends Client {
 			const channel = webhook?.channel;
 			if (!webhook || !channel) continue;
 
+			const commonFields = config.fields.includes("description")
+				? ObjectUtil.everyFieldExists
+				: ObjectUtil.someFieldExists;
+
 			const [embeds, contents] = ObjectUtil.partition<MessageType, EmbedBuilder>(
 				await getMessages(config.cache),
 				(message: MessageType) => message instanceof EmbedBuilder,
@@ -193,9 +197,7 @@ export class Bot extends Client {
 					const content = everyone ? `${guild.roles.everyone}` : undefined;
 
 					const cachedMessage = channel.messages.cache.find((message) =>
-						data.some((embed) =>
-							message.embeds.some((cached) => ObjectUtil.hasCommonFields(config.fields, embed.data, cached.data)),
-						),
+						data.some((embed) => message.embeds.some((cached) => commonFields(config.fields, embed.data, cached.data))),
 					);
 					if (!cachedMessage) {
 						const message = await webhook.send({ content, embeds: data });
@@ -205,9 +207,7 @@ export class Bot extends Client {
 
 					const { embeds } = cachedMessage;
 					for (const embed of data) {
-						const index = embeds.findIndex((cachedEmbed) =>
-							ObjectUtil.hasCommonFields(config.fields, embed.data, cachedEmbed.data),
-						);
+						const index = embeds.findIndex((cachedEmbed) => commonFields(config.fields, embed.data, cachedEmbed.data));
 						if (index !== -1) embeds[index] = embed.data as Embed;
 					}
 
