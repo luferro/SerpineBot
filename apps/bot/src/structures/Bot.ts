@@ -122,7 +122,7 @@ export class Bot extends Client {
 			i18next.use(Backend).init({
 				fallbackLng: "en-US",
 				backend: { loadPath: path.join(__dirname, "../locales/{{lng}}.json") },
-				interpolation: { escapeValue: true },
+				interpolation: { escapeValue: false },
 			});
 
 			await this.login(this.config.get("client.token"));
