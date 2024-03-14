@@ -43,7 +43,7 @@ type FormatOptions = {
 
 export const format = (
 	date: number | Date,
-	{ format = "dd-MM-yyyy HH:mm", timezone = "utc", locale = "en-US" }: FormatOptions = {},
+	{ format = "dd/MM/yyyy HH:mm", timezone = "utc", locale = "en-US" }: FormatOptions = {},
 ) => {
 	return DateFnsTz.formatInTimeZone(date, timezone, format, { locale: getLocale(locale) });
 };
