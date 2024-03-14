@@ -13,10 +13,10 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"typescript": "^5.3.3"
+		"typescript": "^5.4.2"
 	},
 	"dependencies": {
-		"@apollo/client": "^3.9.5",
+		"@apollo/client": "^3.9.7",
 		"@luferro/reddit": "workspace:^",
 		"@luferro/scraper": "workspace:^",
 		"@luferro/shared-utils": "workspace:^",
