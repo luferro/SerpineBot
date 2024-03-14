@@ -651,20 +651,6 @@
 					"description": "{{text}}\n{{url}}\nStart time / End time may be incorrect."
 				}
 			},
-			"leaderboards": {
-				"steam": {
-					"embed": {
-						"title": "Weekly Steam Leaderboard ({{from}} - {{to}})",
-						"description": "**{{username}}** with `{{hours}}h`\nTop played game was **[{{title}}]({{url}})**"
-					}
-				},
-				"xbox": {
-					"embed": {
-						"title": "Weekly Xbox Leaderboard ({{from}} - {{to}})",
-						"description": "**{{username}}** with `{{gamerscore}}G`\nTop gamerscore achieved on **{{title}}**"
-					}
-				}
-			},
 			"reviews": {
 				"embed": {
 					"fields": [
