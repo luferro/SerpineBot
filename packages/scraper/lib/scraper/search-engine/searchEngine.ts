@@ -1,6 +1,6 @@
 import { DateUtil } from "@luferro/shared-utils";
-import { InteractiveScraper } from "../web-pages/interactive";
-import { StaticScraper } from "../web-pages/static";
+import type { InteractiveScraper } from "../web-pages/interactive";
+import type { StaticScraper } from "../web-pages/static";
 
 type SearchOptions = { interval?: { start: Date | number; end?: Date | number } };
 

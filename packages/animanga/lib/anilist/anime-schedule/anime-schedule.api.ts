@@ -1,5 +1,5 @@
 import { DateUtil, FetchUtil } from "@luferro/shared-utils";
-import { Schedule } from "./anime-schedule.types";
+import type { Schedule } from "./anime-schedule.types";
 
 export class AnimeScheduleApi {
 	private static BASE_URL = "https://animeschedule.net";

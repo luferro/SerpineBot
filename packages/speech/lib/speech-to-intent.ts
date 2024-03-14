@@ -1,5 +1,5 @@
 import { LoggerUtil } from "@luferro/shared-utils";
-import { Rhino, RhinoErrors, RhinoInference, getInt16Frames } from "@picovoice/rhino-node";
+import { Rhino, RhinoErrors, type RhinoInference, getInt16Frames } from "@picovoice/rhino-node";
 import { bufferToInt16 } from "./utils/audio";
 
 export class SpeechToIntentClient {

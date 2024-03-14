@@ -1,4 +1,4 @@
-import { Track } from "discord-player";
+import type { Track } from "discord-player";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
 import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";

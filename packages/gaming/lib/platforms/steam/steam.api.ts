@@ -1,6 +1,6 @@
 import { Scraper } from "@luferro/scraper";
 import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
-import { Chart, Payload, Profile, RecentlyPlayed, Status, Wishlist } from "./steam.types";
+import { Chart, type Payload, type Profile, type RecentlyPlayed, Status, type Wishlist } from "./steam.types";
 
 export class SteamApi extends Scraper {
 	private static BASE_API_URL = "https://api.steampowered.com";
@@ -89,7 +89,9 @@ export class SteamApi extends Scraper {
 		}
 
 		return wishlist.sort(
-			(a, b) => (a.priority !== 0 ? a.priority : Infinity) - (b.priority !== 0 ? b.priority : Infinity),
+			(a, b) =>
+				(a.priority !== 0 ? a.priority : Number.POSITIVE_INFINITY) -
+				(b.priority !== 0 ? b.priority : Number.POSITIVE_INFINITY),
 		);
 	}
 

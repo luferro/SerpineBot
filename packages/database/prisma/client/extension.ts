@@ -1,4 +1,4 @@
-import { Prisma, Subscription, WebhookType } from "@prisma/client";
+import { Prisma, type Subscription, type WebhookType } from "@prisma/client";
 
 export const extension = Prisma.defineExtension((client) => {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>

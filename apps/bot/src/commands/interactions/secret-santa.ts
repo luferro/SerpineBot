@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { ConverterUtil, DateUtil, ObjectUtil } from "@luferro/shared-utils";
 import { EmbedBuilder, SlashCommandIntegerOption, SlashCommandStringOption } from "discord.js";
 import { t } from "i18next";

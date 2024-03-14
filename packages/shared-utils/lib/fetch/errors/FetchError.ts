@@ -1,4 +1,4 @@
-import { Headers } from "header-generator";
+import type { Headers } from "header-generator";
 
 export class FetchError extends Error {
 	url?: string;

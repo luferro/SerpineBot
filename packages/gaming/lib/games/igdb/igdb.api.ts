@@ -1,5 +1,5 @@
 import { DateUtil, FetchUtil } from "@luferro/shared-utils";
-import { Event, Result } from "./igdb.types";
+import type { Event, Result } from "./igdb.types";
 
 export class IGDBApi {
 	private static BASE_OAUTH_URL = "https://id.twitch.tv";

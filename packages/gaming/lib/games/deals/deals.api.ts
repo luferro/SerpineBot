@@ -1,5 +1,5 @@
 import { FetchUtil } from "@luferro/shared-utils";
-import { Bundle, Deal, Game, HistoricalLow, List, Result } from "./deals.types";
+import type { Bundle, Deal, Game, HistoricalLow, List, Result } from "./deals.types";
 
 export class DealsApi {
 	private static BASE_API_URL = "https://api.isthereanydeal.com";

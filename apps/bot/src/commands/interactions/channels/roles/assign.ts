@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
 	ActionRowBuilder,
 	ChannelType,
@@ -8,7 +8,7 @@ import {
 	StringSelectMenuBuilder,
 } from "discord.js";
 import { t } from "i18next";
-import { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.channels.roles.assign.name"))

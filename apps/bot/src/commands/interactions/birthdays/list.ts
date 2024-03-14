@@ -1,8 +1,8 @@
-import { Birthday } from "@luferro/database";
+import type { Birthday } from "@luferro/database";
 import { DateUtil, StringUtil } from "@luferro/shared-utils";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.birthdays.list.name"))

@@ -1,4 +1,4 @@
-import { Readable } from "stream";
+import { Readable } from "node:stream";
 import { createAudioResource } from "discord-voip";
 import { t } from "i18next";
 import type { VoiceCommandExecute } from "../../../../types/bot";

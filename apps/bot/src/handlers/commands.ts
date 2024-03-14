@@ -1,7 +1,7 @@
 import path from "node:path";
 import { FsUtil } from "@luferro/shared-utils";
 import {
-	ApplicationCommandDataResolvable,
+	type ApplicationCommandDataResolvable,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
 	SlashCommandIntegerOption,
@@ -11,7 +11,7 @@ import {
 } from "discord.js";
 import { t } from "i18next";
 import { Bot } from "../structures/Bot";
-import { InteractionCommand, MetadataBuilder, VoiceCommand } from "../types/bot";
+import type { InteractionCommand, MetadataBuilder, VoiceCommand } from "../types/bot";
 
 export const registerCommands = async (client: Bot) => {
 	await registerVoiceCommands(client);

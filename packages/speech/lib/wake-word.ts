@@ -1,4 +1,4 @@
-import { Readable } from "stream";
+import type { Readable } from "node:stream";
 import { LoggerUtil } from "@luferro/shared-utils";
 import { BuiltinKeyword, Porcupine, PorcupineErrors, getInt16Frames } from "@picovoice/porcupine-node";
 import prism from "prism-media";

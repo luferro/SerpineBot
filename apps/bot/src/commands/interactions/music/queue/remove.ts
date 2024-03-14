@@ -1,5 +1,5 @@
-import { randomUUID } from "crypto";
-import { Playlist } from "discord-player";
+import { randomUUID } from "node:crypto";
+import type { Playlist } from "discord-player";
 import {
 	ActionRowBuilder,
 	ComponentType,
@@ -10,7 +10,7 @@ import {
 import { t } from "i18next";
 import { Bot } from "../../../../structures/Bot";
 import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
-import { ExtendedStringSelectMenuInteraction } from "../../../../types/interaction";
+import type { ExtendedStringSelectMenuInteraction } from "../../../../types/interaction";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.music.queue.remove.name"))

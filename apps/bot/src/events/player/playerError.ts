@@ -1,5 +1,5 @@
-import { GuildQueue } from "discord-player";
-import { EmbedBuilder, TextBasedChannel } from "discord.js";
+import type { GuildQueue } from "discord-player";
+import { EmbedBuilder, type TextBasedChannel } from "discord.js";
 import { t } from "i18next";
 import type { EventData, EventExecute } from "../../types/bot";
 

@@ -1,5 +1,5 @@
 import { FetchUtil, StringUtil } from "@luferro/shared-utils";
-import { Chapter, Manga, Payload } from "./mangadex.types";
+import type { Chapter, Manga, Payload } from "./mangadex.types";
 
 export class MangadexApi {
 	private static BASE_URL = "https://mangadex.org";

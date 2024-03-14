@@ -2,7 +2,7 @@ import { ObjectUtil } from "@luferro/shared-utils";
 import { EmbedBuilder, SlashCommandStringOption } from "discord.js";
 import { t } from "i18next";
 import { LeaderboardType, getLeaderboard } from "../../helpers/leaderboards";
-import { InteractionCommandData, InteractionCommandExecute } from "../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "../../types/bot";
 
 export const data: InteractionCommandData = [
 	new SlashCommandStringOption()

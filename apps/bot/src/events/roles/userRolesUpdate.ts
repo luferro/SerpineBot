@@ -2,7 +2,7 @@ import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
 import { Bot } from "../../structures/Bot";
 import type { EventData, EventExecute } from "../../types/bot";
-import { ExtendedStringSelectMenuInteraction } from "../../types/interaction";
+import type { ExtendedStringSelectMenuInteraction } from "../../types/interaction";
 
 type Args = [interaction: ExtendedStringSelectMenuInteraction];
 

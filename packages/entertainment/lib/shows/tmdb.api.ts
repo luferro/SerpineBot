@@ -1,5 +1,5 @@
 import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
-import { Movie, Payload, Result, Series } from "./tmdb.types";
+import type { Movie, Payload, Result, Series } from "./tmdb.types";
 
 export class TMDBApi {
 	constructor(private apiKey: string) {}

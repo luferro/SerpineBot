@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { StyledMain } from "./Main.styled";
 
 type Props = { children: ReactNode };

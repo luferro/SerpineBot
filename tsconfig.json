@@ -17,6 +17,6 @@
 		"target": "ESNext",
 
 		// https://www.typescriptlang.org/tsconfig#Completeness_6257
-		"skipLibCheck": true,
+		"skipLibCheck": true
 	}
 }

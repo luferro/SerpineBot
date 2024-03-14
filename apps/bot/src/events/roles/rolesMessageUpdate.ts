@@ -1,4 +1,4 @@
-import { ActionRowBuilder, Collection, EmbedBuilder, Message, StringSelectMenuBuilder } from "discord.js";
+import { ActionRowBuilder, type Collection, EmbedBuilder, type Message, StringSelectMenuBuilder } from "discord.js";
 import { t } from "i18next";
 import { Bot } from "../../structures/Bot";
 import type { EventData, EventExecute } from "../../types/bot";

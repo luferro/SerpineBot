@@ -1,6 +1,6 @@
 import { DateUtil, LoggerUtil } from "@luferro/shared-utils";
 import Parser from "rss-parser";
-import { StaticScraper } from "../web-pages/static";
+import type { StaticScraper } from "../web-pages/static";
 
 type Image = { isExternal?: boolean; selector: string };
 type ImageOptions = { image: Image } | null;

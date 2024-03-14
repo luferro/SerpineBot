@@ -1,6 +1,6 @@
 import { Scraper } from "@luferro/scraper";
 import { DateUtil, FetchUtil, StringUtil } from "@luferro/shared-utils";
-import { Chart, Payload, Profile, RecentlyPlayed } from "./xbox.types";
+import { Chart, type Payload, type Profile, type RecentlyPlayed } from "./xbox.types";
 
 export class XboxApi extends Scraper {
 	private static BASE_API_URL = "https://xbl.io";

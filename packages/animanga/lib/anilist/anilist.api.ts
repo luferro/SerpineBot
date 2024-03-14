@@ -2,13 +2,13 @@ import { Scraper } from "@luferro/scraper";
 import { DateUtil, StringUtil } from "@luferro/shared-utils";
 import { type Client, cacheExchange, createClient, fetchExchange } from "@urql/core";
 import {
-	AiringSchedule,
+	type AiringSchedule,
 	ExternalLinkType,
-	Media,
-	MediaExternalLink,
-	MediaRank,
-	MediaType,
-	PageInfo,
+	type Media,
+	type MediaExternalLink,
+	type MediaRank,
+	type MediaType,
+	type PageInfo,
 } from "./__generated__/graphql";
 import { AnimeScheduleApi } from "./anime-schedule/anime-schedule.api";
 import { GET_CHARACTERS, GET_MEDIA, GET_RECOMMENDATIONS, GET_STAFF } from "./graphql/queries/media";

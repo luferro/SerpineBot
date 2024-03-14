@@ -1,4 +1,4 @@
-import { Page, Route } from "playwright-chromium";
+import type { Page, Route } from "playwright-chromium";
 import { chromium } from "playwright-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 

@@ -1,4 +1,4 @@
-import { Subcommand } from "../../../../../types/bot";
+import type { Subcommand } from "../../../../../types/bot";
 import { Accordion } from "../../Accordion";
 
 type Props = {
