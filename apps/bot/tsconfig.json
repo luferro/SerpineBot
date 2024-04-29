@@ -4,5 +4,5 @@
 		"outDir": "dist",
 		"paths": { "~/*": ["./src/*"] }
 	},
-	"include": ["src", "locales"]
+	"include": ["src", "src/**/*.json"]
 }
