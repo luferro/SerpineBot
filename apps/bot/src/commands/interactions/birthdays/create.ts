@@ -1,7 +1,7 @@
-import { DateUtil } from "@luferro/shared-utils";
+import { isValid } from "@luferro/helpers/datetime";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.birthdays.create.name"))
@@ -30,7 +30,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const month = interaction.options.getInteger(data.options[1].name, true);
 	const year = interaction.options.getInteger(data.options[2].name, true);
 
-	if (!DateUtil.isValid(year, month, day)) throw new Error(t("errors.date.invalid"));
+	if (!isValid(year, month, day)) throw new Error(t("errors.date.invalid"));
 
 	const userId = interaction.user.id;
 	await client.prisma.birthday.upsert({

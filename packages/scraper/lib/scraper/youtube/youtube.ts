@@ -1,4 +1,4 @@
-import { ConverterUtil } from "@luferro/shared-utils";
+import { formatTime } from "@luferro/helpers/datetime";
 import ytdl from "ytdl-core";
 
 export class Youtube {
@@ -31,7 +31,7 @@ export class Youtube {
 			url,
 			title: title ?? null,
 			thumbnail: thumbnails[0]?.url ?? null,
-			duration: isLiveContent ? ConverterUtil.formatTime(Number(lengthSeconds) * 1000) : null,
+			duration: isLiveContent ? formatTime(Number(lengthSeconds) * 1000) : null,
 			isLivestream: isLiveContent,
 			channel: {
 				id: author.id,

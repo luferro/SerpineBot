@@ -1,1 +1,1 @@
-export * from "./gaming.api";
+export * from "./gaming.api.js";

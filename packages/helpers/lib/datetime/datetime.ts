@@ -1,6 +1,6 @@
 import parser from "cron-parser";
 import * as DateFns from "date-fns";
-import * as DateFnsTz from "date-fns-tz";
+import { formatInTimeZone } from "date-fns-tz";
 import * as LocaleList from "date-fns/locale";
 
 export * from "date-fns";
@@ -13,6 +13,29 @@ const getLocale = (locale: string) => {
 		LocaleList.enUS
 	);
 };
+
+export const toMilliseconds = (
+	time: number,
+	unit: "Milliseconds" | "Seconds" | "Minutes" | "Hours" | "Days" | "Weeks" | "Months" | "Years",
+) => {
+	const options: Record<typeof unit, number> = {
+		Milliseconds: time,
+		Seconds: time * 1000,
+		Minutes: time * 1000 * 60,
+		Hours: time * 1000 * 60 * 60,
+		Days: time * 1000 * 60 * 60 * 24,
+		Weeks: time * 1000 * 60 * 60 * 24 * 7,
+		Months: time * 1000 * 60 * 60 * 24 * 30.4375,
+		Years: time * 1000 * 60 * 60 * 24 * 365.25,
+	};
+	return Number(options[unit].toFixed(2));
+};
+
+export const toSeconds = (ms: number) => Number((ms / 1000).toFixed(2));
+
+export const toMinutes = (ms: number) => Number((ms / (1000 * 60)).toFixed(2));
+
+export const toHours = (ms: number) => Number((ms / (1000 * 60 * 60)).toFixed(2));
 
 export const isValid = (year: number, month: number, day: number) => {
 	const date = new Date(year, month - 1, day);
@@ -35,17 +58,15 @@ type FormatOptions = {
 	 * @default "utc"
 	 */
 	timezone?: string;
-	/**
-	 * @default "en-US"
-	 */
+	/** @default "en-US" */
 	locale?: string;
 };
 
-export const format = (
+export const formatDate = (
 	date: number | Date,
 	{ format = "dd/MM/yyyy HH:mm", timezone = "utc", locale = "en-US" }: FormatOptions = {},
 ) => {
-	return DateFnsTz.formatInTimeZone(date, timezone, format, { locale: getLocale(locale) });
+	return formatInTimeZone(date, timezone, format, { locale: getLocale(locale) });
 };
 
 type FormatDistanceOptions = {
@@ -54,9 +75,7 @@ type FormatDistanceOptions = {
 	 * @default new Date()
 	 */
 	to?: number | Date;
-	/**
-	 * @default "en-US"
-	 */
+	/** @default "en-US" */
 	locale?: string;
 };
 
@@ -65,4 +84,11 @@ export const formatDistance = (
 	{ to = new Date(), locale = "en-US" }: FormatDistanceOptions = {},
 ) => {
 	return DateFns.formatDistance(from, to, { addSuffix: true, locale: getLocale(locale) });
+};
+
+export const formatTime = (ms: number) => {
+	return Object.entries(DateFns.intervalToDuration({ start: 0, end: ms }))
+		.filter(({ 1: value }) => !!value)
+		.map(([key, value]) => `${value}${key.charAt(0)}`)
+		.join("");
 };

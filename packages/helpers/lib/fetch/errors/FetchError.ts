@@ -1,9 +1,7 @@
-import type { Headers } from "header-generator";
-
 export class FetchError extends Error {
 	url?: string;
 	status?: number;
-	headers?: Headers;
+	headers?: unknown;
 	payload?: unknown;
 
 	setUrl(url: string) {
@@ -16,7 +14,7 @@ export class FetchError extends Error {
 		return this;
 	}
 
-	setHeaders(headers: Headers) {
+	setHeaders(headers: unknown) {
 		this.headers = headers;
 		return this;
 	}

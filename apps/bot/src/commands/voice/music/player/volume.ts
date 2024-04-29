@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import type { VoiceCommandExecute } from "../../../../types/bot";
+import type { VoiceCommandExecute } from "~/types/bot.js";
 
 export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
 	const volume = Number(slots.percentage.match(/\d+/g)?.[0] ?? queue.node.volume);

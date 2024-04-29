@@ -1,11 +1,7 @@
-import { DateUtil } from "@luferro/shared-utils";
+import { formatDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type {
-	InteractionCommandAutoComplete,
-	InteractionCommandData,
-	InteractionCommandExecute,
-} from "../../../types/bot";
+import type { InteractionCommandAutoComplete, InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.shows.series.name"))
@@ -51,14 +47,14 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 			{
 				name: t("interactions.shows.series.embed.fields.3.name"),
 				value: episodes.last.date
-					? DateUtil.format(new Date(episodes.last.date), { format: "dd-MM-yyyy", ...localization })
+					? formatDate(new Date(episodes.last.date), { format: "dd-MM-yyyy", ...localization })
 					: t("common.unavailable"),
 				inline: true,
 			},
 			{
 				name: t("interactions.shows.series.embed.fields.4.name"),
 				value: episodes.next.date
-					? DateUtil.format(new Date(), { format: "dd-MM-yyyy", ...localization })
+					? formatDate(new Date(), { format: "dd-MM-yyyy", ...localization })
 					: t("common.unavailable"),
 				inline: true,
 			},

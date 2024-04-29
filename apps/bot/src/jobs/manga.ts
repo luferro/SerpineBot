@@ -1,8 +1,9 @@
 import { WebhookType } from "@luferro/database";
-import { DateUtil, StringUtil } from "@luferro/shared-utils";
+import { getPrevious } from "@luferro/helpers/datetime";
+import { truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import type { JobData, JobExecute } from "../types/bot";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 */10 * * * *" };
 
@@ -15,8 +16,7 @@ export const execute: JobExecute = async ({ client }) => {
 				manga.mangaId,
 				latestChapters.filter(
 					({ mangaId, chapter }) =>
-						mangaId === manga.mangaId &&
-						new Date(chapter.readableAt).getTime() >= DateUtil.getPrevious(data.schedule).getTime(),
+						mangaId === manga.mangaId && new Date(chapter.readableAt).getTime() >= getPrevious(data.schedule).getTime(),
 				),
 			]),
 	);
@@ -35,7 +35,7 @@ export const execute: JobExecute = async ({ client }) => {
 		if (hiddenCount > 0) formattedChapters.push(t("common.lists.hidden", { size: hiddenCount }));
 
 		const embed = new EmbedBuilder()
-			.setTitle(StringUtil.truncate(title))
+			.setTitle(truncate(title))
 			.setURL(url)
 			.setThumbnail(image)
 			.setDescription(`*${publication}*`)

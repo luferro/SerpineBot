@@ -1,6 +1,6 @@
 import { ChannelType, EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.channels.roles.unassign.name"))

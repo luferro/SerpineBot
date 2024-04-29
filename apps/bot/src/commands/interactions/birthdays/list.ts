@@ -1,8 +1,9 @@
 import type { Birthday } from "@luferro/database";
-import { DateUtil, StringUtil } from "@luferro/shared-utils";
+import { formatDate } from "@luferro/helpers/datetime";
+import { capitalize } from "@luferro/helpers/transform";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.birthdays.list.name"))
@@ -14,11 +15,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 		.sort((a, b) => a.day - b.day && a.month - b.month)
 		.reduce(
 			(acc, birthday) => {
-				const month = StringUtil.capitalize(
-					DateUtil.format(new Date(birthday.year, birthday.month - 1, birthday.day), {
-						format: "MMMM",
-						...localization,
-					}),
+				const month = capitalize(
+					formatDate(new Date(birthday.year, birthday.month - 1, birthday.day), { format: "MMMM", ...localization }),
 				);
 
 				const index = acc.findIndex((entry) => entry.month === month);

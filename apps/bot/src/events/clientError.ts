@@ -1,12 +1,12 @@
-import { FetchUtil } from "@luferro/shared-utils";
-import type { EventData, EventExecute } from "../types/bot";
+import { FetchError } from "@luferro/helpers/fetch";
+import type { EventData, EventExecute } from "~/types/bot.js";
 
 type Args = [error: Error];
 
 export const data: EventData = { type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [error] }) => {
-	const isFetchError = error instanceof FetchUtil.FetchError;
+	const isFetchError = error instanceof FetchError;
 	if (!isFetchError) {
 		client.logger.error(error);
 		return;

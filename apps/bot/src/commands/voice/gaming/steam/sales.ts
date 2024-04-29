@@ -1,7 +1,7 @@
 import { Readable } from "node:stream";
 import { createAudioResource } from "discord-voip";
 import { t } from "i18next";
-import type { VoiceCommandExecute } from "../../../../types/bot";
+import type { VoiceCommandExecute } from "~/types/bot.js";
 
 export const execute: VoiceCommandExecute = async ({ client, queue }) => {
 	const { sale } = await client.api.gaming.platforms.steam.getUpcomingSales();

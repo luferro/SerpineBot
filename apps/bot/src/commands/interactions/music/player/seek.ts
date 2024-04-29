@@ -1,7 +1,7 @@
-import { ConverterUtil } from "@luferro/shared-utils";
+import { toMilliseconds } from "../../../../../../../packages/helpers/dist/datetime/index.js";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.music.player.seek.name"))
@@ -44,9 +44,9 @@ const getMilliseconds = (timestampToConvert: string) => {
 		.split(":")
 		.reverse()
 		.forEach((time, index) => {
-			if (index === 0) totalMilliseconds += ConverterUtil.toMilliseconds(Number(time), "Seconds");
-			if (index === 1) totalMilliseconds += ConverterUtil.toMilliseconds(Number(time), "Minutes");
-			if (index === 2) totalMilliseconds += ConverterUtil.toMilliseconds(Number(time), "Hours");
+			if (index === 0) totalMilliseconds += toMilliseconds(Number(time), "Seconds");
+			if (index === 1) totalMilliseconds += toMilliseconds(Number(time), "Minutes");
+			if (index === 2) totalMilliseconds += toMilliseconds(Number(time), "Hours");
 		});
 	return totalMilliseconds;
 };

@@ -1,7 +1,7 @@
 import { WebhookType } from "@luferro/database";
-import { StringUtil } from "@luferro/shared-utils";
+import { truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
-import type { JobData, JobExecute } from "../types/bot";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 */15 * * * *" };
 
@@ -18,16 +18,11 @@ export const execute: JobExecute = async ({ client }) => {
 			const nsfwUrl = galleryMediaId ? `https://i.redd.it/${galleryMediaId}.jpg` : url;
 
 			if (hasEmbeddedMedia) {
-				messages.push(`**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${nsfwUrl}`);
+				messages.push(`**[${truncate(title)}](<${selfurl}>)**\n${nsfwUrl}`);
 				continue;
 			}
 
-			const embed = new EmbedBuilder()
-				.setTitle(StringUtil.truncate(title))
-				.setURL(selfurl)
-				.setImage(nsfwUrl)
-				.setColor("Random");
-
+			const embed = new EmbedBuilder().setTitle(truncate(title)).setURL(selfurl).setImage(nsfwUrl).setColor("Random");
 			messages.push(embed);
 		}
 

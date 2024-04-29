@@ -1,5 +1,5 @@
+import { fetcher } from "@luferro/helpers/fetch";
 import { Scraper } from "@luferro/scraper";
-import { FetchUtil } from "@luferro/shared-utils";
 
 type Payload<T> = { data: T };
 type Children<T> = { children: T };
@@ -21,21 +21,22 @@ type Post = {
 	over_18: boolean;
 };
 
-export class RedditApi extends Scraper {
+export class RedditApi {
 	private static BASE_OAUTH_URL = "https://www.reddit.com/api";
 	private static BASE_API_URL = "https://oauth.reddit.com";
 
 	private authorization?: string;
+	private scraper: Scraper;
 
 	constructor(
 		private clientId: string,
 		private clientSecret: string,
 	) {
-		super();
+		this.scraper = new Scraper();
 	}
 
 	private async authenticate() {
-		const { payload } = await FetchUtil.fetch<{ access_token: string }>(
+		const { payload } = await fetcher<{ access_token: string }>(
 			`${RedditApi.BASE_OAUTH_URL}/v1/access_token?grant_type=client_credentials`,
 			{
 				method: "POST",
@@ -63,7 +64,7 @@ export class RedditApi extends Scraper {
 			url = `${RedditApi.BASE_API_URL}/r/${subreddit}/search?q=${flair}&limit=${limit}&sort=${sort}&restrict_sr=on`;
 		}
 
-		const { payload } = await FetchUtil.fetch<Payload<Children<Data<Post>[]>>>(url, {
+		const { payload } = await fetcher<Payload<Children<Data<Post>[]>>>(url, {
 			headers: await this.getHeaders(),
 			cb: (status) => this.handleStatusCode(status),
 		});
@@ -84,7 +85,7 @@ export class RedditApi extends Scraper {
 					isCrosspost: Boolean(data.crosspost_parent),
 					isSelf: data.is_self,
 					isNsfw: data.over_18,
-					isYoutubeEmbed: data.secure_media?.type === "youtube.com" || this.youtube.isVideo(data.url),
+					isYoutubeEmbed: data.secure_media?.type === "youtube.com" || this.scraper.youtube.isVideo(data.url),
 					gallery: data.gallery_data,
 					publishedAt: new Date(data.created_utc * 1000),
 					hasEmbeddedMedia: Boolean(data.secure_media) || /\.(gif|gifv|mp4)/.test(data.url),

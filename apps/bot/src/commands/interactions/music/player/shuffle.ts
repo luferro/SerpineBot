@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import { Bot } from "../../../../structures/Bot";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
+import { Bot } from "~/structures/Bot.js";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.music.player.shuffle.name"))

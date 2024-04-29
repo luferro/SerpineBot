@@ -1,5 +1,5 @@
-import { FetchUtil } from "@luferro/shared-utils";
-import type { Bundle, Deal, Game, HistoricalLow, List, Result } from "./deals.types";
+import { fetcher } from "@luferro/helpers/fetch";
+import type { Bundle, Deal, Game, HistoricalLow, List, Result } from "./deals.types.js";
 
 export class DealsApi {
 	private static BASE_API_URL = "https://api.isthereanydeal.com";
@@ -7,7 +7,7 @@ export class DealsApi {
 	constructor(private apiKey: string) {}
 
 	private async getActiveBundles(id: string, { country = "PT" } = {}) {
-		const { payload } = await FetchUtil.fetch<Bundle[]>(
+		const { payload } = await fetcher<Bundle[]>(
 			`${DealsApi.BASE_API_URL}/games/bundles/v2?key=${this.apiKey}&id=${id}&country=${country}`,
 		);
 
@@ -26,7 +26,7 @@ export class DealsApi {
 	}
 
 	private async getHistoricalLow(id: string, { country = "PT" } = {}) {
-		const { payload } = await FetchUtil.fetch<(Pick<Game, "id"> & { low: HistoricalLow })[]>(
+		const { payload } = await fetcher<(Pick<Game, "id"> & { low: HistoricalLow })[]>(
 			`${DealsApi.BASE_API_URL}/games/historylow/v1?key=${this.apiKey}&country=${country}`,
 			{ method: "POST", body: JSON.stringify([id]) },
 		);
@@ -43,7 +43,7 @@ export class DealsApi {
 	}
 
 	private async getPrices(id: string, { country = "PT" } = {}) {
-		const { payload } = await FetchUtil.fetch<(Pick<Game, "id"> & { deals: Deal[] })[]>(
+		const { payload } = await fetcher<(Pick<Game, "id"> & { deals: Deal[] })[]>(
 			`${DealsApi.BASE_API_URL}/games/prices/v2?key=${this.apiKey}&country=${country}`,
 			{ method: "POST", body: JSON.stringify([id]) },
 		);
@@ -64,7 +64,7 @@ export class DealsApi {
 	}
 
 	async search(query: string) {
-		const { payload } = await FetchUtil.fetch<Result>(
+		const { payload } = await fetcher<Result>(
 			`${DealsApi.BASE_API_URL}/games/search/v1?key=${this.apiKey}&title=${query}`,
 		);
 		return payload.map(({ id, title }) => ({ id, title }));
@@ -80,7 +80,7 @@ export class DealsApi {
 
 	async getFreebies({ country = "PT" } = {}) {
 		const filter = "N4IgDgTglgxgpiAXKAtlAdkgDAGhCgQwA9sBfPGAVwBclUMkBGLXfYpl8kAEwhSQDajAGw4AzAFYcEgEw5hjeTIC6pIA";
-		const { payload } = await FetchUtil.fetch<List<(Omit<Game, "mature"> & { deal: Deal })[]>>(
+		const { payload } = await fetcher<List<(Omit<Game, "mature"> & { deal: Deal })[]>>(
 			`${DealsApi.BASE_API_URL}/deals/v2?key=${this.apiKey}&country=${country}&filter=${encodeURI(filter)}&sort:-time`,
 		);
 

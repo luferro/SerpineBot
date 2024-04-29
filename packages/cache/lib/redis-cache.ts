@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { Redis, type RedisKey } from "ioredis";
 
-export class Cache {
+export class RedisCache {
 	private client: Redis;
 	private expirySeconds = 60 * 60 * 24 * 30;
 

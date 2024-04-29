@@ -1,7 +1,7 @@
-import { DateUtil } from "@luferro/shared-utils";
+import { formatDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder, type GuildMember, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.gaming.steam.profile.name"))
@@ -39,12 +39,12 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 			},
 			{
 				name: t("interactions.gaming.steam.profile.embed.fields.2.name"),
-				value: DateUtil.format(createdAt, localization ?? {}),
+				value: formatDate(createdAt, localization ?? {}),
 				inline: true,
 			},
 			{
 				name: t("interactions.gaming.steam.profile.embed.fields.3.name"),
-				value: DateUtil.format(logoutAt, localization ?? {}),
+				value: formatDate(logoutAt, localization ?? {}),
 				inline: true,
 			},
 		])

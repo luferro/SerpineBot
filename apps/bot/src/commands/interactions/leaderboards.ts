@@ -1,19 +1,14 @@
-import { ObjectUtil } from "@luferro/shared-utils";
+import { enumToArray } from "@luferro/helpers/transform";
 import { EmbedBuilder, SlashCommandStringOption } from "discord.js";
 import { t } from "i18next";
-import { LeaderboardType, getLeaderboard } from "../../helpers/leaderboards";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../types/bot";
+import { LeaderboardType, getLeaderboard } from "~/helpers/leaderboards.js";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = [
 	new SlashCommandStringOption()
 		.setName(t("interactions.leaderboards.options.0.name"))
 		.setDescription(t("interactions.leaderboards.options.0.description"))
-		.addChoices(
-			...ObjectUtil.enumToArray(LeaderboardType).map((type) => ({
-				name: LeaderboardType[type],
-				value: LeaderboardType[type],
-			})),
-		)
+		.addChoices(...enumToArray(LeaderboardType).map((type) => ({ name: type, value: type })))
 		.setRequired(true),
 ];
 

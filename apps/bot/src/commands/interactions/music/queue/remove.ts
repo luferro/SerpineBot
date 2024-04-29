@@ -8,9 +8,9 @@ import {
 	StringSelectMenuBuilder,
 } from "discord.js";
 import { t } from "i18next";
-import { Bot } from "../../../../structures/Bot";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
-import type { ExtendedStringSelectMenuInteraction } from "../../../../types/interaction";
+import { Bot } from "~/structures/Bot.js";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
+import type { ExtendedStringSelectMenuInteraction } from "~/types/interaction.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.music.queue.remove.name"))

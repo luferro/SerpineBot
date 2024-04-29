@@ -1,18 +1,18 @@
-import { LoggerUtil } from "@luferro/shared-utils";
+import { type Logger, configureLogger } from "@luferro/helpers/logger";
 import {
 	Leopard,
 	LeopardActivationLimitReachedError,
 	LeopardInvalidArgumentError,
 	type LeopardTranscript,
 } from "@picovoice/leopard-node";
-import { bufferToInt16 } from "./utils/audio";
+import { bufferToInt16 } from "./utils/audio.js";
 
 export class SpeechToTextClient {
-	private logger: LoggerUtil.Logger;
+	private logger: Logger;
 	private leopard?: Leopard;
 
 	constructor(apiKey: string, modelPath: string) {
-		this.logger = LoggerUtil.configureLogger();
+		this.logger = configureLogger();
 		try {
 			this.leopard = new Leopard(apiKey, { modelPath });
 		} catch (error) {

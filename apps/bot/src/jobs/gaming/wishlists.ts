@@ -1,9 +1,9 @@
 import type { SteamWishlistEntry } from "@luferro/database";
-import { ConverterUtil } from "@luferro/shared-utils";
+import { formatCurrency } from "@luferro/helpers/currency";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import type { Bot } from "../../structures/Bot";
-import type { JobData, JobExecute } from "../../types/bot";
+import type { Bot } from "~/structures/Bot.js";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 type Alert = "sale" | "released" | "addedTo" | "removedFrom";
 type Entry = SteamWishlistEntry & { addedTo?: string[]; removedFrom?: string[] };
@@ -42,7 +42,7 @@ export const execute: JobExecute = async ({ client }) => {
 				if (addedTo.length > 0) alerts.addedTo.push({ ...updatedEntry, addedTo });
 				if (removedFrom.length > 0) alerts.removedFrom.push({ ...updatedEntry, removedFrom });
 
-				if (isSale) updatedEntry.notified = true;
+				updatedEntry.notified = isSale;
 
 				return updatedEntry;
 			}),
@@ -90,9 +90,9 @@ const notifyUser = async (client: Bot, userId: string, alerts: Alerts) => {
 							`\`${priority}.\` ${t(`jobs.gaming.wishlists.${alert}.embed.description`, {
 								item: `**[${title}](${url})**`,
 								discount: `***${discount}%***`,
-								regular: `~~${ConverterUtil.formatCurrency(regular!, localization)}~~`,
-								discounted: `**${ConverterUtil.formatCurrency(discounted!, localization)}**`,
-								price: `**${ConverterUtil.formatCurrency(discounted || regular!, localization)}**`,
+								regular: `~~${formatCurrency(regular!, localization)}~~`,
+								discounted: `**${formatCurrency(discounted!, localization)}**`,
+								price: `**${formatCurrency(discounted || regular!, localization)}**`,
 								addedTo: (addedTo ?? []).join("\n"),
 								removedFrom: (removedFrom ?? []).join("\n"),
 							})}`,

@@ -1,4 +1,4 @@
-import { graphql } from "../../__generated__";
+import { graphql } from "../../__generated__/index.js";
 
 export const MEDIA_TITLE_FIELDS = graphql(`
   fragment MediaTitleFields on MediaTitle {
@@ -15,18 +15,17 @@ export const MEDIA_CONNECTION = graphql(`
       relationType(version: 2)
       node {
         id
+        type
         title {
           ...MediaTitleFields
         }
-        format
-        type
-        status(version: 2)
-        bannerImage
         coverImage {
           medium
           large
           extraLarge
         }
+        format
+        status(version: 2)
       }
     }
   }

@@ -1,5 +1,6 @@
+import { type Logger, configureLogger } from "@luferro/helpers/logger";
+import { enumToArray, slug } from "@luferro/helpers/transform";
 import { Scraper } from "@luferro/scraper";
-import { LoggerUtil, ObjectUtil, StringUtil } from "@luferro/shared-utils";
 
 const CatalogType = {
 	XBOX_GAME_PASS: "XBOX_GAME_PASS",
@@ -9,12 +10,13 @@ const CatalogType = {
 	EA_PLAY: "EA_PLAY",
 } as const;
 
-export class SubscriptionsApi extends Scraper {
-	private logger: LoggerUtil.Logger;
+export class SubscriptionsApi {
+	private logger: Logger;
+	private scraper: Scraper;
 
 	constructor() {
-		super();
-		this.logger = LoggerUtil.configureLogger();
+		this.logger = configureLogger();
+		this.scraper = new Scraper();
 	}
 
 	private getSelectors(type: keyof typeof CatalogType) {
@@ -78,7 +80,7 @@ export class SubscriptionsApi extends Scraper {
 			[CatalogType.UBISOFT_PLUS]: "https://store.ubisoft.com/ie/Ubisoftplus/games",
 		};
 
-		return this.interactive.load(catalogUrl[type], async (page) => {
+		return this.scraper.interactive.load(catalogUrl[type], async (page) => {
 			try {
 				await page.waitForTimeout(5000);
 
@@ -106,7 +108,7 @@ export class SubscriptionsApi extends Scraper {
 						const fixedName = name.replace(/[^\x00-\x7F]/g, "");
 						if (catalog.find((item) => item.title === fixedName)) continue;
 
-						catalog.push({ title: fixedName, slug: StringUtil.slug(name), url: url ?? null });
+						catalog.push({ title: fixedName, slug: slug(name), url: url ?? null });
 					}
 
 					const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
@@ -132,7 +134,7 @@ export class SubscriptionsApi extends Scraper {
 
 	async getCatalogs() {
 		const data = [];
-		for (const type of ObjectUtil.enumToArray(CatalogType)) {
+		for (const type of enumToArray(CatalogType)) {
 			data.push(await this.getCatalog(type));
 		}
 		return data;

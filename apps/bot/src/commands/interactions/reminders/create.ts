@@ -1,9 +1,9 @@
-import { ConverterUtil } from "@luferro/shared-utils";
+import { toMilliseconds } from "@luferro/helpers/datetime";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
-type TimeUnit = Parameters<typeof ConverterUtil.toMilliseconds>[1];
+type TimeUnit = Parameters<typeof toMilliseconds>[1];
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.reminders.create.name"))
@@ -46,7 +46,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			message,
 			userId: interaction.user.id,
 			timeStart: new Date(),
-			timeEnd: new Date(Date.now() + ConverterUtil.toMilliseconds(time, unit)),
+			timeEnd: new Date(Date.now() + toMilliseconds(time, unit)),
 		},
 	});
 

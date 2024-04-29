@@ -1,24 +1,27 @@
+import { toHours } from "@luferro/helpers/datetime";
+import { fetcher } from "@luferro/helpers/fetch";
 import { Scraper } from "@luferro/scraper";
-import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
-import { Chart, type Payload, type Profile, type RecentlyPlayed, Status, type Wishlist } from "./steam.types";
+import { Chart, type Payload, type Profile, type RecentlyPlayed, Status, type Wishlist } from "./steam.types.js";
 
-export class SteamApi extends Scraper {
+export class SteamApi {
 	private static BASE_API_URL = "https://api.steampowered.com";
 	private static BASE_STORE_URL = "https://store.steampowered.com";
 
+	private scraper: Scraper;
+
 	constructor(private apiKey: string) {
-		super();
+		this.scraper = new Scraper();
 	}
 
 	async getSteamId64(id: string) {
-		const { payload } = await FetchUtil.fetch<Payload<{ steamid?: string }>>(
+		const { payload } = await fetcher<Payload<{ steamid?: string }>>(
 			`${SteamApi.BASE_API_URL}/ISteamUser/ResolveVanityURL/v0001/?key=${this.apiKey}&vanityurl=${id}`,
 		);
 		return payload.response?.steamid ?? null;
 	}
 
 	async getProfile(id: string) {
-		const { payload } = await FetchUtil.fetch<Payload<{ players: Profile[] }>>(
+		const { payload } = await fetcher<Payload<{ players: Profile[] }>>(
 			`${SteamApi.BASE_API_URL}/ISteamUser/GetPlayerSummaries/v0002/?key=${this.apiKey}&steamids=${id}`,
 		);
 
@@ -36,15 +39,15 @@ export class SteamApi extends Scraper {
 	}
 
 	async getRecentlyPlayed(id: string) {
-		const { payload } = await FetchUtil.fetch<Payload<{ games: RecentlyPlayed[] }>>(
+		const { payload } = await fetcher<Payload<{ games: RecentlyPlayed[] }>>(
 			`${SteamApi.BASE_API_URL}/IPlayerService/GetRecentlyPlayedGames/v0001/?key=${this.apiKey}&steamid=${id}&format=json`,
 		);
 
 		return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
 			id: appid.toString(),
 			title: name,
-			totalHours: ConverterUtil.toHours(playtime_forever * 1000 * 60),
-			biweeklyHours: ConverterUtil.toHours(playtime_2weeks * 1000 * 60),
+			totalHours: toHours(playtime_forever * 1000 * 60),
+			biweeklyHours: toHours(playtime_2weeks * 1000 * 60),
 			url: `${SteamApi.BASE_STORE_URL}/app/${appid}`,
 		}));
 	}
@@ -54,7 +57,7 @@ export class SteamApi extends Scraper {
 
 		let page = 0;
 		while (true) {
-			const { payload } = await FetchUtil.fetch<Payload<Wishlist>>(
+			const { payload } = await fetcher<Payload<Wishlist>>(
 				`${SteamApi.BASE_STORE_URL}/wishlist/profiles/${id}/wishlistdata?p=${page}`,
 			);
 
@@ -66,7 +69,7 @@ export class SteamApi extends Scraper {
 
 				const discount = isPriced ? subs[0].discount_pct : null;
 				const originalPriceBlock = isPriced
-					? this.static.loadHtml(subs[0].discount_block)(".discount_original_price")
+					? this.scraper.static.loadHtml(subs[0].discount_block)(".discount_original_price")
 					: null;
 				const regular = isPriced
 					? Number(originalPriceBlock?.text().replace(/[^\d-]/g, "") || subs[0].price) / 100
@@ -96,7 +99,7 @@ export class SteamApi extends Scraper {
 	}
 
 	async getUpcomingSales() {
-		const $ = await this.static.loadUrl("https://prepareyourwallet.com");
+		const $ = await this.scraper.static.loadUrl("https://prepareyourwallet.com");
 
 		const sale = $("p").first().attr("content") ?? null;
 		const status = $("span.status").first().text();
@@ -120,7 +123,7 @@ export class SteamApi extends Scraper {
 			[Chart.TOP_SELLERS]: `${SteamApi.BASE_STORE_URL}/search/?filter=topsellers&os=win`,
 			[Chart.UPCOMING_GAMES]: `${SteamApi.BASE_STORE_URL}/search/?filter=popularcomingsoon&os=win`,
 		};
-		const $ = await this.static.loadUrl(chartUrl[chart]);
+		const $ = await this.scraper.static.loadUrl(chartUrl[chart]);
 
 		if (chart === Chart.TOP_PLAYED) {
 			return $("table#top-games tbody tr")

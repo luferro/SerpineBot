@@ -1,7 +1,7 @@
-import { StringUtil } from "@luferro/shared-utils";
+import { truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder, SlashCommandStringOption } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = [
 	new SlashCommandStringOption()
@@ -22,15 +22,10 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const { title, url, selfurl, hasEmbeddedMedia } = filteredPosts[Math.floor(Math.random() * filteredPosts.length)];
 
 	if (hasEmbeddedMedia) {
-		await interaction.editReply({ content: `**[${StringUtil.truncate(title)}](<${selfurl}>)**\n${url}` });
+		await interaction.editReply({ content: `**[${truncate(title)}](<${selfurl}>)**\n${url}` });
 		return;
 	}
 
-	const embed = new EmbedBuilder()
-		.setTitle(StringUtil.truncate(title))
-		.setURL(selfurl)
-		.setImage(url)
-		.setColor("Random");
-
+	const embed = new EmbedBuilder().setTitle(truncate(title)).setURL(selfurl).setImage(url).setColor("Random");
 	await interaction.editReply({ embeds: [embed] });
 };

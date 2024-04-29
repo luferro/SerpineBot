@@ -1,8 +1,8 @@
 import { WebhookType } from "@luferro/database";
-import { ObjectUtil } from "@luferro/shared-utils";
+import { enumToArray } from "@luferro/helpers/transform";
 import { ChannelType, EmbedBuilder, SlashCommandSubcommandBuilder, type TextChannel } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.webhooks.create.name"))
@@ -12,7 +12,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setName(t("interactions.webhooks.create.options.0.name"))
 			.setDescription(t("interactions.webhooks.create.options.0.description"))
 			.setRequired(true)
-			.addChoices(...ObjectUtil.enumToArray(WebhookType).map((webhook) => ({ name: webhook, value: webhook }))),
+			.addChoices(...enumToArray(WebhookType).map((webhook) => ({ name: webhook, value: webhook }))),
 	)
 	.addChannelOption((option) =>
 		option

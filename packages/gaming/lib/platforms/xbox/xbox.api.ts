@@ -1,12 +1,16 @@
+import { subWeeks } from "@luferro/helpers/datetime";
+import { fetcher } from "@luferro/helpers/fetch";
+import { capitalize } from "@luferro/helpers/transform";
 import { Scraper } from "@luferro/scraper";
-import { DateUtil, FetchUtil, StringUtil } from "@luferro/shared-utils";
-import { Chart, type Payload, type Profile, type RecentlyPlayed } from "./xbox.types";
+import { Chart, type Payload, type Profile, type RecentlyPlayed } from "./xbox.types.js";
 
-export class XboxApi extends Scraper {
+export class XboxApi {
 	private static BASE_API_URL = "https://xbl.io";
 
+	private scraper: Scraper;
+
 	constructor(private apiKey: string) {
-		super();
+		this.scraper = new Scraper();
 	}
 
 	private getHeaders() {
@@ -17,17 +21,16 @@ export class XboxApi extends Scraper {
 	}
 
 	async search(gamertag: string) {
-		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>(`${XboxApi.BASE_API_URL}/api/v2/search/${gamertag}`, {
+		const { payload } = await fetcher<Payload<Profile[]>>(`${XboxApi.BASE_API_URL}/api/v2/search/${gamertag}`, {
 			headers: this.getHeaders(),
 		});
 		return payload.people.map(({ xuid, gamertag }) => ({ id: xuid, gamertag }));
 	}
 
 	async getProfile(id: string) {
-		const { payload } = await FetchUtil.fetch<Payload<Profile[]>>(
-			`${XboxApi.BASE_API_URL}/api/v2/player/summary/${id}`,
-			{ headers: this.getHeaders() },
-		);
+		const { payload } = await fetcher<Payload<Profile[]>>(`${XboxApi.BASE_API_URL}/api/v2/player/summary/${id}`, {
+			headers: this.getHeaders(),
+		});
 
 		if (payload.people.length === 0) throw new Error(`Cannot find a profile for id ${id}.`);
 		const { gamertag, gamerScore, displayPicRaw, presenceText, preferredPlatforms } = payload.people[0];
@@ -38,21 +41,18 @@ export class XboxApi extends Scraper {
 			gamerscore: Number(gamerScore),
 			image: displayPicRaw,
 			status: presenceText,
-			platforms: preferredPlatforms?.map((platform) => StringUtil.capitalize(platform)),
+			platforms: preferredPlatforms?.map(capitalize),
 		};
 	}
 
 	async getRecentlyPlayed(id: string) {
-		const { payload } = await FetchUtil.fetch<Payload<RecentlyPlayed[]>>(
+		const { payload } = await fetcher<Payload<RecentlyPlayed[]>>(
 			`${XboxApi.BASE_API_URL}/api/v2/player/titleHistory/${id}`,
 			{ headers: this.getHeaders() },
 		);
 
 		return payload.titles
-			.filter(
-				({ titleHistory }) =>
-					DateUtil.subWeeks(new Date(), 1).getTime() < new Date(titleHistory.lastTimePlayed).getTime(),
-			)
+			.filter(({ titleHistory }) => subWeeks(new Date(), 1).getTime() < new Date(titleHistory.lastTimePlayed).getTime())
 			.map(({ titleId, name, displayImage, achievement }) => ({
 				id: titleId,
 				title: name,
@@ -70,7 +70,7 @@ export class XboxApi extends Scraper {
 			[Chart.TOP_SELLERS]: "https://www.microsoft.com/pt-pt/store/top-paid/games/xbox",
 			[Chart.UPCOMING_GAMES]: "https://www.microsoft.com/pt-pt/store/coming-soon/games/xbox",
 		};
-		const $ = await this.static.loadUrl(chartUrl[chart]);
+		const $ = await this.scraper.static.loadUrl(chartUrl[chart]);
 
 		return $("section > ul li")
 			.get()

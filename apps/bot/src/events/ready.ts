@@ -1,5 +1,5 @@
-import * as CommandsHandler from "../handlers/commands";
-import type { EventData, EventExecute } from "../types/bot";
+import * as CommandsHandler from "~/handlers/commands.js";
+import type { EventData, EventExecute } from "~/types/bot.js";
 
 export const data: EventData = { type: "once" };
 

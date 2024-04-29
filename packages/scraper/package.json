@@ -1,9 +1,10 @@
 {
 	"name": "@luferro/scraper",
 	"private": true,
+	"type": "module",
 	"version": "1.0.0",
 	"description": "Scrapper for static and interactive pages.",
-	"main": "dist/index.js",
+	"exports": "./dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
@@ -13,13 +14,14 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.11.27",
-		"typescript": "^5.4.2"
+		"@types/node": "^20.12.7",
+		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@luferro/shared-utils": "workspace:^",
+		"@luferro/helpers": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
-		"playwright-chromium": "^1.42.1",
+		"header-generator": "^2.1.50",
+		"playwright-chromium": "^1.43.1",
 		"playwright-extra": "^4.3.6",
 		"puppeteer-extra-plugin-stealth": "^2.11.2",
 		"rss-parser": "^3.13.0",

@@ -1,8 +1,8 @@
-import { StringUtil } from "@luferro/shared-utils";
+import { capitalize } from "@luferro/helpers/transform";
 import type { FiltersName } from "discord-player";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 type Filter = FiltersName | "off";
 
@@ -35,7 +35,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 		option
 			.setName(t("interactions.music.player.filters.options.0.name"))
 			.setDescription(t("interactions.music.player.filters.options.0.description"))
-			.addChoices(...filters.map((filter) => ({ name: StringUtil.capitalize(filter), value: filter }))),
+			.addChoices(...filters.map((filter) => ({ name: capitalize(filter), value: filter }))),
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {

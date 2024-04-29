@@ -1,7 +1,7 @@
 import { QueueRepeatMode } from "discord-player";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import type { VoiceCommandExecute } from "../../../../types/bot";
+import type { VoiceCommandExecute } from "~/types/bot.js";
 
 export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
 	const repeatMode: Record<string, QueueRepeatMode> = {

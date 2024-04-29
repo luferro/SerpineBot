@@ -1,12 +1,13 @@
 {
 	"name": "@luferro/animanga",
 	"private": true,
+	"type": "module",
 	"version": "1.0.0",
 	"description": "Provides everything related to anime and manga",
-	"main": "dist/index.js",
+	"exports": "./dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"gql:generate": "graphql-codegen --config codegen.ts",
+		"gql:generate": "graphql-codegen-esm --config codegen.ts",
 		"build": "tsc",
 		"lint": "biome lint ."
 	},
@@ -15,15 +16,16 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@graphql-codegen/cli": "^5.0.2",
-		"@graphql-codegen/client-preset": "^4.2.4",
+		"@graphql-codegen/client-preset": "^4.2.5",
 		"@graphql-typed-document-node/core": "^3.2.0",
-		"typescript": "^5.4.2"
+		"typescript": "^5.4.5"
 	},
 	"dependencies": {
+		"@luferro/helpers": "workspace:^",
 		"@luferro/reddit": "workspace:^",
 		"@luferro/scraper": "workspace:^",
-		"@luferro/shared-utils": "workspace:^",
-		"@urql/core": "^4.3.0",
+		"@urql/core": "^5.0.2",
+		"@urql/exchange-request-policy": "^1.1.0",
 		"graphql": "^16.8.1"
 	}
 }

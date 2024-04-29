@@ -1,8 +1,8 @@
 import { WebhookType } from "@luferro/database";
-import { DateUtil } from "@luferro/shared-utils";
+import { formatDate } from "@luferro/helpers/datetime";
 import { BaseGuildVoiceChannel, EmbedBuilder, type GuildScheduledEvent } from "discord.js";
 import { t } from "i18next";
-import type { EventData, EventExecute } from "../../types/bot";
+import type { EventData, EventExecute } from "~/types/bot.js";
 
 type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent: GuildScheduledEvent];
 
@@ -46,12 +46,12 @@ const handleEventStart = async (client: Parameters<EventExecute>[0]["client"], e
 			},
 			{
 				name: t("events.guild.guildScheduledEventUpdate.embed.fields.1.name"),
-				value: scheduledStartAt ? DateUtil.format(scheduledStartAt, localization) : t("common.unavailable"),
+				value: scheduledStartAt ? formatDate(scheduledStartAt, localization) : t("common.unavailable"),
 				inline: true,
 			},
 			{
 				name: t("events.guild.guildScheduledEventUpdate.embed.fields.2.name"),
-				value: scheduledEndAt ? DateUtil.format(scheduledEndAt, localization) : t("common.unavailable"),
+				value: scheduledEndAt ? formatDate(scheduledEndAt, localization) : t("common.unavailable"),
 				inline: true,
 			},
 			{

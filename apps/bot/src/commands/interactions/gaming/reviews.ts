@@ -1,7 +1,7 @@
-import { DateUtil } from "@luferro/shared-utils";
+import { formatDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.gaming.reviews.name"))
@@ -34,7 +34,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 			{
 				name: t("interactions.gaming.reviews.embed.fields.0.name"),
 				value: releaseDate
-					? DateUtil.format(releaseDate, { format: "dd-MM-yyyy", ...localization })
+					? formatDate(releaseDate, { format: "dd-MM-yyyy", ...localization })
 					: t("common.unavailable"),
 			},
 			{

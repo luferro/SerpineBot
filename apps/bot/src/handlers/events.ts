@@ -1,10 +1,10 @@
 import path from "node:path";
-import { FsUtil } from "@luferro/shared-utils";
-import { Bot } from "../structures/Bot";
-import type { Event } from "../types/bot";
+import { getFiles } from "@luferro/helpers/files";
+import { Bot } from "~/structures/Bot.js";
+import type { Event } from "~/types/bot.js";
 
 export const registerEvents = async (client: Bot) => {
-	const files = FsUtil.getFiles(path.resolve(__dirname, "../events"));
+	const files = getFiles(path.resolve(import.meta.dirname, "../events"));
 	for (const file of files) {
 		const event: Event = await import(file);
 		const [filename] = path.basename(file).split(".");

@@ -1,5 +1,5 @@
 import path from "node:path";
-import { FsUtil } from "@luferro/shared-utils";
+import { extractPathSegments, getFiles } from "@luferro/helpers/files";
 import {
 	type ApplicationCommandDataResolvable,
 	PermissionFlagsBits,
@@ -10,8 +10,8 @@ import {
 	SlashCommandSubcommandGroupBuilder,
 } from "discord.js";
 import { t } from "i18next";
-import { Bot } from "../structures/Bot";
-import type { InteractionCommand, MetadataBuilder, VoiceCommand } from "../types/bot";
+import { Bot } from "~/structures/Bot.js";
+import type { InteractionCommand, MetadataBuilder, VoiceCommand } from "~/types/bot.js";
 
 export const registerCommands = async (client: Bot) => {
 	await registerVoiceCommands(client);
@@ -19,9 +19,9 @@ export const registerCommands = async (client: Bot) => {
 };
 
 const registerVoiceCommands = async (client: Bot) => {
-	const files = FsUtil.getFiles(path.resolve(__dirname, "../commands/voice"));
+	const files = getFiles(path.resolve(import.meta.dirname, "../commands/voice"));
 	for (const file of files) {
-		const segment = FsUtil.extractPathSegments(file, "voice");
+		const segment = extractPathSegments(file, "voice");
 		if (!segment) continue;
 
 		const command: VoiceCommand = await import(file);
@@ -31,11 +31,11 @@ const registerVoiceCommands = async (client: Bot) => {
 };
 
 const registerInteractionCommands = async (client: Bot) => {
-	const files = FsUtil.getFiles(path.resolve(__dirname, "../commands/interactions"));
+	const files = getFiles(path.resolve(import.meta.dirname, "../commands/interactions"));
 
 	const metadata = new Map<string, MetadataBuilder[]>();
 	for (const file of files) {
-		const segment = FsUtil.extractPathSegments(file, "interactions");
+		const segment = extractPathSegments(file, "interactions");
 		if (!segment) continue;
 
 		const { data, ...methods }: InteractionCommand = await import(file);

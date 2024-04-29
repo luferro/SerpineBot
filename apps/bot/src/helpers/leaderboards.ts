@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import type { Bot } from "../structures/Bot";
+import type { Bot } from "~/structures/Bot.js";
 
 export enum LeaderboardType {
 	STEAM = "Steam",

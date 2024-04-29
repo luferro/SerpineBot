@@ -1,7 +1,7 @@
-import { DateUtil } from "@luferro/shared-utils";
+import { formatDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import type { JobData, JobExecute } from "../types/bot";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "*/30 * * * * *" };
 
@@ -14,7 +14,7 @@ export const execute: JobExecute = async ({ client }) => {
 		await target.send({
 			embeds: [
 				new EmbedBuilder()
-					.setTitle(t("jobs.reminders.embed.title", { date: DateUtil.format(timeStart, client.getLocalization()) }))
+					.setTitle(t("jobs.reminders.embed.title", { date: formatDate(timeStart, client.getLocalization()) }))
 					.addFields([{ name: t("jobs.reminders.embed.fields.0.name"), value: message.trim() }])
 					.setColor("Random"),
 			],

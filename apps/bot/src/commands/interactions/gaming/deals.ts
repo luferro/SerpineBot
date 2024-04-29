@@ -1,7 +1,8 @@
-import { ConverterUtil, DateUtil } from "@luferro/shared-utils";
+import { formatCurrency } from "@luferro/helpers/currency";
+import { formatDistance } from "@luferro/helpers/datetime";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.gaming.deals.name"))
@@ -22,7 +23,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 	const { id, title } = results[0];
 
 	const formatPrice = (price: { amount: number; currency: string }) => {
-		return ConverterUtil.formatCurrency(price.amount, { currency: price.currency, ...localization });
+		return formatCurrency(price.amount, { currency: price.currency, ...localization });
 	};
 
 	const subscriptions = await client.prisma.subscription.search({ query });
@@ -34,7 +35,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 		.slice(0, 5)
 		.map(({ store, discounted, url }) => `**[${store}](${url})** - **${formatPrice(discounted)}**`);
 	const formattedHistoricalLow = historicalLow?.timestamp
-		? `**${formatPrice(historicalLow.discounted)}** @ ${historicalLow.store} - *${DateUtil.formatDistance(
+		? `**${formatPrice(historicalLow.discounted)}** @ ${historicalLow.store} - *${formatDistance(
 				historicalLow.timestamp,
 		  )}*`
 		: null;

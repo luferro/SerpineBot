@@ -1,13 +1,14 @@
 import path from "node:path";
 import { AniListApi, MangadexApi } from "@luferro/animanga";
-import { Cache } from "@luferro/cache";
+import { RedisCache } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
 import { DatabaseClient, type ExtendedDatabaseClient, type WebhookType } from "@luferro/database";
 import { TMDBApi } from "@luferro/entertainment";
 import { GamingApi } from "@luferro/gaming";
+import { type Logger, configureLogger } from "@luferro/helpers/logger";
+import { enumToArray, everyFieldExists, partition, someFieldExists, splitIntoChunks } from "@luferro/helpers/transform";
 import { RedditApi } from "@luferro/reddit";
 import { Scraper } from "@luferro/scraper";
-import { LoggerUtil, ObjectUtil } from "@luferro/shared-utils";
 import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordClient } from "@luferro/speech";
 import { CronJob } from "cron";
 import { GuildQueueEvent, type GuildQueueEvents } from "discord-player";
@@ -23,11 +24,11 @@ import {
 } from "discord.js";
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
-import * as CommandsHandler from "../handlers/commands";
-import * as EventsHandler from "../handlers/events";
-import * as JobsHandler from "../handlers/jobs";
-import type { Api, Commands, Event, Job, Speech } from "../types/bot";
-import { Player } from "./Player";
+import * as CommandsHandler from "~/handlers/commands.js";
+import * as EventsHandler from "~/handlers/events.js";
+import * as JobsHandler from "~/handlers/jobs.js";
+import { Player } from "~/structures/Player.js";
+import type { Api, Commands, Event, Job, Speech } from "~/types/bot.js";
 
 type MessageType = string | EmbedBuilder;
 type WebhookArgs = { guild: Guild; type: WebhookType };
@@ -43,8 +44,8 @@ export class Bot extends Client {
 	static commands: Commands = { voice: new Collection(), interactions: { metadata: [], methods: new Collection() } };
 
 	config: Config;
-	logger: LoggerUtil.Logger;
-	cache: Cache;
+	logger: Logger;
+	cache: RedisCache;
 	prisma: ExtendedDatabaseClient;
 	scraper: Scraper;
 	player: Player;
@@ -54,8 +55,8 @@ export class Bot extends Client {
 	constructor(options: ClientOptions) {
 		super(options);
 		this.config = loadConfig();
-		this.logger = LoggerUtil.configureLogger();
-		this.cache = new Cache(this.config.get("services.redis.uri"));
+		this.logger = configureLogger();
+		this.cache = new RedisCache(this.config.get("services.redis.uri"));
 		this.prisma = new DatabaseClient(this.config.get("services.mongodb.uri")).withExtensions();
 		this.scraper = new Scraper();
 		this.player = new Player(this);
@@ -101,8 +102,8 @@ export class Bot extends Client {
 					this.emit("clientError", error);
 				});
 
-			const isDiscordEvent = ObjectUtil.enumToArray(Events).some((key) => Events[key] === name);
-			const isPlayerEvent = ObjectUtil.enumToArray(GuildQueueEvent).some((key) => GuildQueueEvent[key] === name);
+			const isDiscordEvent = enumToArray(Events).some((key) => key === name);
+			const isPlayerEvent = enumToArray(GuildQueueEvent).some((key) => key === name);
 			const isClientEvent = isDiscordEvent || (!isDiscordEvent && !isPlayerEvent);
 
 			if (isClientEvent) this[data.type](name, callback);
@@ -130,7 +131,7 @@ export class Bot extends Client {
 		try {
 			i18next.use(Backend).init({
 				fallbackLng: "en-US",
-				backend: { loadPath: path.join(__dirname, "../locales/{{lng}}.json") },
+				backend: { loadPath: path.join(import.meta.dirname, "../locales/{{lng}}.json") },
 				interpolation: { escapeValue: false },
 			});
 
@@ -192,16 +193,14 @@ export class Bot extends Client {
 			const channel = webhook?.channel;
 			if (!webhook || !channel) continue;
 
-			const commonFields = config.fields.includes("description")
-				? ObjectUtil.everyFieldExists
-				: ObjectUtil.someFieldExists;
+			const commonFields = config.fields?.includes("description") ? everyFieldExists : someFieldExists;
 
-			const [embeds, contents] = ObjectUtil.partition<MessageType, EmbedBuilder>(
+			const [embeds, contents] = partition<MessageType, EmbedBuilder, string>(
 				await getMessages(config.cache),
 				(message: MessageType) => message instanceof EmbedBuilder,
 			);
 
-			for (const data of [...contents, ...ObjectUtil.splitIntoChunks(embeds, Bot.MAX_EMBEDS_CHUNK_SIZE)]) {
+			for (const data of [...contents, ...splitIntoChunks(embeds, Bot.MAX_EMBEDS_CHUNK_SIZE)]) {
 				if (Array.isArray(data)) {
 					const content = everyone ? `${guild.roles.everyone}` : undefined;
 

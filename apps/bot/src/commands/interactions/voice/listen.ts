@@ -1,8 +1,8 @@
 import { EndBehaviorType, type VoiceReceiver } from "discord-voip";
 import { EmbedBuilder, SlashCommandSubcommandBuilder, type TextBasedChannel } from "discord.js";
 import { t } from "i18next";
-import { Bot } from "../../../structures/Bot";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../types/bot";
+import { Bot } from "~/structures/Bot.js";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.voice.listen.name"))

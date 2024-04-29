@@ -1,9 +1,10 @@
 {
 	"name": "@luferro/config",
 	"private": true,
+	"type": "module",
 	"version": "1.0.0",
 	"description": "Module to handle configuration files.",
-	"main": "dist/index.js",
+	"exports": "./dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc"
@@ -12,12 +13,12 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/config": "^3.3.3",
-		"@types/node": "^20.11.27",
-		"typescript": "^5.4.2"
+		"@types/nconf": "^0.10.6",
+		"@types/node": "^20.12.7",
+		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@luferro/shared-utils": "workspace:^",
-		"config": "^3.3.11"
+		"@luferro/helpers": "workspace:^",
+		"nconf": "^0.12.1"
 	}
 }

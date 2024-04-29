@@ -1,4 +1,4 @@
-import type { Group } from "../../../../../types/bot";
+import type { Group } from "../../../../types/bot";
 import { Accordion } from "../../Accordion";
 
 type Props = {

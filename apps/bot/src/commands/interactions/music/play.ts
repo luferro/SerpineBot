@@ -1,11 +1,8 @@
-import { StringUtil } from "@luferro/shared-utils";
+import { truncate } from "@luferro/helpers/transform";
+import { Playlist } from "discord-player";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type {
-	InteractionCommandAutoComplete,
-	InteractionCommandData,
-	InteractionCommandExecute,
-} from "../../../types/bot";
+import type { InteractionCommandAutoComplete, InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.music.play.name"))
@@ -62,15 +59,13 @@ export const autocomplete: InteractionCommandAutoComplete = async ({ client, int
 	if (query.length < 3) return interaction.respond([]);
 
 	const results = await client.player.search(query);
-	await interaction.respond(
-		results.tracks.slice(0, 10).map((track) => {
-			const maxLength = 100;
-			const limit = maxLength - track.author.length - track.duration.length - 6;
 
-			return {
-				name: `${track.author} - ${StringUtil.truncate(track.title, limit)} | ${track.duration}`,
-				value: track.url,
-			};
+	await interaction.respond(
+		(results.playlist ? [results.playlist] : results.tracks).slice(0, 10).map((item) => {
+			const author = item instanceof Playlist ? item.author.name : item.author;
+			const duration = item instanceof Playlist ? item.durationFormatted : item.duration;
+			const limit = 100 - author.length - duration.length - 6;
+			return { name: `${author} - ${truncate(item.title, limit)} | ${duration}`, value: item.url };
 		}),
 	);
 };

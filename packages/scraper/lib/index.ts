@@ -1,2 +1,2 @@
 // Scraper
-export { Scraper } from "./scraper/scraper";
+export { Scraper } from "./scraper/scraper.js";

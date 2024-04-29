@@ -1,11 +1,12 @@
-import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
-import type { Movie, Payload, Result, Series } from "./tmdb.types";
+import { formatTime } from "@luferro/helpers/datetime";
+import { fetcher } from "@luferro/helpers/fetch";
+import type { Movie, Payload, Result, Series } from "./tmdb.types.js";
 
 export class TMDBApi {
 	constructor(private apiKey: string) {}
 
 	async search(query: string) {
-		const { payload } = await FetchUtil.fetch<Payload<Result[]>>(
+		const { payload } = await fetcher<Payload<Result[]>>(
 			`https://api.themoviedb.org/3/search/multi?api_key=${this.apiKey}&query=${query}`,
 		);
 
@@ -15,7 +16,7 @@ export class TMDBApi {
 	}
 
 	async getMovieById(id: string, { locale = "pt-PT" } = {}) {
-		const { payload } = await FetchUtil.fetch<Movie>(
+		const { payload } = await fetcher<Movie>(
 			`https://api.themoviedb.org/3/movie/${id}?api_key=${this.apiKey}&append_to_response=watch/providers`,
 		);
 
@@ -27,7 +28,7 @@ export class TMDBApi {
 			overview,
 			image: payload.poster_path ? `https://www.themoviedb.org/t/p/w600_and_h900_bestv2${payload.poster_path}` : null,
 			score: payload.vote_count > 0 && payload.vote_average > 0 ? `${payload.vote_average.toFixed(1)}/10` : null,
-			duration: payload.runtime > 0 ? ConverterUtil.formatTime(payload.runtime * 1000 * 60) : null,
+			duration: payload.runtime > 0 ? formatTime(payload.runtime * 1000 * 60) : null,
 			name: payload.title,
 			url: localeProviders?.link || payload.homepage || null,
 			releaseDate: payload.release_date,
@@ -41,7 +42,7 @@ export class TMDBApi {
 	}
 
 	async getSeriesById(id: string, { locale = "pt-PT" } = {}) {
-		const { payload } = await FetchUtil.fetch<Series>(
+		const { payload } = await fetcher<Series>(
 			`https://api.themoviedb.org/3/tv/${id}?api_key=${this.apiKey}&append_to_response=watch/providers`,
 		);
 
@@ -59,10 +60,8 @@ export class TMDBApi {
 			seasons: payload.number_of_seasons,
 			episodes: {
 				total: payload.number_of_episodes,
-				duration: episode_run_time.length > 0 ? ConverterUtil.formatTime(episode_run_time[0] * 1000 * 60) : null,
-				next: {
-					date: next_episode_to_air instanceof Object ? next_episode_to_air.air_date : next_episode_to_air,
-				},
+				duration: episode_run_time.length > 0 ? formatTime(episode_run_time[0] * 1000 * 60) : null,
+				next: { date: next_episode_to_air instanceof Object ? next_episode_to_air.air_date : next_episode_to_air },
 				last: { date: last_episode_to_air.air_date },
 			},
 			providers: {

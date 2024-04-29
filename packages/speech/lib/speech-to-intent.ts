@@ -1,13 +1,13 @@
-import { LoggerUtil } from "@luferro/shared-utils";
+import { type Logger, configureLogger } from "@luferro/helpers/logger";
 import { Rhino, RhinoErrors, type RhinoInference, getInt16Frames } from "@picovoice/rhino-node";
-import { bufferToInt16 } from "./utils/audio";
+import { bufferToInt16 } from "./utils/audio.js";
 
 export class SpeechToIntentClient {
-	private logger: LoggerUtil.Logger;
+	private logger: Logger;
 	private rhino?: Rhino;
 
 	constructor(apiKey: string, modelPath: string) {
-		this.logger = LoggerUtil.configureLogger();
+		this.logger = configureLogger();
 		try {
 			this.rhino = new Rhino(apiKey, modelPath, 0.5, 0.5, false);
 		} catch (error) {

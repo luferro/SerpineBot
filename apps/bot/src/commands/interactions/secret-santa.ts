@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { ConverterUtil, DateUtil, ObjectUtil } from "@luferro/shared-utils";
+import { formatCurrency } from "@luferro/helpers/currency";
+import { formatDate } from "@luferro/helpers/datetime";
+import { shuffle } from "@luferro/helpers/transform";
 import { EmbedBuilder, SlashCommandIntegerOption, SlashCommandStringOption } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = [
 	new SlashCommandStringOption()
@@ -40,7 +42,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 	await interaction.reply({ embeds: [embed] });
 
 	const date = getEventDate();
-	const shuffledUsers = ObjectUtil.shuffle(users);
+	const shuffledUsers = shuffle(users);
 	for (const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
@@ -58,11 +60,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 			.addFields([
 				{
 					name: t("interactions.secret-santa.embeds.1.fields.0.name"),
-					value: DateUtil.format(date, localization),
+					value: formatDate(date, localization),
 				},
 				{
 					name: t("interactions.secret-santa.embeds.1.fields.1.name"),
-					value: ConverterUtil.formatCurrency(value, localization),
+					value: formatCurrency(value, localization),
 				},
 				{
 					name: t("interactions.secret-santa.embeds.1.fields.2.name"),

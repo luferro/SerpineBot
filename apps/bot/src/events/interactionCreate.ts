@@ -1,14 +1,14 @@
-import { FetchUtil } from "@luferro/shared-utils";
+import { FetchError } from "@luferro/helpers/fetch";
 import { DiscordAPIError, EmbedBuilder } from "discord.js";
 import i18next, { t } from "i18next";
-import { Bot } from "../structures/Bot";
-import type { BaseInteractionArgs, EventData, EventExecute } from "../types/bot";
+import { Bot } from "~/structures/Bot.js";
+import type { BaseInteractionArgs, EventData, EventExecute } from "~/types/bot.js";
 import type {
 	ExtendedAutocompleteInteraction,
 	ExtendedChatInputCommandInteraction,
 	ExtendedStringSelectMenuInteraction,
 	Interaction,
-} from "../types/interaction";
+} from "~/types/interaction.js";
 
 type Args<T> = [interaction: T];
 type ChatInputArgs = BaseInteractionArgs<ExtendedChatInputCommandInteraction>;
@@ -35,7 +35,7 @@ const handleChatInputCommandInteraction = async ({ client, interaction, localiza
 		await methods.execute({ client, interaction, localization });
 	} catch (error) {
 		const isDiscordAPIError = error instanceof DiscordAPIError;
-		const isFetchError = error instanceof FetchUtil.FetchError;
+		const isFetchError = error instanceof FetchError;
 		if (isDiscordAPIError || (isFetchError && error.status && error.status >= 500)) {
 			error.message = `Interaction | **${key}** | ${interaction.guild.name} | Reason: ${error.message}`;
 			throw error;

@@ -1,5 +1,6 @@
-import { DateUtil, FetchUtil } from "@luferro/shared-utils";
-import type { Event, Result } from "./igdb.types";
+import { addMinutes, endOfDay, isPast } from "@luferro/helpers/datetime";
+import { fetcher } from "@luferro/helpers/fetch";
+import type { Event, Result } from "./igdb.types.js";
 
 export class IGDBApi {
 	private static BASE_OAUTH_URL = "https://id.twitch.tv";
@@ -13,7 +14,7 @@ export class IGDBApi {
 	) {}
 
 	private async authenticate() {
-		const { payload } = await FetchUtil.fetch<{ access_token: string }>(
+		const { payload } = await fetcher<{ access_token: string }>(
 			`${IGDBApi.BASE_OAUTH_URL}/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}&grant_type=client_credentials`,
 			{ method: "POST" },
 		);
@@ -34,7 +35,7 @@ export class IGDBApi {
 	}
 
 	async search(query: string) {
-		const { payload } = await FetchUtil.fetch<Result[]>(`${IGDBApi.BASE_API_URL}/v4/games`, {
+		const { payload } = await fetcher<Result[]>(`${IGDBApi.BASE_API_URL}/v4/games`, {
 			method: "POST",
 			headers: await this.getHeaders(),
 			body: `fields id, name, slug; where name ~ "${query}"* & version_parent = null; limit 10;`,
@@ -48,7 +49,7 @@ export class IGDBApi {
 		date.setHours(0, 0, 0, 0);
 		const timestamp = Math.floor(date.getTime() / 1000);
 
-		const { payload } = await FetchUtil.fetch<Event[]>(`${IGDBApi.BASE_API_URL}/v4/events`, {
+		const { payload } = await fetcher<Event[]>(`${IGDBApi.BASE_API_URL}/v4/events`, {
 			method: "POST",
 			headers: await this.getHeaders(),
 			body: `fields name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, created_at; where start_time >= ${timestamp}; sort start_time asc;`,
@@ -56,10 +57,8 @@ export class IGDBApi {
 		});
 
 		return payload.map(({ name, description, live_stream_url, start_time, end_time, event_logo, event_networks }) => {
-			const scheduledStartAt = DateUtil.isPast(start_time * 1000)
-				? DateUtil.addMinutes(Date.now(), 5)
-				: start_time * 1000;
-			const scheduledEndAt = end_time ? end_time * 1000 : DateUtil.endOfDay(scheduledStartAt).getTime();
+			const scheduledStartAt = isPast(start_time * 1000) ? addMinutes(Date.now(), 5) : start_time * 1000;
+			const scheduledEndAt = end_time ? end_time * 1000 : endOfDay(scheduledStartAt).getTime();
 
 			const urls = [live_stream_url, ...(event_networks?.map((event) => event.url) ?? [])].filter(
 				(url): url is NonNullable<string> => !!url,

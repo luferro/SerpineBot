@@ -1,10 +1,16 @@
 import { Scraper } from "@luferro/scraper";
 
-export class ReviewsApi extends Scraper {
+export class ReviewsApi {
 	private static BASE_URL = "https://opencritic.com";
 
+	private scraper: Scraper;
+
+	constructor() {
+		this.scraper = new Scraper();
+	}
+
 	async search(query: string) {
-		const results = await this.engine.search(`${query} site:${ReviewsApi.BASE_URL}/game`);
+		const results = await this.scraper.engine.search(`${query} site:${ReviewsApi.BASE_URL}/game`);
 
 		const regex = /\/(\d+)\/([^/?]*$)/g;
 		return results
@@ -20,7 +26,7 @@ export class ReviewsApi extends Scraper {
 	}
 
 	async getRecentReviews() {
-		const results = await this.engine.search(`reviews site:${ReviewsApi.BASE_URL}/game`, {
+		const results = await this.scraper.engine.search(`reviews site:${ReviewsApi.BASE_URL}/game`, {
 			interval: { start: Date.now() },
 		});
 
@@ -39,7 +45,7 @@ export class ReviewsApi extends Scraper {
 
 	async getReviewsByIdAndSlug(id: string, slug: string) {
 		const url = `${ReviewsApi.BASE_URL}/game/${id}/${slug}`;
-		const $ = await this.static.loadUrl(url);
+		const $ = await this.scraper.static.loadUrl(url);
 
 		const title = $("app-game-overview h1").first().text();
 		const image = $("app-game-overview .top-container img").first().attr("src");

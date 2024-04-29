@@ -1,9 +1,10 @@
 {
 	"name": "@luferro/speech",
 	"private": true,
+	"type": "module",
 	"version": "1.0.0",
 	"description": "Handle speech capabilities",
-	"main": "dist/index.js",
+	"exports": "./dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
@@ -13,12 +14,12 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.11.27",
-		"typescript": "^5.4.2"
+		"@types/node": "^20.12.7",
+		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@google-cloud/text-to-speech": "^5.1.0",
-		"@luferro/shared-utils": "workspace:^",
+		"@google-cloud/text-to-speech": "^5.2.0",
+		"@luferro/helpers": "workspace:^",
 		"@picovoice/leopard-node": "^2.0.2",
 		"@picovoice/porcupine-node": "^3.0.2",
 		"@picovoice/rhino-node": "^3.0.3",

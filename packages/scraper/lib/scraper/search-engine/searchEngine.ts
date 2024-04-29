@@ -1,6 +1,6 @@
-import { DateUtil } from "@luferro/shared-utils";
-import type { InteractiveScraper } from "../web-pages/interactive";
-import type { StaticScraper } from "../web-pages/static";
+import { formatDate } from "@luferro/helpers/datetime";
+import type { InteractiveScraper } from "../web-pages/interactive.js";
+import type { StaticScraper } from "../web-pages/static.js";
 
 type SearchOptions = { interval?: { start: Date | number; end?: Date | number } };
 
@@ -14,8 +14,8 @@ export class SearchEngine {
 		let url = `https://duckduckgo.com/?q=${query}`;
 
 		if (interval) {
-			const fromStr = DateUtil.format(interval.start, { format: "yyyy-MM-dd" });
-			const toStr = interval.end ? DateUtil.format(interval.end, { format: "yyyy-MM-dd" }) : fromStr;
+			const fromStr = formatDate(interval.start, { format: "yyyy-MM-dd" });
+			const toStr = interval.end ? formatDate(interval.end, { format: "yyyy-MM-dd" }) : fromStr;
 			url = url.concat(`&df=${fromStr}..${toStr}`);
 		}
 

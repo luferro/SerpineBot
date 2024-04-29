@@ -1,9 +1,10 @@
 {
 	"name": "@luferro/reddit",
 	"private": true,
+	"type": "module",
 	"version": "1.0.0",
 	"description": "Reddit API wrapper",
-	"main": "dist/index.js",
+	"exports": "./dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
@@ -13,11 +14,11 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.11.27",
-		"typescript": "^5.4.2"
+		"@types/node": "^20.12.7",
+		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@luferro/scraper": "workspace:^",
-		"@luferro/shared-utils": "workspace:^"
+		"@luferro/helpers": "workspace:^",
+		"@luferro/scraper": "workspace:^"
 	}
 }

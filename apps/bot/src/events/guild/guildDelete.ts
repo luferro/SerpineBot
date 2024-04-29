@@ -1,5 +1,5 @@
 import type { Guild } from "discord.js";
-import type { EventData, EventExecute } from "../../types/bot";
+import type { EventData, EventExecute } from "~/types/bot.js";
 
 type Args = [guild: Guild];
 

@@ -1,9 +1,10 @@
 {
 	"name": "@luferro/database",
 	"private": true,
+	"type": "module",
 	"version": "1.0.0",
 	"description": "Prisma client",
-	"main": "dist/index.js",
+	"exports": "./dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
@@ -16,13 +17,13 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.11.27",
-		"prisma": "^5.11.0",
-		"typescript": "^5.4.2"
+		"@types/node": "^20.12.7",
+		"prisma": "^5.13.0",
+		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@luferro/shared-utils": "workspace:^",
-		"@prisma/client": "^5.11.0",
-		"ioredis": "^5.3.2"
+		"@luferro/helpers": "workspace:^",
+		"@prisma/client": "^5.13.0",
+		"ioredis": "^5.4.1"
 	}
 }

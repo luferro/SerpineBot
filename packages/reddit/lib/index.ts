@@ -1,2 +1,1 @@
-// APIs
-export { RedditApi } from "./reddit.api";
+export { RedditApi } from "./reddit.js";

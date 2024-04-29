@@ -1,4 +1,4 @@
-import { graphql } from "../../__generated__";
+import { graphql } from "../../__generated__/index.js";
 
 export const RECOMMENDATION_FIELDS = graphql(`
   fragment RecommendationFields on Recommendation {

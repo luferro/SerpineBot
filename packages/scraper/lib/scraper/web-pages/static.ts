@@ -1,5 +1,6 @@
-import { FetchUtil } from "@luferro/shared-utils";
+import { fetcher } from "@luferro/helpers/fetch";
 import { load } from "cheerio";
+import { HeaderGenerator } from "header-generator";
 
 export class StaticScraper {
 	loadHtml(html: string) {
@@ -7,9 +8,8 @@ export class StaticScraper {
 	}
 
 	async loadUrl(url: string) {
-		const { payload } = await FetchUtil.fetch<string>(url, {
-			headers: new Map([["content-type", "plain/text"]]),
-		});
+		const headers = new HeaderGenerator().getHeaders({}, { "content-type": "plain/text" });
+		const { payload } = await fetcher<string>(url, { headers: new Map(Object.entries(headers)) });
 		return this.loadHtml(payload);
 	}
 }

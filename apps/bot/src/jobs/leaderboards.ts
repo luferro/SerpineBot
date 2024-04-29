@@ -1,21 +1,22 @@
 import { WebhookType } from "@luferro/database";
-import { DateUtil, ObjectUtil } from "@luferro/shared-utils";
+import { formatDate } from "@luferro/helpers/datetime";
+import { enumToArray } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import { LeaderboardType, getLeaderboard, resetLeaderboard } from "../helpers/leaderboards";
-import type { JobData, JobExecute } from "../types/bot";
+import { LeaderboardType, getLeaderboard, resetLeaderboard } from "~/helpers/leaderboards.js";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 0 0 * * 0" };
 
 export const execute: JobExecute = async ({ client }) => {
-	for (const type of ObjectUtil.enumToArray(LeaderboardType)) {
+	for (const type of enumToArray(LeaderboardType)) {
 		try {
-			const leaderboard = await getLeaderboard(LeaderboardType[type], client);
+			const leaderboard = await getLeaderboard(type, client);
 			if (leaderboard.length === 0) continue;
 
 			const localization = client.getLocalization();
-			const from = DateUtil.format(Date.now() - 7 * 24 * 60 * 60 * 1000, localization);
-			const to = DateUtil.format(Date.now(), localization);
+			const from = formatDate(Date.now() - 7 * 24 * 60 * 60 * 1000, localization);
+			const to = formatDate(Date.now(), localization);
 
 			const formattedLeaderboard = leaderboard.map(({ position, medal, user, highlight, item }) =>
 				t("jobs.leaderboards.embed.description", {
@@ -30,15 +31,15 @@ export const execute: JobExecute = async ({ client }) => {
 				type: WebhookType.LEADERBOARDS,
 				messages: [
 					new EmbedBuilder()
-						.setTitle(t("jobs.leaderboards.embed.title", { type: LeaderboardType[type], from, to }))
+						.setTitle(t("jobs.leaderboards.embed.title", { type, from, to }))
 						.setDescription(formattedLeaderboard.join("\n"))
 						.setColor("Random"),
 				],
 			});
-			client.logger.info(`Leaderboards | ${LeaderboardType[type]} has been created`);
+			client.logger.info(`Leaderboards | ${type} has been created`);
 		} finally {
-			await resetLeaderboard(LeaderboardType[type], client);
-			client.logger.info(`Leaderboards | ${LeaderboardType[type]} has been reset`);
+			await resetLeaderboard(type, client);
+			client.logger.info(`Leaderboards | ${type} has been reset`);
 		}
 	}
 };

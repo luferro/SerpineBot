@@ -1,12 +1,12 @@
-import { StringUtil } from "@luferro/shared-utils";
-import type { JobData, JobExecute } from "../../types/bot";
+import { capitalize } from "@luferro/helpers/transform";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 0 2 * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const catalogs = await client.api.gaming.games.subscriptions.getCatalogs();
 	for (const { type, catalog } of catalogs) {
-		const name = type.toLowerCase().split("_").map(StringUtil.capitalize).join(" ");
+		const name = type.toLowerCase().split("_").map(capitalize).join(" ");
 		client.logger.debug(`Subscriptions | Found ${catalog.length} entries in ${name} catalog`);
 
 		const storedSubscription = await client.prisma.subscription.findUnique({ where: { type } });

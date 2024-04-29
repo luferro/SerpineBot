@@ -1,158 +1,48 @@
-import { Scraper } from "@luferro/scraper";
-import { DateUtil, StringUtil } from "@luferro/shared-utils";
+import { endOfWeek, getWeek, isMonday, isSunday, startOfWeek } from "@luferro/helpers/datetime";
 import { type Client, cacheExchange, createClient, fetchExchange } from "@urql/core";
+import { requestPolicyExchange } from "@urql/exchange-request-policy";
+import type {
+	AiringSchedule,
+	BrowseMediaQueryVariables,
+	Character,
+	Media,
+	MediaType,
+	PageInfo,
+	SearchQueryVariables,
+	Staff,
+	Studio,
+} from "./__generated__/graphql.js";
+import { AnimeScheduleApi } from "./anime-schedule/anime-schedule.api.js";
+import { BROWSE_MEDIA, GET_CHARACTERS, GET_MEDIA, GET_RECOMMENDATIONS, GET_STAFF } from "./graphql/queries/media.js";
+import { GET_SCHEDULE } from "./graphql/queries/schedule.js";
+import { SEARCH } from "./graphql/queries/search.js";
 import {
-	type AiringSchedule,
-	ExternalLinkType,
-	type Media,
-	type MediaExternalLink,
-	type MediaRank,
-	type MediaType,
-	type PageInfo,
-} from "./__generated__/graphql";
-import { AnimeScheduleApi } from "./anime-schedule/anime-schedule.api";
-import { GET_CHARACTERS, GET_MEDIA, GET_RECOMMENDATIONS, GET_STAFF } from "./graphql/queries/media";
-import { GET_SCHEDULE } from "./graphql/queries/schedule";
-import { SEARCH } from "./graphql/queries/search";
+	extractCharacter,
+	extractCharacters,
+	extractMediaFields,
+	extractStaff,
+	extractStaffMember,
+	extractStreams,
+	extractStudio,
+	extractStudios,
+	extractTrackers,
+} from "./utils/extractors.js";
+
+export * from "./anilist.types.js";
 
 export class AniListApi {
 	static BASE_API_URL = "https://graphql.anilist.co";
 
 	private client: Client;
-	private scraper: Scraper;
 	private animeScheduleApi?: AnimeScheduleApi;
 
 	constructor() {
-		this.client = createClient({ url: AniListApi.BASE_API_URL, exchanges: [cacheExchange, fetchExchange] });
-		this.scraper = new Scraper();
-	}
-
-	private extractMediaFields(media: Media) {
-		return {
-			type: media.type!,
-			id: media.id.toString(),
-			malId: media.idMal ? media.idMal.toString() : null,
-			title: {
-				romaji: media.title?.romaji ?? null,
-				english: media.title?.english ?? null,
-				native: media.title?.native ?? null,
-			},
-			description: media.description ?? null,
-			trailer: media.trailer?.site ?? null,
-			coverImage: {
-				medium: media.coverImage?.medium ?? null,
-				large: media.coverImage?.large ?? null,
-				extraLarge: media.coverImage?.extraLarge ?? null,
-			},
-			bannerImage: media.bannerImage ?? null,
-			isMature: !!media.isAdult,
-			format: media.format ?? null,
-			status: media.status ? StringUtil.capitalize(media.status.toLowerCase()) : null,
-			source: media.source ?? null,
-			startDate: media.startDate ?? null,
-			endDate: media.endDate ?? null,
-			season:
-				media.season && media.seasonYear
-					? `${StringUtil.capitalize(media.season.toLowerCase())} ${media.seasonYear}`
-					: null,
-			genres: (media.genres ?? []) as string[],
-			nextAiringEpisode: {
-				episode: media.nextAiringEpisode?.episode ?? null,
-				raw: { at: media.nextAiringEpisode ? media.nextAiringEpisode.airingAt * 1000 : null },
-			},
-			countryOfOrigin: media.countryOfOrigin as string,
-			averageScore: media.averageScore ?? null,
-			meanScore: media.meanScore ?? null,
-			popularity: media.popularity ?? null,
-			isLicensed: !!media.isLicensed,
-			episodes: media.episodes ?? null,
-			duration: media.duration ?? null,
-		};
-	}
-
-	private extractRankings(media: Media) {
-		return (media.rankings ?? [])
-			.filter((ranking): ranking is MediaRank => !!ranking)
-			.map((ranking) => ({
-				id: ranking.id,
-				rank: ranking.rank,
-				type: ranking.type,
-				allTime: !!ranking.allTime,
-				year: ranking.year ?? null,
-				formatted: `#${ranking.rank} ${ranking.context} ${!ranking.allTime ? ranking.year : ""}`.trim(),
-			}));
-	}
-
-	private extractCharacters(media: Media) {
-		return (media.characters?.edges ?? [])
-			.map((edge) => {
-				const node = edge?.node;
-				if (!edge || !node?.name) return;
-
-				const voiceActors = (edge.voiceActors ?? [])
-					.map((voiceActor) => {
-						if (!voiceActor?.name) return;
-						return {
-							id: voiceActor.id,
-							name: voiceActor.name.full!,
-							language: voiceActor.languageV2!,
-							image: voiceActor.image?.large ?? null,
-						};
-					})
-					.filter((voiceActor): voiceActor is NonNullable<typeof voiceActor> => !!voiceActor);
-				return {
-					edgeId: edge.id!,
-					role: edge.role!,
-					character: { id: node.id, name: node.name.full!, image: node.image?.large ?? null },
-					voiceActors,
-				};
-			})
-			.filter((edge): edge is NonNullable<typeof edge> => !!edge);
-	}
-
-	private extractStaff(media: Media) {
-		return (media.staff?.edges ?? [])
-			.map((edge) => {
-				const node = edge?.node;
-				if (!edge || !node?.name) return;
-
-				return {
-					edgeId: edge.id!,
-					role: edge.role!,
-					staff: { id: node.id, name: node.name.full!, language: node.languageV2!, image: node.image?.large ?? null },
-				};
-			})
-			.filter((edge): edge is NonNullable<typeof edge> => !!edge);
-	}
-
-	private extractStudios(media: Media) {
-		return (media.studios?.edges ?? [])
-			.map((edge) => {
-				const node = edge?.node;
-				if (!edge || !node) return;
-
-				return {
-					edgeId: edge.id,
-					isMain: edge.isMain,
-					studio: { id: node.id, name: node.name },
-				};
-			})
-			.filter((edge): edge is NonNullable<typeof edge> => !!edge);
-	}
-
-	private extractTrackers(media: Media) {
-		const type = media.type!.toLowerCase();
-
-		return [
-			media.idMal ? { name: "MyAnimeList", url: `https://myanimelist.net/${type}/${media.idMal}` } : null,
-			{ name: "AniList", url: `https://anilist.co/${type}/${media.id}` },
-		].filter((tracker): tracker is NonNullable<typeof tracker> => !!tracker);
-	}
-
-	private extractStreams(media: Media) {
-		return (media.externalLinks ?? [])
-			.filter((externalLink): externalLink is MediaExternalLink => externalLink?.type === ExternalLinkType.Streaming)
-			.map((externalLink) => ({ name: externalLink.site, url: externalLink.url }));
+		this.client = createClient({
+			url: AniListApi.BASE_API_URL,
+			exchanges: [requestPolicyExchange({ ttl: 1000 * 60 * 60 }), cacheExchange, fetchExchange],
+			requestPolicy: "cache-only",
+			suspense: true,
+		});
 	}
 
 	/** Allows weekly schedules to include subs as well as raws */
@@ -161,9 +51,42 @@ export class AniListApi {
 		return this;
 	}
 
-	async search(query: string, { isMature = true }) {
-		const { data } = await this.client.query(SEARCH, { search: query, isMature });
-		return data ?? null;
+	async search(query: string, options: Omit<SearchQueryVariables, "query"> = {}) {
+		const { data } = await this.client.query(SEARCH, { query, ...options });
+
+		return {
+			anime: {
+				pageInfo: { total: data?.anime?.pageInfo?.total ?? null },
+				results: ((data?.anime?.results ?? []) as Media[]).map(extractMediaFields),
+			},
+			manga: {
+				pageInfo: { total: data?.manga?.pageInfo?.total ?? null },
+				results: ((data?.manga?.results ?? []) as Media[]).map(extractMediaFields),
+			},
+			characters: {
+				pageInfo: { total: data?.characters?.pageInfo?.total ?? null },
+				results: ((data?.characters?.results ?? []) as Character[]).map(extractCharacter),
+			},
+			staff: {
+				pageInfo: { total: data?.staff?.pageInfo?.total ?? null },
+				results: ((data?.staff?.results ?? []) as Staff[]).map(extractStaffMember),
+			},
+			studios: {
+				pageInfo: { total: data?.studios?.pageInfo?.total ?? null },
+				results: ((data?.studios?.results ?? []) as Studio[]).map(extractStudio),
+			},
+		};
+	}
+
+	async browse(type: MediaType, { page = 1, ...options }: Omit<BrowseMediaQueryVariables, "type">) {
+		const { data } = await this.client.query(BROWSE_MEDIA, { type, page, ...options });
+		const media = (data?.Page?.media ?? []) as Media[];
+		const pageInfo = data?.Page?.pageInfo as Omit<PageInfo, "__typename">;
+
+		return {
+			pageInfo,
+			media: media.map(extractMediaFields),
+		};
 	}
 
 	async getMediaById(id: string, type: MediaType) {
@@ -175,24 +98,21 @@ export class AniListApi {
 				const node = edge?.node;
 				if (!edge || !node) return;
 
-				const { type, id, malId, title, coverImage, bannerImage, format, status } = this.extractMediaFields(node);
-
 				return {
 					edgeId: edge.id!,
 					relationType: edge.relationType!,
-					media: { type, id, malId, title, coverImage, bannerImage, format, status },
+					media: extractMediaFields(node),
 				};
 			})
 			.filter((edge): edge is NonNullable<typeof edge> => !!edge);
 
 		return {
+			...extractMediaFields(media),
 			relations,
-			studios: this.extractStudios(media),
-			rankings: this.extractRankings(media),
-			streams: this.extractStreams(media),
-			trackers: this.extractTrackers(media),
-			preview: { characters: this.extractCharacters(media), staff: this.extractStaff(media) },
-			...this.extractMediaFields(media),
+			studios: extractStudios(media),
+			streams: extractStreams(media),
+			trackers: extractTrackers(media),
+			preview: { characters: extractCharacters(media), staff: extractStaff(media) },
 		};
 	}
 
@@ -200,14 +120,14 @@ export class AniListApi {
 		const { data } = await this.client.query(GET_CHARACTERS, { page, id: Number(id) });
 		const media = data?.Media as Media;
 		const pageInfo = data?.Media?.characters?.pageInfo as Omit<PageInfo, "__typename">;
-		return { pageInfo, characters: this.extractCharacters(media) };
+		return { pageInfo, characters: extractCharacters(media) };
 	}
 
 	async getStaff(id: string, { page = 1 } = {}) {
 		const { data } = await this.client.query(GET_STAFF, { page, id: Number(id) });
 		const media = data?.Media as Media;
 		const pageInfo = data?.Media?.staff?.pageInfo as Omit<PageInfo, "__typename">;
-		return { pageInfo, staff: this.extractStaff(media) };
+		return { pageInfo, staff: extractStaff(media) };
 	}
 
 	async getRecommendations(id: string, { page = 1 } = {}) {
@@ -220,13 +140,10 @@ export class AniListApi {
 				const recommendation = node?.mediaRecommendation;
 				if (!node || !recommendation) return;
 
-				const { type, id, malId, title, format, status, coverImage, bannerImage } =
-					this.extractMediaFields(recommendation);
-
 				return {
 					nodeId: node.id,
 					rating: node.rating!,
-					media: { type, id, malId, title, format, status, coverImage, bannerImage },
+					media: extractMediaFields(recommendation),
 				};
 			})
 			.filter((node): node is NonNullable<typeof node> => !!node);
@@ -234,82 +151,103 @@ export class AniListApi {
 		return { pageInfo, recommendations };
 	}
 
-	async getWeeklySchedule() {
-		const start = Math.floor(DateUtil.startOfWeek(Date.now()).getTime() / 1000);
-		const end = Math.floor(DateUtil.endOfWeek(Date.now()).getTime() / 1000);
-		const rawsSchedule = [];
-
+	private async getRawsSchedule(start: number, end: number) {
 		let page = 1;
 		let hasNextPage = true;
+		const schedule = [];
 		while (hasNextPage) {
-			const { data } = await this.client.query(GET_SCHEDULE, { page, start, end });
+			const { data } = await this.client.query(GET_SCHEDULE, {
+				page,
+				start: Math.floor(start / 1000),
+				end: Math.floor(end / 1000),
+			});
 			const pageResult = data?.Page;
 			const airingSchedules = (pageResult?.airingSchedules ?? []) as (AiringSchedule & { media: Media })[];
 
-			rawsSchedule.push(...airingSchedules);
+			schedule.push(...airingSchedules);
 			hasNextPage = !!pageResult?.pageInfo?.hasNextPage;
 			page++;
 		}
+		return schedule;
+	}
 
-		const prepare = (record: Record<string, unknown>) => {
+	private async getSubsSchedule(start: number, end: number) {
+		if (!this.animeScheduleApi) return [];
+
+		const startDate = new Date(start);
+		const endDate = new Date(end);
+		const isWeeklySchedule = isMonday(startDate) && isSunday(endDate);
+		const weeks = [startDate];
+		if (!isWeeklySchedule) weeks.push(endDate);
+
+		const schedule = [];
+		for (const date of weeks) {
+			const week = getWeek(date, { weekStartsOn: 1 });
+			const year = date.getFullYear();
+			schedule.push(...(await this.animeScheduleApi.getWeekSchedule(week, year).catch(() => [])));
+		}
+		return schedule;
+	}
+
+	async getAiringSchedule({ start = startOfWeek(Date.now()).getTime(), end = endOfWeek(Date.now()).getTime() } = {}) {
+		const extractTitles = (record: Record<string, unknown>) => {
 			return Object.values(record)
 				.filter((title): title is string => !!title)
 				.map((title) => title.toUpperCase());
 		};
 
-		const subsSchedule = await this.animeScheduleApi?.getWeeklySchedule().catch(() => []);
+		const rawsSchedule = await this.getRawsSchedule(start, end);
+		const subsSchedule = await this.getSubsSchedule(start, end);
+		const schedule = rawsSchedule
+			.filter(({ media }) => media.countryOfOrigin === "JP")
+			.map(({ airingAt, episode, media }) => {
+				const rawAt = airingAt * 1000;
+				const rawDate = new Date(rawAt);
+				rawDate.setHours(0, 0, 0, 0);
 
-		return Promise.all(
-			rawsSchedule
-				.filter(({ media }) => media.countryOfOrigin === "JP")
-				.map(async ({ airingAt, episode, media }) => {
-					const {
-						id,
-						malId,
-						title,
-						coverImage,
-						bannerImage,
-						isMature,
-						format,
-						season,
-						averageScore,
-						meanScore,
-						episodes,
-						duration,
-					} = this.extractMediaFields(media);
+				const fields = extractMediaFields(media);
 
-					const match = subsSchedule?.find((sub) =>
-						prepare(title).find((rawTitleEntry) => prepare(sub.title).includes(rawTitleEntry)),
-					);
+				const match = subsSchedule
+					?.filter((sub) => {
+						const subDate = new Date(sub.airing.sub.at);
+						subDate.setHours(0, 0, 0, 0);
+						return rawDate.getTime() === subDate.getTime();
+					})
+					.find((sub) => extractTitles(fields.title).some((raw) => extractTitles(sub.title).includes(raw)));
+				const subAt = match?.airing.sub.at ?? null;
 
-					return {
-						id,
-						malId,
-						title,
-						coverImage,
-						bannerImage,
-						isMature,
-						format,
-						season,
-						averageScore,
-						meanScore,
-						episodes,
-						duration,
-						isDelayed: match?.isDelayed ?? null,
-						isAiring: match?.isAiring ?? null,
-						hasAired: match?.hasAired ?? null,
-						airing: {
-							episode,
-							raw: { at: airingAt * 1000 },
-							sub: { at: match?.airing.sub.at ?? null },
-							delay: { from: match?.airing.delay.from ?? null, until: match?.airing.delay.until ?? null },
-						},
-						rankings: this.extractRankings(media),
-						studios: this.extractStudios(media),
-						streams: this.extractStreams(media),
-						trackers: this.extractTrackers(media),
-					};
-				}),
-		);
+				return {
+					...fields,
+					isDelayed: match?.isDelayed ?? null,
+					isAiring: match?.isAiring ?? null,
+					hasAired: match?.hasAired ?? null,
+					airing: {
+						episode,
+						default: { at: subAt ?? rawAt },
+						raw: { at: rawAt },
+						sub: { at: subAt },
+						delay: { from: match?.airing.delay.from ?? null, until: match?.airing.delay.until ?? null },
+					},
+					studios: extractStudios(media),
+					streams: extractStreams(media),
+					trackers: extractTrackers(media),
+				};
+			})
+			.sort((a, b) => a.airing.default.at - b.airing.default.at);
+
+		const groupedSchedule = new Map<number, typeof schedule>();
+		for (const anime of schedule) {
+			const dayOfTheWeek = new Date(anime.airing.default.at).getUTCDay();
+
+			const storedEntries = groupedSchedule.get(dayOfTheWeek);
+			if (!storedEntries) {
+				groupedSchedule.set(dayOfTheWeek, [anime]);
+				continue;
+			}
+
+			groupedSchedule.set(dayOfTheWeek, storedEntries.concat(anime));
+		}
+
+		return groupedSchedule;
 	}
 }

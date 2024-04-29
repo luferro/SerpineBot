@@ -1,9 +1,16 @@
+import { toHours } from "@luferro/helpers/datetime";
+import { fetcher } from "@luferro/helpers/fetch";
 import { Scraper } from "@luferro/scraper";
-import { ConverterUtil, FetchUtil } from "@luferro/shared-utils";
-import type { Payload, Playtime, Result } from "./hltb.types";
+import type { Payload, Playtime, Result } from "./hltb.types.js";
 
-export class HLTBApi extends Scraper {
+export class HLTBApi {
 	private static BASE_URL = "https://howlongtobeat.com";
+
+	private scraper: Scraper;
+
+	constructor() {
+		this.scraper = new Scraper();
+	}
 
 	private getHeaders() {
 		return new Map([
@@ -13,7 +20,7 @@ export class HLTBApi extends Scraper {
 	}
 
 	async search(query: string) {
-		const data = await FetchUtil.fetch<Result>(`${HLTBApi.BASE_URL}/api/search`, {
+		const data = await fetcher<Result>(`${HLTBApi.BASE_URL}/api/search`, {
 			method: "POST",
 			headers: this.getHeaders(),
 			body: JSON.stringify({
@@ -45,7 +52,7 @@ export class HLTBApi extends Scraper {
 	}
 
 	async getPlaytimesById(id: string) {
-		const $ = await this.static.loadUrl(`${HLTBApi.BASE_URL}/game/${id}`);
+		const $ = await this.scraper.static.loadUrl(`${HLTBApi.BASE_URL}/game/${id}`);
 
 		const script = $('script[type="application/json"]').text();
 		const { props } = JSON.parse(script) as Payload<Playtime[]>;
@@ -57,9 +64,9 @@ export class HLTBApi extends Scraper {
 			url: `https://howlongtobeat.com/game/${id}`,
 			image: game_image ? `${HLTBApi.BASE_URL}/games/${game_image}` : null,
 			playtimes: {
-				main: comp_main !== 0 ? `${ConverterUtil.toHours(comp_main * 1000)}h` : null,
-				mainExtra: comp_plus !== 0 ? `${ConverterUtil.toHours(comp_plus * 1000)}h` : null,
-				completionist: comp_100 !== 0 ? `${ConverterUtil.toHours(comp_100 * 1000)}h` : null,
+				main: comp_main !== 0 ? `${toHours(comp_main * 1000)}h` : null,
+				mainExtra: comp_plus !== 0 ? `${toHours(comp_plus * 1000)}h` : null,
+				completionist: comp_100 !== 0 ? `${toHours(comp_100 * 1000)}h` : null,
 			},
 		};
 	}

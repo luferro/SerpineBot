@@ -1,17 +1,18 @@
-import { DateUtil, LoggerUtil } from "@luferro/shared-utils";
+import { isToday } from "@luferro/helpers/datetime";
+import { type Logger, configureLogger } from "@luferro/helpers/logger";
 import Parser from "rss-parser";
-import type { StaticScraper } from "../web-pages/static";
+import type { StaticScraper } from "../web-pages/static.js";
 
 type Image = { isExternal?: boolean; selector: string };
 type ImageOptions = { image: Image } | null;
 type Feeds = { url: string; options: ImageOptions }[];
 
 export class RSS extends Parser {
-	private logger: LoggerUtil.Logger;
+	private logger: Logger;
 
 	constructor(private staticScraper: StaticScraper) {
 		super();
-		this.logger = LoggerUtil.configureLogger();
+		this.logger = configureLogger();
 	}
 
 	private async retrieveExternalImage(url: string, selector: string) {
@@ -43,7 +44,7 @@ export class RSS extends Parser {
 
 			const items = await Promise.all(
 				output.items
-					.filter(({ isoDate }) => isoDate && DateUtil.isToday(new Date(isoDate)))
+					.filter(({ isoDate }) => isoDate && isToday(new Date(isoDate)))
 					.map(
 						async ({
 							creator,

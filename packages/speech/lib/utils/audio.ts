@@ -1,7 +1,7 @@
-import { ObjectUtil } from "@luferro/shared-utils";
+import { splitIntoChunks } from "@luferro/helpers/transform";
 
 export const getFrames = (pcm: Int16Array, frameLength: number) => {
-	const frames = ObjectUtil.splitIntoChunks(pcm as unknown as number[], frameLength);
+	const frames = splitIntoChunks(pcm as unknown as number[], frameLength);
 	if (frames.at(-1)?.length !== frameLength) {
 		frames.pop();
 	}

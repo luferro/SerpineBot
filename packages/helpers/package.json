@@ -1,0 +1,57 @@
+{
+	"name": "@luferro/helpers",
+	"private": true,
+	"type": "module",
+	"version": "1.0.0",
+	"description": "Collection of helpers",
+	"exports": {
+		"./currency": "./dist/currency/index.js",
+		"./datetime": "./dist/datetime/index.js",
+		"./fetch": "./dist/fetch/index.js",
+		"./files": "./dist/files/index.js",
+		"./logger": "./dist/logger/index.js",
+		"./transform": "./dist/transform/index.js"
+	},
+	"typesVersions": {
+		"*": {
+			"currency": [
+				"./dist/currency/index.d.ts"
+			],
+			"datetime": [
+				"./dist/datetime/index.d.ts"
+			],
+			"fetch": [
+				"./dist/fetch/index.d.ts"
+			],
+			"files": [
+				"./dist/files/index.d.ts"
+			],
+			"logger": [
+				"./dist/logger/index.d.ts"
+			],
+			"transform": [
+				"./dist/transform/index.d.ts"
+			]
+		}
+	},
+	"scripts": {
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^20.12.7",
+		"@types/ramda": "^0.29.12",
+		"date-fns": "^3.6.0",
+		"typescript": "^5.4.5"
+	},
+	"dependencies": {
+		"@luferro/cache": "workspace:^",
+		"cron-parser": "^4.9.0",
+		"date-fns-tz": "3.1.3",
+		"pino": "^9.0.0",
+		"pino-pretty": "^11.0.0",
+		"ramda": "^0.30.0"
+	}
+}

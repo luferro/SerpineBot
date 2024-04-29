@@ -1,12 +1,12 @@
-import { graphql } from "../../__generated__";
+import { graphql } from "../../__generated__/index.js";
 
 export const SEARCH = graphql(`
-  query search($search: String, $isMature: Boolean) {
+  query search($query: String, $isMature: Boolean) {
     anime: Page(perPage: 8) {
       pageInfo {
         total
       }
-      results: media(type: ANIME, isAdult: $isMature, search: $search) {
+      results: media(type: ANIME, isAdult: $isMature, search: $query) {
         id
         idMal
         title {
@@ -18,9 +18,10 @@ export const SEARCH = graphql(`
           extraLarge
         }
         bannerImage
-        startDate {
-          year
-        }
+        season
+        seasonYear
+        isAdult
+        status
         type
         format
         isLicensed
@@ -30,7 +31,7 @@ export const SEARCH = graphql(`
       pageInfo {
         total
       }
-      results: media(type: MANGA, isAdult: $isMature, search: $search) {
+      results: media(type: MANGA, isAdult: $isMature, search: $query) {
         id
         idMal
         title {
@@ -45,6 +46,8 @@ export const SEARCH = graphql(`
         startDate {
           year
         }
+        isAdult
+        status
         type
         format
         isLicensed
@@ -54,7 +57,7 @@ export const SEARCH = graphql(`
       pageInfo {
         total
       }
-      results: characters(search: $search) {
+      results: characters(search: $query) {
         ...CharacterFields
       }
     }
@@ -62,7 +65,7 @@ export const SEARCH = graphql(`
       pageInfo {
         total
       }
-      results: staff(search: $search) {
+      results: staff(search: $query) {
         ...StaffFields
       }
     }
@@ -70,7 +73,7 @@ export const SEARCH = graphql(`
       pageInfo {
         total
       }
-      results: studios(search: $search) {
+      results: studios(search: $query) {
         ...StudioFields
       }
     }

@@ -1,6 +1,6 @@
 import { Player as DiscordPlayer, type GuildNodeCreateOptions } from "discord-player";
 import type { VoiceChannel } from "discord.js";
-import type { Bot } from "./Bot";
+import type { Bot } from "~/structures/Bot.js";
 
 export class Player extends DiscordPlayer {
 	defaultNodeOptions: GuildNodeCreateOptions<VoiceChannel> = {

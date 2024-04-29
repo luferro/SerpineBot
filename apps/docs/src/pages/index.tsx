@@ -2,12 +2,12 @@ import { loadConfig } from "@luferro/config";
 import { ApplicationCommandOptionType, Client, GatewayIntentBits } from "discord.js";
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import type { Command, Group, Option, Subcommand } from "../../types/bot";
 import { Accordion } from "../components/Accordion/Accordion";
 import { Footer } from "../components/Footer/Footer";
 import { Landing } from "../components/Landing/Landing";
 import { Main } from "../components/Main/Main";
 import { StyledSkeleton } from "../components/Skeleton/Skeleton.styled";
+import type { Command, Group, Option, Subcommand } from "../types/bot";
 
 const config = loadConfig();
 

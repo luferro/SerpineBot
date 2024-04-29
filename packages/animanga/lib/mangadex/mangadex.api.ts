@@ -1,5 +1,6 @@
-import { FetchUtil, StringUtil } from "@luferro/shared-utils";
-import type { Chapter, Manga, Payload } from "./mangadex.types";
+import { fetcher } from "@luferro/helpers/fetch";
+import { capitalize } from "@luferro/helpers/transform";
+import type { Chapter, Manga, Payload } from "./mangadex.types.js";
 
 export class MangadexApi {
 	private static BASE_URL = "https://mangadex.org";
@@ -7,7 +8,7 @@ export class MangadexApi {
 	private static BASE_IMAGE_URL = "https://og.mangadex.org";
 
 	async search(query: string) {
-		const { payload } = await FetchUtil.fetch<Payload<Manga[]>>(`${MangadexApi.BASE_API_URL}/manga?title=${query}`);
+		const { payload } = await fetcher<Payload<Manga[]>>(`${MangadexApi.BASE_API_URL}/manga?title=${query}`);
 
 		return payload.data.map((result) => {
 			const { title, links } = result.attributes;
@@ -20,13 +21,13 @@ export class MangadexApi {
 	}
 
 	async getMangaById(id: string) {
-		const { payload } = await FetchUtil.fetch<Payload<Manga>>(`${MangadexApi.BASE_API_URL}/manga/${id}`);
+		const { payload } = await fetcher<Payload<Manga>>(`${MangadexApi.BASE_API_URL}/manga/${id}`);
 		const { attributes } = payload.data;
 
 		const { title, status, year, tags } = attributes;
 		const image = `${MangadexApi.BASE_IMAGE_URL}/og-image/manga/${id}`;
 		const release = year ? `${year}, ` : null;
-		const publication = status ? StringUtil.capitalize(status) : null;
+		const publication = status ? capitalize(status) : null;
 
 		return {
 			id,
@@ -39,7 +40,7 @@ export class MangadexApi {
 	}
 
 	async getLatestChapters({ limit = 20 } = {}) {
-		const { payload } = await FetchUtil.fetch<Payload<Chapter[]>>(
+		const { payload } = await fetcher<Payload<Chapter[]>>(
 			`${MangadexApi.BASE_API_URL}/chapter?originalLanguage[]=ja&translatedLanguage[]=en&order[readableAt]=desc&includes[]=manga&limit=${limit}`,
 		);
 

@@ -1,9 +1,10 @@
 {
 	"name": "@luferro/gaming",
 	"private": true,
+	"type": "module",
 	"version": "1.0.0",
 	"description": "Provides everything related to gaming",
-	"main": "dist/index.js",
+	"exports": "./dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
@@ -13,13 +14,13 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"typescript": "^5.4.2"
+		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@apollo/client": "^3.9.7",
+		"@apollo/client": "^3.10.1",
+		"@luferro/helpers": "workspace:^",
 		"@luferro/reddit": "workspace:^",
 		"@luferro/scraper": "workspace:^",
-		"@luferro/shared-utils": "workspace:^",
 		"graphql": "^16.8.1"
 	}
 }

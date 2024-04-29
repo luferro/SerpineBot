@@ -1,1 +1,1 @@
-export * from "./shows/tmdb.api";
+export * from "./shows/tmdb.api.js";

@@ -1,6 +1,6 @@
 import { EmbedBuilder, type GuildMember, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "../../../../types/bot";
+import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.gaming.steam.wishlist.name"))
@@ -26,7 +26,6 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 				`\`${priority}.\` **[${title}](${url})** | ${discounted || (isFree && "Free") || t("common.unavailable")}`,
 		);
 
-	console.log(formattedWishlist.at(-1));
 	const hiddenCount = integration.wishlist.length - formattedWishlist.length;
 	if (hiddenCount > 0) formattedWishlist.push(t("common.lists.hidden", { size: hiddenCount }));
 

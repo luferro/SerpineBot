@@ -1,8 +1,8 @@
 import { WebhookType } from "@luferro/database";
-import { DateUtil } from "@luferro/shared-utils";
+import { formatDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import type { JobData, JobExecute } from "../../types/bot";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 */30 * * * *" };
 
@@ -24,7 +24,7 @@ export const execute: JobExecute = async ({ client }) => {
 				{
 					name: t("jobs.gaming.reviews.embed.fields.0.name"),
 					value: releaseDate
-						? DateUtil.format(releaseDate, { format: "dd-MM-yyyy" })
+						? formatDate(releaseDate, { format: "dd-MM-yyyy" })
 						: t("jobs.gaming.reviews.embed.fields.0.value"),
 				},
 				{

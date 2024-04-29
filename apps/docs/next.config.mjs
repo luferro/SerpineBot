@@ -1,15 +1,7 @@
-import { loadConfig } from "@luferro/config";
-
-const locale = loadConfig().get("locale");
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: true,
 	swcMinify: true,
-	i18n: {
-		defaultLocale: locale,
-		locales: [locale],
-	},
 	compiler: {
 		styledComponents: true,
 	},

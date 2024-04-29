@@ -1,5 +1,5 @@
 import type { Readable } from "node:stream";
-import { LoggerUtil } from "@luferro/shared-utils";
+import { type Logger, configureLogger } from "@luferro/helpers/logger";
 import { BuiltinKeyword, Porcupine, PorcupineErrors, getInt16Frames } from "@picovoice/porcupine-node";
 import prism from "prism-media";
 
@@ -9,18 +9,16 @@ type Options = {
 	 * @default "BUMBLEBEE"
 	 */
 	standardKeywords?: (keyof typeof BuiltinKeyword)[];
-	/**
-	 * Paths to custom keyword models
-	 */
+	/** Paths to custom keyword models */
 	customKeywords?: string[];
 };
 
 export class WakeWordClient {
-	private logger: LoggerUtil.Logger;
+	private logger: Logger;
 	private porcupine?: Porcupine;
 
 	constructor(apiKey: string, { standardKeywords = ["BUMBLEBEE"], customKeywords = [] }: Options = {}) {
-		this.logger = LoggerUtil.configureLogger();
+		this.logger = configureLogger();
 		try {
 			const keywords = [...standardKeywords.map((keyword) => BuiltinKeyword[keyword]), ...customKeywords];
 			const sensitivities = keywords.map((keyword) => (this.isBuiltInKeyword(keyword) ? 0.5 : 0.8));

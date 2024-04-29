@@ -1,6 +1,4 @@
-import axios from "axios";
-import { HeaderGenerator, type Headers } from "header-generator";
-import { FetchError } from "./errors/FetchError";
+import { FetchError } from "./errors/FetchError.js";
 
 type Options = {
 	/**
@@ -16,37 +14,32 @@ type Options = {
 	cb?: (status: number) => Promise<unknown>;
 };
 
-export const fetch = async <T>(url: string, { method = "GET", headers, body, cb }: Options = {}) => {
+export const fetcher = async <T>(url: string, { method = "GET", cb, ...rest }: Options = {}) => {
 	try {
-		const res = await axios(url, {
-			method,
-			headers: getHeaders(headers),
-			data: parseBody(body),
-			validateStatus: () => true,
-		});
-		const responseHeaders = res.headers as Headers;
-		const payload = res.data as T;
+		const res = await fetch(url, { method, headers: getHeaders(rest.headers), body: parseBody(rest.body) });
+		const headers = res.headers as Headers;
+		const isJson = headers.get("content-type")?.includes("application/json");
+		const payload = (isJson ? await res.json() : await res.text()) as T;
 
 		if (res.status >= 400) {
-			const error = new FetchError(res.statusText)
+			throw new FetchError(res.statusText)
+				.setHeaders(res.headers)
 				.setUrl(url)
 				.setStatus(res.status)
-				.setHeaders(responseHeaders)
 				.setPayload(payload);
-			throw error;
 		}
 
-		return { headers: responseHeaders, payload };
+		return { headers, payload };
 	} catch (error) {
 		if (error instanceof FetchError) await cb?.(error.status ?? 500);
-		else (error as Error).message = `**${method}** request to **${url}** failed.`;
+		else (error as Error).message = `${method} request to ${url} failed`;
 		throw error;
 	}
 };
 
 const getHeaders = (headers = new Map<string, string>()) => {
 	if (!headers.has("content-type")) headers.set("content-type", "application/json");
-	return new HeaderGenerator().getHeaders({}, Object.fromEntries(headers));
+	return new Headers(Object.fromEntries(headers));
 };
 
 const parseBody = (body?: string) => {

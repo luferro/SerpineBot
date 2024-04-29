@@ -1,2 +1,2 @@
-export * from "./anilist/anilist.api";
-export * from "./mangadex/mangadex.api";
+export * from "./anilist/anilist.api.js";
+export * from "./mangadex/mangadex.api.js";

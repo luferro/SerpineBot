@@ -1,4 +1,4 @@
-import { graphql } from "../../__generated__";
+import { graphql } from "../../__generated__/index.js";
 
 export const STAFF_FIELDS = graphql(`
   fragment StaffFields on Staff {

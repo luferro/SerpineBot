@@ -1,2 +1,2 @@
-export * from "./steam/steam.api";
-export * from "./xbox/xbox.api";
+export * from "./steam/steam.api.js";
+export * from "./xbox/xbox.api.js";

@@ -1,3 +1,3 @@
 // Prisma
-export * from "./client";
+export * from "./client/index.js";
 export * from "@prisma/client";

@@ -1,5 +1,5 @@
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
-import type { Group, Option, Subcommand } from "../../../types/bot";
+import type { Group, Option, Subcommand } from "../../types/bot";
 import {
 	StyledAccordion,
 	StyledAccordionSummary,
@@ -19,7 +19,7 @@ type Props = {
 	options: Option[];
 };
 
-export const Accordion = ({ id, name, description, groups, subcommands, options }: Props) => {
+export function Accordion({ id, name, description, groups, subcommands, options }: Props) {
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -59,4 +59,4 @@ export const Accordion = ({ id, name, description, groups, subcommands, options 
 			)}
 		</StyledAccordion>
 	);
-};
+}

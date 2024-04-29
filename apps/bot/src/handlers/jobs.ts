@@ -1,12 +1,12 @@
 import path from "node:path";
-import { FsUtil } from "@luferro/shared-utils";
-import { Bot } from "../structures/Bot";
-import type { Job } from "../types/bot";
+import { extractPathSegments, getFiles } from "@luferro/helpers/files";
+import { Bot } from "~/structures/Bot.js";
+import type { Job } from "~/types/bot.js";
 
 export const registerJobs = async (client: Bot) => {
-	const files = FsUtil.getFiles(path.resolve(__dirname, "../jobs"));
+	const files = getFiles(path.resolve(import.meta.dirname, "../jobs"));
 	for (const file of files) {
-		const segment = FsUtil.extractPathSegments(file, "jobs");
+		const segment = extractPathSegments(file, "jobs");
 		if (!segment) continue;
 
 		const job: Job = await import(file);

@@ -1,7 +1,7 @@
 import { ActionRowBuilder, type Collection, EmbedBuilder, type Message, StringSelectMenuBuilder } from "discord.js";
 import { t } from "i18next";
-import { Bot } from "../../structures/Bot";
-import type { EventData, EventExecute } from "../../types/bot";
+import { Bot } from "~/structures/Bot.js";
+import type { EventData, EventExecute } from "~/types/bot.js";
 
 export const data: EventData = { type: "on" };
 

@@ -5,5 +5,5 @@
 		"declaration": true,
 		"declarationMap": true
 	},
-	"include": ["lib/**/*.ts", "lib/api/anime/anilist/graphql/media.gql"]
+	"include": ["lib"]
 }

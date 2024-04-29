@@ -1,15 +1,13 @@
 import { WebhookType } from "@luferro/database";
-import { StringUtil } from "@luferro/shared-utils";
+import { capitalize, truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import type { JobData, JobExecute } from "../../types/bot";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 */5 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const schedule = (await client.api.aniList.getWeeklySchedule()).filter(
-		({ airing }) => new Date(airing.sub.at ?? airing.raw.at).getDay() === new Date().getDay(),
-	);
+	const schedule = (await client.api.aniList.getAiringSchedule()).get(new Date().getDay()) ?? [];
 
 	const messages = [];
 	for (const anime of schedule) {
@@ -19,11 +17,11 @@ export const execute: JobExecute = async ({ client }) => {
 		if (notAiredYet || isDelayed || isMature) continue;
 
 		const type = airing.sub.at ? "sub" : "raw";
-		const formattedTracking = trackers?.map(({ name, url }) => `> **[${StringUtil.capitalize(name)}](${url})**`);
-		const formattedStreams = streams?.map(({ name, url }) => `> **[${StringUtil.capitalize(name)}](${url})**`);
+		const formattedTracking = trackers?.map(({ name, url }) => `> **[${capitalize(name)}](${url})**`);
+		const formattedStreams = streams?.map(({ name, url }) => `> **[${capitalize(name)}](${url})**`);
 
 		const embed = new EmbedBuilder()
-			.setTitle(StringUtil.truncate(title.english ?? title.romaji!))
+			.setTitle(truncate(title.english ?? title.romaji!))
 			.setDescription(t("jobs.anime.episode.embed.description", { episode: airing.episode, type }))
 			.setThumbnail(coverImage.extraLarge ?? coverImage.large ?? coverImage.medium)
 			.addFields([

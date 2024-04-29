@@ -1,7 +1,7 @@
 import { WebhookType } from "@luferro/database";
-import { StringUtil } from "@luferro/shared-utils";
+import { truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
-import type { JobData, JobExecute } from "../../types/bot";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 */10 * * * *" };
 
@@ -19,7 +19,7 @@ export const execute: JobExecute = async ({ client }) => {
 				continue;
 			}
 
-			const embed = new EmbedBuilder().setTitle(StringUtil.truncate(title)).setURL(url).setColor("Random");
+			const embed = new EmbedBuilder().setTitle(truncate(title)).setURL(url).setColor("Random");
 			messages.push(embed);
 		}
 

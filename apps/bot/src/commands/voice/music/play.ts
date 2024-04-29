@@ -1,6 +1,6 @@
 import { QueryType } from "discord-player";
 import { t } from "i18next";
-import type { VoiceCommandExecute } from "../../../types/bot";
+import type { VoiceCommandExecute } from "~/types/bot.js";
 
 type Args = [userId: string];
 

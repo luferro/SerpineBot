@@ -1,5 +1,5 @@
-import { DateUtil, FetchUtil } from "@luferro/shared-utils";
-import type { Schedule } from "./anime-schedule.types";
+import { fetcher } from "@luferro/helpers/fetch";
+import type { Schedule } from "./anime-schedule.types.js";
 
 export class AnimeScheduleApi {
 	private static BASE_URL = "https://animeschedule.net";
@@ -10,12 +10,8 @@ export class AnimeScheduleApi {
 		return new Map([["Authorization", `Bearer ${this.apiKey}`]]);
 	}
 
-	async getWeeklySchedule({ timezone = "Europe/Lisbon" } = {}) {
-		const date = new Date();
-		const year = date.getFullYear();
-		const week = DateUtil.getWeek(date, { weekStartsOn: 1 });
-
-		const { payload } = await FetchUtil.fetch<Schedule[]>(
+	async getWeekSchedule(week: number, year: number, { timezone = "Europe/Lisbon" } = {}) {
+		const { payload } = await fetcher<Schedule[]>(
 			`${AnimeScheduleApi.BASE_URL}/api/v3/timetables/sub?year=${year}&week=${week}&tz=${timezone}`,
 			{ headers: this.getHeaders() },
 		);

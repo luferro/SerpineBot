@@ -1,1 +1,1 @@
-export { type Config, loadConfig } from "./config";
+export { type Config, loadConfig } from "./config.js";

@@ -1,4 +1,30 @@
-import R from "ramda";
+import * as R from "ramda";
+
+export const slug = (string: string) => {
+	return string
+		.toString()
+		.trim()
+		.toLowerCase()
+		.replace(/\s+/g, "-")
+		.replace(/[^\w-]+/g, "")
+		.replace(/--+/g, "-")
+		.replace(/^-+/, "")
+		.replace(/-+$/, "");
+};
+
+export const capitalize = (string: string) => {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+export const truncate = (string: string, limit = 256) => {
+	if (string.length > limit) {
+		const ending = "...";
+		const truncated = string.slice(0, limit - ending.length) + ending;
+		return truncated.trim();
+	}
+
+	return string.trim();
+};
 
 export const splitIntoChunks = <T>(array: T[], size: number) => {
 	const result: T[][] = [];
@@ -9,13 +35,13 @@ export const splitIntoChunks = <T>(array: T[], size: number) => {
 	return result;
 };
 
-export const partition = <T, U>(array: T[], filter: (item: T) => boolean) => {
-	return array.reduce<[U[], Exclude<T, U>[]]>(
+export const partition = <Item, Left = Item, Right = Item>(array: Item[], filter: (item: Item) => boolean) => {
+	return array.reduce<[Left[], Right[]]>(
 		(acc, el) => {
 			if (filter(el)) {
-				acc[0].push(el as unknown as U);
+				acc[0].push(el as unknown as Left);
 			} else {
-				acc[1].push(el as Exclude<T, U>);
+				acc[1].push(el as unknown as Right);
 			}
 			return acc;
 		},
@@ -34,9 +60,9 @@ export const shuffle = <T>(array: T[]) => {
 };
 
 export const enumToArray = <T extends { [name: string]: number | string }>(enumeration: T) => {
-	return Object.keys(enumeration)
+	return Object.values(enumeration)
 		.filter((value) => Number.isNaN(Number(value)))
-		.map((value) => value as keyof T);
+		.map((value) => value as T[keyof T]);
 };
 
 const fieldExists = <T extends object>(field: string, obj1: T, obj2: T) => {

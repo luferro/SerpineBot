@@ -1,5 +1,5 @@
-import { DealsApi, HLTBApi, IGDBApi, ReviewsApi, SubscriptionsApi } from "./games";
-import { SteamApi, XboxApi } from "./platforms";
+import { DealsApi, HLTBApi, IGDBApi, ReviewsApi, SubscriptionsApi } from "./games/index.js";
+import { SteamApi, XboxApi } from "./platforms/index.js";
 
 type Games = { hltb: HLTBApi; deals: DealsApi; reviews: ReviewsApi; subscriptions: SubscriptionsApi };
 type Platforms = { steam: SteamApi; xbox: XboxApi };

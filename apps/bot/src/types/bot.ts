@@ -11,8 +11,8 @@ import type {
 	SlashCommandSubcommandBuilder,
 	TextBasedChannel,
 } from "discord.js";
-import type { Bot } from "../structures/Bot";
-import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from "./interaction";
+import type { Bot } from "~/structures/Bot.js";
+import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from "~/types/interaction.js";
 
 type Client = { client: Bot };
 

@@ -1,8 +1,9 @@
 import { WebhookType } from "@luferro/database";
-import { ConverterUtil, DateUtil } from "@luferro/shared-utils";
+import { formatCurrency } from "@luferro/helpers/currency";
+import { formatDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
-import type { JobData, JobExecute } from "../../../types/bot";
+import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 */10 * * * *" };
 
@@ -23,14 +24,14 @@ export const execute: JobExecute = async ({ client }) => {
 				t("jobs.gaming.deals.free.embed.description", {
 					store,
 					discount,
-					regular: ConverterUtil.formatCurrency(amount, { currency, ...localization }),
+					regular: formatCurrency(amount, { currency, ...localization }),
 				}),
 			)
 			.setFooter(
 				expiry
 					? {
 							text: t("jobs.gaming.deals.free.embed.footer.text", {
-								expiry: DateUtil.format(expiry, localization),
+								expiry: formatDate(expiry, localization),
 							}),
 					  }
 					: null,
