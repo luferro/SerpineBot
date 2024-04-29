@@ -54,10 +54,6 @@ export const _loadConfig = ({
 		);
 	}
 
-	for (const [key, value] of Object.entries(processEnv())) {
-		nconf.set(key, value);
-	}
-
 	nconf
 		.file(`local-config-path-${runtimeEnvironment}-config`, {
 			file: path.join(path.join(localConfigPath, applicationName), `${runtimeEnvironment}.json`),
@@ -67,6 +63,10 @@ export const _loadConfig = ({
 		})
 		.file(`config-path-${runtimeEnvironment}-config`, { file: path.join(configPath, `${runtimeEnvironment}.json`) })
 		.file("config-path-default-config", { file: path.join(configPath, "default.json") });
+
+	for (const [key, value] of Object.entries(processEnv())) {
+		nconf.set(key, value);
+	}
 
 	return {
 		runtimeEnvironment,
