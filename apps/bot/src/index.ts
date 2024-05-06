@@ -14,6 +14,6 @@ const client = new Bot({
 });
 await client.start();
 
-process.on("uncaughtException", client.logger.error);
+process.on("uncaughtException", client.logger.error.bind(client.logger));
 process.on("SIGINT", client.stop);
 process.on("SIGTERM", client.stop);
