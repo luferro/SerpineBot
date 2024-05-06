@@ -17,7 +17,7 @@
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@apollo/client": "^3.10.1",
+		"@apollo/client": "^3.10.2",
 		"@luferro/helpers": "workspace:^",
 		"@luferro/reddit": "workspace:^",
 		"@luferro/scraper": "workspace:^",

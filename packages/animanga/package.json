@@ -24,7 +24,7 @@
 		"@luferro/helpers": "workspace:^",
 		"@luferro/reddit": "workspace:^",
 		"@luferro/scraper": "workspace:^",
-		"@urql/core": "^5.0.2",
+		"@urql/core": "^5.0.3",
 		"@urql/exchange-request-policy": "^1.1.0",
 		"graphql": "^16.8.1"
 	}

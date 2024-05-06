@@ -41,8 +41,8 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.12.7",
-		"@types/ramda": "^0.29.12",
+		"@types/node": "^20.12.10",
+		"@types/ramda": "^0.30.0",
 		"date-fns": "^3.6.0",
 		"typescript": "^5.4.5"
 	},
