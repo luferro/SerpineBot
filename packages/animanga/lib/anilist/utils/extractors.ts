@@ -10,6 +10,14 @@ import {
 } from "../__generated__/graphql.js";
 
 export function extractMediaFields(media: Media) {
+	const formatRanking = (ranking: MediaRank) => {
+		const formatted = [`#${ranking.rank} ${ranking.context}`];
+		if (ranking.season) formatted.push(ranking.season);
+		if (!ranking.allTime && ranking.year) formatted.push(ranking.year.toString());
+
+		return formatted.join(" ");
+	};
+
 	return {
 		id: media.id.toString(),
 		malId: media.idMal ? media.idMal.toString() : null,
@@ -53,19 +61,21 @@ export function extractMediaFields(media: Media) {
 		meanScore: media.meanScore ?? null,
 		rankings: (media.rankings ?? [])
 			.filter((ranking): ranking is MediaRank => !!ranking)
-			.map((ranking) => ({
-				id: ranking.id,
-				rank: ranking.rank,
-				type: ranking.type,
-				allTime: !!ranking.allTime,
-				year: ranking.year ?? null,
-				formatted: `#${ranking.rank} ${ranking.context} ${!ranking.allTime ? ranking.year : ""}`.trim(),
-			})),
+			.map((ranking) => ({ ...ranking, formatted: formatRanking(ranking) })),
 	};
 }
 
 export function extractCharacter(character: Character) {
-	return { id: character.id, name: character.name!.full!, image: character.image?.large ?? null };
+	return {
+		id: character.id,
+		name: character.name!.full!,
+		image: character.image?.large ?? null,
+		description: character.description ?? null,
+		age: character.age ?? null,
+		gender: character.gender ?? null,
+		bloodType: character.bloodType ?? null,
+		dateOfBirth: character.dateOfBirth ?? null,
+	};
 }
 
 export function extractCharacters(media: Media) {
@@ -92,7 +102,21 @@ export function extractCharacters(media: Media) {
 }
 
 export function extractStaffMember(staff: Staff) {
-	return { id: staff.id, name: staff.name!.full!, language: staff.languageV2!, image: staff.image?.large ?? null };
+	return {
+		id: staff.id,
+		name: staff.name!.full!,
+		language: staff.languageV2!,
+		image: staff.image?.large ?? null,
+		description: staff.description ?? null,
+		age: staff.age ?? null,
+		gender: staff.age ?? null,
+		yearsActive: staff.yearsActive ?? null,
+		homeTown: staff.homeTown ?? null,
+		bloodType: staff.bloodType ?? null,
+		primaryOccupations: staff.primaryOccupations ?? [],
+		dateOfBirth: staff.dateOfBirth ?? null,
+		dateOfDeath: staff.dateOfDeath ?? null,
+	};
 }
 
 export function extractStaff(media: Media) {

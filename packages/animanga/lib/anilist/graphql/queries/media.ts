@@ -83,6 +83,8 @@ export const GET_MEDIA = graphql(`
         type
         year
         allTime
+        format
+        season
         context
       }
       stats {
