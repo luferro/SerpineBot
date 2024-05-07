@@ -81,15 +81,15 @@ importers:
       '@types/node':
         specifier: ^20.12.10
         version: 20.12.10
+      play-dl:
+        specifier: ^1.9.7
+        version: 1.9.7
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
-      youtube-ext:
-        specifier: ^1.1.25
-        version: 1.1.25
       ytdl-core:
         specifier: 4.11.5
         version: 4.11.5
@@ -6556,6 +6556,17 @@ packages:
       thread-stream: 2.7.0
     dev: false
 
+  /play-audio@0.5.2:
+    resolution: {integrity: sha512-ZAqHUKkQLix2Iga7pPbsf1LpUoBjcpwU93F1l3qBIfxYddQLhxS6GKmS0d3jV8kSVaUbr6NnOEcEMFvuX93SWQ==}
+    dev: true
+
+  /play-dl@1.9.7:
+    resolution: {integrity: sha512-KpgerWxUCY4s9Mhze2qdqPhiqd8Ve6HufpH9mBH3FN+vux55qSh6WJKDabfie8IBHN7lnrAlYcT/UdGax58c2A==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      play-audio: 0.5.2
+    dev: true
+
   /playwright-chromium@1.43.1:
     resolution: {integrity: sha512-HL/11hcpIYVt/Rw7wTf5xwm+W0R76JGDDjRxGtBkgMuUqi0Q4UYmx+F/QxW/Z+aApSbDtHd3naRFcL/Jt7Aidg==}
     engines: {node: '>=16'}
@@ -8273,12 +8284,6 @@ packages:
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-    dev: true
-
-  /youtube-ext@1.1.25:
-    resolution: {integrity: sha512-/TV40aXAQv7hKdwOPOjPKD02kJbfkuwu8IFj9F5OLAetM6NiJ0Sk/sh2IsoL236R1UZgGI9sjcLvKhecYSW5tA==}
-    dependencies:
-      undici: 6.15.0
     dev: true
 
   /youtube-sr@4.3.11:
