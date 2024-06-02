@@ -50,14 +50,21 @@ export const GET_STAFF_BY_ID = graphql(`
           characterName
           node {
             id
-            type
-            isAdult
+            idMal
             title {
-                ...MediaTitleFields
+              ...MediaTitleFields
             }
             coverImage {
+              medium
               large
+              extraLarge
             }
+            startDate {
+              year
+            }
+            format
+            type
+            status(version: 2)
           }
           characters {
             id
@@ -83,14 +90,21 @@ export const GET_STAFF_BY_ID = graphql(`
           staffRole
           node {
             id
-            type
-            isAdult
+            idMal
             title {
-                ...MediaTitleFields
+              ...MediaTitleFields
             }
             coverImage {
+              medium
               large
+              extraLarge
             }
+            startDate {
+              year
+            }
+            format
+            type
+            status(version: 2)
           }
         }
       }

@@ -96,7 +96,7 @@ export function extractCharacters(media: Media) {
 					};
 				})
 				.filter((voiceActor): voiceActor is NonNullable<typeof voiceActor> => !!voiceActor);
-			return { edgeId: edge.id!, role: edge.role!, character, voiceActors };
+			return { role: edge.role!, character, voiceActors };
 		})
 		.filter((edge): edge is NonNullable<typeof edge> => !!edge);
 }
@@ -109,7 +109,7 @@ export function extractStaffMember(staff: Staff) {
 		image: staff.image?.large ?? null,
 		description: staff.description ?? null,
 		age: staff.age ?? null,
-		gender: staff.age ?? null,
+		gender: staff.gender ?? null,
 		yearsActive: staff.yearsActive ?? null,
 		homeTown: staff.homeTown ?? null,
 		bloodType: staff.bloodType ?? null,
@@ -127,7 +127,7 @@ export function extractStaff(media: Media) {
 
 			const staff = extractStaffMember(node);
 
-			return { edgeId: edge.id!, role: edge.role!, staff };
+			return { role: edge.role!, staff };
 		})
 		.filter((edge): edge is NonNullable<typeof edge> => !!edge);
 }
@@ -144,7 +144,7 @@ export function extractStudios(media: Media) {
 
 			const studio = extractStudio(node);
 
-			return { edgeId: edge.id, isMain: edge.isMain, studio };
+			return { isMain: edge.isMain, studio };
 		})
 		.filter((edge): edge is NonNullable<typeof edge> => !!edge);
 }

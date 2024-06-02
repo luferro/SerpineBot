@@ -268,6 +268,9 @@ export const BROWSE_MEDIA = graphql(`
           timeUntilAiring
           episode
         }
+        staff(perPage: 8, sort: [RELEVANCE, ID]) {
+          ...StaffConnectionFields
+        }
         studios {
           ...StudioConnectionFields
         }

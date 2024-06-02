@@ -39,10 +39,10 @@ export class AniListApi {
 	private client: Client;
 	private animeScheduleApi?: AnimeScheduleApi;
 
-	constructor() {
+	constructor(ttl = 1000 * 60 * 60) {
 		this.client = createClient({
 			url: AniListApi.BASE_API_URL,
-			exchanges: [requestPolicyExchange({ ttl: 1000 * 60 * 60 }), cacheExchange, fetchExchange],
+			exchanges: [requestPolicyExchange({ ttl }), cacheExchange, fetchExchange],
 			requestPolicy: "cache-only",
 			suspense: true,
 		});
@@ -82,15 +82,19 @@ export class AniListApi {
 		};
 	}
 
-	async browse(type: MediaType, { page = 1, ...options }: Omit<BrowseMediaQueryVariables, "type">) {
-		const { data, operation } = await this.client.query(BROWSE_MEDIA, { type, page, ...options });
+	async browse({ page = 1, ...options }: BrowseMediaQueryVariables) {
+		const { data, operation } = await this.client.query(BROWSE_MEDIA, { page, ...options });
 		console.log(operation.context.requestPolicy);
 		const media = (data?.Page?.media ?? []) as Media[];
 		const pageInfo = data?.Page?.pageInfo as Omit<PageInfo, "__typename">;
 
 		return {
 			pageInfo,
-			media: media.map(extractMediaFields),
+			media: media.map((media) => ({
+				...extractMediaFields(media),
+				studios: extractStudios(media),
+				preview: { characters: extractCharacters(media), staff: extractStaff(media) },
+			})),
 		};
 	}
 
@@ -99,18 +103,12 @@ export class AniListApi {
 		console.log(operation.context.requestPolicy);
 		const media = data?.Media as Media;
 
-		console.log({ id, type, media });
-
 		const relations = (media?.relations?.edges ?? [])
 			.map((edge) => {
 				const node = edge?.node;
 				if (!edge || !node) return;
 
-				return {
-					edgeId: edge.id!,
-					relationType: edge.relationType!,
-					media: extractMediaFields(node),
-				};
+				return { relationType: edge.relationType!, media: extractMediaFields(node) };
 			})
 			.filter((edge): edge is NonNullable<typeof edge> => !!edge);
 
@@ -125,7 +123,7 @@ export class AniListApi {
 	}
 
 	async getCharacterById(id: string, { page = 1 } = {}) {
-		const { data, operation, error } = await this.client.query(GET_CHARACTER_BY_ID, {
+		const { data, operation } = await this.client.query(GET_CHARACTER_BY_ID, {
 			page,
 			id: Number(id),
 			sort: MediaSort.PopularityDesc,
@@ -142,9 +140,10 @@ export class AniListApi {
 				if (!edge || !node) return;
 
 				return {
-					edgeId: edge.id!,
 					role: edge.characterRole!,
-					staff: edge.voiceActorRoles?.map((voiceActorRole) => extractStaffMember(voiceActorRole?.voiceActor as Staff)),
+					staff: (edge.voiceActorRoles ?? []).map((voiceActorRole) =>
+						extractStaffMember(voiceActorRole?.voiceActor as Staff),
+					),
 					media: extractMediaFields(node as Media),
 				};
 			})
@@ -169,33 +168,46 @@ export class AniListApi {
 		return { pageInfo, staff: extractStaff(media) };
 	}
 
-	async getStaffById(id: string, { page = 1 } = {}) {
+	async getStaffById(id: string, { characterPage = 1, staffPage = 1 } = {}) {
 		const { data, operation } = await this.client.query(GET_STAFF_BY_ID, {
-			characterPage: page,
+			characterPage,
+			staffPage,
 			id: Number(id),
 			sort: MediaSort.StartDateDesc,
 			withCharacterRoles: true,
+			withStaffRoles: true,
 		});
 		console.log(operation.context.requestPolicy);
 
 		const staff = data?.Staff as Staff;
-		const pageInfo = data?.Staff?.characterMedia?.pageInfo as Omit<PageInfo, "__typename">;
 
-		const media = (data?.Staff?.characterMedia?.edges ?? [])
-			.map((edge, index) => {
+		const characters = (staff?.characterMedia?.edges ?? [])
+			.map((edge) => {
 				const node = edge?.node;
 				if (!edge || !node) return;
 
 				return {
-					edgeId: index,
 					role: edge.characterRole!,
-					characters: edge.characters?.map((character) => extractCharacter(character as Character)),
+					characters: (edge.characters ?? []).map((character) => extractCharacter(character as Character)),
 					media: extractMediaFields(node as Media),
 				};
 			})
 			.filter((edge): edge is NonNullable<typeof edge> => !!edge);
 
-		return { pageInfo, media, staff: extractStaffMember(staff) };
+		const roles = (staff?.staffMedia?.edges ?? [])
+			.map((edge) => {
+				const node = edge?.node;
+				if (!edge || !node) return;
+
+				return { role: edge.staffRole!, media: extractMediaFields(node as Media) };
+			})
+			.filter((edge): edge is NonNullable<typeof edge> => !!edge);
+
+		return {
+			staff: extractStaffMember(staff),
+			voiceActing: { pageInfo: staff?.characterMedia?.pageInfo as Omit<PageInfo, "__typename">, characters },
+			production: { pageInfo: staff?.staffMedia?.pageInfo as Omit<PageInfo, "__typename">, roles },
+		};
 	}
 
 	async getRecommendations(id: string, { page = 1 } = {}) {

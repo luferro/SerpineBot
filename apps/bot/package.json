@@ -21,9 +21,9 @@
 		"@discord-player/extractor": "^4.4.7",
 		"@discordjs/opus": "^0.9.0",
 		"@discordjs/voice": "^0.17.0",
-		"@types/node": "^20.12.10",
+		"@types/node": "^20.13.0",
 		"play-dl": "^1.9.7",
-		"tsc-alias": "^1.8.8",
+		"tsc-alias": "^1.8.10",
 		"typescript": "^5.4.5",
 		"ytdl-core": "4.11.5"
 	},
@@ -39,10 +39,10 @@
 		"@luferro/scraper": "workspace:^",
 		"@luferro/speech": "workspace:^",
 		"cron": "^3.1.7",
-		"discord-player": "^6.6.8",
+		"discord-player": "^6.6.9",
 		"discord-voip": "^0.1.3",
-		"discord.js": "^14.14.1",
-		"i18next": "^23.11.3",
+		"discord.js": "^14.15.2",
+		"i18next": "^23.11.5",
 		"i18next-fs-backend": "^2.3.1"
 	}
 }
