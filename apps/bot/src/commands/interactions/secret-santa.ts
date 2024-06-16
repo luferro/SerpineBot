@@ -46,7 +46,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 	for (const [index, gifter] of shuffledUsers.entries()) {
 		const receiver = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
-		const reminder = await client.prisma.reminder.create({
+		const reminder = await client.db.reminder.create({
 			data: {
 				userId: gifter.user.id,
 				timeStart: new Date(),

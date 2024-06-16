@@ -3,9 +3,7 @@ import { type Logger, configureLogger } from "@luferro/helpers/logger";
 import Parser from "rss-parser";
 import type { StaticScraper } from "../web-pages/static.js";
 
-type Image = { isExternal?: boolean; selector: string };
-type ImageOptions = { image: Image } | null;
-type Feeds = { url: string; options: ImageOptions }[];
+type Feeds = { url: string; options?: { image: { external: boolean; selector: string } } }[];
 
 export class RSS extends Parser {
 	private logger: Logger;
@@ -20,11 +18,9 @@ export class RSS extends Parser {
 		return $(selector).first().attr("src") ?? null;
 	}
 
-	private async retrieveInternalImage(html: string, selector: string, url?: string) {
+	private async retrieveInternalImage(html: string, selector: string) {
 		const $ = this.staticScraper.loadHtml(html);
-		const image = $(selector).first().attr("src");
-		if (!image && url) return this.retrieveExternalImage(url, selector);
-		return image ?? null;
+		return $(selector).first().attr("src") ?? null;
 	}
 
 	private async parse(url: string) {
@@ -57,13 +53,12 @@ export class RSS extends Parser {
 							isoDate,
 						}) => {
 							let image: string | null = null;
-							if (options?.image) {
-								const { isExternal, selector } = options.image;
+							if (options) {
+								const { external, selector } = options.image;
 								const html = encodedContent ?? content;
-								image =
-									isExternal && link
-										? await this.retrieveExternalImage(link, selector)
-										: await this.retrieveInternalImage(html, selector, link);
+								const internalImage = await this.retrieveInternalImage(html, selector);
+								const externalImage = external && link ? await this.retrieveExternalImage(link, selector) : null;
+								image = externalImage ?? internalImage;
 							}
 
 							return {

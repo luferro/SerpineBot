@@ -9,10 +9,10 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
 
-	const exists = await client.prisma.steam.exists({ where: { userId: interaction.user.id } });
+	const exists = await client.db.steam.exists({ where: { userId: interaction.user.id } });
 	if (!exists) throw new Error("errors.unprocessable");
 
-	const integration = await client.prisma.steam.findUnique({ where: { userId: interaction.user.id } });
+	const integration = await client.db.steam.findUnique({ where: { userId: interaction.user.id } });
 	if (!integration) throw new Error(t("errors.unprocessable"));
 
 	const rawWishlist = await client.api.gaming.platforms.steam.getWishlist(integration.profile.id);
@@ -20,10 +20,16 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const updatedWishlist = rawWishlist.map((game) => {
 		const storedGame = integration.wishlist.find((storedGame) => storedGame.id === game.id);
-		return { ...game, notified: storedGame?.notified ?? false };
+		return {
+			...game,
+			notified: {
+				sale: storedGame?.notified.sale ?? game.onSale,
+				release: storedGame?.notified.release ?? game.isReleased,
+			},
+		};
 	});
 
-	await client.prisma.steam.update({ where: { userId: interaction.user.id }, data: { wishlist: updatedWishlist } });
+	await client.db.steam.update({ where: { userId: interaction.user.id }, data: { wishlist: updatedWishlist } });
 
 	const embed = new EmbedBuilder().setTitle(t("interactions.integrations.steam.sync.embed.title")).setColor("Random");
 	await interaction.editReply({ embeds: [embed] });

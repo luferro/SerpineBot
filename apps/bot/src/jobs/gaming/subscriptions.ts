@@ -9,13 +9,13 @@ export const execute: JobExecute = async ({ client }) => {
 		const name = type.toLowerCase().split("_").map(capitalize).join(" ");
 		client.logger.debug(`Subscriptions | Found ${catalog.length} entries in ${name} catalog`);
 
-		const storedSubscription = await client.prisma.subscription.findUnique({ where: { type } });
+		const storedSubscription = await client.db.subscription.findUnique({ where: { type } });
 		if (catalog.length < Math.round((storedSubscription?.count ?? 0) * 0.6)) {
 			client.logger.warn(`Subscriptions | ${name} catalog update ignored`);
 			continue;
 		}
 
-		await client.prisma.subscription.upsert({
+		await client.db.subscription.upsert({
 			where: { type },
 			create: { type, name, catalog, count: catalog.length },
 			update: { catalog, count: catalog.length },

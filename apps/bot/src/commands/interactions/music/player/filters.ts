@@ -51,7 +51,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const embed = new EmbedBuilder()
 		.setTitle(
 			filter !== "off"
-				? t("interactions.music.player.filters.embeds.0.title", { filter: `\`${filter}\`` })
+				? t("interactions.music.player.filters.embeds.0.title", { filter })
 				: t("interactions.music.player.filters.embeds.1.title"),
 		)
 		.setColor("Random");

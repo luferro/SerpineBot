@@ -37,7 +37,7 @@ export const resetLeaderboard = async (type: LeaderboardType, client: Bot) => {
 
 const getSteamLeaderboard = async (client: Bot) => {
 	const leaderboard = [];
-	const integrations = await client.prisma.steam.findMany();
+	const integrations = await client.db.steam.findMany();
 	for (const { userId, profile, recentlyPlayed } of integrations) {
 		const rawRecentlyPlayed = await client.api.gaming.platforms.steam.getRecentlyPlayed(profile.id);
 		if (rawRecentlyPlayed.length === 0) continue;
@@ -50,7 +50,7 @@ const getSteamLeaderboard = async (client: Bot) => {
 			return { ...game, weeklyHours: storedWeeklyHours + weeklyHours };
 		});
 
-		await client.prisma.steam.update({ where: { userId }, data: { recentlyPlayed: updatedRecentlyPlayed } });
+		await client.db.steam.update({ where: { userId }, data: { recentlyPlayed: updatedRecentlyPlayed } });
 
 		const { title, url } = updatedRecentlyPlayed.reduce((acc, el) => (el.weeklyHours > acc.weeklyHours ? el : acc));
 		const hours = +updatedRecentlyPlayed.reduce((acc, el) => acc + el.weeklyHours, 0).toFixed(2);
@@ -66,9 +66,9 @@ const getSteamLeaderboard = async (client: Bot) => {
 };
 
 const resetSteamLeaderboard = async (client: Bot) => {
-	const integrations = await client.prisma.steam.findMany();
+	const integrations = await client.db.steam.findMany();
 	for (const { userId, recentlyPlayed } of integrations) {
-		await client.prisma.steam.update({
+		await client.db.steam.update({
 			where: { userId },
 			data: { recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })) },
 		});
@@ -77,7 +77,7 @@ const resetSteamLeaderboard = async (client: Bot) => {
 
 const getXboxLeaderboard = async (client: Bot) => {
 	const leaderboard = [];
-	const integrations = await client.prisma.xbox.findMany();
+	const integrations = await client.db.xbox.findMany();
 	for (const { userId, profile, recentlyPlayed } of integrations) {
 		const rawRecentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed(profile.id);
 		if (rawRecentlyPlayed.length === 0) continue;
@@ -96,7 +96,7 @@ const getXboxLeaderboard = async (client: Bot) => {
 			};
 		});
 
-		await client.prisma.xbox.update({ where: { userId }, data: { recentlyPlayed: updatedRecentlyPlayed } });
+		await client.db.xbox.update({ where: { userId }, data: { recentlyPlayed: updatedRecentlyPlayed } });
 
 		const { title } = updatedRecentlyPlayed.reduce((acc, el) =>
 			el.weeklyGamerscore > acc.weeklyGamerscore ? el : acc,
@@ -114,9 +114,9 @@ const getXboxLeaderboard = async (client: Bot) => {
 };
 
 const resetXboxLeaderboard = async (client: Bot) => {
-	const integrations = await client.prisma.xbox.findMany();
+	const integrations = await client.db.xbox.findMany();
 	for (const { userId, recentlyPlayed } of integrations) {
-		await client.prisma.xbox.update({
+		await client.db.xbox.update({
 			where: { userId },
 			data: { recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyGamerscore: 0 })) },
 		});

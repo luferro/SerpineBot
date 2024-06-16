@@ -1,4 +1,4 @@
-import { WebhookType } from "@luferro/database";
+import { FeedType } from "@luferro/database";
 import { formatCurrency } from "@luferro/helpers/currency";
 import { formatDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder } from "discord.js";
@@ -11,11 +11,13 @@ export const execute: JobExecute = async ({ client }) => {
 	const localization = client.getLocalization();
 
 	const messages = [];
-	const { feeds } = await client.prisma.config.getWebhookConfig({ webhook: WebhookType.FREE_GAMES });
-
 	const freebies = await client.api.gaming.games.deals.getFreebies();
 	for (const { title, url, discount, regular, store, expiry } of freebies.reverse()) {
 		const { amount, currency } = regular;
+
+		const footerText = expiry
+			? t("jobs.gaming.deals.free.embed.footer.text", { expiry: formatDate(expiry, localization) })
+			: null;
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)
@@ -27,31 +29,11 @@ export const execute: JobExecute = async ({ client }) => {
 					regular: formatCurrency(amount, { currency, ...localization }),
 				}),
 			)
-			.setFooter(
-				expiry
-					? {
-							text: t("jobs.gaming.deals.free.embed.footer.text", {
-								expiry: formatDate(expiry, localization),
-							}),
-					  }
-					: null,
-			)
+			.setFooter(footerText ? { text: footerText } : null)
 			.setColor("Random");
 
 		messages.push(embed);
 	}
 
-	const feed = await client.scraper.rss.consume(feeds);
-	for (const { title, url, image, description } of feed.reverse()) {
-		const embed = new EmbedBuilder()
-			.setTitle(title)
-			.setURL(url)
-			.setImage(image)
-			.setDescription(description)
-			.setColor("Random");
-
-		messages.push(embed);
-	}
-
-	await client.propagate({ type: WebhookType.FREE_GAMES, messages });
+	await client.propagate({ type: FeedType.FREEBIES, messages });
 };

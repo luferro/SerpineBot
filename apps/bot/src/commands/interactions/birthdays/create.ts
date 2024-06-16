@@ -33,7 +33,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (!isValid(year, month, day)) throw new Error(t("errors.date.invalid"));
 
 	const userId = interaction.user.id;
-	await client.prisma.birthday.upsert({
+	await client.db.birthday.upsert({
 		where: { userId },
 		create: { userId, day, month, year },
 		update: { day, month, year },

@@ -16,7 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const mention = interaction.options.getMentionable(data.options[0].name) as GuildMember | null;
 
 	const userId = mention?.user.id ?? interaction.user.id;
-	const integration = await client.prisma.xbox.findUnique({ where: { userId } });
+	const integration = await client.db.xbox.findUnique({ where: { userId } });
 	if (!integration) throw new Error(t("errors.unprocessable"));
 
 	const { gamertag, gamerscore, image, status } = await client.api.gaming.platforms.xbox.getProfile(

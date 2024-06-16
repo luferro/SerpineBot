@@ -17,13 +17,13 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.13.0",
-		"prisma": "^5.14.0",
+		"@types/node": "^20.14.2",
+		"prisma": "^5.15.0",
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
 		"@luferro/helpers": "workspace:^",
-		"@prisma/client": "^5.14.0",
+		"@prisma/client": "^5.15.0",
 		"ioredis": "^5.4.1"
 	}
 }

@@ -4,8 +4,8 @@ import type { EventData, EventExecute } from "~/types/bot.js";
 export const data: EventData = { type: "once" };
 
 export const execute: EventExecute = async ({ client }) => {
-	for (const [id, guild] of client.guilds.cache) {
-		const settings = await client.prisma.guild.findUnique({ where: { id } });
+	for (const [guildId, guild] of client.guilds.cache) {
+		const settings = await client.db.guild.findUnique({ where: { id: guildId } });
 		if (!settings) client.emit("guildCreate", guild);
 	}
 

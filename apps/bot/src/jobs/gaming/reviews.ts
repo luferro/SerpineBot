@@ -1,4 +1,4 @@
-import { WebhookType } from "@luferro/database";
+import { FeedType } from "@luferro/database";
 import { formatDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
@@ -52,5 +52,5 @@ export const execute: JobExecute = async ({ client }) => {
 		messages.push(embed);
 	}
 
-	await client.propagate({ type: WebhookType.GAME_REVIEWS, messages });
+	await client.propagate({ type: FeedType.REVIEWS, messages });
 };

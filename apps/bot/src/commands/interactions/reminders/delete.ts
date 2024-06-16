@@ -15,7 +15,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const reminderId = interaction.options.getString(data.options[0].name, true);
 
-	await client.prisma.reminder.delete({ where: { id: reminderId } });
+	await client.db.reminder.delete({ where: { id: reminderId } });
 
 	const embed = new EmbedBuilder()
 		.setTitle(t("interactions.reminders.delete.embed.title"))

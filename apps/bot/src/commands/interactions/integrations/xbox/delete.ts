@@ -9,12 +9,11 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply({ ephemeral: true });
 
-	const exists = await client.prisma.xbox.exists({ where: { userId: interaction.user.id } });
+	const exists = await client.db.xbox.exists({ where: { userId: interaction.user.id } });
 	if (!exists) throw new Error("errors.unprocessable");
 
-	await client.prisma.xbox.delete({ where: { userId: interaction.user.id } });
+	await client.db.xbox.delete({ where: { userId: interaction.user.id } });
 
 	const embed = new EmbedBuilder().setTitle(t("interactions.integrations.xbox.delete.embed.title")).setColor("Random");
-
 	await interaction.editReply({ embeds: [embed] });
 };

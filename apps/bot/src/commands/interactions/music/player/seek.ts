@@ -1,7 +1,7 @@
-import { toMilliseconds } from "../../../../../../../packages/helpers/dist/datetime/index.js";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
 import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
+import { toMilliseconds } from "../../../../../../../packages/helpers/dist/datetime/index.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.music.player.seek.name"))
@@ -32,7 +32,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await queue.node.seek(duration);
 
 	const embed = new EmbedBuilder()
-		.setTitle(t("interactions.music.player.seek.embed.title", { timestamp: `\`${timestamp}\`` }))
+		.setTitle(t("interactions.music.player.seek.embed.title", { timestamp }))
 		.setColor("Random");
 
 	await interaction.editReply({ embeds: [embed] });

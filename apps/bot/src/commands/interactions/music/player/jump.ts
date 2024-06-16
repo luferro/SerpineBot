@@ -25,7 +25,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	queue.node.jump(nextTrack);
 
 	const embed = new EmbedBuilder()
-		.setTitle(t("interactions.music.player.jump.embed.title", { track: `\`${nextTrack}\`` }))
+		.setTitle(t("interactions.music.player.jump.embed.title", { track: nextTrack }))
 		.setColor("Random");
 
 	await interaction.reply({ embeds: [embed] });

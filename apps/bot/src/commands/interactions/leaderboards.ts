@@ -14,7 +14,6 @@ export const data: InteractionCommandData = [
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	await interaction.deferReply();
-
 	const type = interaction.options.getString(data[0].name, true) as LeaderboardType;
 
 	const leaderboard = await getLeaderboard(type, client);

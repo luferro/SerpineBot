@@ -25,8 +25,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const receiver = queue.connection?.receiver;
 	if (!receiver) throw new Error(t("errors.voice.receiver.none"));
 
-	const isAlreadyListening = receiver.speaking.listeners("start").length > 0;
-	if (isAlreadyListening) throw new Error(t("errors.voice.listening"));
+	const isListening = receiver.speaking.listeners("start").length > 0;
+	if (isListening) throw new Error(t("errors.voice.listening"));
 
 	receiver.speaking.on("start", (userId) =>
 		handleUserVoice({ guildId: interaction.guild.id, client, userId, receiver }),
@@ -72,12 +72,12 @@ const handleUserVoice = async ({
 	const guild = client.guilds.cache.get(guildId)?.name ?? guildId;
 	client.logger.info(`Voice | ${intent} invoked by ${user} in guild ${guild}.`);
 
-	await command.execute({ client, queue, slots, rest: [userId] }).catch((error) => {
+	await command.execute({ client, queue, slots, rest: [userId] }).catch(async (error) => {
 		const embed = new EmbedBuilder()
 			.setTitle(t("errors.voice.failed", { intent }))
 			.setDescription((error as Error).message)
 			.setColor("Random");
 
-		queue.metadata.send({ embeds: [embed] });
+		await queue.metadata.send({ embeds: [embed] });
 	});
 };

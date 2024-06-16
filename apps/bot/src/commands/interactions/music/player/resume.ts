@@ -13,7 +13,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	queue.node.setPaused(false);
 
 	const embed = new EmbedBuilder()
-		.setTitle(t("interactions.music.player.resume.embed.title", { track: `\`${queue.currentTrack}\`` }))
+		.setTitle(t("interactions.music.player.resume.embed.title", { track: queue.currentTrack }))
 		.setColor("Random");
 
 	await interaction.reply({ embeds: [embed] });

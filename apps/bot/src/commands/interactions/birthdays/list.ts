@@ -10,7 +10,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setDescription(t("interactions.birthdays.list.description"));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction, localization }) => {
-	const birthdays = await client.prisma.birthday.findMany();
+	const birthdays = await client.db.birthday.findMany();
 	const groupedBirthdays = birthdays
 		.sort((a, b) => a.day - b.day && a.month - b.month)
 		.reduce(

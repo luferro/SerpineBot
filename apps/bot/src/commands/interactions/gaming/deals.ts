@@ -26,7 +26,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 		return formatCurrency(price.amount, { currency: price.currency, ...localization });
 	};
 
-	const subscriptions = await client.prisma.subscription.search({ query });
+	const subscriptions = await client.db.subscription.search({ query });
 	const formattedSubscriptions = subscriptions.map((subscription) => `> **${subscription.name}**`);
 
 	const { historicalLow, bundles, prices } = await client.api.gaming.games.deals.getDealsById(id);
@@ -37,7 +37,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 	const formattedHistoricalLow = historicalLow?.timestamp
 		? `**${formatPrice(historicalLow.discounted)}** @ ${historicalLow.store} - *${formatDistance(
 				historicalLow.timestamp,
-		  )}*`
+			)}*`
 		: null;
 
 	const embed = new EmbedBuilder()

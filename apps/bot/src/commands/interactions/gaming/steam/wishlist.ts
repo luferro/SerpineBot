@@ -16,7 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const mention = interaction.options.getMentionable(data.options[0].name) as GuildMember | null;
 
 	const user = mention?.user ?? interaction.user;
-	const integration = await client.prisma.steam.findUnique({ where: { userId: user.id } });
+	const integration = await client.db.steam.findUnique({ where: { userId: user.id } });
 	if (!integration) throw new Error(t("errors.unprocessable"));
 
 	const formattedWishlist = integration.wishlist

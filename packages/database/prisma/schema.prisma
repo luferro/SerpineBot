@@ -8,29 +8,24 @@ datasource db {
   url      = env("SB_SERVICES__MONGODB__URI")
 }
 
+enum FeedType {
+  ANIME
+  BIRTHDAYS
+  EVENTS
+  FREEBIES
+  LEADERBOARDS
+  MANGA
+  REDDIT
+  REVIEWS
+  RSS
+}
+
 enum CatalogType {
   XBOX_GAME_PASS
   PC_GAME_PASS
   UBISOFT_PLUS
   EA_PLAY_PRO
   EA_PLAY
-}
-
-enum WebhookType {
-  GAMING_NEWS
-  GAME_REVIEWS
-  GAME_DEALS
-  FREE_GAMES
-  XBOX
-  PLAYSTATION
-  NINTENDO
-  BIRTHDAYS
-  LEADERBOARDS
-  EVENTS
-  NSFW
-  MEMES
-  ANIME
-  MANGA
 }
 
 model Birthday {
@@ -90,6 +85,11 @@ type SteamRecentlyPlayedEntry {
   totalHours    Float
 }
 
+type SteamWishlistNotification {
+  sale    Boolean
+  release Boolean
+}
+
 type SteamWishlistEntry {
   id            String
   title         String
@@ -102,7 +102,7 @@ type SteamWishlistEntry {
   isReleased    Boolean
   onSale        Boolean
   subscriptions CatalogType[]
-  notified      Boolean       @default(false)
+  notified      SteamWishlistNotification
 }
 
 type SteamProfile {
@@ -129,24 +129,54 @@ type Roles {
 }
 
 type Webhook {
-  type   WebhookType
-  id     String
-  token  String
-  name   String
-  fields String[]    @default(["url"])
-  cache  Boolean     @default(true)
+  id    String
+  token String
 }
 
 model Guild {
-  id        String    @id @map("_id")
+  id        String   @id @map("_id")
   roles     Roles
-  webhooks  Webhook[]
-  locale    String    @default("en-US")
-  timezone  String    @default("utc")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  locale    String   @default("en-US")
+  timezone  String   @default("utc")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("guilds")
+}
+
+type Image {
+  external Boolean
+  selector String
+}
+
+type Options {
+  sort   String
+  flairs String[]
+  limit  Int
+  image  Image
+}
+
+type Cache {
+  enabled Boolean
+  fields  String[]
+}
+
+type Feed {
+  guildId   String
+  channelId String
+  webhook   Webhook
+  feed      String
+  options   Options
+  cache     Cache
+}
+
+model Feeds {
+  type      FeedType @id @map("_id")
+  feeds     Feed[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("feeds")
 }
 
 type CatalogItem {
@@ -165,38 +195,4 @@ model Subscription {
   updatedAt DateTime      @updatedAt
 
   @@map("subscriptions")
-}
-
-type Image {
-  isExternal Boolean @default(false)
-  selector   String
-}
-
-type Options {
-  image Image
-}
-
-type Feed {
-  url     String
-  options Options?
-}
-
-type Subreddit {
-  subreddit String
-  flairs    String[]
-}
-
-type WebhookConfig {
-  webhook    WebhookType
-  feeds      Feed[]
-  subreddits Subreddit[]
-}
-
-model Config {
-  id        String          @id @default(auto()) @map("_id") @db.ObjectId
-  webhooks  WebhookConfig[]
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-
-  @@map("config")
 }

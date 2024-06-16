@@ -45,11 +45,11 @@ const removePlaylist = async ({ client, interaction }: Parameters<typeof execute
 
 	const options = queue.tracks
 		.toArray()
-		.reduce((acc, { playlist }) => {
+		.reduce<Playlist[]>((acc, { playlist }) => {
 			const exists = acc.some((entry) => entry.id === playlist?.id);
 			if (playlist && !exists) acc.push(playlist);
 			return acc;
-		}, [] as Playlist[])
+		}, [])
 		.slice(0, 25)
 		.sort((a, b) => a.title.localeCompare(b.title))
 		.map(({ id, title, author }, index) => ({
@@ -77,17 +77,17 @@ const handleStringSelectMenu = async ({
 	interaction,
 	uuid,
 }: Parameters<typeof execute>[0] & { uuid: string }) => {
-	const selectMenuInteraction = (await interaction.channel?.awaitMessageComponent({
+	const stringSelectMenuInteraction = (await interaction.channel?.awaitMessageComponent({
 		time: 60 * 1000 * 2,
 		componentType: ComponentType.StringSelect,
 		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
 	})) as ExtendedStringSelectMenuInteraction;
-	if (!selectMenuInteraction) throw new Error(t("errors.interaction.timeout"));
+	if (!stringSelectMenuInteraction) throw new Error(t("errors.interaction.timeout"));
 
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error(t("errors.player.node"));
 
-	for (const playlistId of selectMenuInteraction.values) {
+	for (const playlistId of stringSelectMenuInteraction.values) {
 		const tracks = queue.tracks.filter((track) => track.playlist?.id === playlistId);
 		for (const track of tracks) {
 			queue.node.remove(track);
@@ -95,10 +95,8 @@ const handleStringSelectMenu = async ({
 	}
 
 	const embed = new EmbedBuilder()
-		.setTitle(
-			t("interactions.music.queue.remove.embeds.1.title", { size: `**${selectMenuInteraction.values.length}**` }),
-		)
+		.setTitle(t("interactions.music.queue.remove.embeds.1.title", { size: stringSelectMenuInteraction.values.length }))
 		.setColor("Random");
 
-	await selectMenuInteraction.update({ embeds: [embed], components: [] });
+	await stringSelectMenuInteraction.update({ embeds: [embed], components: [] });
 };

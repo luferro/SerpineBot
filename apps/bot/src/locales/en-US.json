@@ -300,34 +300,34 @@
 					"name": "filters",
 					"description": "Toggles the selected filter.",
 					"options": [{ "name": "filter", "description": "Player filter." }],
-					"embeds": [{ "title": "Filter {{filter}} has been toggled." }, { "title": "Disabled all filters." }]
+					"embeds": [{ "title": "Filter **{{filter}}** has been toggled." }, { "title": "Disabled all filters." }]
 				},
 				"jump": {
 					"name": "jump",
 					"description": "Jump to specific track.",
 					"options": [{ "name": "position", "description": "Queue track position." }],
-					"embed": { "title": "Jumped to {{position}}." }
+					"embed": { "title": "Jumped to `{{position}}`." }
 				},
 				"loop": {
 					"name": "loop",
 					"description": "Sets a loop mode for the current track.",
 					"options": [{ "name": "mode", "description": "Loop mode." }],
-					"embed": { "title": "Loop mode set to {{mode}}." }
+					"embed": { "title": "Loop mode set to **{{mode}}**." }
 				},
 				"pause": {
 					"name": "pause",
 					"description": "Pauses the current track.",
-					"embed": { "title": "Pausing {{track}}." }
+					"embed": { "title": "Pausing **{{track}}**." }
 				},
 				"previous": {
 					"name": "previous",
 					"description": "Plays the previous track.",
-					"embed": { "title": "Replaying {{track}}." }
+					"embed": { "title": "Replaying **{{track}}**." }
 				},
 				"resume": {
 					"name": "resume",
 					"description": "Resumes paused track.",
-					"embed": { "title": "Resuming {{track}}." }
+					"embed": { "title": "Resuming **{{track}}**." }
 				},
 				"seek": {
 					"name": "seek",
@@ -343,13 +343,13 @@
 					"name": "skip",
 					"description": "Skips the current track.",
 					"options": [{ "name": "position", "description": "Queue track position." }],
-					"embed": { "title": "Skipped {{track}}.", "description": "Now playing {{track}}" }
+					"embed": { "title": "Skipped **{{track}}**.", "description": "Now playing **{{track}}**" }
 				},
 				"volume": {
 					"name": "volume",
 					"description": "Sets player volume.",
 					"options": [{ "name": "volume", "description": "Player volume [0 - 100]%." }],
-					"embed": { "title": "Volume set to {{volume}}%." }
+					"embed": { "title": "Volume set to **{{volume}}%**." }
 				}
 			},
 			"queue": {
@@ -394,8 +394,8 @@
 					"menu": { "placeholder": "Nothing selected." },
 					"embeds": [
 						{ "title": "Select which playlist to remove from the queue." },
-						{ "title": "{{size}} playlist(s) removed." },
-						{ "title": "Track {{title}} in position {{position}} removed." }
+						{ "title": "`{{size}}` playlist(s) removed." },
+						{ "title": "Track **{{title}}** in position `{{position}}` removed." }
 					]
 				}
 			},
@@ -511,32 +511,34 @@
 				"embed": { "title": "Stopped listening for voice commands." }
 			}
 		},
-		"webhooks": {
-			"name": "webhooks",
-			"description": "Manage guild webhooks.",
-			"create": {
-				"name": "create",
-				"description": "Create a webhook and assign it to a text channel.",
+		"feeds": {
+			"name": "feeds",
+			"description": "Manage guild text channel feeds.",
+			"add": {
+				"name": "add",
+				"description": "Add a feed to a text channel.",
 				"options": [
-					{ "name": "type", "description": "Webhook type." },
+					{ "name": "type", "description": "Feed type." },
+					{ "name": "name", "description": "Display name of the sender." },
 					{ "name": "channel", "description": "Text channel." },
-					{ "name": "name", "description": "Display name of the webhook." },
-					{ "name": "fields", "description": "List of fields (comma delimited) to filter out duplicated messages." },
-					{ "name": "cache", "description": "Webhook messages should or should not be cached." }
+					{ "name": "feed", "description": "RSS feed url or subreddit name." },
+					{ "name": "sort", "description": "Subreddit sorting." },
+					{ "name": "flairs", "description": "Subreddit flairs." },
+					{ "name": "limit", "description": "Subreddit limit per page." },
+					{ "name": "external", "description": "Whether images from RSS feeds are external or not." },
+					{ "name": "selector", "description": "RSS feed image selector." }
 				],
-				"embed": { "title": "Webhook has been assigned to `{{channel}}`." }
+				"embed": { "title": "`{{type}}` **{{feed}}** feed has been assigned to `{{channel}}`." }
 			},
-			"delete": {
-				"name": "delete",
-				"description": "Delete a webhook.",
-				"options": [{ "name": "type", "description": "Webhook type." }],
-				"embed": { "title": "Webhook has been deleted." }
+			"remove": {
+				"name": "remove",
+				"description": "Remove an alert from a guild text channel.",
+				"options": [
+					{ "name": "type", "description": "Feed type." },
+					{ "name": "channel", "description": "Text channel." }
+				],
+				"embed": { "title": "`{{type}}` feed has been removed from `{{channel}}`." }
 			}
-		},
-		"reddit": {
-			"name": "reddit",
-			"description": "Get a random post from a subreddit.",
-			"options": [{ "name": "subreddit", "description": "Subreddit name" }]
 		},
 		"prune": {
 			"name": "prune",

@@ -6,7 +6,7 @@ import type { JobData, JobExecute } from "~/types/bot.js";
 export const data: JobData = { schedule: "*/30 * * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const reminders = await client.prisma.reminder.findMany({ where: { timeEnd: { lt: new Date() } } });
+	const reminders = await client.db.reminder.findMany({ where: { timeEnd: { lt: new Date() } } });
 	for (const { id, userId, timeStart, message } of reminders) {
 		const target = await client.users.fetch(userId);
 		if (!target) continue;
@@ -20,7 +20,7 @@ export const execute: JobExecute = async ({ client }) => {
 			],
 		});
 
-		await client.prisma.reminder.delete({ where: { id } });
+		await client.db.reminder.delete({ where: { id } });
 
 		client.logger.info(`Reminders | Reminder ${id} sent to ${target.username}`);
 	}

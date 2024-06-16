@@ -41,7 +41,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (unit === "Seconds" && time < 300) throw new Error(t("interactions.reminders.minimum.seconds"));
 	if (unit === "Minutes" && time < 5) throw new Error(t("interactions.reminders.minimum.minutes"));
 
-	const reminder = await client.prisma.reminder.create({
+	const reminder = await client.db.reminder.create({
 		data: {
 			message,
 			userId: interaction.user.id,

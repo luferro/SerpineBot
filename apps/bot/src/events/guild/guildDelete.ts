@@ -6,6 +6,6 @@ type Args = [guild: Guild];
 export const data: EventData = { type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [guild] }) => {
-	await client.prisma.guild.delete({ where: { id: guild.id } });
+	await client.db.guild.delete({ where: { id: guild.id } });
 	client.logger.info(`Settings | Deleted ${guild.name} config`);
 };

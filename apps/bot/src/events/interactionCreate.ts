@@ -18,7 +18,7 @@ type StringSelectArgs = BaseInteractionArgs<ExtendedStringSelectMenuInteraction>
 export const data: EventData = { type: "on" };
 
 export const execute: EventExecute<Args<Interaction>> = async ({ client, rest: [interaction] }) => {
-	const localization = await client.prisma.guild.getLocalization({ where: { id: interaction.guild.id } });
+	const localization = await client.db.guild.getLocalization({ where: { id: interaction.guild.id } });
 	await i18next.changeLanguage(localization.locale);
 
 	if (interaction.isChatInputCommand()) await handleChatInputCommandInteraction({ client, interaction, localization });
@@ -37,7 +37,7 @@ const handleChatInputCommandInteraction = async ({ client, interaction, localiza
 		const isDiscordAPIError = error instanceof DiscordAPIError;
 		const isFetchError = error instanceof FetchError;
 		if (isDiscordAPIError || (isFetchError && error.status && error.status >= 500)) {
-			error.message = `Interaction | **${key}** | ${interaction.guild.name} | Reason: ${error.message}`;
+			error.message = `Interaction | ${key} | ${interaction.guild.name} | Reason: ${error.message}`;
 			throw error;
 		}
 

@@ -10,12 +10,7 @@ export const execute: VoiceCommandExecute = async ({ queue, slots }) => {
 	if (!removedTrack) throw new Error(t("errors.player.queue.tracks.position", { position: `\`${position}\`` }));
 
 	const embed = new EmbedBuilder()
-		.setTitle(
-			t("interactions.music.queue.remove.embeds.2.title", {
-				title: `\`${removedTrack.title}\``,
-				position: `**${position}**`,
-			}),
-		)
+		.setTitle(t("interactions.music.queue.remove.embeds.2.title", { title: removedTrack.title, position }))
 		.setColor("Random");
-	queue.metadata.send({ embeds: [embed] });
+	await queue.metadata.send({ embeds: [embed] });
 };

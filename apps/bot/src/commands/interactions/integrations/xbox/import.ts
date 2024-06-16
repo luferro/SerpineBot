@@ -16,7 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.deferReply({ ephemeral: true });
 	const profile = interaction.options.getString(data.options[0].name, true);
 
-	const exists = await client.prisma.xbox.exists({ where: { userId: interaction.user.id } });
+	const exists = await client.db.xbox.exists({ where: { userId: interaction.user.id } });
 	if (exists) throw new Error(t("errors.unprocessable"));
 
 	const results = await client.api.gaming.platforms.xbox.search(profile);
@@ -25,7 +25,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const recentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed(id);
 
-	await client.prisma.xbox.create({
+	await client.db.xbox.create({
 		data: {
 			userId: interaction.user.id,
 			profile: { id, gamertag },
@@ -40,6 +40,5 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	});
 
 	const embed = new EmbedBuilder().setTitle(t("interactions.integrations.xbox.import.embed.title")).setColor("Random");
-
 	await interaction.editReply({ embeds: [embed] });
 };

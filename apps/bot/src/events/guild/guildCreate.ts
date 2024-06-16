@@ -6,6 +6,6 @@ type Args = [guild: Guild];
 export const data: EventData = { type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [guild] }) => {
-	await client.prisma.guild.create({ data: { id: guild.id, roles: { channelId: null, options: [] }, webhooks: [] } });
+	await client.db.guild.create({ data: { id: guild.id, roles: { channelId: null, options: [] } } });
 	client.logger.info(`Settings | Created ${guild.name} config`);
 };

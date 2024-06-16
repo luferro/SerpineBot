@@ -1,4 +1,4 @@
-import { WebhookType } from "@luferro/database";
+import { FeedType } from "@luferro/database";
 import { formatDate } from "@luferro/helpers/datetime";
 import { enumToArray } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
@@ -28,7 +28,7 @@ export const execute: JobExecute = async ({ client }) => {
 			);
 
 			await client.propagate({
-				type: WebhookType.LEADERBOARDS,
+				type: FeedType.LEADERBOARDS,
 				messages: [
 					new EmbedBuilder()
 						.setTitle(t("jobs.leaderboards.embed.title", { type, from, to }))

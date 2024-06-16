@@ -10,9 +10,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error(t("errors.player.node"));
 
-	const { history } = queue;
-
-	const formattedHistory = history.tracks
+	const formattedHistory = queue.history.tracks
 		.toArray()
 		.slice(0, 10)
 		.map((track, index) => `\`${index + 1}.\` **[${track.title}](${track.url})** | **${track.duration}**`);
@@ -26,7 +24,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 				value: formattedHistory.join("\n") || t("common.player.queue.empty"),
 			},
 		])
-		.setFooter({ text: t("interactions.music.queue.history.embed.footer.text", { size: history.tracks.size }) })
+		.setFooter({ text: t("interactions.music.queue.history.embed.footer.text", { size: queue.history.tracks.size }) })
 		.setColor("Random");
 
 	await interaction.reply({ embeds: [embed] });

@@ -24,11 +24,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const nextTrack = queue.tracks.at(position ? position - 1 : 0);
 
 	const isSuccessful = position ? queue.node.skipTo(position - 1) : queue.node.skip();
-	if (!isSuccessful) throw new Error(t("errors.player.queue.tracks.position", { position: `\`${position}\`` }));
+	if (!isSuccessful) throw new Error(t("errors.player.queue.tracks.position", { position }));
 
 	const embed = new EmbedBuilder()
-		.setTitle(t("interactions.music.player.skip.embed.title", { track: `\`${currentTrack}\`` }))
-		.setDescription(t("interactions.music.player.skip.embed.description", { track: `\`${nextTrack}\`` }))
+		.setTitle(t("interactions.music.player.skip.embed.title", { track: currentTrack }))
+		.setDescription(t("interactions.music.player.skip.embed.description", { track: nextTrack }))
 		.setColor("Random");
 
 	await interaction.reply({ embeds: [embed] });

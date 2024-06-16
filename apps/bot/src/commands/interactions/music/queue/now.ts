@@ -10,8 +10,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue?.currentTrack) throw new Error(t("errors.player.node"));
 
-	const { previousTrack, currentTrack } = queue.history;
-	const { author, title, url, thumbnail, requestedBy } = currentTrack!;
+	const { previousTrack } = queue.history;
+	const { author, title, url, thumbnail, requestedBy } = queue.currentTrack;
 
 	const embed = new EmbedBuilder()
 		.setAuthor({ name: author })

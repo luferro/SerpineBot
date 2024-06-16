@@ -6,8 +6,8 @@ import type { EventData, EventExecute } from "~/types/bot.js";
 export const data: EventData = { type: "on" };
 
 export const execute: EventExecute = async ({ client }) => {
-	for (const { 0: guildId, 1: guild } of client.guilds.cache) {
-		const settings = await client.prisma.guild.findUnique({ where: { id: guildId } });
+	for (const [guildId, guild] of client.guilds.cache) {
+		const settings = await client.db.guild.findUnique({ where: { id: guildId } });
 		const channelId = settings?.roles.channelId;
 		if (!channelId) continue;
 

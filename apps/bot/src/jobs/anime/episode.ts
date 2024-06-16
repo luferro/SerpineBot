@@ -1,4 +1,4 @@
-import { WebhookType } from "@luferro/database";
+import { FeedType } from "@luferro/database";
 import { capitalize, truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
@@ -7,12 +7,12 @@ import type { JobData, JobExecute } from "~/types/bot.js";
 export const data: JobData = { schedule: "0 */5 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const schedule = (await client.api.aniList.getAiringSchedule()).get(new Date().getDay()) ?? [];
+	const schedule = await client.api.aniList.getAiringSchedule();
+	const today = schedule.get(new Date().getDay()) ?? [];
 
 	const messages = [];
-	for (const anime of schedule) {
+	for (const anime of today) {
 		const { title, coverImage, format, airing, episodes, duration, streams, trackers, isDelayed, isMature } = anime;
-
 		const notAiredYet = (airing.sub.at ?? airing.raw.at) > Date.now();
 		if (notAiredYet || isDelayed || isMature) continue;
 
@@ -50,5 +50,5 @@ export const execute: JobExecute = async ({ client }) => {
 		messages.push(embed);
 	}
 
-	await client.propagate({ type: WebhookType.ANIME, messages });
+	await client.propagate({ type: FeedType.ANIME, messages });
 };

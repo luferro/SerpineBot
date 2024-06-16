@@ -2,7 +2,7 @@ import path from "node:path";
 import { AniListApi, MangadexApi } from "@luferro/animanga";
 import { RedisCache } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
-import { DatabaseClient, type ExtendedDatabaseClient, type WebhookType } from "@luferro/database";
+import { DatabaseClient, type ExtendedDatabaseClient, type FeedType } from "@luferro/database";
 import { TMDBApi } from "@luferro/entertainment";
 import { GamingApi } from "@luferro/gaming";
 import { type Logger, configureLogger } from "@luferro/helpers/logger";
@@ -19,8 +19,8 @@ import {
 	type Embed,
 	EmbedBuilder,
 	Events,
-	type Guild,
 	type Message,
+	type TextBasedChannel,
 } from "discord.js";
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
@@ -31,10 +31,9 @@ import { Player } from "~/structures/Player.js";
 import type { Api, Commands, Event, Job, Speech } from "~/types/bot.js";
 
 type MessageType = string | EmbedBuilder;
-type WebhookArgs = { guild: Guild; type: WebhookType };
-type PropagateArgs = { type: WebhookType; everyone?: boolean; messages: MessageType[] };
+type PropagateArgs = { type: FeedType; webhookId?: string; everyone?: boolean; messages: MessageType[] };
 
-export class Bot extends Client {
+export class Bot extends Client<boolean> {
 	private static readonly MAX_EMBEDS_CHUNK_SIZE = 10;
 	static readonly ROLES_MESSAGE_ID = "CLAIM_YOUR_ROLES";
 	static readonly RESTRICTIONS_ROLE = "Restrictions";
@@ -46,7 +45,7 @@ export class Bot extends Client {
 	config: Config;
 	logger: Logger;
 	cache: RedisCache;
-	prisma: ExtendedDatabaseClient;
+	db: ExtendedDatabaseClient;
 	scraper: Scraper;
 	player: Player;
 	api: Api;
@@ -57,7 +56,7 @@ export class Bot extends Client {
 		this.config = loadConfig();
 		this.logger = configureLogger();
 		this.cache = new RedisCache(this.config.get("services.redis.uri"));
-		this.prisma = new DatabaseClient(this.config.get("services.mongodb.uri")).withExtensions();
+		this.db = new DatabaseClient(this.config.get("services.mongodb.uri")).withExtensions();
 		this.scraper = new Scraper();
 		this.player = new Player(this);
 		this.api = this.initializeApi();
@@ -116,7 +115,7 @@ export class Bot extends Client {
 		for (const [name, job] of Bot.jobs.entries()) {
 			const cronjob = new CronJob(job.data.schedule, () =>
 				job.execute({ client: this }).catch((error) => {
-					error.message = `Jobs | **${name}** failed | Reason: ${error.message}`;
+					error.message = `Jobs | ${name} failed | Reason: ${error.message}`;
 					this.emit("clientError", error);
 				}),
 			);
@@ -149,82 +148,61 @@ export class Bot extends Client {
 		}
 	}
 
-	async getWebhook({ guild, type }: WebhookArgs) {
-		const settings = await this.prisma.guild.findUnique({ where: { id: guild.id } });
-		const storedWebhook = settings?.webhooks.find((webhook) => webhook.type === type);
-		if (!storedWebhook) return {};
-
-		const guildWebhooks = await guild.fetchWebhooks();
-		if (!guildWebhooks.has(storedWebhook.id)) {
-			await this.prisma.guild.update({
-				where: { id: guild.id },
-				data: { webhooks: { deleteMany: { where: { type } } } },
-			});
-			return {};
-		}
-
-		return {
-			webhook: await this.fetchWebhook(storedWebhook.id, storedWebhook.token),
-			config: { fields: storedWebhook.fields, cache: storedWebhook.cache },
-		};
-	}
-
-	async propagate({ type, everyone = false, messages }: PropagateArgs) {
-		const getMessages = async (shouldBeCached: boolean) => {
-			if (!shouldBeCached) return messages;
+	async propagate({ type, webhookId, everyone = false, messages }: PropagateArgs) {
+		const getMessages = async (cacheEnabled: boolean) => {
+			if (!cacheEnabled) return messages;
 
 			const filteredMessages = await Promise.all(
 				messages.map(async (message) => {
-					const isEmbed = message instanceof EmbedBuilder;
-					const stringifiedMessage = isEmbed ? JSON.stringify({ ...message.data, color: null }) : message;
+					const data = message instanceof EmbedBuilder ? JSON.stringify({ ...message.data, color: null }) : message;
+					const hash = this.cache.hash(data);
+					const inCache = await this.cache.some(hash);
+					if (inCache) return;
 
-					const hash = this.cache.hash(stringifiedMessage);
-					if (await this.cache.some(hash)) return;
-
-					await this.cache.set(hash, stringifiedMessage);
+					await this.cache.set(hash, data);
 					return message;
 				}),
 			);
 			return filteredMessages.filter((item): item is NonNullable<MessageType> => !!item);
 		};
 
-		for (const { 1: guild } of this.guilds.cache) {
-			const { webhook, config } = await this.getWebhook({ guild, type });
-			const channel = webhook?.channel;
-			if (!webhook || !channel) continue;
-
-			const commonFields = config.fields?.includes("description") ? everyFieldExists : someFieldExists;
+		const feeds = await this.db.feeds.getFeeds({ type, webhookId });
+		for (const { guildId, channelId, cache, webhook } of feeds) {
+			const guildWebhook = await this.fetchWebhook(webhook.id, webhook.token);
+			const guild = this.guilds.cache.find((guild) => guild.id === guildId);
+			const channel = guild?.channels.cache.find((channel) => channel.id === channelId) as TextBasedChannel;
+			if (!guildWebhook || !guild || !channel) continue;
 
 			const [embeds, contents] = partition<MessageType, EmbedBuilder, string>(
-				await getMessages(config.cache),
+				await getMessages(cache.enabled),
 				(message: MessageType) => message instanceof EmbedBuilder,
 			);
 
-			for (const data of [...contents, ...splitIntoChunks(embeds, Bot.MAX_EMBEDS_CHUNK_SIZE)]) {
-				if (Array.isArray(data)) {
-					const content = everyone ? `${guild.roles.everyone}` : undefined;
-
-					const cachedMessage = channel.messages.cache.find((message) =>
-						data.some((embed) => message.embeds.some((cached) => commonFields(config.fields, embed.data, cached.data))),
-					);
-					if (!cachedMessage) {
-						const message = await webhook.send({ content, embeds: data });
-						webhook.channel.messages.cache.set(message.id, message as Message<true>);
-						continue;
-					}
-
-					const { embeds } = cachedMessage;
-					for (const embed of data) {
-						const index = embeds.findIndex((cachedEmbed) => commonFields(config.fields, embed.data, cachedEmbed.data));
-						if (index !== -1) embeds[index] = embed.data as Embed;
-					}
-
-					const message = await webhook.editMessage(cachedMessage.id, { content, embeds });
-					webhook.channel.messages.cache.set(message.id, message as Message<true>);
+			for (const chunk of [...contents, ...splitIntoChunks(embeds, Bot.MAX_EMBEDS_CHUNK_SIZE)]) {
+				if (typeof chunk === "string") {
+					await guildWebhook.send({ content: everyone ? `${guild.roles.everyone}, ${chunk}` : chunk });
 					continue;
 				}
 
-				await webhook.send({ content: everyone ? `${guild.roles.everyone}, ${data}` : data });
+				const content = everyone ? `${guild.roles.everyone}` : undefined;
+				const exists = cache.fields.includes("description") ? everyFieldExists : someFieldExists;
+
+				const cached = channel.messages.cache.find((message) =>
+					chunk.some((embed) => message.embeds.some((cached) => exists(cache.fields, embed.data, cached.data))),
+				);
+				if (!cached) {
+					const message = await guildWebhook.send({ content, embeds: chunk });
+					channel.messages.cache.set(message.id, message as Message<true>);
+					continue;
+				}
+
+				for (const { data } of chunk) {
+					const index = cached.embeds.findIndex((embed) => exists(cache.fields, data, embed.data));
+					if (index !== -1) cached.embeds[index] = data as Embed;
+				}
+
+				const message = await guildWebhook.editMessage(cached.id, { content, embeds: cached.embeds });
+				channel.messages.cache.set(message.id, message as Message<true>);
 			}
 		}
 	}

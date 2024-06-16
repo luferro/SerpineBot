@@ -44,22 +44,22 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		ephemeral: true,
 	});
 
-	const componentInteraction = await interaction.channel?.awaitMessageComponent({
+	const stringSelectMenuInteraction = await interaction.channel?.awaitMessageComponent({
 		time: 60 * 1000 * 5,
 		componentType: ComponentType.StringSelect,
 		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,
 	});
-	if (!componentInteraction) throw new Error(t("errors.interaction.timeout"));
+	if (!stringSelectMenuInteraction) throw new Error(t("errors.interaction.timeout"));
 
-	await client.prisma.guild.update({
+	await client.db.guild.update({
 		where: { id: interaction.guild.id },
-		data: { roles: { channelId: channel.id, options: componentInteraction.values } },
+		data: { roles: { channelId: channel.id, options: stringSelectMenuInteraction.values } },
 	});
 
 	const updatedEmbed = new EmbedBuilder()
 		.setTitle(t("interactions.channels.roles.assign.embed.title", { channel: channel.name }))
 		.setColor("Random");
 
-	await componentInteraction.update({ embeds: [updatedEmbed], components: [] });
+	await stringSelectMenuInteraction.update({ embeds: [updatedEmbed], components: [] });
 	client.emit("rolesMessageUpdate", client);
 };

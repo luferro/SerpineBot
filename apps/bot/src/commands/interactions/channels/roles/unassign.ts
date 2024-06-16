@@ -16,7 +16,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const channel = interaction.options.getChannel(data.options[0].name, true);
 
-	await client.prisma.guild.update({
+	await client.db.guild.update({
 		where: { id: interaction.guild.id, roles: { channelId: channel.id } },
 		data: { roles: { channelId: null, options: [] } },
 	});

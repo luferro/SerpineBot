@@ -7,7 +7,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setDescription(t("interactions.birthdays.delete.description"));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
-	await client.prisma.birthday.delete({ where: { userId: interaction.user.id } });
+	await client.db.birthday.delete({ where: { userId: interaction.user.id } });
 	const embed = new EmbedBuilder().setTitle(t("interactions.birthdays.delete.embed.title")).setColor("Random");
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

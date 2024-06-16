@@ -1,4 +1,4 @@
-import { WebhookType } from "@luferro/database";
+import { FeedType } from "@luferro/database";
 import { formatDate } from "@luferro/helpers/datetime";
 import { BaseGuildVoiceChannel, EmbedBuilder, type GuildScheduledEvent } from "discord.js";
 import { t } from "i18next";
@@ -62,8 +62,11 @@ const handleEventStart = async (client: Parameters<EventExecute>[0]["client"], e
 		.setImage(event.coverImageURL({ size: 4096 }))
 		.setColor("Random");
 
-	const { webhook } = await client.getWebhook({ guild, type: WebhookType.EVENTS });
-	webhook?.send({ content: `${role}`, embeds: [embed] });
+	const feeds = await client.db.feeds.getFeeds({ type: FeedType.EVENTS });
+	for (const { webhook } of feeds) {
+		const guildWebhook = await client.fetchWebhook(webhook.id, webhook.token);
+		guildWebhook?.send({ content: `${role}`, embeds: [embed] });
+	}
 };
 
 const handleEventEnd = async (event: Args[0]) => {
@@ -75,7 +78,7 @@ const handleEventEnd = async (event: Args[0]) => {
 
 	const subscribers = await event.fetchSubscribers({ withMember: true });
 	for (const { 1: subscriber } of subscribers) {
-		subscriber.member.roles.remove(role);
+		await subscriber.member.roles.remove(role);
 	}
 
 	await guild.roles.delete(role);

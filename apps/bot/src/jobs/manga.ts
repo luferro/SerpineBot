@@ -1,4 +1,4 @@
-import { WebhookType } from "@luferro/database";
+import { FeedType } from "@luferro/database";
 import { getPrevious } from "@luferro/helpers/datetime";
 import { truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
@@ -9,7 +9,7 @@ export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	const latestChapters = await client.api.mangadex.getLatestChapters();
-	const chaptersByManga = new Map(
+	const groupedChapters = new Map(
 		latestChapters
 			.reverse()
 			.map((manga) => [
@@ -22,7 +22,7 @@ export const execute: JobExecute = async ({ client }) => {
 	);
 
 	const messages = [];
-	for (const [mangaId, chapters] of chaptersByManga) {
+	for (const [mangaId, chapters] of groupedChapters) {
 		if (chapters.length === 0) continue;
 
 		const { title, url, image, publication, tags } = await client.api.mangadex.getMangaById(mangaId);
@@ -54,5 +54,5 @@ export const execute: JobExecute = async ({ client }) => {
 		messages.push(embed);
 	}
 
-	await client.propagate({ type: WebhookType.MANGA, messages });
+	await client.propagate({ type: FeedType.MANGA, messages });
 };

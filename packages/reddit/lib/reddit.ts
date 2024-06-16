@@ -10,7 +10,9 @@ type Post = {
 	selftext: string | null;
 	url: string;
 	permalink: string;
+	thumbnail: string;
 	secure_media?: { type: string };
+	is_gallery: boolean;
 	gallery_data?: { items: { media_id: string }[] };
 	is_self: boolean;
 	crosspost_parent: boolean | null;
@@ -68,27 +70,30 @@ export class RedditApi {
 			headers: await this.getHeaders(),
 			cb: (status) => this.handleStatusCode(status),
 		});
-		if (!payload?.data?.children) throw new Error("Failed to retrieve reddit post.");
-
 		return payload.data.children
 			.filter(({ data }) => !data.stickied || !data.removed_by_category)
 			.sort((a, b) => b.data.created_utc - a.data.created_utc)
 			.map(({ data }) => {
 				const isTwitterEmbed = /^(?:https?:)?(?:\/\/)?(?:www\.)?(twitter.com|x.com)/.test(data.url);
+				const url = data.url.startsWith("/r/") ? `https://www.reddit.com${data.url}` : data.url;
+				const gallery =
+					data.gallery_data?.items.map((item) => ({ url: `https://i.redd.it/${item.media_id}.jpg` })) ?? [];
 
 				return {
 					isTwitterEmbed,
+					gallery,
 					title: data.title,
-					url: isTwitterEmbed ? data.url.split("?")[0] : data.url,
-					selftext: data.selftext || null,
+					url: isTwitterEmbed ? url.split("?")[0] : url,
 					selfurl: `https://www.reddit.com${data.permalink}`,
+					selftext: data.selftext || null,
+					isSelf: Boolean(data.is_self),
 					isCrosspost: Boolean(data.crosspost_parent),
-					isSelf: data.is_self,
-					isNsfw: data.over_18,
-					isYoutubeEmbed: data.secure_media?.type === "youtube.com" || this.scraper.youtube.isVideo(data.url),
-					gallery: data.gallery_data,
+					isNsfw: Boolean(data.over_18),
+					isGallery: Boolean(data.is_gallery),
+					isImage: /\.(jpg|jpeg|png|webp)/.test(data.url),
 					publishedAt: new Date(data.created_utc * 1000),
-					hasEmbeddedMedia: Boolean(data.secure_media) || /\.(gif|gifv|mp4)/.test(data.url),
+					isYoutubeEmbed: data.secure_media?.type === "youtube.com" || this.scraper.youtube.isVideo(url),
+					hasEmbeddedMedia: Boolean(data.secure_media) || /\.(gif|gifv|mp4)/.test(url),
 				};
 			});
 	}

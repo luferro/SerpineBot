@@ -63,9 +63,9 @@ const registerInteractionCommands = async (client: Bot) => {
 const generateSlashCommands = (metadata: Map<string, MetadataBuilder[]>) => {
 	const getSlashCommandPermission = (key: string) => {
 		const permissions: Record<string, bigint> = {
-			prune: PermissionFlagsBits.ManageMessages,
 			channels: PermissionFlagsBits.ManageChannels,
-			webhooks: PermissionFlagsBits.ManageWebhooks,
+			feeds: PermissionFlagsBits.ManageWebhooks,
+			prune: PermissionFlagsBits.ManageMessages,
 		};
 		return permissions[key] ?? null;
 	};
@@ -108,8 +108,10 @@ const generateSlashCommands = (metadata: Map<string, MetadataBuilder[]>) => {
 
 export const deployCommands = async (client: Bot) => {
 	const commands = Bot.commands.interactions.metadata.map((metadata) => metadata.toJSON());
-	if (client.config.runtimeEnvironment === "development") await deployGuildCommands(client, commands);
-	else await deployGlobalCommands(client, commands);
+	if (client.config.runtimeEnvironment === "development") return deployGuildCommands(client, commands);
+
+	await deployGuildCommands(client, []);
+	await deployGlobalCommands(client, commands);
 };
 
 const deployGuildCommands = async (client: Bot, commands: ApplicationCommandDataResolvable[]) => {

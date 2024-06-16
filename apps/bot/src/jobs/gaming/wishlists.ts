@@ -13,7 +13,7 @@ type Entries<T> = { [K in keyof T]: [K, T[K]] }[keyof T][];
 export const data: JobData = { schedule: "0 */15 7-23 * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const integrations = await client.prisma.steam.findMany({ where: { notifications: true } });
+	const integrations = await client.db.steam.findMany({ where: { notifications: true } });
 	for (const integration of integrations) {
 		const alerts: Alerts = { sale: [], released: [], addedTo: [], removedFrom: [] };
 
@@ -22,12 +22,15 @@ export const execute: JobExecute = async ({ client }) => {
 
 		const updatedWishlist = await Promise.all(
 			wishlist.map(async (newEntry) => {
-				const oldEntry = integration.wishlist.find((oldEntry) => oldEntry.title === newEntry.title);
-				const subscriptions = await client.prisma.subscription.search({ query: newEntry.title });
+				const oldEntry = integration.wishlist.find((oldEntry) => oldEntry.id === newEntry.id);
+				const subscriptions = await client.db.subscription.search({ query: newEntry.title });
 
 				const updatedEntry = {
 					...newEntry,
-					notified: !!oldEntry?.notified,
+					notified: {
+						sale: !!oldEntry?.notified.sale,
+						release: !!oldEntry?.notified.release,
+					},
 					subscriptions: subscriptions.map((subscription) => subscription.type),
 				};
 				if (!oldEntry) return updatedEntry;
@@ -42,7 +45,8 @@ export const execute: JobExecute = async ({ client }) => {
 				if (addedTo.length > 0) alerts.addedTo.push({ ...updatedEntry, addedTo });
 				if (removedFrom.length > 0) alerts.removedFrom.push({ ...updatedEntry, removedFrom });
 
-				updatedEntry.notified = isSale;
+				updatedEntry.notified.sale = isSale;
+				updatedEntry.notified.release = isRelease;
 
 				return updatedEntry;
 			}),
@@ -50,7 +54,7 @@ export const execute: JobExecute = async ({ client }) => {
 
 		await notifyUser(client, integration.userId, alerts);
 
-		await client.prisma.steam.update({
+		await client.db.steam.update({
 			where: { userId: integration.userId },
 			data: { wishlist: updatedWishlist },
 		});

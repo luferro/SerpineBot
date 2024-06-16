@@ -16,7 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.deferReply({ ephemeral: true });
 	const profile = interaction.options.getString(data.options[0].name, true);
 
-	const exists = await client.prisma.steam.exists({ where: { userId: interaction.user.id } });
+	const exists = await client.db.steam.exists({ where: { userId: interaction.user.id } });
 	if (exists) throw new Error(t("errors.unprocessable"));
 
 	const url = profile.match(/https?:\/\/steamcommunity\.com\/(profiles|id)\/([a-zA-Z0-9]+)/);
@@ -28,16 +28,21 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const rawWishlist = await client.api.gaming.platforms.steam.getWishlist(steamId64);
 	if (!rawWishlist) throw new Error(t("errors.steam.wishlist.private"));
+
 	const wishlist = await Promise.all(
 		rawWishlist.map(async (game) => {
-			const subscriptions = await client.prisma.subscription.search({ query: game.title });
-			return { ...game, subscriptions: subscriptions.map((subscription) => subscription.type) };
+			const subscriptions = await client.db.subscription.search({ query: game.title });
+			return {
+				...game,
+				subscriptions: subscriptions.map((subscription) => subscription.type),
+				notified: { sale: game.onSale, release: game.isReleased },
+			};
 		}),
 	);
 
 	const recentlyPlayed = await client.api.gaming.platforms.steam.getRecentlyPlayed(steamId64);
 
-	await client.prisma.steam.create({
+	await client.db.steam.create({
 		data: {
 			wishlist,
 			userId: interaction.user.id,
@@ -47,6 +52,5 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	});
 
 	const embed = new EmbedBuilder().setTitle(t("interactions.integrations.steam.import.embed.title")).setColor("Random");
-
 	await interaction.editReply({ embeds: [embed] });
 };
