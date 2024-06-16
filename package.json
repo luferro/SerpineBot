@@ -17,9 +17,10 @@
 	"keywords": [],
 	"author": "Luís Ferro",
 	"license": "MIT",
+	"packageManager": "pnpm@9.0.0",
 	"devDependencies": {
-		"@biomejs/biome": "1.7.3",
-		"turbo": "^1.13.3",
+		"@biomejs/biome": "1.8.1",
+		"turbo": "^2.0.3",
 		"typescript": "^5.4.5"
 	}
 }
