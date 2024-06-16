@@ -32,6 +32,6 @@ export const execute: JobExecute = async ({ client }) => {
 			messages.push(embed);
 		}
 		const webhookId = key.split(":")[1];
-		await client.propagate({ type: FeedType.RSS, webhookId, messages });
+		await client.propagateToWebhook({ type: FeedType.RSS, webhookId, messages });
 	}
 };

@@ -67,6 +67,6 @@ export const execute: JobExecute = async ({ client }) => {
 			}
 		}
 		const webhookId = key.split(":")[1];
-		await client.propagate({ type: FeedType.REDDIT, webhookId, messages });
+		await client.propagateToWebhook({ type: FeedType.REDDIT, webhookId, messages });
 	}
 };

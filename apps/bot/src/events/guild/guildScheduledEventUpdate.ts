@@ -62,7 +62,7 @@ const handleEventStart = async (client: Parameters<EventExecute>[0]["client"], e
 		.setImage(event.coverImageURL({ size: 4096 }))
 		.setColor("Random");
 
-	const feeds = await client.db.feeds.getFeeds({ type: FeedType.EVENTS });
+	const feeds = await client.db.feeds.getFeedsByGuildId({ type: FeedType.EVENTS, guildId: guild.id });
 	for (const { webhook } of feeds) {
 		const guildWebhook = await client.fetchWebhook(webhook.id, webhook.token);
 		guildWebhook?.send({ content: `${role}`, embeds: [embed] });

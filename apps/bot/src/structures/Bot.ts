@@ -2,7 +2,7 @@ import path from "node:path";
 import { AniListApi, MangadexApi } from "@luferro/animanga";
 import { RedisCache } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
-import { DatabaseClient, type ExtendedDatabaseClient, type FeedType } from "@luferro/database";
+import { DatabaseClient, type ExtendedDatabaseClient, type Feed, type FeedType } from "@luferro/database";
 import { TMDBApi } from "@luferro/entertainment";
 import { GamingApi } from "@luferro/gaming";
 import { type Logger, configureLogger } from "@luferro/helpers/logger";
@@ -31,7 +31,10 @@ import { Player } from "~/structures/Player.js";
 import type { Api, Commands, Event, Job, Speech } from "~/types/bot.js";
 
 type MessageType = string | EmbedBuilder;
-type PropagateArgs = { type: FeedType; webhookId?: string; everyone?: boolean; messages: MessageType[] };
+type BasePropagateArgs = { type: FeedType; everyone?: boolean; messages: MessageType[] };
+type PropagateToWebhookArgs = BasePropagateArgs & { webhookId: string };
+type PropagateToGuildArgs = BasePropagateArgs & { guildId: string };
+type PropagateInternalArgs = Omit<BasePropagateArgs, "type"> & { feeds: Feed[] };
 
 export class Bot extends Client<boolean> {
 	private static readonly MAX_EMBEDS_CHUNK_SIZE = 10;
@@ -148,7 +151,22 @@ export class Bot extends Client<boolean> {
 		}
 	}
 
-	async propagate({ type, webhookId, everyone = false, messages }: PropagateArgs) {
+	async propagate({ type, ...rest }: BasePropagateArgs) {
+		const feeds = await this.db.feeds.getFeeds({ type });
+		return this.propagateInternal({ feeds, ...rest });
+	}
+
+	async propagateToGuild({ type, guildId, ...rest }: PropagateToGuildArgs) {
+		const feeds = await this.db.feeds.getFeedsByGuildId({ type, guildId });
+		return this.propagateInternal({ feeds, ...rest });
+	}
+
+	async propagateToWebhook({ type, webhookId, ...rest }: PropagateToWebhookArgs) {
+		const feeds = await this.db.feeds.getFeedsByWebhookId({ type, webhookId });
+		return this.propagateInternal({ feeds, ...rest });
+	}
+
+	private async propagateInternal({ feeds, everyone = false, messages }: PropagateInternalArgs) {
 		const getMessages = async (cacheEnabled: boolean) => {
 			if (!cacheEnabled) return messages;
 
@@ -166,7 +184,6 @@ export class Bot extends Client<boolean> {
 			return filteredMessages.filter((item): item is NonNullable<MessageType> => !!item);
 		};
 
-		const feeds = await this.db.feeds.getFeeds({ type, webhookId });
 		for (const { guildId, channelId, cache, webhook } of feeds) {
 			const guildWebhook = await this.fetchWebhook(webhook.id, webhook.token);
 			const guild = this.guilds.cache.find((guild) => guild.id === guildId);

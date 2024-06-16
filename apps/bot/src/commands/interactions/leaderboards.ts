@@ -16,7 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.deferReply();
 	const type = interaction.options.getString(data[0].name, true) as LeaderboardType;
 
-	const leaderboard = await getLeaderboard(type, client);
+	const leaderboard = await getLeaderboard({ type, client, guild: interaction.guild });
 	if (leaderboard.length === 0) throw new Error(t("errors.leaderboards.empty"));
 
 	const formattedLeaderboard = leaderboard.map(({ position, medal, user, highlight }) =>

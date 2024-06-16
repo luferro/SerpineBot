@@ -1,3 +1,4 @@
+import type { Guild } from "discord.js";
 import { t } from "i18next";
 import type { Bot } from "~/structures/Bot.js";
 
@@ -12,12 +13,14 @@ enum Medal {
 	"🥉" = 3,
 }
 
-export const getLeaderboard = async (type: LeaderboardType, client: Bot) => {
+type LeaderboardOptions = { type: LeaderboardType; client: Bot; guild: Guild };
+
+export const getLeaderboard = async ({ type, ...rest }: LeaderboardOptions) => {
 	const leaderboards = {
 		[LeaderboardType.STEAM]: getSteamLeaderboard,
 		[LeaderboardType.XBOX]: getXboxLeaderboard,
 	};
-	const leaderboard = await leaderboards[type](client);
+	const leaderboard = await leaderboards[type](rest);
 	return leaderboard.slice(0, 10).map(({ user, highlight, item }, index) => ({
 		position: index + 1,
 		medal: Medal[index + 1] ?? null,
@@ -27,18 +30,21 @@ export const getLeaderboard = async (type: LeaderboardType, client: Bot) => {
 	}));
 };
 
-export const resetLeaderboard = async (type: LeaderboardType, client: Bot) => {
+export const resetLeaderboard = async ({ type, ...rest }: LeaderboardOptions) => {
 	const leaderboards = {
 		[LeaderboardType.STEAM]: resetSteamLeaderboard,
 		[LeaderboardType.XBOX]: resetXboxLeaderboard,
 	};
-	await leaderboards[type](client);
+	await leaderboards[type](rest);
 };
 
-const getSteamLeaderboard = async (client: Bot) => {
+const getSteamLeaderboard = async ({ client, guild }: Omit<LeaderboardOptions, "type">) => {
 	const leaderboard = [];
 	const integrations = await client.db.steam.findMany();
 	for (const { userId, profile, recentlyPlayed } of integrations) {
+		const target = await guild.members.fetch(userId).catch(() => null);
+		if (!target) continue;
+
 		const rawRecentlyPlayed = await client.api.gaming.platforms.steam.getRecentlyPlayed(profile.id);
 		if (rawRecentlyPlayed.length === 0) continue;
 
@@ -56,7 +62,7 @@ const getSteamLeaderboard = async (client: Bot) => {
 		const hours = +updatedRecentlyPlayed.reduce((acc, el) => acc + el.weeklyHours, 0).toFixed(2);
 
 		leaderboard.push({
-			user: await client.users.fetch(userId),
+			user: target.user,
 			highlight: { value: hours, formatted: t("common.time.hours", { hours }) },
 			item: { title, url },
 		});
@@ -65,9 +71,12 @@ const getSteamLeaderboard = async (client: Bot) => {
 	return leaderboard.sort((a, b) => b.highlight.value - a.highlight.value);
 };
 
-const resetSteamLeaderboard = async (client: Bot) => {
+const resetSteamLeaderboard = async ({ client, guild }: Omit<LeaderboardOptions, "type">) => {
 	const integrations = await client.db.steam.findMany();
 	for (const { userId, recentlyPlayed } of integrations) {
+		const target = await guild.members.fetch(userId).catch(() => null);
+		if (!target) continue;
+
 		await client.db.steam.update({
 			where: { userId },
 			data: { recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyHours: 0 })) },
@@ -75,10 +84,13 @@ const resetSteamLeaderboard = async (client: Bot) => {
 	}
 };
 
-const getXboxLeaderboard = async (client: Bot) => {
+const getXboxLeaderboard = async ({ client, guild }: Omit<LeaderboardOptions, "type">) => {
 	const leaderboard = [];
 	const integrations = await client.db.xbox.findMany();
 	for (const { userId, profile, recentlyPlayed } of integrations) {
+		const target = await guild.members.fetch(userId).catch(() => null);
+		if (!target) continue;
+
 		const rawRecentlyPlayed = await client.api.gaming.platforms.xbox.getRecentlyPlayed(profile.id);
 		if (rawRecentlyPlayed.length === 0) continue;
 
@@ -104,7 +116,7 @@ const getXboxLeaderboard = async (client: Bot) => {
 		const gamerscore = +updatedRecentlyPlayed.reduce((acc, el) => acc + el.weeklyGamerscore, 0).toFixed(2);
 
 		leaderboard.push({
-			user: await client.users.fetch(userId),
+			user: target.user,
 			highlight: { value: gamerscore, formatted: `${gamerscore}G` },
 			item: { title, url: null },
 		});
@@ -113,9 +125,12 @@ const getXboxLeaderboard = async (client: Bot) => {
 	return leaderboard.sort((a, b) => b.highlight.value - a.highlight.value);
 };
 
-const resetXboxLeaderboard = async (client: Bot) => {
+const resetXboxLeaderboard = async ({ client, guild }: Omit<LeaderboardOptions, "type">) => {
 	const integrations = await client.db.xbox.findMany();
 	for (const { userId, recentlyPlayed } of integrations) {
+		const target = await guild.members.fetch(userId).catch(() => null);
+		if (!target) continue;
+
 		await client.db.xbox.update({
 			where: { userId },
 			data: { recentlyPlayed: recentlyPlayed.map((game) => ({ ...game, weeklyGamerscore: 0 })) },

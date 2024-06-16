@@ -32,12 +32,25 @@ export const extension = Prisma.defineExtension((client) => {
 				},
 			},
 			feeds: {
-				async getFeeds<T>(this: T, { type, webhookId }: { type: FeedType; webhookId?: string }) {
-					if (!webhookId) {
-						const result = await client.feeds.findUnique({ where: { type } });
-						return result?.feeds ?? [];
-					}
-
+				async getFeeds<T>(this: T, { type }: { type: FeedType }) {
+					const result = await client.feeds.findUnique({ where: { type } });
+					return result?.feeds ?? [];
+				},
+				async getFeedsByGuildId<T>(this: T, { type, guildId }: { type: FeedType; guildId: string }) {
+					const result = (await client.feeds.aggregateRaw({
+						pipeline: [
+							{ $match: { _id: type } },
+							{
+								$project: {
+									_id: 0,
+									feeds: { $filter: { input: "$feeds", cond: { $eq: ["$$this.guildId", guildId] } } },
+								},
+							},
+						],
+					})) as unknown as { feeds: Feed[] }[];
+					return result[0]?.feeds ?? [];
+				},
+				async getFeedsByWebhookId<T>(this: T, { type, webhookId }: { type: FeedType; webhookId: string }) {
 					const result = (await client.feeds.aggregateRaw({
 						pipeline: [
 							{ $match: { _id: type } },
