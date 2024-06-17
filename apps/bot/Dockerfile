@@ -7,7 +7,7 @@ RUN turbo prune --scope=bot --docker
 
 FROM node:18 AS installer
 WORKDIR /usr/src/app
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
 COPY --from=builder /usr/src/app/tsconfig.json .
 COPY --from=builder /usr/src/app/out/json/ .
 COPY --from=builder /usr/src/app/out/pnpm-lock.yaml ./pnpm-lock.yaml
@@ -18,7 +18,7 @@ RUN pnpm build --filter=bot... --concurrency=$CONCURRENCY
 
 FROM mcr.microsoft.com/playwright:v1.24.2-focal as runner
 WORKDIR /usr/src/app
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
 RUN apt-get update && apt-get upgrade -y && apt-get install build-essential libnss3 libatk-bridge2.0-0 libdrm-dev libxkbcommon-dev libgbm-dev libasound-dev libatspi2.0-0 libxshmfence-dev -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
 
