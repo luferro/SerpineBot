@@ -23,5 +23,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install build-essential libn
 COPY --from=installer /usr/src/app .
 
 RUN pnpm install @discordjs/opus --force --filter bot
+RUN pnpm exec playwright install
 
 CMD ["pnpm", "start"]
