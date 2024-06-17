@@ -16,8 +16,9 @@ COPY --from=builder /usr/src/app/out/full/ .
 ARG CONCURRENCY
 RUN pnpm build --filter=bot... --concurrency=$CONCURRENCY
 
-FROM mcr.microsoft.com/playwright:v1.24.2-focal as runner
+FROM node:lts as runner
 WORKDIR /usr/src/app
+RUN npx -y playwright@1.44.1 install --with-deps
 RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
 RUN apt-get update && apt-get upgrade -y && apt-get install build-essential libnss3 libatk-bridge2.0-0 libdrm-dev libxkbcommon-dev libgbm-dev libasound-dev libatspi2.0-0 libxshmfence-dev -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
