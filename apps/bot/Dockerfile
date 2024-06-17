@@ -1,11 +1,11 @@
-FROM node:18 AS builder
+FROM node:lts AS builder
 WORKDIR /usr/src/app
 RUN npm install -g npm
 RUN npm i -g turbo
 COPY . .
 RUN turbo prune --scope=bot --docker
 
-FROM node:18 AS installer
+FROM node:lts AS installer
 WORKDIR /usr/src/app
 RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
 COPY --from=builder /usr/src/app/tsconfig.json .
