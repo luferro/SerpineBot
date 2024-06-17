@@ -28,8 +28,8 @@ export const execute: JobExecute = async ({ client }) => {
 				const updatedEntry = {
 					...newEntry,
 					notified: {
-						sale: !!oldEntry?.notified.sale,
-						release: !!oldEntry?.notified.release,
+						sale: !!oldEntry?.notified.sale ?? newEntry.onSale,
+						release: !!oldEntry?.notified.release ?? newEntry.isReleased,
 					},
 					subscriptions: subscriptions.map((subscription) => subscription.type),
 				};
