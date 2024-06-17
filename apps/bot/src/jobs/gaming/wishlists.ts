@@ -13,11 +13,11 @@ type Entries<T> = { [K in keyof T]: [K, T[K]] }[keyof T][];
 export const data: JobData = { schedule: "0 */15 7-23 * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const integrations = await client.db.steam.findMany({ where: { notifications: true } });
+	const integrations = await client.db.steam.findMany();
 	for (const integration of integrations) {
 		const alerts: Alerts = { sale: [], released: [], addedTo: [], removedFrom: [] };
 
-		const wishlist = await client.api.gaming.platforms.steam.getWishlist(integration.profile.id);
+		const wishlist = await client.api.gaming.platforms.steam.getWishlist(integration.profile.id).catch(() => null);
 		if (!wishlist || wishlist.length === 0) continue;
 
 		const updatedWishlist = await Promise.all(
@@ -52,7 +52,7 @@ export const execute: JobExecute = async ({ client }) => {
 			}),
 		);
 
-		await notifyUser(client, integration.userId, alerts);
+		if (integration.notifications) await notifyUser(client, integration.userId, alerts);
 
 		await client.db.steam.update({
 			where: { userId: integration.userId },
