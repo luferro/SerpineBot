@@ -3,7 +3,7 @@ import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
 import type { JobData, JobExecute } from "~/types/bot.js";
 
-export const data: JobData = { schedule: new Date(Date.now() + 1000 * 60) as unknown as string };
+export const data: JobData = { schedule: "0 0 0 * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	for (const [guildId, guild] of client.guilds.cache) {
