@@ -42,14 +42,13 @@ export const execute: JobExecute = async ({ client }) => {
 				}
 
 				const isSale = !oldEntry.onSale && newEntry.onSale;
-				if (!isRelease && isSale && !updatedEntry.notified.sale) {
-					alerts.sale.push(updatedEntry);
-					updatedEntry.notified.sale = true;
-				}
+				if (!isRelease && isSale && !updatedEntry.notified.sale) alerts.sale.push(updatedEntry);
 
 				const { addedTo, removedFrom } = getSubscriptionChanges(updatedEntry, oldEntry);
 				if (addedTo.length > 0) alerts.addedTo.push({ ...updatedEntry, addedTo });
 				if (removedFrom.length > 0) alerts.removedFrom.push({ ...updatedEntry, removedFrom });
+
+				updatedEntry.notified.sale = isSale;
 
 				return updatedEntry;
 			}),
