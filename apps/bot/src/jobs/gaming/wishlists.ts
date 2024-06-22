@@ -31,7 +31,7 @@ export const execute: JobExecute = async ({ client }) => {
 						sale: oldEntry?.notified.sale ?? newEntry.onSale,
 						release: oldEntry?.notified.release ?? newEntry.isReleased,
 					},
-					subscriptions: subscriptions.map((subscription) => subscription.type),
+					subscriptions: subscriptions.map((subscription) => subscription.id),
 				};
 				if (!oldEntry) return updatedEntry;
 
@@ -44,7 +44,7 @@ export const execute: JobExecute = async ({ client }) => {
 				const isSale = !oldEntry.onSale && newEntry.onSale;
 				if (!isRelease && isSale && !updatedEntry.notified.sale) alerts.sale.push(updatedEntry);
 
-				const { addedTo, removedFrom } = getSubscriptionChanges(updatedEntry, oldEntry);
+				const { addedTo, removedFrom } = await getSubscriptionChanges(client, updatedEntry, oldEntry);
 				if (addedTo.length > 0) alerts.addedTo.push({ ...updatedEntry, addedTo });
 				if (removedFrom.length > 0) alerts.removedFrom.push({ ...updatedEntry, removedFrom });
 
@@ -63,18 +63,11 @@ export const execute: JobExecute = async ({ client }) => {
 	}
 };
 
-const getSubscriptionChanges = (newEntry: SteamWishlistEntry, oldEntry: SteamWishlistEntry) => {
-	const addedTo = [];
-	const removedFrom = [];
-	for (const [name, newEntryIsIncluded] of Object.entries(newEntry.subscriptions)) {
-		const oldSubscription = Object.entries(oldEntry.subscriptions).find(([key]) => key === name);
-		if (!oldSubscription) continue;
-
-		const subscription = name.replace(/_/g, " ").toUpperCase();
-		const { 1: oldEntryIsIncluded } = oldSubscription;
-		if (!oldEntryIsIncluded && newEntryIsIncluded) addedTo.push(`> • **${subscription}**`);
-		if (oldEntryIsIncluded && !newEntryIsIncluded) removedFrom.push(`> • **${subscription}**`);
-	}
+const getSubscriptionChanges = async (client: Bot, newEntry: SteamWishlistEntry, oldEntry: SteamWishlistEntry) => {
+	const subscriptions = await client.db.subscription.findMany();
+	const toName = (id: string) => `> • **${subscriptions.find((subscription) => subscription.id === id)!.name}**`;
+	const addedTo = newEntry.subscriptions.filter((id) => !oldEntry.subscriptions.includes(id)).map(toName);
+	const removedFrom = oldEntry.subscriptions.filter((id) => !newEntry.subscriptions.includes(id)).map(toName);
 
 	return { addedTo, removedFrom };
 };

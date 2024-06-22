@@ -34,7 +34,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			const subscriptions = await client.db.subscription.search({ query: game.title });
 			return {
 				...game,
-				subscriptions: subscriptions.map((subscription) => subscription.type),
+				subscriptions: subscriptions.map((subscription) => subscription.id),
 				notified: { sale: game.onSale, release: game.isReleased },
 			};
 		}),

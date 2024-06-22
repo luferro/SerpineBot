@@ -20,14 +20,6 @@ enum FeedType {
   RSS
 }
 
-enum CatalogType {
-  XBOX_GAME_PASS
-  PC_GAME_PASS
-  UBISOFT_PLUS
-  EA_PLAY_PRO
-  EA_PLAY
-}
-
 model Birthday {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @unique
@@ -101,7 +93,7 @@ type SteamWishlistEntry {
   isFree        Boolean
   isReleased    Boolean
   onSale        Boolean
-  subscriptions CatalogType[]
+  subscriptions String[]
   notified      SteamWishlistNotification
 }
 
@@ -179,20 +171,51 @@ model Feeds {
   @@map("feeds")
 }
 
-type CatalogItem {
+type CatalogEntry {
   title String
   slug  String
   url   String?
 }
 
+type CatalogSelectorPagination {
+  root  String?
+  nth   Int
+  total String?
+  prev  String?
+  next  String
+}
+
+type CatalogSelectorListUrl {
+  base String?
+  href String?
+}
+
+type CatalogSelectorListItem {
+  name String
+  url  CatalogSelectorListUrl
+}
+
+type CatalogSelectorList {
+  root String
+  item CatalogSelectorListItem
+}
+
+type CatalogSelectors {
+  list       CatalogSelectorList
+  pagination CatalogSelectorPagination
+  cookies    String?
+  region     String?
+}
+
 model Subscription {
-  id        String        @id @default(auto()) @map("_id") @db.ObjectId
-  type      CatalogType   @unique
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  catalog   CatalogItem[]
+  url       String
+  selectors CatalogSelectors
+  entries   CatalogEntry[]
   count     Int
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   @@map("subscriptions")
 }

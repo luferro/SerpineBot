@@ -1,14 +1,15 @@
 import { type Logger, configureLogger } from "@luferro/helpers/logger";
-import { enumToArray, slug } from "@luferro/helpers/transform";
+import { slug } from "@luferro/helpers/transform";
 import { Scraper } from "@luferro/scraper";
 
-const CatalogType = {
-	XBOX_GAME_PASS: "XBOX_GAME_PASS",
-	PC_GAME_PASS: "PC_GAME_PASS",
-	UBISOFT_PLUS: "UBISOFT_PLUS",
-	EA_PLAY_PRO: "EA_PLAY_PRO",
-	EA_PLAY: "EA_PLAY",
-} as const;
+type Selectors = {
+	list: { root: string; item: { name: string; url: { base: string | null; href: string | null } } };
+	pagination: { root: string | null; nth: number; total: string | null; prev: string | null; next: string };
+	cookies: string | null;
+	region: string | null;
+};
+
+type Entry = { title: string; slug: string; url: string | null };
 
 export class SubscriptionsApi {
 	private logger: Logger;
@@ -19,124 +20,58 @@ export class SubscriptionsApi {
 		this.scraper = new Scraper();
 	}
 
-	private getSelectors(type: keyof typeof CatalogType) {
-		const options = {
-			[CatalogType.XBOX_GAME_PASS]: {
-				list: {
-					element: '.gameList [itemtype="http://schema.org/Product"]',
-					item: { name: "h3", href: "a", base: null },
-				},
-				pagination: { nth: 0, element: null, total: null, next: ".paginatenext:not(.pag-disabled) a" },
-				cookies: null,
-				region: null,
-			},
-			[CatalogType.PC_GAME_PASS]: {
-				list: {
-					element: '.gameList [itemtype="http://schema.org/Product"]',
-					item: { name: "h3", href: "a", base: null },
-				},
-				pagination: { nth: 0, element: null, total: null, next: ".paginatenext:not(.pag-disabled) a" },
-				cookies: null,
-				region: null,
-			},
-			[CatalogType.EA_PLAY]: {
-				list: { element: "ea-box-set ea-game-box", item: { name: "a", href: "a", base: "https://www.ea.com" } },
-				pagination: {
-					nth: 0,
-					element: "ea-pagination",
-					total: "total-pages",
-					next: "span[data-page-target=next]",
-				},
-				cookies: null,
-				region: null,
-			},
-			[CatalogType.EA_PLAY_PRO]: {
-				list: { element: "ea-box-set ea-game-box", item: { name: "a", href: "a", base: "https://www.ea.com" } },
-				pagination: {
-					nth: 1,
-					element: "ea-pagination",
-					total: "total-pages",
-					next: "span[data-page-target=next]",
-				},
-				cookies: null,
-				region: null,
-			},
-			[CatalogType.UBISOFT_PLUS]: {
-				list: { element: "div.game", item: { name: "p.game-title", href: null, base: null } },
-				pagination: { nth: 0, element: null, total: null, next: ".game-list_wrapper ~ div button" },
-				cookies: "button#privacy__modal__accept",
-				region: "button.stay-on-country-store",
-			},
-		};
-		return options[type];
-	}
-
-	async getCatalog(type: keyof typeof CatalogType) {
-		const catalogUrl = {
-			[CatalogType.XBOX_GAME_PASS]: "https://www.xbox.com/pt-PT/xbox-game-pass/games",
-			[CatalogType.PC_GAME_PASS]: "https://www.xbox.com/pt-PT/xbox-game-pass/games#pcgames",
-			[CatalogType.EA_PLAY]: "https://www.ea.com/ea-play/games#ea-app",
-			[CatalogType.EA_PLAY_PRO]: "https://www.ea.com/ea-play/games#ea-play-pro",
-			[CatalogType.UBISOFT_PLUS]: "https://store.ubisoft.com/ie/Ubisoftplus/games",
-		};
-
-		return this.scraper.interactive.load(catalogUrl[type], async (page) => {
+	async getCatalog(url: string, { list, pagination, cookies, region }: Selectors) {
+		return this.scraper.interactive.load(url, async (page) => {
 			try {
 				await page.waitForTimeout(5000);
 
-				const catalog: { title: string; slug: string; url: string | null }[] = [];
-				const { list, pagination, cookies, region } = this.getSelectors(type);
+				const entries: Entry[] = [];
 
-				const cookiesButton = cookies ? page.locator(cookies) : null;
-				if (cookiesButton && (await cookiesButton.isVisible())) await cookiesButton.click();
+				const cookiesLocator = cookies ? page.locator(cookies) : null;
+				if (cookiesLocator && (await cookiesLocator.isVisible())) await cookiesLocator.click();
 
-				const regionButton = region ? page.locator(region) : null;
-				if (regionButton && (await regionButton?.isVisible())) await regionButton.click();
+				const regionLocator = region ? page.locator(region) : null;
+				if (regionLocator && (await regionLocator.isVisible())) await regionLocator.click();
 
 				let currentPage = 1;
 				while (true) {
 					await page.waitForTimeout(2000);
 
-					const containers = await page.locator(list.element).elementHandles();
-					for (const container of containers) {
-						const name = await (await container.$(list.item.name))?.textContent();
-						const href = list.item.href ? await (await container.$(list.item.href))?.getAttribute("href") : null;
-						const url = list.item.base ? `${list.item.base}${href}` : href;
-						if (!name) continue;
+					const listHandles = await page.locator(list.root).elementHandles();
+					for (const container of listHandles) {
+						const nameElement = await container.$(list.item.name);
+						const nameContent = await nameElement?.textContent();
+						if (!nameContent) continue;
 
-						// biome-ignore lint/suspicious/noControlCharactersInRegex: <explanation>
-						const fixedName = name.replace(/[^\x00-\x7F]/g, "");
-						if (catalog.find((item) => item.title === fixedName)) continue;
+						const hrefElement = list.item.url.href ? await container.$(list.item.url.href) : null;
+						const hrefAttribute = hrefElement ? await hrefElement.getAttribute("href") : null;
+						const url = list.item.url.base ? `${list.item.url.base}${hrefAttribute}` : hrefAttribute;
 
-						catalog.push({ title: fixedName, slug: slug(name), url: url ?? null });
+						// biome-ignore lint/suspicious/noControlCharactersInRegex: remove special characters
+						const noSpecialCharsTitle = nameContent.replace(/[^\x00-\x7F]/g, "");
+						if (entries.find((item) => item.title === noSpecialCharsTitle)) continue;
+
+						entries.push({ title: noSpecialCharsTitle, slug: slug(nameContent), url });
 					}
 
-					const nextPageButton = page.locator(pagination.next).nth(pagination.nth);
-					const totalPages =
-						pagination.element && pagination.total
-							? Number((await page.locator(pagination.element).nth(pagination.nth).getAttribute(pagination.total))!)
-							: null;
+					const nextLocator = page.locator(pagination.next).nth(pagination.nth);
+					const paginationLocator = pagination.root ? page.locator(pagination.root).nth(pagination.nth) : null;
+					const paginationTotalAttribute =
+						paginationLocator && pagination.total ? await paginationLocator.getAttribute(pagination.total) : null;
+					const paginationTotal = paginationTotalAttribute ? Number(paginationTotalAttribute) : null;
 
-					const hasMore = totalPages ? totalPages !== currentPage : (await nextPageButton.count()) > 0;
+					const hasMore = paginationTotal ? paginationTotal !== currentPage : (await nextLocator.count()) > 0;
 					if (!hasMore) break;
 
-					await nextPageButton.scrollIntoViewIfNeeded();
-					await nextPageButton.click();
+					await nextLocator.scrollIntoViewIfNeeded();
+					await nextLocator.dispatchEvent("click");
 					currentPage++;
 				}
-				return { type, catalog };
+				return entries;
 			} catch (error) {
-				this.logger.warn(`Cannot retrieve ${type} catalog`);
-				return { type, catalog: [] };
+				this.logger.warn(`Cannot retrieve ${url} catalog.`);
+				return [];
 			}
 		});
-	}
-
-	async getCatalogs() {
-		const data = [];
-		for (const type of enumToArray(CatalogType)) {
-			data.push(await this.getCatalog(type));
-		}
-		return data;
 	}
 }
