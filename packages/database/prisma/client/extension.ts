@@ -68,7 +68,10 @@ export const extension = Prisma.defineExtension((client) => {
 			subscription: {
 				async search<T>(this: T, { query }: { query: string }) {
 					return client.subscription.aggregateRaw({
-						pipeline: [{ $search: { phrase: { query, path: "catalog.title" } } }],
+						pipeline: [
+							{ $search: { phrase: { query, path: "entries.title" } } },
+							{ $project: { _id: 0, id: { $toString: "$_id" }, name: 1, url: 1, selectors: 1, count: 1, entries: 1 } },
+						],
 					}) as unknown as Subscription[];
 				},
 			},
