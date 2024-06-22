@@ -36,7 +36,7 @@ export const execute: JobExecute = async ({ client }) => {
 				if (!oldEntry) return updatedEntry;
 
 				const isRelease = !oldEntry.isReleased && newEntry.isReleased;
-				if (isRelease) {
+				if (isRelease && !updatedEntry.notified.release) {
 					alerts.released.push(updatedEntry);
 					updatedEntry.notified.release = true;
 				}
