@@ -680,13 +680,13 @@
 				"addedTo": {
 					"embed": {
 						"title": "{{size}} item(s) from your wishlist now included with a subscription service.",
-						"description": "{{item}} has been added to:\n{{subscriptions}}"
+						"description": "{{item}} has been added to:\n{{addedTo}}"
 					}
 				},
 				"removedFrom": {
 					"embed": {
 						"title": "{{size}} item(s) from your wishlist removed from a subscription service.",
-						"description": "{{item}} has been removed from:\n{{subscriptions}}"
+						"description": "{{item}} has been removed from:\n{{removedFrom}}"
 					}
 				}
 			}
