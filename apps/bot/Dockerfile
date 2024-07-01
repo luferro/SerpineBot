@@ -19,7 +19,23 @@ RUN pnpm build --filter=bot... --concurrency=$CONCURRENCY
 FROM node:lts as runner
 WORKDIR /usr/src/app
 RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
-RUN apt-get update && apt-get upgrade -y && apt-get install build-essential libnss3 libatk-bridge2.0-0 libdrm-dev libxkbcommon-dev libgbm-dev libasound-dev libatspi2.0-0 libxshmfence-dev libcups2 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+    build-essential \
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libdrm-dev \
+    libxkbcommon-dev \
+    libgbm-dev \
+    libasound-dev \
+    libatspi2.0-0 \
+    libxshmfence-dev \
+    libcups2 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    ffmpeg && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
 
 RUN pnpm install @discordjs/opus --force --filter bot
