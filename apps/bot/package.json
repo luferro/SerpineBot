@@ -21,8 +21,7 @@
 		"@discord-player/extractor": "^4.4.7",
 		"@discordjs/opus": "^0.9.0",
 		"@discordjs/voice": "^0.17.0",
-		"@types/node": "^20.14.2",
-		"play-dl": "^1.9.7",
+		"@types/node": "^20.14.9",
 		"tsc-alias": "^1.8.10",
 		"typescript": "^5.4.5",
 		"ytdl-core": "4.11.5"

@@ -17,10 +17,10 @@
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"@apollo/client": "^3.10.4",
+		"@apollo/client": "^3.10.8",
 		"@luferro/helpers": "workspace:^",
 		"@luferro/reddit": "workspace:^",
 		"@luferro/scraper": "workspace:^",
-		"graphql": "^16.8.1"
+		"graphql": "^16.9.0"
 	}
 }
