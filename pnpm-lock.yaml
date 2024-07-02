@@ -62,9 +62,6 @@ importers:
       discord.js:
         specifier: ^14.14.1
         version: 14.14.1
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
       i18next:
         specifier: ^23.11.5
         version: 23.11.5
@@ -84,9 +81,6 @@ importers:
       '@types/node':
         specifier: ^20.14.9
         version: 20.14.9
-      play-dl:
-        specifier: ^1.9.7
-        version: 1.9.7
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -3487,13 +3481,6 @@ packages:
   pino@9.2.0:
     resolution: {integrity: sha512-g3/hpwfujK5a4oVbaefoJxezLzsDgLcNJeITvC6yrfwYeT9la+edCK42j5QpEQSQCZgTKapXvnQIdgZwvRaZug==}
     hasBin: true
-
-  play-audio@0.5.2:
-    resolution: {integrity: sha512-ZAqHUKkQLix2Iga7pPbsf1LpUoBjcpwU93F1l3qBIfxYddQLhxS6GKmS0d3jV8kSVaUbr6NnOEcEMFvuX93SWQ==}
-
-  play-dl@1.9.7:
-    resolution: {integrity: sha512-KpgerWxUCY4s9Mhze2qdqPhiqd8Ve6HufpH9mBH3FN+vux55qSh6WJKDabfie8IBHN7lnrAlYcT/UdGax58c2A==}
-    engines: {node: '>=16.0.0'}
 
   playwright-chromium@1.45.0:
     resolution: {integrity: sha512-wKZ1NeRZSXp25bYL00X4REv/3mgZQ6QUC6OGTfYZY/YZyorbC/3Fr1WATCB/yF9SCd79gSWBzRCYv4Bf7DzW7g==}
@@ -8167,12 +8154,6 @@ snapshots:
       safe-stable-stringify: 2.4.3
       sonic-boom: 4.0.1
       thread-stream: 3.1.0
-
-  play-audio@0.5.2: {}
-
-  play-dl@1.9.7:
-    dependencies:
-      play-audio: 0.5.2
 
   playwright-chromium@1.45.0:
     dependencies:
