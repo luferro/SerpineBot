@@ -3,6 +3,7 @@ import {
 	Leopard,
 	LeopardActivationLimitReachedError,
 	LeopardInvalidArgumentError,
+	LeopardRuntimeError,
 	type LeopardTranscript,
 } from "@picovoice/leopard-node";
 import { bufferToInt16 } from "./utils/audio.js";
@@ -18,9 +19,11 @@ export class SpeechToTextClient {
 		} catch (error) {
 			const isLimitReachedError = error instanceof LeopardActivationLimitReachedError;
 			const isInvalidArgument = error instanceof LeopardInvalidArgumentError;
+			const isRuntimeError = error instanceof LeopardRuntimeError;
 
 			if (isLimitReachedError) this.logger.warn("Leopard | User limit reached");
 			else if (isInvalidArgument) this.logger.warn("Leopard | Invalid model path");
+			else if (isRuntimeError) this.logger.warn("Leopard | Runtime error");
 			else throw error;
 		}
 	}

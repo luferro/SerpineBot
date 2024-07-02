@@ -25,7 +25,9 @@ export class WakeWordClient {
 			this.porcupine = new Porcupine(apiKey, keywords, sensitivities);
 		} catch (error) {
 			const isLimitReachedError = error instanceof PorcupineErrors.PorcupineActivationLimitReachedError;
+			const isRuntimeError = error instanceof PorcupineErrors.PorcupineRuntimeError;
 			if (isLimitReachedError) this.logger.warn("Porcupine | User limit reached");
+			else if (isRuntimeError) this.logger.warn("Porcupine | Runtime error");
 			else throw error;
 		}
 	}

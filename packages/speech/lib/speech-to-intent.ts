@@ -13,9 +13,11 @@ export class SpeechToIntentClient {
 		} catch (error) {
 			const isLimitReachedError = error instanceof RhinoErrors.RhinoActivationLimitReachedError;
 			const isInvalidArgument = error instanceof RhinoErrors.RhinoInvalidArgumentError;
+			const isRuntimeError = error instanceof RhinoErrors.RhinoRuntimeError;
 
 			if (isLimitReachedError) this.logger.warn("Rhino | User limit reached");
 			else if (isInvalidArgument) this.logger.warn("Rhino | Invalid model path");
+			else if (isRuntimeError) this.logger.warn("Rhino | Runtime error");
 			else throw error;
 		}
 	}
