@@ -16,7 +16,7 @@ COPY --from=builder /usr/src/app/out/full/ .
 ARG CONCURRENCY
 RUN pnpm build --filter=bot... --concurrency=$CONCURRENCY
 
-FROM node:lts as runner
+FROM node:lts AS runner
 WORKDIR /usr/src/app
 RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
@@ -38,6 +38,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
 
-RUN pnpm install @discordjs/opus --force --filter bot
+RUN npx playwright install
 
-CMD ["pnpm", "start"]
+CMD ["pnpm",  "start"]

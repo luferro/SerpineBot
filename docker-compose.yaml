@@ -7,25 +7,6 @@ services:
             dockerfile: ./apps/bot/Dockerfile
             args:
                 - CONCURRENCY=${CONCURRENCY:-5}
-        environment:
-            # Discord client
-            - SB_CLIENT__TOKEN=${SB_CLIENT__TOKEN}
-            # Database
-            - SB_SERVICES__MONGODB__URI=${SB_SERVICES__MONGODB__URI}
-            # Cache
-            - SB_SERVICES__REDIS__URI=${SB_SERVICES__REDIS__URI}
-            # APIs
-            - SB_SERVICES__PICOVOICE__API_KEY=${SB_SERVICES__PICOVOICE__API_KEY}
-            - SB_SERVICES__STEAM__API_KEY=${SB_SERVICES__STEAM__API_KEY}
-            - SB_SERVICES__XBOX__API_KEY=${SB_SERVICES__XBOX__API_KEY}
-            - SB_SERVICES__ITAD__API_KEY=${SB_SERVICES__ITAD__API_KEY}
-            - SB_SERVICES__IGDB__CLIENT_ID=${SB_SERVICES__IGDB__CLIENT_ID}
-            - SB_SERVICES__IGDB__CLIENT_SECRET=${SB_SERVICES__IGDB__CLIENT_SECRET}
-            - SB_SERVICES__TMDB__API_KEY=${SB_SERVICES__TMDB__API_KEY}
-            - SB_SERVICES__ANIME_SCHEDULE__API_KEY=${SB_SERVICES__ANIME_SCHEDULE__API_KEY}
-            - SB_SERVICES__GOOGLE__CREDENTIALS__PATH=${SB_SERVICES__GOOGLE__CREDENTIALS__PATH}
-            - SB_SERVICES__REDDIT__CLIENT_ID=${SB_SERVICES__REDDIT__CLIENT_ID}
-            - SB_SERVICES__REDDIT__CLIENT_SECRET=${SB_SERVICES__REDDIT__CLIENT_SECRET}
         volumes:
             - ~/shared:/usr/src/shared
         restart: always
