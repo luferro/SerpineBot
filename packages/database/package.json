@@ -19,7 +19,7 @@
 	"devDependencies": {
 		"@types/node": "^20.14.9",
 		"prisma": "^5.16.1",
-		"typescript": "^5.4.5"
+		"typescript": "^5.5.3"
 	},
 	"dependencies": {
 		"@luferro/helpers": "workspace:^",

@@ -23,7 +23,7 @@
 		"@discordjs/voice": "^0.17.0",
 		"@types/node": "^20.14.9",
 		"tsc-alias": "^1.8.10",
-		"typescript": "^5.4.5",
+		"typescript": "^5.5.3",
 		"ytdl-core": "4.11.5"
 	},
 	"dependencies": {

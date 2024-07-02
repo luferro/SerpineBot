@@ -15,8 +15,8 @@ importers:
         specifier: ^2.0.6
         version: 2.0.6
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   apps/bot:
     dependencies:
@@ -85,8 +85,8 @@ importers:
         specifier: ^1.8.10
         version: 1.8.10
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
       ytdl-core:
         specifier: 4.11.5
         version: 4.11.5
@@ -137,8 +137,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   apps/hotaru:
     dependencies:
@@ -149,20 +149,20 @@ importers:
         specifier: workspace:^
         version: link:../../packages/helpers
       '@mantine/carousel':
-        specifier: ^7.11.0
-        version: 7.11.0(@mantine/core@7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.0(react@18.3.1))(embla-carousel-react@8.1.6(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^7.11.1
+        version: 7.11.1(@mantine/core@7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.1(react@18.3.1))(embla-carousel-react@8.1.6(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/core':
-        specifier: ^7.11.0
-        version: 7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^7.11.1
+        version: 7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/dates':
-        specifier: ^7.11.0
-        version: 7.11.0(@mantine/core@7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.0(react@18.3.1))(dayjs@1.11.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^7.11.1
+        version: 7.11.1(@mantine/core@7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.1(react@18.3.1))(dayjs@1.11.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/hooks':
-        specifier: ^7.11.0
-        version: 7.11.0(react@18.3.1)
+        specifier: ^7.11.1
+        version: 7.11.1(react@18.3.1)
       '@mantine/spotlight':
-        specifier: ^7.11.0
-        version: 7.11.0(@mantine/core@7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^7.11.1
+        version: 7.11.1(@mantine/core@7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tabler/icons-react':
         specifier: ^3.7.0
         version: 3.7.0(react@18.3.1)
@@ -225,8 +225,8 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1(postcss@8.4.39)
       typescript:
-        specifier: ^5.5.2
-        version: 5.5.2
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/animanga:
     dependencies:
@@ -251,16 +251,16 @@ importers:
     devDependencies:
       '@graphql-codegen/cli':
         specifier: ^5.0.2
-        version: 5.0.2(@types/node@20.14.9)(graphql@16.9.0)(typescript@5.4.5)
+        version: 5.0.2(@types/node@20.14.9)(graphql@16.9.0)(typescript@5.5.3)
       '@graphql-codegen/client-preset':
-        specifier: ^4.3.1
-        version: 4.3.1(graphql@16.9.0)
+        specifier: ^4.3.2
+        version: 4.3.2(graphql@16.9.0)
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.9.0)
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/cache:
     dependencies:
@@ -275,8 +275,8 @@ importers:
         specifier: ^20.14.9
         version: 20.14.9
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/config:
     dependencies:
@@ -294,8 +294,8 @@ importers:
         specifier: ^20.14.9
         version: 20.14.9
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/database:
     dependencies:
@@ -316,8 +316,8 @@ importers:
         specifier: ^5.16.1
         version: 5.16.1
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/entertainment:
     dependencies:
@@ -326,8 +326,8 @@ importers:
         version: link:../helpers
     devDependencies:
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/gaming:
     dependencies:
@@ -348,8 +348,8 @@ importers:
         version: 16.9.0
     devDependencies:
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/helpers:
     dependencies:
@@ -382,8 +382,8 @@ importers:
         specifier: ^3.6.0
         version: 3.6.0
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/reddit:
     dependencies:
@@ -398,8 +398,8 @@ importers:
         specifier: ^20.14.9
         version: 20.14.9
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/scraper:
     dependencies:
@@ -413,14 +413,14 @@ importers:
         specifier: ^2.1.52
         version: 2.1.52
       playwright-chromium:
-        specifier: ^1.45.0
-        version: 1.45.0
+        specifier: ^1.45.1
+        version: 1.45.1
       playwright-extra:
         specifier: ^4.3.6
-        version: 4.3.6(playwright-core@1.45.0)
+        version: 4.3.6(playwright-core@1.45.1)
       puppeteer-extra-plugin-stealth:
         specifier: ^2.11.2
-        version: 2.11.2(playwright-extra@4.3.6(playwright-core@1.45.0))
+        version: 2.11.2(playwright-extra@4.3.6(playwright-core@1.45.1))
       rss-parser:
         specifier: ^3.13.0
         version: 3.13.0
@@ -432,8 +432,8 @@ importers:
         specifier: ^20.14.9
         version: 20.14.9
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
   packages/speech:
     dependencies:
@@ -460,8 +460,8 @@ importers:
         specifier: ^20.14.9
         version: 20.14.9
       typescript:
-        specifier: ^5.4.5
-        version: 5.4.5
+        specifier: ^5.5.3
+        version: 5.5.3
 
 packages:
 
@@ -977,23 +977,11 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@floating-ui/core@1.6.2':
-    resolution: {integrity: sha512-+2XpQV9LLZeanU4ZevzRnGFg2neDeKHgFLjP6YLW+tly0IvrhqT4u8enLGjLH3qeh85g19xY5rsAusfwTdn5lg==}
-
   '@floating-ui/core@1.6.4':
     resolution: {integrity: sha512-a4IowK4QkXl4SCWTGUR0INAfEOX3wtsYw3rKK5InQEHMGObkR8Xk44qYQD9P4r6HHw0iIfK6GUKECmY8sTkqRA==}
 
-  '@floating-ui/dom@1.6.5':
-    resolution: {integrity: sha512-Nsdud2X65Dz+1RHjAIP0t8z5e2ff/IRbei6BqFrl1urT8sDVzM1HMQ+R0XcU5ceRfyO3I6ayeqIfh+6Wb8LGTw==}
-
   '@floating-ui/dom@1.6.7':
     resolution: {integrity: sha512-wmVfPG5o2xnKDU4jx/m4w5qva9FWHcnZ8BvzEe90D/RpwsJaTAVYPEPdQ8sbr/N8zZTAHlZUTQdqg8ZUbzHmng==}
-
-  '@floating-ui/react-dom@2.1.0':
-    resolution: {integrity: sha512-lNzj5EQmEKn5FFKc04+zasr09h/uX8RtJRNj5gUXsSQIXHVWTVh+hVAg1vOMCexkX8EgvemMvIFpQfkosnVNyA==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
 
   '@floating-ui/react-dom@2.1.1':
     resolution: {integrity: sha512-4h84MJt3CHrtG18mGsXuLCHMrug49d7DFkU0RMIyshRveBeyV2hmV/pDaF2Uxtu8kgq5r46llp5E5FQiR0K2Yg==}
@@ -1001,14 +989,11 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/react@0.26.16':
-    resolution: {integrity: sha512-HEf43zxZNAI/E781QIVpYSF3K2VH4TTYZpqecjdsFkjsaU1EbaWcM++kw0HXFffj7gDUcBFevX8s0rQGQpxkow==}
+  '@floating-ui/react@0.26.19':
+    resolution: {integrity: sha512-Jk6zITdjjIvjO/VdQFvpRaD3qPwOHH6AoDHxjhpy+oK4KFgaSP871HYWUAPdnLmx1gQ+w/pB312co3tVml+BXA==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
-
-  '@floating-ui/utils@0.2.2':
-    resolution: {integrity: sha512-J4yDIIthosAsRZ5CPYP/jQvUAQtlZTTD/4suA08/FEnlxqW3sKS9iAhgsa9VYLZ6vDHn/ixJgIqRQPotoBjxIw==}
 
   '@floating-ui/utils@0.2.4':
     resolution: {integrity: sha512-dWO2pw8hhi+WrXq1YJy2yCuWoL20PddgGaqTgVe4cOS9Q6qklXCiA1tJEqX6BEwRNSCP84/afac9hd4MS+zEUA==}
@@ -1032,8 +1017,8 @@ packages:
       '@parcel/watcher':
         optional: true
 
-  '@graphql-codegen/client-preset@4.3.1':
-    resolution: {integrity: sha512-FHszBKhubbJkrZHwzUNfMUp9IkzufCfn/riTpIy5yA84Wq0AJSPFL7nWkG+h3azFPeznLfqo3KJmfzRb+xeFEA==}
+  '@graphql-codegen/client-preset@4.3.2':
+    resolution: {integrity: sha512-42jHyG6u2uFDIVNvzue8zR529aPT16EYIJQmvMk8XuYHo3PneQVlWmQ3j2fBy+RuWCBzpJKPKm7IGSKiw19nmg==}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
@@ -1042,8 +1027,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
-  '@graphql-codegen/gql-tag-operations@4.0.8':
-    resolution: {integrity: sha512-slCICQOFbMfdL7mAZ6XUiOhcJl0yOKfqHFiULIlQJKpo8ey6NHsrtc8Q02ZF417BfTfZ/Qj7rmXhkc/dwY94ag==}
+  '@graphql-codegen/gql-tag-operations@4.0.9':
+    resolution: {integrity: sha512-lVgu1HClel896HqZAEjynatlU6eJrYOw+rh05DPgM150xvmb7Gz5TnRHA2vfwlDNIXDaToAIpz5RFfkjjnYM1Q==}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
@@ -1057,23 +1042,23 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
-  '@graphql-codegen/typed-document-node@5.0.8':
-    resolution: {integrity: sha512-ImJd1KwS0vYZiPVZzs8EOZ79V96zN0p1A1MJNpk/8CiJWpIi4FupLLfTMMYq5Rr0AZET+O/A+udw4LDjDrAWvg==}
+  '@graphql-codegen/typed-document-node@5.0.9':
+    resolution: {integrity: sha512-Wx6fyA4vpfIbfNTMiWUECGnjqzKkJdEbZHxVMIegiCBPzBYPAJV4mZZcildLAfm2FtZcgW4YKtFoTbnbXqPB3w==}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
-  '@graphql-codegen/typescript-operations@4.2.2':
-    resolution: {integrity: sha512-8FJHIAubM4r9ElLuuDAKhdOjainSwRHEmGIrtEgEwHARKhMk1Ttj6bpOQDisYlbDl4ZTHWEJCdNa9o9rgcl+9g==}
+  '@graphql-codegen/typescript-operations@4.2.3':
+    resolution: {integrity: sha512-6z7avSSOr03l5SyKbeDs7MzRyGwnQFSCqQm8Om5wIuoIgXVu2gXRmcJAY/I7SLdAy9xbF4Sho7XNqieFM2CAFQ==}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
-  '@graphql-codegen/typescript@4.0.8':
-    resolution: {integrity: sha512-kYS3SjGNnC9vgFS8N3vaxzRFkdXX2umMi1SOpHjMFCPjMe8NR0uNdW4nP9T0YEq+DvWgj+XojjpFy2oyz9q12w==}
+  '@graphql-codegen/typescript@4.0.9':
+    resolution: {integrity: sha512-0O35DMR4d/ctuHL1Zo6mRUUzp0BoszKfeWsa6sCm/g70+S98+hEfTwZNDkQHylLxapiyjssF9uw/F+sXqejqLw==}
     peerDependencies:
       graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
-  '@graphql-codegen/visitor-plugin-common@5.3.0':
-    resolution: {integrity: sha512-+kUk7gRD/72Wfkjd7D96Lonh9k4lFw9d3O1+I07Jyja4QN9H42kdFEO0hM/b4Q9lLkI1yJ66Oym7lWz2Ikj3aw==}
+  '@graphql-codegen/visitor-plugin-common@5.3.1':
+    resolution: {integrity: sha512-MktoBdNZhSmugiDjmFl1z6rEUUaqyxtFJYWnDilE7onkPgyw//O0M+TuPBJPBWdyV6J2ond0Hdqtq+rkghgSIQ==}
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
 
@@ -1381,46 +1366,46 @@ packages:
   '@kamilkisiela/fast-url-parser@1.1.4':
     resolution: {integrity: sha512-gbkePEBupNydxCelHCESvFSFM8XPh1Zs/OAVRW/rKpEqPAl5PbOM90Si8mv9bvnR53uPD2s/FiRxdvSejpRJew==}
 
-  '@mantine/carousel@7.11.0':
-    resolution: {integrity: sha512-NVyChCtBfi8HOZkN6i9FPC2ZGkjjaNTtZDsbu22rYb3iHteKDS76Hp5hy04b2eLGwglHERCMeZu4g5Nf2ZSa/Q==}
+  '@mantine/carousel@7.11.1':
+    resolution: {integrity: sha512-w/hDZKkfamaiADhtWwo33ssrR8c6N9neVo5o5fep36k1R56+7+pFSm51g0/YgH8Y41GyLGzSVcGDvVGWOzg3+Q==}
     peerDependencies:
-      '@mantine/core': 7.11.0
-      '@mantine/hooks': 7.11.0
+      '@mantine/core': 7.11.1
+      '@mantine/hooks': 7.11.1
       embla-carousel-react: '>=7.0.0'
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mantine/core@7.11.0':
-    resolution: {integrity: sha512-yw2Llww9mw8rDWZtucdEuvkqqjHdreUibos7JCUpejL721FW1Tn9L91nsxO/YQFSS7jn4Q0CP+1YbQ/PMULmwA==}
+  '@mantine/core@7.11.1':
+    resolution: {integrity: sha512-qEwe5ijBe3MWOg4yerJ+HXMugIBtS1Bbqbdnfrg2cuHXr+2paqu8SQMzldtzqfiLsRajOtkokOkY67jUJOacCA==}
     peerDependencies:
-      '@mantine/hooks': 7.11.0
+      '@mantine/hooks': 7.11.1
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mantine/dates@7.11.0':
-    resolution: {integrity: sha512-4wKzOyOvDDh8/TV1SYGHDWydflweRiem4cJt3S49LO1Forpy2SiJ18Gn4ylGiqZdWxz1HY4Jb5kl7GAzxLD4tQ==}
+  '@mantine/dates@7.11.1':
+    resolution: {integrity: sha512-Km0WGaftHPK+oqCjvg2gdzxWsDS7seZdUx6VFQE0m35zouiSaRRFCrfo/NOKGS8ctKC/VsYdFQr+EkDxG+EEjg==}
     peerDependencies:
-      '@mantine/core': 7.11.0
-      '@mantine/hooks': 7.11.0
+      '@mantine/core': 7.11.1
+      '@mantine/hooks': 7.11.1
       dayjs: '>=1.0.0'
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mantine/hooks@7.11.0':
-    resolution: {integrity: sha512-T3472GhUXFhuhXUHlxjHv0wfb73lFyNuaw631c7Ddtgvewq0WKtNqYd7j/Zz/k02DuS3r0QXA7e12/XgqHBZjg==}
+  '@mantine/hooks@7.11.1':
+    resolution: {integrity: sha512-28WS/U6QL4jaIHf1uFpny5Tglu9MoyyM4bWLmIcAQHtOD3YHpuNvs9OTWLqKAQs6VN+kydlxvjvT+w1LBWEpQg==}
     peerDependencies:
       react: ^18.2.0
 
-  '@mantine/spotlight@7.11.0':
-    resolution: {integrity: sha512-MKlm/JApbs08MIcaGHjGCKWygNLLY8Gz35rfjps4PP2fFENpqwMi5MDONU6B7ZpLzX0GRo1wV15HWbuk8n9BEA==}
+  '@mantine/spotlight@7.11.1':
+    resolution: {integrity: sha512-4+zYEiui6BDQNuxKDrh9EH7U3ejzD6vesMhA8y0dhEIXk5fA1b0Xy0Hn/M4tfJuR1EGlicGmgLg/6Vpxp1ftRA==}
     peerDependencies:
-      '@mantine/core': 7.11.0
-      '@mantine/hooks': 7.11.0
+      '@mantine/core': 7.11.1
+      '@mantine/hooks': 7.11.1
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@mantine/store@7.11.0':
-    resolution: {integrity: sha512-zPmOpdFgvkUqYKSK7NNKbhgXsh2QPw51m3iypTaj0mw+rZbk3WSH9vZvaEx59X0QG+ahwUg2/HezbjfXFUbvrA==}
+  '@mantine/store@7.11.1':
+    resolution: {integrity: sha512-5xOompA7pADDvYlw6KEr0YIr95bdFI0W/KZizi8E/BKOLVUpku1UvqcClodq4U0Xjz5eZt/Jf3gEV9lyJbt8Zw==}
     peerDependencies:
       react: ^18.2.0
 
@@ -3482,13 +3467,13 @@ packages:
     resolution: {integrity: sha512-g3/hpwfujK5a4oVbaefoJxezLzsDgLcNJeITvC6yrfwYeT9la+edCK42j5QpEQSQCZgTKapXvnQIdgZwvRaZug==}
     hasBin: true
 
-  playwright-chromium@1.45.0:
-    resolution: {integrity: sha512-wKZ1NeRZSXp25bYL00X4REv/3mgZQ6QUC6OGTfYZY/YZyorbC/3Fr1WATCB/yF9SCd79gSWBzRCYv4Bf7DzW7g==}
+  playwright-chromium@1.45.1:
+    resolution: {integrity: sha512-BlYo+kuMg4Jo40Nems2GGVMWdKI2GeHL85D7pkwEW3aq6iEDW3XL7udmoNLOIfluSCKzVRJMB0ta1mt67B3tGA==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-core@1.45.0:
-    resolution: {integrity: sha512-lZmHlFQ0VYSpAs43dRq1/nJ9G/6SiTI7VPqidld9TDefL9tX87bTKExWZZUF5PeRyqtXqd8fQi2qmfIedkwsNQ==}
+  playwright-core@1.45.1:
+    resolution: {integrity: sha512-LF4CUUtrUu2TCpDw4mcrAIuYrEjVDfT1cHbJMfwnE2+1b8PZcFzPNgvZCvq2JfQ4aTjRCCHw5EJ2tmr2NSzdPg==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4186,20 +4171,15 @@ packages:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
     engines: {node: '>=10'}
 
-  type-fest@4.20.0:
-    resolution: {integrity: sha512-MBh+PHUHHisjXf4tlx0CFWoMdjx8zCMLJHOjnV1prABYZFHqtFOyauCIK2/7w4oIfwkF8iNhLtnJEfVY2vn3iw==}
+  type-fest@4.21.0:
+    resolution: {integrity: sha512-ADn2w7hVPcK6w1I0uWnM//y1rLXZhzB9mr0a3OirzclKF1Wp6VzevUmzz/NRAWunOT6E8HrnpGY7xOfc6K57fA==}
     engines: {node: '>=16'}
 
   types-ramda@0.30.0:
     resolution: {integrity: sha512-oVPw/KHB5M0Du0txTEKKM8xZOG9cZBRdCVXvwHYuNJUVkAiJ9oWyqkA+9Bj2gjMsHgkkhsYevobQBWs8I2/Xvw==}
 
-  typescript@5.4.5:
-    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
-  typescript@5.5.2:
-    resolution: {integrity: sha512-NcRtPEOsPFFWjobJEtfihkLCZCXZt/os3zf8nTxjVH3RvTSxjrCamJpbExGvYOF+tFHc3pA65qpdwPbzjohhew==}
+  typescript@5.5.3:
+    resolution: {integrity: sha512-/hreyEujaB0w76zKo6717l3L0o/qEUtRgdvUBvlkhoWeOVMjMuHNHk0BRBzikzuGDqNmPQbg5ifMEqsHLiIUcQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -5158,29 +5138,14 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@floating-ui/core@1.6.2':
-    dependencies:
-      '@floating-ui/utils': 0.2.2
-
   '@floating-ui/core@1.6.4':
     dependencies:
       '@floating-ui/utils': 0.2.4
-
-  '@floating-ui/dom@1.6.5':
-    dependencies:
-      '@floating-ui/core': 1.6.2
-      '@floating-ui/utils': 0.2.2
 
   '@floating-ui/dom@1.6.7':
     dependencies:
       '@floating-ui/core': 1.6.4
       '@floating-ui/utils': 0.2.4
-
-  '@floating-ui/react-dom@2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@floating-ui/dom': 1.6.5
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   '@floating-ui/react-dom@2.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -5188,15 +5153,13 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@floating-ui/react@0.26.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@floating-ui/react@0.26.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@floating-ui/react-dom': 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@floating-ui/utils': 0.2.2
+      '@floating-ui/react-dom': 2.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@floating-ui/utils': 0.2.4
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       tabbable: 6.2.0
-
-  '@floating-ui/utils@0.2.2': {}
 
   '@floating-ui/utils@0.2.4': {}
 
@@ -5213,12 +5176,12 @@ snapshots:
       graphql: 16.9.0
       tslib: 2.6.3
 
-  '@graphql-codegen/cli@5.0.2(@types/node@20.14.9)(graphql@16.9.0)(typescript@5.4.5)':
+  '@graphql-codegen/cli@5.0.2(@types/node@20.14.9)(graphql@16.9.0)(typescript@5.5.3)':
     dependencies:
       '@babel/generator': 7.24.7
       '@babel/template': 7.24.7
       '@babel/types': 7.24.7
-      '@graphql-codegen/client-preset': 4.3.1(graphql@16.9.0)
+      '@graphql-codegen/client-preset': 4.3.2(graphql@16.9.0)
       '@graphql-codegen/core': 4.0.2(graphql@16.9.0)
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.9.0)
       '@graphql-tools/apollo-engine-loader': 8.0.1(graphql@16.9.0)
@@ -5233,11 +5196,11 @@ snapshots:
       '@graphql-tools/utils': 10.2.1(graphql@16.9.0)
       '@whatwg-node/fetch': 0.8.8
       chalk: 4.1.2
-      cosmiconfig: 8.3.6(typescript@5.4.5)
+      cosmiconfig: 8.3.6(typescript@5.5.3)
       debounce: 1.2.1
       detect-indent: 6.1.0
       graphql: 16.9.0
-      graphql-config: 5.0.3(@types/node@20.14.9)(graphql@16.9.0)(typescript@5.4.5)
+      graphql-config: 5.0.3(@types/node@20.14.9)(graphql@16.9.0)(typescript@5.5.3)
       inquirer: 8.2.6
       is-glob: 4.0.3
       jiti: 1.21.6
@@ -5261,17 +5224,17 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@graphql-codegen/client-preset@4.3.1(graphql@16.9.0)':
+  '@graphql-codegen/client-preset@4.3.2(graphql@16.9.0)':
     dependencies:
       '@babel/helper-plugin-utils': 7.24.7
       '@babel/template': 7.24.7
       '@graphql-codegen/add': 5.0.3(graphql@16.9.0)
-      '@graphql-codegen/gql-tag-operations': 4.0.8(graphql@16.9.0)
+      '@graphql-codegen/gql-tag-operations': 4.0.9(graphql@16.9.0)
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.9.0)
-      '@graphql-codegen/typed-document-node': 5.0.8(graphql@16.9.0)
-      '@graphql-codegen/typescript': 4.0.8(graphql@16.9.0)
-      '@graphql-codegen/typescript-operations': 4.2.2(graphql@16.9.0)
-      '@graphql-codegen/visitor-plugin-common': 5.3.0(graphql@16.9.0)
+      '@graphql-codegen/typed-document-node': 5.0.9(graphql@16.9.0)
+      '@graphql-codegen/typescript': 4.0.9(graphql@16.9.0)
+      '@graphql-codegen/typescript-operations': 4.2.3(graphql@16.9.0)
+      '@graphql-codegen/visitor-plugin-common': 5.3.1(graphql@16.9.0)
       '@graphql-tools/documents': 1.0.1(graphql@16.9.0)
       '@graphql-tools/utils': 10.2.3(graphql@16.9.0)
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.9.0)
@@ -5289,10 +5252,10 @@ snapshots:
       graphql: 16.9.0
       tslib: 2.6.3
 
-  '@graphql-codegen/gql-tag-operations@4.0.8(graphql@16.9.0)':
+  '@graphql-codegen/gql-tag-operations@4.0.9(graphql@16.9.0)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.9.0)
-      '@graphql-codegen/visitor-plugin-common': 5.3.0(graphql@16.9.0)
+      '@graphql-codegen/visitor-plugin-common': 5.3.1(graphql@16.9.0)
       '@graphql-tools/utils': 10.2.3(graphql@16.9.0)
       auto-bind: 4.0.0
       graphql: 16.9.0
@@ -5318,10 +5281,10 @@ snapshots:
       graphql: 16.9.0
       tslib: 2.6.3
 
-  '@graphql-codegen/typed-document-node@5.0.8(graphql@16.9.0)':
+  '@graphql-codegen/typed-document-node@5.0.9(graphql@16.9.0)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.9.0)
-      '@graphql-codegen/visitor-plugin-common': 5.3.0(graphql@16.9.0)
+      '@graphql-codegen/visitor-plugin-common': 5.3.1(graphql@16.9.0)
       auto-bind: 4.0.0
       change-case-all: 1.0.15
       graphql: 16.9.0
@@ -5330,11 +5293,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript-operations@4.2.2(graphql@16.9.0)':
+  '@graphql-codegen/typescript-operations@4.2.3(graphql@16.9.0)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.9.0)
-      '@graphql-codegen/typescript': 4.0.8(graphql@16.9.0)
-      '@graphql-codegen/visitor-plugin-common': 5.3.0(graphql@16.9.0)
+      '@graphql-codegen/typescript': 4.0.9(graphql@16.9.0)
+      '@graphql-codegen/visitor-plugin-common': 5.3.1(graphql@16.9.0)
       auto-bind: 4.0.0
       graphql: 16.9.0
       tslib: 2.6.3
@@ -5342,11 +5305,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/typescript@4.0.8(graphql@16.9.0)':
+  '@graphql-codegen/typescript@4.0.9(graphql@16.9.0)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.9.0)
       '@graphql-codegen/schema-ast': 4.1.0(graphql@16.9.0)
-      '@graphql-codegen/visitor-plugin-common': 5.3.0(graphql@16.9.0)
+      '@graphql-codegen/visitor-plugin-common': 5.3.1(graphql@16.9.0)
       auto-bind: 4.0.0
       graphql: 16.9.0
       tslib: 2.6.3
@@ -5354,7 +5317,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@graphql-codegen/visitor-plugin-common@5.3.0(graphql@16.9.0)':
+  '@graphql-codegen/visitor-plugin-common@5.3.1(graphql@16.9.0)':
     dependencies:
       '@graphql-codegen/plugin-helpers': 5.0.4(graphql@16.9.0)
       '@graphql-tools/optimize': 2.0.0(graphql@16.9.0)
@@ -5751,50 +5714,50 @@ snapshots:
 
   '@kamilkisiela/fast-url-parser@1.1.4': {}
 
-  '@mantine/carousel@7.11.0(@mantine/core@7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.0(react@18.3.1))(embla-carousel-react@8.1.6(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mantine/carousel@7.11.1(@mantine/core@7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.1(react@18.3.1))(embla-carousel-react@8.1.6(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@mantine/core': 7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@mantine/hooks': 7.11.0(react@18.3.1)
+      '@mantine/core': 7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/hooks': 7.11.1(react@18.3.1)
       embla-carousel-react: 8.1.6(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@mantine/core@7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mantine/core@7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@floating-ui/react': 0.26.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@mantine/hooks': 7.11.0(react@18.3.1)
+      '@floating-ui/react': 0.26.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/hooks': 7.11.1(react@18.3.1)
       clsx: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-number-format: 5.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-remove-scroll: 2.5.10(@types/react@18.3.3)(react@18.3.1)
       react-textarea-autosize: 8.5.3(@types/react@18.3.3)(react@18.3.1)
-      type-fest: 4.20.0
+      type-fest: 4.21.0
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/dates@7.11.0(@mantine/core@7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.0(react@18.3.1))(dayjs@1.11.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mantine/dates@7.11.1(@mantine/core@7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.1(react@18.3.1))(dayjs@1.11.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@mantine/core': 7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@mantine/hooks': 7.11.0(react@18.3.1)
+      '@mantine/core': 7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/hooks': 7.11.1(react@18.3.1)
       clsx: 2.1.1
       dayjs: 1.11.11
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@mantine/hooks@7.11.0(react@18.3.1)':
+  '@mantine/hooks@7.11.1(react@18.3.1)':
     dependencies:
       react: 18.3.1
 
-  '@mantine/spotlight@7.11.0(@mantine/core@7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mantine/spotlight@7.11.1(@mantine/core@7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@7.11.1(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@mantine/core': 7.11.0(@mantine/hooks@7.11.0(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@mantine/hooks': 7.11.0(react@18.3.1)
-      '@mantine/store': 7.11.0(react@18.3.1)
+      '@mantine/core': 7.11.1(@mantine/hooks@7.11.1(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mantine/hooks': 7.11.1(react@18.3.1)
+      '@mantine/store': 7.11.1(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@mantine/store@7.11.0(react@18.3.1)':
+  '@mantine/store@7.11.1(react@18.3.1)':
     dependencies:
       react: 18.3.1
 
@@ -6578,14 +6541,14 @@ snapshots:
       path-type: 4.0.0
       yaml: 1.10.2
 
-  cosmiconfig@8.3.6(typescript@5.4.5):
+  cosmiconfig@8.3.6(typescript@5.5.3):
     dependencies:
       import-fresh: 3.3.0
       js-yaml: 4.1.0
       parse-json: 5.2.0
       path-type: 4.0.0
     optionalDependencies:
-      typescript: 5.4.5
+      typescript: 5.5.3
 
   cron-parser@4.9.0:
     dependencies:
@@ -7070,7 +7033,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  graphql-config@5.0.3(@types/node@20.14.9)(graphql@16.9.0)(typescript@5.4.5):
+  graphql-config@5.0.3(@types/node@20.14.9)(graphql@16.9.0)(typescript@5.5.3):
     dependencies:
       '@graphql-tools/graphql-file-loader': 8.0.1(graphql@16.9.0)
       '@graphql-tools/json-file-loader': 8.0.1(graphql@16.9.0)
@@ -7078,7 +7041,7 @@ snapshots:
       '@graphql-tools/merge': 9.0.4(graphql@16.9.0)
       '@graphql-tools/url-loader': 8.0.2(@types/node@20.14.9)(graphql@16.9.0)
       '@graphql-tools/utils': 10.2.1(graphql@16.9.0)
-      cosmiconfig: 8.3.6(typescript@5.4.5)
+      cosmiconfig: 8.3.6(typescript@5.5.3)
       graphql: 16.9.0
       jiti: 1.21.6
       minimatch: 4.2.3
@@ -8155,17 +8118,17 @@ snapshots:
       sonic-boom: 4.0.1
       thread-stream: 3.1.0
 
-  playwright-chromium@1.45.0:
+  playwright-chromium@1.45.1:
     dependencies:
-      playwright-core: 1.45.0
+      playwright-core: 1.45.1
 
-  playwright-core@1.45.0: {}
+  playwright-core@1.45.1: {}
 
-  playwright-extra@4.3.6(playwright-core@1.45.0):
+  playwright-extra@4.3.6(playwright-core@1.45.1):
     dependencies:
       debug: 4.3.5
     optionalDependencies:
-      playwright-core: 1.45.0
+      playwright-core: 1.45.1
     transitivePeerDependencies:
       - supports-color
 
@@ -8277,45 +8240,45 @@ snapshots:
 
   punycode@1.4.1: {}
 
-  puppeteer-extra-plugin-stealth@2.11.2(playwright-extra@4.3.6(playwright-core@1.45.0)):
+  puppeteer-extra-plugin-stealth@2.11.2(playwright-extra@4.3.6(playwright-core@1.45.1)):
     dependencies:
       debug: 4.3.5
-      puppeteer-extra-plugin: 3.2.3(playwright-extra@4.3.6(playwright-core@1.45.0))
-      puppeteer-extra-plugin-user-preferences: 2.4.1(playwright-extra@4.3.6(playwright-core@1.45.0))
+      puppeteer-extra-plugin: 3.2.3(playwright-extra@4.3.6(playwright-core@1.45.1))
+      puppeteer-extra-plugin-user-preferences: 2.4.1(playwright-extra@4.3.6(playwright-core@1.45.1))
     optionalDependencies:
-      playwright-extra: 4.3.6(playwright-core@1.45.0)
+      playwright-extra: 4.3.6(playwright-core@1.45.1)
     transitivePeerDependencies:
       - supports-color
 
-  puppeteer-extra-plugin-user-data-dir@2.4.1(playwright-extra@4.3.6(playwright-core@1.45.0)):
+  puppeteer-extra-plugin-user-data-dir@2.4.1(playwright-extra@4.3.6(playwright-core@1.45.1)):
     dependencies:
       debug: 4.3.5
       fs-extra: 10.1.0
-      puppeteer-extra-plugin: 3.2.3(playwright-extra@4.3.6(playwright-core@1.45.0))
+      puppeteer-extra-plugin: 3.2.3(playwright-extra@4.3.6(playwright-core@1.45.1))
       rimraf: 3.0.2
     optionalDependencies:
-      playwright-extra: 4.3.6(playwright-core@1.45.0)
+      playwright-extra: 4.3.6(playwright-core@1.45.1)
     transitivePeerDependencies:
       - supports-color
 
-  puppeteer-extra-plugin-user-preferences@2.4.1(playwright-extra@4.3.6(playwright-core@1.45.0)):
+  puppeteer-extra-plugin-user-preferences@2.4.1(playwright-extra@4.3.6(playwright-core@1.45.1)):
     dependencies:
       debug: 4.3.5
       deepmerge: 4.3.1
-      puppeteer-extra-plugin: 3.2.3(playwright-extra@4.3.6(playwright-core@1.45.0))
-      puppeteer-extra-plugin-user-data-dir: 2.4.1(playwright-extra@4.3.6(playwright-core@1.45.0))
+      puppeteer-extra-plugin: 3.2.3(playwright-extra@4.3.6(playwright-core@1.45.1))
+      puppeteer-extra-plugin-user-data-dir: 2.4.1(playwright-extra@4.3.6(playwright-core@1.45.1))
     optionalDependencies:
-      playwright-extra: 4.3.6(playwright-core@1.45.0)
+      playwright-extra: 4.3.6(playwright-core@1.45.1)
     transitivePeerDependencies:
       - supports-color
 
-  puppeteer-extra-plugin@3.2.3(playwright-extra@4.3.6(playwright-core@1.45.0)):
+  puppeteer-extra-plugin@3.2.3(playwright-extra@4.3.6(playwright-core@1.45.1)):
     dependencies:
       '@types/debug': 4.1.12
       debug: 4.3.5
       merge-deep: 3.0.3
     optionalDependencies:
-      playwright-extra: 4.3.6(playwright-core@1.45.0)
+      playwright-extra: 4.3.6(playwright-core@1.45.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -8864,15 +8827,13 @@ snapshots:
 
   type-fest@0.21.3: {}
 
-  type-fest@4.20.0: {}
+  type-fest@4.21.0: {}
 
   types-ramda@0.30.0:
     dependencies:
       ts-toolbelt: 9.6.0
 
-  typescript@5.4.5: {}
-
-  typescript@5.5.2: {}
+  typescript@5.5.3: {}
 
   ua-parser-js@1.0.38: {}
 

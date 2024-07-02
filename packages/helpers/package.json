@@ -44,7 +44,7 @@
 		"@types/node": "^20.14.9",
 		"@types/ramda": "^0.30.0",
 		"date-fns": "^3.6.0",
-		"typescript": "^5.4.5"
+		"typescript": "^5.5.3"
 	},
 	"dependencies": {
 		"@luferro/cache": "workspace:^",
