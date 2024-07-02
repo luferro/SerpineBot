@@ -25,7 +25,8 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const receiver = queue.connection?.receiver;
 	if (!receiver) throw new Error(t("errors.voice.receiver.none"));
 
-	const isListening = receiver.speaking.listeners("start").length > 0;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	const isListening = (receiver.speaking as any).listeners("start").length > 0;
 	if (isListening) throw new Error(t("errors.voice.listening"));
 
 	receiver.speaking.on("start", (userId) =>
