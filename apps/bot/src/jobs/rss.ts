@@ -1,6 +1,6 @@
-import { FeedType, type Options } from "@luferro/database";
 import { truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
+import { FeedType, type Options } from "~/structures/Database.js";
 import type { JobData, JobExecute } from "~/types/bot.js";
 
 type Feeds = { url: string; options: Pick<Options, "image"> }[];

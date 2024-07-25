@@ -1,7 +1,7 @@
-import { FeedType } from "@luferro/database";
 import { enumToArray } from "@luferro/helpers/transform";
 import { ChannelType, EmbedBuilder, SlashCommandSubcommandBuilder, type TextChannel } from "discord.js";
 import { t } from "i18next";
+import { FeedType } from "~/structures/Database.js";
 import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()

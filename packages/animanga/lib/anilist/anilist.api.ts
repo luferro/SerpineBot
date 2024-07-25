@@ -1,45 +1,73 @@
 import { endOfWeek, getWeek, isMonday, isSunday, startOfWeek } from "@luferro/helpers/datetime";
+import { type Logger, configureLogger } from "@luferro/helpers/logger";
 import { type Client, cacheExchange, createClient, fetchExchange } from "@urql/core";
 import { requestPolicyExchange } from "@urql/exchange-request-policy";
 import {
 	type AiringSchedule,
 	type BrowseMediaQueryVariables,
 	type Character,
+	type DeleteMediaMutationVariables,
+	type GetActiveMediaListCollectionQueryVariables,
+	type GetMediaListCollectionQueryVariables,
 	type Media,
+	type MediaList,
+	MediaListStatus,
 	MediaSort,
+	type MediaTag,
 	type MediaType,
 	type PageInfo,
+	type SaveMediaMutationVariables,
 	type SearchQueryVariables,
 	type Staff,
 	type Studio,
+	type ToggleFavoriteMutationVariables,
+	type User,
 } from "./__generated__/graphql.js";
 import { AnimeScheduleApi } from "./anime-schedule/anime-schedule.api.js";
+import { DELETE_MEDIA, SAVE_MEDIA, TOGGLE_FAVORITE } from "./graphql/mutations/media.js";
 import { GET_CHARACTER_BY_ID } from "./graphql/queries/character.js";
-import { BROWSE_MEDIA, GET_CHARACTERS, GET_MEDIA, GET_RECOMMENDATIONS, GET_STAFF } from "./graphql/queries/media.js";
+import {
+	BROWSE_MEDIA,
+	GET_ACTIVE_MEDIA_LIST_COLLECTION,
+	GET_CHARACTERS,
+	GET_MEDIA,
+	GET_MEDIA_LIST_COLLECTION,
+	GET_RECOMMENDATIONS,
+	GET_STAFF,
+} from "./graphql/queries/media.js";
 import { GET_SCHEDULE } from "./graphql/queries/schedule.js";
-import { SEARCH } from "./graphql/queries/search.js";
+import { GET_GENRES_AND_TAGS, SEARCH } from "./graphql/queries/search.js";
 import { GET_STAFF_BY_ID } from "./graphql/queries/staff.js";
 import {
 	extractCharacter,
 	extractCharacters,
 	extractMediaFields,
+	extractMediaList,
 	extractStaff,
 	extractStaffMember,
 	extractStreams,
 	extractStudio,
 	extractStudios,
 	extractTrackers,
+	extractUser,
 } from "./utils/extractors.js";
 
 export * from "./anilist.types.js";
+
+type Options = {
+	ttl?: number;
+	debug?: boolean;
+};
 
 export class AniListApi {
 	static BASE_API_URL = "https://graphql.anilist.co";
 
 	private client: Client;
+	// private logger: Logger;
 	private animeScheduleApi?: AnimeScheduleApi;
 
-	constructor(ttl = 1000 * 60 * 60) {
+	constructor({ ttl = 1000 * 60 * 60, debug = false }: Options = {}) {
+		// this.logger = configureLogger({ level: debug ? "debug" : "info" });
 		this.client = createClient({
 			url: AniListApi.BASE_API_URL,
 			exchanges: [requestPolicyExchange({ ttl }), cacheExchange, fetchExchange],
@@ -52,6 +80,19 @@ export class AniListApi {
 	withAnimeScheduleApi(apiKey: string) {
 		this.animeScheduleApi = new AnimeScheduleApi(apiKey);
 		return this;
+	}
+
+	getAuthorizationUrl(clientId: string) {
+		return `https://anilist.co/api/v2/oauth/authorize?client_id=${clientId}&response_type=token`;
+	}
+
+	async getGenresAndTags() {
+		const { data, operation } = await this.client.query(GET_GENRES_AND_TAGS, {});
+		// this.logger.debug(operation);
+
+		const genres = (data?.GenreCollection ?? []).filter((genre): genre is string => !!genre);
+		const tags = (data?.MediaTagCollection ?? []).filter((tag): tag is MediaTag => !!tag);
+		return { genres, tags };
 	}
 
 	async search(query: string, options: Omit<SearchQueryVariables, "query"> = {}) {
@@ -84,9 +125,10 @@ export class AniListApi {
 
 	async browse({ page = 1, ...options }: BrowseMediaQueryVariables) {
 		const { data, operation } = await this.client.query(BROWSE_MEDIA, { page, ...options });
-		console.log(operation.context.requestPolicy);
+		// this.logger.debug(operation);
+
 		const media = (data?.Page?.media ?? []) as Media[];
-		const pageInfo = data?.Page?.pageInfo as Omit<PageInfo, "__typename">;
+		const pageInfo = data?.Page?.pageInfo as PageInfo;
 
 		return {
 			pageInfo,
@@ -98,9 +140,14 @@ export class AniListApi {
 		};
 	}
 
+	async getTrendingMedia() {
+		return this.browse({ page: 1, sort: [MediaSort.TrendingDesc, MediaSort.PopularityDesc] });
+	}
+
 	async getMediaById(id: string, type: MediaType) {
 		const { data, operation } = await this.client.query(GET_MEDIA, { type, id: Number(id) });
-		console.log(operation.context.requestPolicy);
+		// this.logger.debug(operation);
+
 		const media = data?.Media as Media;
 
 		const relations = (media?.relations?.edges ?? [])
@@ -122,6 +169,51 @@ export class AniListApi {
 		};
 	}
 
+	async getMediaListCollection(options: GetMediaListCollectionQueryVariables = {}) {
+		const { data } = await this.client.query(GET_MEDIA_LIST_COLLECTION, options);
+		const user = extractUser(data?.MediaListCollection?.user as User);
+		const lists = data?.MediaListCollection?.lists?.map((list) => ({
+			name: list?.name ?? "",
+			isCustom: Boolean(list?.isCustomList),
+			isCompletedList: Boolean(list?.isCompletedList),
+			entries: list?.entries?.map((entry) => extractMediaList(entry as MediaList)),
+		}));
+		return { user, lists };
+	}
+
+	async getActiveMediaListCollection(options: GetActiveMediaListCollectionQueryVariables = {}) {
+		const { data } = await this.client.query(GET_ACTIVE_MEDIA_LIST_COLLECTION, options);
+		const pageInfo = data?.planning?.pageInfo as PageInfo;
+		const list = (data?.planning?.mediaList ?? []).map((entry) => extractMediaList(entry as MediaList));
+
+		return { pageInfo, list };
+	}
+
+	async saveMedia(authorization: string, id: string, options: Omit<SaveMediaMutationVariables, "mediaId"> = {}) {
+		const { data } = await this.client.query(
+			SAVE_MEDIA,
+			{ mediaId: Number(id), ...options },
+			{ fetchOptions: { headers: { authorization } } },
+		);
+		return data?.SaveMediaListEntry;
+	}
+
+	async deleteMedia(authorization: string, id: string, options: Omit<DeleteMediaMutationVariables, "mediaId"> = {}) {
+		const { data } = await this.client.query(
+			DELETE_MEDIA,
+			{ mediaId: Number(id), ...options },
+			{ fetchOptions: { headers: { authorization } } },
+		);
+		return data?.DeleteMediaListEntry;
+	}
+
+	async toggleFavorite(authorization: string, options: Omit<ToggleFavoriteMutationVariables, "mediaId"> = {}) {
+		const { data } = await this.client.query(TOGGLE_FAVORITE, options, {
+			fetchOptions: { headers: { authorization } },
+		});
+		return data?.ToggleFavourite;
+	}
+
 	async getCharacterById(id: string, { page = 1 } = {}) {
 		const { data, operation } = await this.client.query(GET_CHARACTER_BY_ID, {
 			page,
@@ -129,10 +221,10 @@ export class AniListApi {
 			sort: MediaSort.PopularityDesc,
 			withRoles: true,
 		});
-		console.log(operation.context.requestPolicy);
+		// this.logger.debug(operation);
 
 		const character = data?.Character as Character;
-		const pageInfo = data?.Character?.media?.pageInfo as Omit<PageInfo, "__typename">;
+		const pageInfo = data?.Character?.media?.pageInfo as PageInfo;
 
 		const media = (data?.Character?.media?.edges ?? [])
 			.map((edge) => {
@@ -154,17 +246,19 @@ export class AniListApi {
 
 	async getCharacters(id: string, { page = 1 } = {}) {
 		const { data, operation } = await this.client.query(GET_CHARACTERS, { page, id: Number(id) });
-		console.log(operation.context.requestPolicy);
+		// this.logger.debug(operation);
+
 		const media = data?.Media as Media;
-		const pageInfo = data?.Media?.characters?.pageInfo as Omit<PageInfo, "__typename">;
+		const pageInfo = data?.Media?.characters?.pageInfo as PageInfo;
 		return { pageInfo, characters: extractCharacters(media) };
 	}
 
 	async getStaff(id: string, { page = 1 } = {}) {
 		const { data, operation } = await this.client.query(GET_STAFF, { page, id: Number(id) });
-		console.log(operation.context.requestPolicy);
+		// this.logger.debug(operation);
+
 		const media = data?.Media as Media;
-		const pageInfo = data?.Media?.staff?.pageInfo as Omit<PageInfo, "__typename">;
+		const pageInfo = data?.Media?.staff?.pageInfo as PageInfo;
 		return { pageInfo, staff: extractStaff(media) };
 	}
 
@@ -177,7 +271,7 @@ export class AniListApi {
 			withCharacterRoles: true,
 			withStaffRoles: true,
 		});
-		console.log(operation.context.requestPolicy);
+		// this.logger.debug(operation);
 
 		const staff = data?.Staff as Staff;
 
@@ -205,16 +299,17 @@ export class AniListApi {
 
 		return {
 			staff: extractStaffMember(staff),
-			voiceActing: { pageInfo: staff?.characterMedia?.pageInfo as Omit<PageInfo, "__typename">, characters },
-			production: { pageInfo: staff?.staffMedia?.pageInfo as Omit<PageInfo, "__typename">, roles },
+			voiceActing: { pageInfo: staff?.characterMedia?.pageInfo as PageInfo, characters },
+			production: { pageInfo: staff?.staffMedia?.pageInfo as PageInfo, roles },
 		};
 	}
 
 	async getRecommendations(id: string, { page = 1 } = {}) {
 		const { data, operation } = await this.client.query(GET_RECOMMENDATIONS, { page, id: Number(id) });
-		console.log(operation.context.requestPolicy);
+		// this.logger.debug(operation);
+
 		const media = data?.Media as Media;
-		const pageInfo = data?.Media?.recommendations?.pageInfo as Omit<PageInfo, "__typename">;
+		const pageInfo = data?.Media?.recommendations?.pageInfo as PageInfo;
 
 		const recommendations = (media?.recommendations?.nodes ?? [])
 			.map((node) => {
@@ -242,7 +337,8 @@ export class AniListApi {
 				start: Math.floor(start / 1000),
 				end: Math.floor(end / 1000),
 			});
-			console.log(operation.context.requestPolicy);
+			// this.logger.debug(operation);
+
 			const pageResult = data?.Page;
 			const airingSchedules = (pageResult?.airingSchedules ?? []) as (AiringSchedule & { media: Media })[];
 
@@ -320,14 +416,8 @@ export class AniListApi {
 		const groupedSchedule = new Map<number, typeof schedule>();
 		for (const anime of schedule) {
 			const dayOfTheWeek = new Date(anime.airing.default.at).getUTCDay();
-
 			const storedEntries = groupedSchedule.get(dayOfTheWeek);
-			if (!storedEntries) {
-				groupedSchedule.set(dayOfTheWeek, [anime]);
-				continue;
-			}
-
-			groupedSchedule.set(dayOfTheWeek, storedEntries.concat(anime));
+			groupedSchedule.set(dayOfTheWeek, storedEntries ? storedEntries.concat(anime) : [anime]);
 		}
 
 		return groupedSchedule;

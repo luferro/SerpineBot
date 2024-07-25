@@ -6,6 +6,9 @@ node_modules
 # testing
 coverage
 
+# generated code
+__generated__
+
 # production
 dist
 .next

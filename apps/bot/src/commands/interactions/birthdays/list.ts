@@ -1,8 +1,8 @@
-import type { Birthday } from "@luferro/database";
 import { formatDate } from "@luferro/helpers/datetime";
 import { capitalize } from "@luferro/helpers/transform";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
+import type { Birthday } from "~/structures/Database.js";
 import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()

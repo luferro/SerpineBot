@@ -53,7 +53,7 @@ export const GET_MEDIA = graphql(`
       characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
         ...CharacterConnectionFields
       }
-      staff(perPage: 8, sort: [RELEVANCE, ID]) {
+      staff(perPage: 6, sort: [RELEVANCE, ID]) {
         ...StaffConnectionFields
       }
       studios {
@@ -96,6 +96,66 @@ export const GET_MEDIA = graphql(`
           score
           amount
         }
+      }
+    }
+  }
+`);
+
+export const GET_MEDIA_LIST_COLLECTION = graphql(`
+  query getMediaListCollection ($userId: Int, $type: MediaType) {
+    MediaListCollection(userId: $userId, type: $type) {
+      lists {
+        name
+        isCustomList
+        isCompletedList: isSplitCompletedList
+        entries {
+          ...MediaListEntry
+        }
+      }
+      user {
+        id
+        name
+        avatar {
+          large
+        }
+        mediaListOptions {
+          scoreFormat
+          rowOrder
+          animeList {
+            sectionOrder
+            customLists
+            splitCompletedSectionByFormat
+            theme
+          }
+          mangaList {
+            sectionOrder
+            customLists
+            splitCompletedSectionByFormat
+            theme
+          }
+        }
+      }
+    }
+  }
+`);
+
+export const GET_ACTIVE_MEDIA_LIST_COLLECTION = graphql(`
+  query getActiveMediaListCollection ($userId: Int, $type: MediaType, $status: MediaListStatus, $perPage: Int) {
+    planning: Page(perPage: $perPage) {
+      pageInfo {
+        total
+        perPage
+        currentPage
+        lastPage
+        hasNextPage
+      }
+      mediaList(
+        userId: $userId
+        type: $type
+        status: $status
+        sort: UPDATED_TIME_DESC
+      ) {
+        ...MediaListEntry
       }
     }
   }

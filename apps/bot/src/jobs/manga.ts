@@ -1,8 +1,8 @@
-import { FeedType } from "@luferro/database";
 import { getPrevious } from "@luferro/helpers/datetime";
 import { truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
+import { FeedType } from "~/structures/Database.js";
 import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 */10 * * * *" };

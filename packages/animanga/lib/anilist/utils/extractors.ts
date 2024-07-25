@@ -4,10 +4,21 @@ import {
 	ExternalLinkType,
 	type Media,
 	type MediaExternalLink,
+	type MediaList,
 	type MediaRank,
 	type Staff,
 	type Studio,
+	type User,
 } from "../__generated__/graphql.js";
+
+export function extractUser(user: User) {
+	return {
+		id: user.id.toString(),
+		name: user.name,
+		avatar: user.avatar ?? null,
+		bannerImage: user.bannerImage ?? null,
+	};
+}
 
 export function extractMediaFields(media: Media) {
 	const formatRanking = (ranking: MediaRank) => {
@@ -65,9 +76,23 @@ export function extractMediaFields(media: Media) {
 	};
 }
 
+export function extractMediaList(mediaList: MediaList) {
+	return {
+		id: mediaList.id.toString(),
+		status: mediaList.status!,
+		priority: mediaList.priority ?? 0,
+		progress: mediaList.progress ?? 0,
+		progressVolumes: mediaList.progressVolumes ?? null,
+		repeatCount: mediaList.repeat ?? 0,
+		media: extractMediaFields(mediaList.media!),
+		startedAt: mediaList.startedAt ?? null,
+		completedAt: mediaList.completedAt ?? null,
+	};
+}
+
 export function extractCharacter(character: Character) {
 	return {
-		id: character.id,
+		id: character.id.toString(),
 		name: character.name!.full!,
 		image: character.image?.large ?? null,
 		description: character.description ?? null,
@@ -89,7 +114,7 @@ export function extractCharacters(media: Media) {
 				.map((voiceActor) => {
 					if (!voiceActor?.name) return;
 					return {
-						id: voiceActor.id,
+						id: voiceActor.id.toString(),
 						name: voiceActor.name.full!,
 						language: voiceActor.languageV2!,
 						image: voiceActor.image?.large ?? null,
@@ -103,7 +128,7 @@ export function extractCharacters(media: Media) {
 
 export function extractStaffMember(staff: Staff) {
 	return {
-		id: staff.id,
+		id: staff.id.toString(),
 		name: staff.name!.full!,
 		language: staff.languageV2!,
 		image: staff.image?.large ?? null,
@@ -133,7 +158,7 @@ export function extractStaff(media: Media) {
 }
 
 export function extractStudio(studio: Studio) {
-	return { id: studio.id, name: studio.name };
+	return { id: studio.id.toString(), name: studio.name };
 }
 
 export function extractStudios(media: Media) {

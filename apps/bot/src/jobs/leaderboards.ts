@@ -1,9 +1,9 @@
-import { FeedType } from "@luferro/database";
 import { formatDate } from "@luferro/helpers/datetime";
 import { enumToArray } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
 import { LeaderboardType, getLeaderboard, resetLeaderboard } from "~/helpers/leaderboards.js";
+import { FeedType } from "~/structures/Database.js";
 import type { JobData, JobExecute } from "~/types/bot.js";
 
 export const data: JobData = { schedule: "0 0 0 * * 0" };

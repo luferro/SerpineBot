@@ -14,14 +14,14 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.14.9",
-		"typescript": "^5.5.3"
+		"@types/node": "^20.14.12",
+		"typescript": "^5.5.4"
 	},
 	"dependencies": {
 		"@luferro/helpers": "workspace:^",
 		"cheerio": "^1.0.0-rc.12",
 		"header-generator": "^2.1.52",
-		"playwright-chromium": "^1.45.1",
+		"playwright-chromium": "^1.45.3",
 		"playwright-extra": "^4.3.6",
 		"puppeteer-extra-plugin-stealth": "^2.11.2",
 		"rss-parser": "^3.13.0",

@@ -1,8 +1,8 @@
-import type { SteamWishlistEntry } from "@luferro/database";
 import { formatCurrency } from "@luferro/helpers/currency";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
 import type { Bot } from "~/structures/Bot.js";
+import type { SteamWishlistEntry } from "~/structures/Database.js";
 import type { JobData, JobExecute } from "~/types/bot.js";
 
 type Alert = "sale" | "released" | "addedTo" | "removedFrom";

@@ -9,7 +9,7 @@ export class RedisCache {
 		this.client = new Redis(uri);
 	}
 
-	withExpirySeconds(expirySeconds: number) {
+	expireIn(expirySeconds: number) {
 		this.expirySeconds = expirySeconds;
 		return this;
 	}

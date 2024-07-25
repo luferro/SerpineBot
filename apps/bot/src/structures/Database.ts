@@ -1,6 +1,7 @@
-import { type Feed, type FeedType, Prisma, type Subscription } from "@prisma/client";
+import { PrismaClient } from "../../prisma/__generated__/index.js";
+import { type Feed, type FeedType, Prisma, type Subscription } from "../../prisma/__generated__/index.js";
 
-export const extension = Prisma.defineExtension((client) => {
+const extension = Prisma.defineExtension((client) => {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const getContext = <T>(that: T) => Prisma.getExtensionContext(that) as any;
 
@@ -78,3 +79,17 @@ export const extension = Prisma.defineExtension((client) => {
 		},
 	});
 });
+
+export * from "../../prisma/__generated__/index.js";
+
+export type ExtendedDatabase = ReturnType<Database["withExtensions"]>;
+
+export class Database extends PrismaClient {
+	constructor(url: string) {
+		super({ datasources: { db: { url } } });
+	}
+
+	withExtensions() {
+		return this.$extends(extension);
+	}
+}

@@ -1,7 +1,7 @@
-import { FeedType } from "@luferro/database";
 import { formatDate } from "@luferro/helpers/datetime";
 import { BaseGuildVoiceChannel, EmbedBuilder, type GuildScheduledEvent } from "discord.js";
 import { t } from "i18next";
+import { FeedType } from "~/structures/Database.js";
 import type { EventData, EventExecute } from "~/types/bot.js";
 
 type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent: GuildScheduledEvent];

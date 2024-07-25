@@ -2,7 +2,6 @@ import path from "node:path";
 import { AniListApi, MangadexApi } from "@luferro/animanga";
 import { RedisCache } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
-import { DatabaseClient, type ExtendedDatabaseClient, type Feed, type FeedType } from "@luferro/database";
 import { TMDBApi } from "@luferro/entertainment";
 import { GamingApi } from "@luferro/gaming";
 import { type Logger, configureLogger } from "@luferro/helpers/logger";
@@ -27,6 +26,7 @@ import Backend from "i18next-fs-backend";
 import * as CommandsHandler from "~/handlers/commands.js";
 import * as EventsHandler from "~/handlers/events.js";
 import * as JobsHandler from "~/handlers/jobs.js";
+import { Database, type ExtendedDatabase, type Feed, type FeedType } from "~/structures/Database.js";
 import { Player } from "~/structures/Player.js";
 import type { Api, Commands, Event, Job, Speech } from "~/types/bot.js";
 
@@ -48,7 +48,7 @@ export class Bot extends Client<boolean> {
 	config: Config;
 	logger: Logger;
 	cache: RedisCache;
-	db: ExtendedDatabaseClient;
+	db: ExtendedDatabase;
 	scraper: Scraper;
 	player: Player;
 	api: Api;
@@ -59,7 +59,7 @@ export class Bot extends Client<boolean> {
 		this.config = loadConfig();
 		this.logger = configureLogger();
 		this.cache = new RedisCache(this.config.get("services.redis.uri"));
-		this.db = new DatabaseClient(this.config.get("services.mongodb.uri")).withExtensions();
+		this.db = new Database(this.config.get("services.mongodb.uri")).withExtensions();
 		this.scraper = new Scraper();
 		this.player = new Player(this);
 		this.api = this.initializeApi();

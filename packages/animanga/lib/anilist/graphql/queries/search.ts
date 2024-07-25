@@ -80,3 +80,15 @@ export const SEARCH = graphql(`
   }
 
 `);
+
+export const GET_GENRES_AND_TAGS = graphql(`
+  query getGenresAndTags {
+    GenreCollection
+    MediaTagCollection {
+      name
+      description
+      category
+      isAdult
+    }
+  }
+`);
