@@ -131,13 +131,14 @@ export class Bot extends Client<boolean> {
 		this.logger.info(`Bot | Starting in ${this.config.runtimeEnvironment}`);
 
 		try {
-			i18next.use(Backend).init({
+			await this.login(this.config.get("client.token"));
+			await this.player.loadDependencies();
+			await i18next.use(Backend).init({
 				fallbackLng: "en-US",
 				backend: { loadPath: path.join(import.meta.dirname, "../locales/{{lng}}.json") },
 				interpolation: { escapeValue: false },
 			});
 
-			await this.login(this.config.get("client.token"));
 			await JobsHandler.registerJobs(this);
 			await EventsHandler.registerEvents(this);
 			await CommandsHandler.registerCommands(this);
