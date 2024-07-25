@@ -8,6 +8,7 @@ RUN turbo prune --scope=bot --docker
 FROM node:lts AS installer
 WORKDIR /usr/src/app
 RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
+COPY --from=builder /usr/src/app/prisma/ .
 COPY --from=builder /usr/src/app/tsconfig.json .
 COPY --from=builder /usr/src/app/out/json/ .
 COPY --from=builder /usr/src/app/out/pnpm-lock.yaml ./pnpm-lock.yaml
