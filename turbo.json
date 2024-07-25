@@ -10,7 +10,7 @@
 			"persistent": false
 		},
 		"build": {
-			"dependsOn": ["db:generate", "gql:generate"],
+			"dependsOn": ["db:generate", "gql:generate", "^build"],
 			"outputs": ["dist/**", ".next/**"]
 		},
 		"db:validate": {
