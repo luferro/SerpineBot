@@ -47,6 +47,6 @@
 		"prisma": "^5.17.0",
 		"tsc-alias": "^1.8.10",
 		"typescript": "^5.5.4",
-		"youtube-ext": "^1.1.25"
+		"ytdl-core": "4.11.5"
 	}
 }

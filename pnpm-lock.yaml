@@ -93,9 +93,9 @@ importers:
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
-      youtube-ext:
-        specifier: ^1.1.25
-        version: 1.1.25
+      ytdl-core:
+        specifier: 4.11.5
+        version: 4.11.5
 
   apps/docs:
     dependencies:
@@ -4531,9 +4531,6 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-
-  youtube-ext@1.1.25:
-    resolution: {integrity: sha512-/TV40aXAQv7hKdwOPOjPKD02kJbfkuwu8IFj9F5OLAetM6NiJ0Sk/sh2IsoL236R1UZgGI9sjcLvKhecYSW5tA==}
 
   youtube-sr@4.3.11:
     resolution: {integrity: sha512-3oHiS2x7PpMiDRW7Cq8nz1bkAIBOJHoOwkPl/oncM/+A9/3xxMDgMLGW2dsBEP1DHFyRXYTVABgfbdwHF8sXXQ==}
@@ -9262,10 +9259,6 @@ snapshots:
       yargs-parser: 21.1.1
 
   yocto-queue@0.1.0: {}
-
-  youtube-ext@1.1.25:
-    dependencies:
-      undici: 6.19.4
 
   youtube-sr@4.3.11: {}
 
