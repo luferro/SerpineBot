@@ -1,5 +1,6 @@
 import type { Logger } from "@luferro/helpers/logger";
 import { Player as DiscordPlayer, type GuildNodeCreateOptions } from "discord-player";
+import { YoutubeiExtractor } from "discord-player-youtubei";
 import type { VoiceChannel } from "discord.js";
 import type { Bot } from "~/structures/Bot.js";
 
@@ -22,6 +23,7 @@ export class Player extends DiscordPlayer {
 
 	async loadDependencies() {
 		await this.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
+		await this.extractors.register(YoutubeiExtractor, {});
 		this.logger.debug(this.scanDeps());
 	}
 }
