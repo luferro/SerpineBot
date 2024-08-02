@@ -22,11 +22,11 @@
 	},
 	"dependencies": {
 		"@luferro/config": "workspace:^",
-		"@mui/icons-material": "^5.16.5",
-		"@mui/material": "^5.16.5",
+		"@mui/icons-material": "^5.16.6",
+		"@mui/material": "^5.16.6",
 		"discord.js": "^14.15.3",
 		"html-react-parser": "^5.1.12",
-		"marked": "^12.0.2",
+		"marked": "^13.0.3",
 		"next": "14.2.5",
 		"react": "18.3.1"
 	}

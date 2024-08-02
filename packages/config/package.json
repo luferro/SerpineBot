@@ -13,7 +13,7 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/nconf": "^0.10.6",
+		"@types/nconf": "^0.10.7",
 		"@types/node": "^20.14.12",
 		"typescript": "^5.5.4"
 	},
