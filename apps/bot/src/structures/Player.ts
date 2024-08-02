@@ -21,9 +21,9 @@ export class Player extends DiscordPlayer {
 		this.logger = client.logger;
 	}
 
-	async loadDependencies() {
+	async loadDependencies(authentication: string) {
 		await this.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
-		await this.extractors.register(YoutubeiExtractor, {});
+		await this.extractors.register(YoutubeiExtractor, { authentication });
 		this.logger.debug(this.scanDeps());
 	}
 }

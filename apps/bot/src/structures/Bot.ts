@@ -133,7 +133,7 @@ export class Bot extends Client<boolean> {
 
 		try {
 			await this.login(this.config.get("client.token"));
-			await this.player.loadDependencies();
+			await this.player.loadDependencies(this.config.get("services.player.authentication"));
 			await i18next.use(Backend).init({
 				fallbackLng: "en-US",
 				backend: { loadPath: path.join(import.meta.dirname, "../locales/{{lng}}.json") },
