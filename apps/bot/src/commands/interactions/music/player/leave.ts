@@ -3,8 +3,8 @@ import { t } from "i18next";
 import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
-	.setName(t("interactions.music.player.destroy.name"))
-	.setDescription(t("interactions.music.player.destroy.description"));
+	.setName(t("interactions.music.player.leave.name"))
+	.setDescription(t("interactions.music.player.leave.description"));
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
 	const queue = client.player.nodes.get(interaction.guild.id);
@@ -12,6 +12,6 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	queue.delete();
 
-	const embed = new EmbedBuilder().setTitle(t("interactions.music.player.destroy.embed.title")).setColor("Random");
+	const embed = new EmbedBuilder().setTitle(t("interactions.music.player.leave.embed.title")).setColor("Random");
 	await interaction.reply({ embeds: [embed], ephemeral: true });
 };

@@ -291,8 +291,8 @@
 			"player": {
 				"name": "player",
 				"description": "Player group commands for the music command.",
-				"destroy": {
-					"name": "destroy",
+				"leave": {
+					"name": "leave",
 					"description": "Destroy guild player.",
 					"embed": { "title": "Player destroyed." }
 				},
