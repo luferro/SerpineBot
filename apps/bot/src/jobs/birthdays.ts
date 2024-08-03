@@ -1,4 +1,4 @@
-import { startOfDay } from "@luferro/helpers/datetime";
+import { startOfDay, toTimezone } from "@luferro/helpers/datetime";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
 import { FeedType } from "~/structures/Database.js";
@@ -13,7 +13,7 @@ export const execute: JobExecute = async ({ client }) => {
 			const target = await guild.members.fetch(userId).catch(() => null);
 			if (!target) continue;
 
-			const date = startOfDay(Date.now());
+			const date = startOfDay(toTimezone(Date.now(), client.getTimezone()));
 			const birthdate = startOfDay(new Date(date.getFullYear(), month - 1, day));
 			if (date.getTime() !== birthdate.getTime()) continue;
 
