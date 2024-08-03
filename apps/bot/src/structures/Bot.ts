@@ -115,7 +115,6 @@ export class Bot extends Client<boolean> {
 	}
 
 	private initializeSchedulers() {
-		this.player.on("debug", (msg) => console.log(msg));
 		for (const [name, job] of Bot.jobs.entries()) {
 			const cronjob = new CronJob(job.data.schedule, () =>
 				job.execute({ client: this }).catch((error) => {
