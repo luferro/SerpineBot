@@ -113,11 +113,16 @@ export class Bot extends Client<boolean> {
 
 	private initializeSchedulers() {
 		for (const [name, job] of Bot.jobs.entries()) {
-			const cronjob = new CronJob(job.data.schedule, () =>
-				job.execute({ client: this }).catch((error) => {
-					error.message = `Jobs | ${name} failed | Reason: ${error.message}`;
-					this.emit("clientError", error);
-				}),
+			const cronjob = new CronJob(
+				job.data.schedule,
+				() =>
+					job.execute({ client: this }).catch((error) => {
+						error.message = `Jobs | ${name} failed | Reason: ${error.message}`;
+						this.emit("clientError", error);
+					}),
+				null,
+				true,
+				this.getLocalization().timezone,
 			);
 			cronjob.start();
 			this.logger.info(`Jobs | ${name} scheduled (${job.data.schedule})`);
