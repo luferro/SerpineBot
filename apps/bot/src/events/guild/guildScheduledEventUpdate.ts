@@ -6,7 +6,7 @@ import type { EventData, EventExecute } from "~/types/bot.js";
 
 type Args = [oldGuildScheduledEvent: GuildScheduledEvent, newGuildScheduledEvent: GuildScheduledEvent];
 
-export const data: EventData = { type: "on" };
+export const data: EventData = { listener: "discord", type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [oldState, newState] }) => {
 	if (oldState.isScheduled() && newState.isActive()) await handleEventStart(client, newState);

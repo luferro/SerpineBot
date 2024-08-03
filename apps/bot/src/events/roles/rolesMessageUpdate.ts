@@ -3,7 +3,7 @@ import { t } from "i18next";
 import { Bot } from "~/structures/Bot.js";
 import type { EventData, EventExecute } from "~/types/bot.js";
 
-export const data: EventData = { type: "on" };
+export const data: EventData = { listener: "custom", type: "on" };
 
 export const execute: EventExecute = async ({ client }) => {
 	for (const [guildId, guild] of client.guilds.cache) {

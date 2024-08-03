@@ -3,7 +3,7 @@ import type { EventData, EventExecute } from "~/types/bot.js";
 
 type Args = [error: Error];
 
-export const data: EventData = { type: "on" };
+export const data: EventData = { listener: "custom", type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [error] }) => {
 	const isFetchError = error instanceof FetchError;

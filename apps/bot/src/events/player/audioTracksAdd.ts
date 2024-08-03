@@ -5,7 +5,7 @@ import type { EventData, EventExecute } from "~/types/bot.js";
 
 type Args = [queue: GuildQueue<TextBasedChannel>, tracks: Track[]];
 
-export const data: EventData = { type: "on" };
+export const data: EventData = { listener: "player", type: "on" };
 
 export const execute: EventExecute<Args> = async ({ rest: [queue, tracks] }) => {
 	const { metadata } = queue;

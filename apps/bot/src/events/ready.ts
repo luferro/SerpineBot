@@ -1,7 +1,7 @@
 import * as CommandsHandler from "~/handlers/commands.js";
 import type { EventData, EventExecute } from "~/types/bot.js";
 
-export const data: EventData = { type: "once" };
+export const data: EventData = { listener: "discord", type: "once" };
 
 export const execute: EventExecute = async ({ client }) => {
 	for (const [guildId, guild] of client.guilds.cache) {

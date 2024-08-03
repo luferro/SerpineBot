@@ -6,7 +6,7 @@ import type { ExtendedStringSelectMenuInteraction } from "~/types/interaction.js
 
 type Args = [interaction: ExtendedStringSelectMenuInteraction];
 
-export const data: EventData = { type: "on" };
+export const data: EventData = { listener: "custom", type: "on" };
 
 export const execute: EventExecute<Args> = async ({ client, rest: [interaction] }) => {
 	const { guild, channel, member } = interaction;

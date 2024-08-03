@@ -41,7 +41,7 @@ export type Commands = {
 };
 
 type EventArgs<T> = Client & { rest: T };
-export type EventData = { type: "on" | "once" };
+export type EventData = { listener: "discord" | "player" | "custom"; type: "on" | "once" };
 export type EventExecute<T = void> = (args: EventArgs<T>) => Promise<void>;
 export type Event = { data: EventData; execute: EventExecute<unknown[]> };
 

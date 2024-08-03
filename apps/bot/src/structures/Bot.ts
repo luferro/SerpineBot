@@ -104,11 +104,7 @@ export class Bot extends Client<boolean> {
 					this.emit("clientError", error);
 				});
 
-			const isDiscordEvent = enumToArray(Events).some((key) => key === name);
-			const isPlayerEvent = enumToArray(GuildQueueEvent).some((key) => key === name);
-			const isCustomEvent = !isDiscordEvent && !isPlayerEvent;
-			const isClientEvent = isDiscordEvent || isCustomEvent;
-
+			const isClientEvent = data.listener === "discord" || data.listener === "custom";
 			if (isClientEvent) this[data.type](name, callback);
 			else this.player.events[data.type](name as keyof GuildQueueEvents, callback);
 			this.logger.info(`Events | ${isClientEvent ? "Client" : "Player"} ${data.type} ${name}`);

@@ -15,7 +15,7 @@ type ChatInputArgs = BaseInteractionArgs<ExtendedChatInputCommandInteraction>;
 type AutocompleteArgs = BaseInteractionArgs<ExtendedAutocompleteInteraction>;
 type StringSelectArgs = BaseInteractionArgs<ExtendedStringSelectMenuInteraction>;
 
-export const data: EventData = { type: "on" };
+export const data: EventData = { listener: "discord", type: "on" };
 
 export const execute: EventExecute<Args<Interaction>> = async ({ client, rest: [interaction] }) => {
 	const localization = await client.db.guild.getLocalization({ where: { id: interaction.guild.id } });
