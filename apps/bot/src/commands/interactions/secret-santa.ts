@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { formatCurrency } from "@luferro/helpers/currency";
-import { formatDate } from "@luferro/helpers/datetime";
+import { addYears, formatDate, startOfDay } from "@luferro/helpers/datetime";
 import { shuffle } from "@luferro/helpers/transform";
 import { EmbedBuilder, SlashCommandIntegerOption, SlashCommandStringOption } from "discord.js";
 import { t } from "i18next";
@@ -18,7 +18,7 @@ export const data: InteractionCommandData = [
 		.setRequired(true),
 ];
 
-export const execute: InteractionCommandExecute = async ({ client, interaction, localization = {} }) => {
+export const execute: InteractionCommandExecute = async ({ client, interaction, localization }) => {
 	const mentions = interaction.options.getString(data[0].name, true).match(/\d+/g);
 	const value = interaction.options.getInteger(data[1].name, true);
 
@@ -52,6 +52,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 				timeStart: new Date(),
 				timeEnd: date,
 				message: t("interactions.secret-santa.reminder.message", { year: date.getFullYear() }),
+				...localization,
 			},
 		});
 
@@ -80,9 +81,6 @@ export const execute: InteractionCommandExecute = async ({ client, interaction, 
 };
 
 const getEventDate = () => {
-	const currentYear = new Date().getFullYear();
-	const eventYear = new Date(currentYear, 11, 25).getTime() >= Date.now() ? currentYear : currentYear + 1;
-	const date = new Date(eventYear, 11, 25);
-	date.setHours(0, 0, 0, 0);
-	return date;
+	const eventDate = startOfDay(new Date(new Date().getFullYear(), 11, 25));
+	return eventDate.getTime() >= Date.now() ? eventDate : addYears(eventDate, 1);
 };
