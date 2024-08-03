@@ -1,6 +1,6 @@
 import parser from "cron-parser";
 import * as DateFns from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, toZonedTime } from "date-fns-tz";
 import * as LocaleList from "date-fns/locale";
 
 export * from "date-fns";
@@ -36,6 +36,8 @@ export const toSeconds = (ms: number) => Number((ms / 1000).toFixed(2));
 export const toMinutes = (ms: number) => Number((ms / (1000 * 60)).toFixed(2));
 
 export const toHours = (ms: number) => Number((ms / (1000 * 60 * 60)).toFixed(2));
+
+export const toTimezone = (date: Date | string | number, timezone: string) => toZonedTime(date, timezone);
 
 export const isValid = (year: number, month: number, day: number) => {
 	const date = new Date(year, month - 1, day);

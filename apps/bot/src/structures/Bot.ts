@@ -5,19 +5,18 @@ import { type Config, loadConfig } from "@luferro/config";
 import { TMDBApi } from "@luferro/entertainment";
 import { GamingApi } from "@luferro/gaming";
 import { type Logger, configureLogger } from "@luferro/helpers/logger";
-import { enumToArray, everyFieldExists, partition, someFieldExists, splitIntoChunks } from "@luferro/helpers/transform";
+import { everyFieldExists, partition, someFieldExists, splitIntoChunks } from "@luferro/helpers/transform";
 import { RedditApi } from "@luferro/reddit";
 import { Scraper } from "@luferro/scraper";
 import { SpeechToIntentClient, SpeechToTextClient, TextToSpeechClient, WakeWordClient } from "@luferro/speech";
 import { CronJob } from "cron";
-import { GuildQueueEvent, type GuildQueueEvents } from "discord-player";
+import type { GuildQueueEvents } from "discord-player";
 import {
 	Client,
 	type ClientOptions,
 	Collection,
 	type Embed,
 	EmbedBuilder,
-	Events,
 	type Message,
 	type TextBasedChannel,
 } from "discord.js";

@@ -1,9 +1,10 @@
+import { startOfDay, toTimezone } from "@luferro/helpers/datetime";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
 import { FeedType } from "~/structures/Database.js";
 import type { JobData, JobExecute } from "~/types/bot.js";
 
-export const data: JobData = { schedule: "0 0 0 * * *" };
+export const data: JobData = { schedule: "0 42 0 * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
 	for (const [guildId, guild] of client.guilds.cache) {
@@ -12,10 +13,9 @@ export const execute: JobExecute = async ({ client }) => {
 			const target = await guild.members.fetch(userId).catch(() => null);
 			if (!target) continue;
 
-			const date = new Date();
-			date.setHours(0, 0, 0, 0);
-			const birthdate = new Date(date.getFullYear(), month - 1, day);
-			birthdate.setHours(0, 0, 0, 0);
+			const date = toTimezone(startOfDay(Date.now()), client.getLocalization().timezone);
+			const birthdate = startOfDay(new Date(date.getFullYear(), month - 1, day));
+			console.log({ date, birthdate });
 			if (date.getTime() !== birthdate.getTime()) continue;
 
 			await client.propagateToGuild({
