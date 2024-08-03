@@ -128,8 +128,17 @@ export class Bot extends Client<boolean> {
 		}
 	}
 
+	getTimezone() {
+		return this.config.get<string>("tz");
+	}
+
+	getLocale() {
+		return this.config.get<string>("locale");
+	}
+
 	async start() {
 		this.logger.info(`Bot | Starting in ${this.config.runtimeEnvironment}`);
+		this.logger.debug({ locale: this.getLocale(), timezone: this.getTimezone() });
 
 		try {
 			await this.login(this.config.get("client.token"));
@@ -224,13 +233,6 @@ export class Bot extends Client<boolean> {
 				channel.messages.cache.set(message.id, message as Message<true>);
 			}
 		}
-	}
-
-	getLocalization() {
-		return {
-			locale: this.config.get<string>("locale"),
-			timezone: this.config.get<string>("timezone"),
-		};
 	}
 
 	async stop() {

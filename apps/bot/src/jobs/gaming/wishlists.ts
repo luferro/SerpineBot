@@ -72,25 +72,25 @@ const getSubscriptionChanges = async (client: Bot, newEntry: SteamWishlistEntry,
 };
 
 const notifyUser = async (client: Bot, userId: string, alerts: Alerts) => {
-	for (const [alert, queue] of Object.entries(alerts) as unknown as Entries<typeof alerts>) {
+	for (const [alertType, queue] of Object.entries(alerts) as unknown as Entries<typeof alerts>) {
 		if (queue.length === 0) continue;
 
-		const localization = client.getLocalization();
 		const user = await client.users.fetch(userId);
+		const locale = client.getLocale();
 
 		const embed = new EmbedBuilder()
-			.setTitle(t(`jobs.gaming.wishlists.${alert}.embed.title`, { size: queue.length }))
+			.setTitle(t(`jobs.gaming.wishlists.${alertType}.embed.title`, { size: queue.length }))
 			.setDescription(
 				queue
 					.slice(0, 10)
 					.map(
 						({ priority, title, url, discount, discounted, regular, addedTo, removedFrom }) =>
-							`\`${priority}.\` ${t(`jobs.gaming.wishlists.${alert}.embed.description`, {
+							`\`${priority}.\` ${t(`jobs.gaming.wishlists.${alertType}.embed.description`, {
 								item: `**[${title}](${url})**`,
 								discount: `***${discount}%***`,
-								regular: `~~${formatCurrency(regular!, localization)}~~`,
-								discounted: `**${formatCurrency(discounted!, localization)}**`,
-								price: `**${formatCurrency(discounted || regular!, localization)}**`,
+								regular: `~~${formatCurrency(regular!, { locale })}~~`,
+								discounted: `**${formatCurrency(discounted!, { locale })}**`,
+								price: `**${formatCurrency(discounted || regular!, { locale })}**`,
 								addedTo: (addedTo ?? []).join("\n"),
 								removedFrom: (removedFrom ?? []).join("\n"),
 							})}`,
@@ -100,7 +100,7 @@ const notifyUser = async (client: Bot, userId: string, alerts: Alerts) => {
 			.setColor("Random");
 
 		await user.send({ embeds: [embed] });
-		client.logger.info(`Steam wishlist | ${alert} | Notified ${user.username} about ${queue.length} update(s) `);
+		client.logger.info(`Steam wishlist | ${alertType} | Notified ${user.username} about ${queue.length} update(s) `);
 		client.logger.debug({ queue });
 	}
 };

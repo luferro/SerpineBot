@@ -15,7 +15,7 @@ export const execute: JobExecute = async ({ client }) => {
 				const leaderboard = await getLeaderboard({ type, client, guild });
 				if (leaderboard.length === 0) continue;
 
-				const localization = client.getLocalization();
+				const localization = await client.db.guild.getLocalization({ where: { id: guildId } });
 				const from = formatDate(Date.now() - 7 * 24 * 60 * 60 * 1000, localization);
 				const to = formatDate(Date.now(), localization);
 

@@ -12,7 +12,8 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setDescription(t("interactions.music.queue.clear.options.0.description")),
 	);
 
-export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+export const execute: InteractionCommandExecute = async (args) => {
+	const { client, interaction } = args;
 	const self = interaction.options.getBoolean(data.options[0].name);
 
 	const queue = client.player.nodes.get(interaction.guild.id);
@@ -21,5 +22,5 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (!self) queue.tracks.clear();
 	else queue.tracks.remove((track) => track.requestedBy?.id === interaction.user.id);
 
-	await Bot.commands.interactions.methods.get("music.queue.list")?.execute({ client, interaction });
+	await Bot.commands.interactions.methods.get("music.queue.list")?.execute(args);
 };

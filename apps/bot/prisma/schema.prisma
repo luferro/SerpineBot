@@ -39,6 +39,8 @@ model Reminder {
     timeStart DateTime
     timeEnd   DateTime
     message   String
+    locale    String
+    timezone  String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 

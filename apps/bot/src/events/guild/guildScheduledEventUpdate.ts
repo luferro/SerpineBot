@@ -33,7 +33,7 @@ const handleEventStart = async (client: Parameters<EventExecute>[0]["client"], e
 		subscriber.member.roles.add(role);
 	}
 
-	const localization = client.getLocalization();
+	const localization = await client.db.guild.getLocalization({ where: { id: guild.id } });
 
 	const embed = new EmbedBuilder()
 		.setTitle(t("events.guild.guildScheduledEventUpdate.embed.title", { name }))

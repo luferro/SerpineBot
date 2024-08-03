@@ -8,7 +8,7 @@ import type { JobData, JobExecute } from "~/types/bot.js";
 export const data: JobData = { schedule: "0 */10 * * * *" };
 
 export const execute: JobExecute = async ({ client }) => {
-	const localization = client.getLocalization();
+	const localization = { locale: client.getLocale(), timezone: client.getTimezone() };
 
 	const messages = [];
 	const freebies = await client.api.gaming.games.deals.getFreebies();

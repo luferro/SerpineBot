@@ -33,7 +33,7 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setRequired(true),
 	);
 
-export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+export const execute: InteractionCommandExecute = async ({ client, interaction, localization }) => {
 	const time = interaction.options.getInteger(data.options[0].name, true);
 	const unit = interaction.options.getString(data.options[1].name, true) as TimeUnit;
 	const message = interaction.options.getString(data.options[2].name, true);
@@ -47,6 +47,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			userId: interaction.user.id,
 			timeStart: new Date(),
 			timeEnd: new Date(Date.now() + toMilliseconds(time, unit)),
+			...localization,
 		},
 	});
 

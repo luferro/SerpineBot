@@ -22,24 +22,27 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 			.setMinValue(1),
 	);
 
-export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
+export const execute: InteractionCommandExecute = async (args) => {
+	const { interaction } = args;
 	const position = interaction.options.getInteger(data.options[0].name);
 
-	if (position) removeTrack({ client, interaction, position });
-	else removePlaylist({ client, interaction });
+	if (position) removeTrack({ ...args, position });
+	else removePlaylist(args);
 };
 
-const removeTrack = async ({ client, interaction, position }: Parameters<typeof execute>[0] & { position: number }) => {
+const removeTrack = async ({ position, ...rest }: Parameters<typeof execute>[0] & { position: number }) => {
+	const { client, interaction } = rest;
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error(t("errors.player.node"));
 
 	const removedTrack = queue.node.remove(position - 1);
 	if (!removedTrack) throw new Error(t("errors.player.queue.tracks.position", { position: `\`${position}\`` }));
 
-	await Bot.commands.interactions.methods.get("music.queue.list")?.execute({ client, interaction });
+	await Bot.commands.interactions.methods.get("music.queue.list")?.execute(rest);
 };
 
-const removePlaylist = async ({ client, interaction }: Parameters<typeof execute>[0]) => {
+const removePlaylist = async (args: Parameters<typeof execute>[0]) => {
+	const { client, interaction } = args;
 	const queue = client.player.nodes.get(interaction.guild.id);
 	if (!queue) throw new Error(t("errors.player.node"));
 
@@ -69,7 +72,7 @@ const removePlaylist = async ({ client, interaction }: Parameters<typeof execute
 
 	const embed = new EmbedBuilder().setTitle(t("interactions.music.queue.remove.embeds.0.title")).setColor("Random");
 	await interaction.reply({ embeds: [embed], components: [component] });
-	await handleStringSelectMenu({ client, interaction, uuid });
+	await handleStringSelectMenu({ ...args, uuid });
 };
 
 const handleStringSelectMenu = async ({
