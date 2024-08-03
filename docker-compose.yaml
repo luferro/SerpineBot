@@ -8,7 +8,7 @@ services:
             args:
                 - CONCURRENCY=${CONCURRENCY:-5}
         environment:
-            - TZ: "Europe/Lisbon"
+            - TZ=Europe/Lisbon
         volumes:
             - ~/shared:/usr/src/shared
         restart: always
