@@ -21,13 +21,9 @@ export const getLeaderboard = async ({ type, ...rest }: LeaderboardOptions) => {
 		[LeaderboardType.XBOX]: getXboxLeaderboard,
 	};
 	const leaderboard = await leaderboards[type](rest);
-	return leaderboard.slice(0, 10).map(({ user, highlight, item }, index) => ({
-		position: index + 1,
-		medal: Medal[index + 1] ?? null,
-		user,
-		highlight,
-		item,
-	}));
+	return leaderboard
+		.slice(0, 3)
+		.map(({ user, highlight, item }, index) => ({ medal: Medal[index + 1], user, highlight, item }));
 };
 
 export const resetLeaderboard = async ({ type, ...rest }: LeaderboardOptions) => {

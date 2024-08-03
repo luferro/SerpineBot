@@ -694,7 +694,7 @@
 		"leaderboards": {
 			"embed": {
 				"title": "Weekly {{type}} Leaderboard ({{from}} - {{to}})",
-				"description": "{{position}} **{{username}}** with `{{highlight}}`\nHighlight was **{{item}}**"
+				"description": "{{position}} **{{username}}** with `{{highlight}}`\nTop game was **{{item}}**"
 			}
 		},
 		"manga": {

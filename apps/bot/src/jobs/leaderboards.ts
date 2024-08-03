@@ -19,9 +19,9 @@ export const execute: JobExecute = async ({ client }) => {
 				const from = formatDate(Date.now() - 7 * 24 * 60 * 60 * 1000, localization);
 				const to = formatDate(Date.now(), localization);
 
-				const formattedLeaderboard = leaderboard.map(({ position, medal, user, highlight, item }) =>
+				const formattedLeaderboard = leaderboard.map(({ medal, user, highlight, item }) =>
 					t("jobs.leaderboards.embed.description", {
-						position: medal ?? `\`${position}.\``,
+						position: medal,
 						username: user.username,
 						highlight: highlight.formatted,
 						item: item.url ? `[${item.title}](${item.url})` : item.title,
