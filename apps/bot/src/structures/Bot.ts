@@ -37,6 +37,7 @@ type PropagateInternalArgs = Omit<BasePropagateArgs, "type"> & { feeds: Feed[] }
 
 export class Bot extends Client<boolean> {
 	private static readonly MAX_EMBEDS_CHUNK_SIZE = 10;
+	private static readonly FALLBACK_LOCALE = "en-US";
 	static readonly ROLES_MESSAGE_ID = "CLAIM_YOUR_ROLES";
 	static readonly RESTRICTIONS_ROLE = "Restrictions";
 
@@ -98,10 +99,11 @@ export class Bot extends Client<boolean> {
 
 	private initializeListeners() {
 		for (const [name, { data, execute }] of Bot.events.entries()) {
-			const callback = (...args: unknown[]) =>
-				execute({ client: this, rest: args }).catch((error) => {
+			const callback = async (...args: unknown[]) => {
+				return await execute({ client: this, rest: args }).catch((error) => {
 					this.emit("clientError", error);
 				});
+			};
 
 			const isClientEvent = data.listener === "discord" || data.listener === "custom";
 			if (isClientEvent) this[data.type](name, callback);
@@ -112,17 +114,12 @@ export class Bot extends Client<boolean> {
 
 	private initializeSchedulers() {
 		for (const [name, job] of Bot.jobs.entries()) {
-			const cronjob = new CronJob(
-				job.data.schedule,
-				() =>
-					job.execute({ client: this }).catch((error) => {
-						error.message = `Jobs | ${name} failed | Reason: ${error.message}`;
-						this.emit("clientError", error);
-					}),
-				null,
-				true,
-				this.getLocalization().timezone,
-			);
+			const cronjob = new CronJob(job.data.schedule, async () => {
+				return await job.execute({ client: this }).catch((error) => {
+					error.message = `Jobs | ${name} failed | Reason: ${error.message}`;
+					this.emit("clientError", error);
+				});
+			});
 			cronjob.start();
 			this.logger.info(`Jobs | ${name} scheduled (${job.data.schedule})`);
 		}
@@ -144,7 +141,7 @@ export class Bot extends Client<boolean> {
 			await this.login(this.config.get("client.token"));
 			await this.player.loadDependencies(this.config.get("services.player.authentication"));
 			await i18next.use(Backend).init({
-				fallbackLng: "en-US",
+				fallbackLng: Bot.FALLBACK_LOCALE,
 				backend: { loadPath: path.join(import.meta.dirname, "../locales/{{lng}}.json") },
 				interpolation: { escapeValue: false },
 			});
