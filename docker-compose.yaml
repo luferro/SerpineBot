@@ -7,6 +7,8 @@ services:
             dockerfile: ./apps/bot/Dockerfile
             args:
                 - CONCURRENCY=${CONCURRENCY:-5}
+        environment:
+            - TZ: "Europe/Lisbon"
         volumes:
             - ~/shared:/usr/src/shared
         restart: always
