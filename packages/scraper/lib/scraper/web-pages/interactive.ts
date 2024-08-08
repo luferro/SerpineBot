@@ -1,14 +1,8 @@
-import type { Page, Route } from "playwright-chromium";
-import { chromium } from "playwright-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { type Page, type Route, chromium } from "playwright";
 
 export type Callback<T = unknown> = (page: Page) => Promise<T>;
 
 export class InteractiveScraper {
-	constructor() {
-		chromium.use(StealthPlugin());
-	}
-
 	async load<T = unknown>(url: string, cb: Callback<T>) {
 		const browser = await chromium.launch();
 		const page = await browser.newPage();
