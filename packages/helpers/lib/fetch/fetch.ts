@@ -1,3 +1,4 @@
+import { HeaderGenerator } from "header-generator";
 import { FetchError } from "./errors/FetchError.js";
 
 type Options = {
@@ -9,24 +10,20 @@ type Options = {
 	/** Headers to attach to the request */
 	headers?: Map<string, string>;
 	/** Body to attach to the request */
-	body?: string;
+	body?: BodyInit;
 	/** Callback to modify the way FetchErrors are handled */
 	cb?: (status: number) => Promise<unknown>;
 };
 
 export const fetcher = async <T>(url: string, { method = "GET", cb, ...rest }: Options = {}) => {
 	try {
-		const res = await fetch(url, { method, headers: getHeaders(rest.headers), body: parseBody(rest.body) });
+		const res = await fetch(url, { method, headers: getHeaders(rest.headers), body: rest.body });
 		const headers = res.headers as Headers;
 		const isJson = headers.get("content-type")?.includes("application/json");
 		const payload = (isJson ? await res.json() : await res.text()) as T;
 
 		if (res.status >= 400) {
-			throw new FetchError(res.statusText)
-				.setHeaders(res.headers)
-				.setUrl(url)
-				.setStatus(res.status)
-				.setPayload(payload);
+			throw new FetchError(res.statusText).setHeaders(headers).setUrl(url).setStatus(res.status).setPayload(payload);
 		}
 
 		return { headers, payload };
@@ -39,14 +36,5 @@ export const fetcher = async <T>(url: string, { method = "GET", cb, ...rest }: O
 
 const getHeaders = (headers = new Map<string, string>()) => {
 	if (!headers.has("content-type")) headers.set("content-type", "application/json");
-	return new Headers(Object.fromEntries(headers));
-};
-
-const parseBody = (body?: string) => {
-	if (!body) return;
-	try {
-		return JSON.parse(body);
-	} catch (error) {
-		return body;
-	}
+	return new HeaderGenerator().getHeaders({}, Object.fromEntries(headers));
 };
