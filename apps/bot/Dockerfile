@@ -12,6 +12,7 @@ COPY --from=builder /usr/src/app/tsconfig.json .
 COPY --from=builder /usr/src/app/out/json/ .
 COPY --from=builder /usr/src/app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install --frozen-lockfile
+RUN npx playwright install
 COPY --from=builder /usr/src/app/out/full/ .
 ARG CONCURRENCY
 RUN pnpm build --filter=bot... --concurrency=$CONCURRENCY
@@ -37,7 +38,5 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     ffmpeg && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
-
-RUN npx playwright install
 
 CMD ["pnpm",  "start"]
