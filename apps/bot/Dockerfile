@@ -38,6 +38,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
 
-RUN npx playwright install
+RUN pnpm exec playwright install
 
 CMD ["pnpm",  "start"]
