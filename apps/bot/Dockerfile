@@ -16,7 +16,7 @@ COPY --from=builder /usr/src/app/out/full/ .
 ARG CONCURRENCY
 RUN pnpm build --filter=bot... --concurrency=$CONCURRENCY
 
-FROM node:lts AS runner
+FROM mcr.microsoft.com/playwright:v1.46.0-jammy AS runner
 WORKDIR /usr/src/app
 RUN corepack enable && corepack prepare pnpm@9.4.0 --activate
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
@@ -29,7 +29,5 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     ffmpeg && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
-
-RUN npx -y playwright@1.46.0 install --with-deps
 
 CMD ["pnpm",  "start"]
