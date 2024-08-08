@@ -9,7 +9,7 @@ export type Payload<T> = {
 };
 
 export type Result = {
-	data: { game_id: string; game_name: string }[];
+	data: { game_id: string; game_name: string; release_world: number }[];
 };
 
 export type Playtime = {

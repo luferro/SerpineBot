@@ -9,7 +9,8 @@ export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 		option
 			.setName(t("interactions.gaming.hltb.options.0.name"))
 			.setDescription(t("interactions.gaming.hltb.options.0.description"))
-			.setRequired(true),
+			.setRequired(true)
+			.setAutocomplete(true),
 	);
 
 export const execute: InteractionCommandExecute = async ({ client, interaction }) => {
@@ -53,5 +54,16 @@ export const autocomplete: InteractionCommandAutoComplete = async ({ client, int
 	if (query.length < 3) return interaction.respond([]);
 
 	const results = await client.api.gaming.games.hltb.search(query);
-	await interaction.respond(results.slice(0, 10).map((item) => ({ name: item.title, value: item.id })));
+	const slicedResults = results.slice(0, 10);
+	const getOccurrences = (title: string) => slicedResults.reduce((acc, el) => acc + (el.title === title ? 1 : 0), 0);
+
+	await interaction.respond(
+		results.slice(0, 10).map((item) => {
+			const occurrences = getOccurrences(item.title);
+			return {
+				name: occurrences < 2 ? item.title : `${item.title} (${item.releaseYear})`,
+				value: item.id,
+			};
+		}),
+	);
 };

@@ -50,20 +50,6 @@ export class HLTBApi {
 		return latestScriptTag?.attr("src");
 	}
 
-	private async validateHash() {
-		try {
-			if (!this.hash) await this.updateHash();
-
-			await fetcher<Result>(`${HLTBApi.BASE_URL}/api/search/${this.hash}`, {
-				method: "POST",
-				headers: this.getHeaders(),
-				body: JSON.stringify({ ...this.payload, searchTerms: [] }),
-			});
-		} catch (error) {
-			await this.updateHash();
-		}
-	}
-
 	private async updateHash() {
 		const file = await this.getLatestScriptTag();
 		if (!file) throw new Error("Could not retrieve script tag.");
@@ -75,15 +61,24 @@ export class HLTBApi {
 		this.hash = hash;
 	}
 
-	async search(query: string) {
-		await this.validateHash();
+	async search(query: string): Promise<{ id: string; title: string; releaseYear: number }[]> {
+		if (!this.hash) await this.updateHash();
 
-		const data = await fetcher<Result>(`${HLTBApi.BASE_URL}/api/search/${this.hash}`, {
-			method: "POST",
-			headers: this.getHeaders(),
-			body: JSON.stringify({ ...this.payload, searchTerms: query.split(" ") }),
-		});
-		return data.payload.data.map((result) => ({ id: result.game_id, title: result.game_name }));
+		try {
+			const data = await fetcher<Result>(`${HLTBApi.BASE_URL}/api/search/${this.hash}`, {
+				method: "POST",
+				headers: this.getHeaders(),
+				body: JSON.stringify({ ...this.payload, searchTerms: query.split(" ") }),
+			});
+			return data.payload.data.map((result) => ({
+				id: result.game_id.toString(),
+				title: result.game_name,
+				releaseYear: result.release_world,
+			}));
+		} catch (error) {
+			await this.updateHash();
+			return await this.search(query);
+		}
 	}
 
 	async getPlaytimesById(id: string) {
