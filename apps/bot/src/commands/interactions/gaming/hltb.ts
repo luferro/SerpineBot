@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
-import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
+import type { InteractionCommandAutoComplete, InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.gaming.hltb.name"))
@@ -16,11 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	await interaction.deferReply();
 	const query = interaction.options.getString(data.options[0].name, true);
 
-	const results = await client.api.gaming.games.hltb.search(query);
-	if (results.length === 0) throw new Error(t("errors.search.lookup", { query }));
-	const { id } = results[0];
-
-	const { title, url, image, playtimes } = await client.api.gaming.games.hltb.getPlaytimesById(id);
+	const { title, url, image, playtimes } = await client.api.gaming.games.hltb.getPlaytimesById(query);
 	const { main, mainExtra, completionist } = playtimes;
 
 	const hasPlaytimes = main || mainExtra || completionist;
@@ -50,4 +46,12 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		.setColor("Random");
 
 	await interaction.editReply({ embeds: [embed] });
+};
+
+export const autocomplete: InteractionCommandAutoComplete = async ({ client, interaction }) => {
+	const { value: query } = interaction.options.getFocused(true);
+	if (query.length < 3) return interaction.respond([]);
+
+	const results = await client.api.gaming.games.hltb.search(query);
+	await interaction.respond(results.slice(0, 10).map((item) => ({ name: item.title, value: item.id })));
 };
