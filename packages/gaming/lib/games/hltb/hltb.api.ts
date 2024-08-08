@@ -81,7 +81,7 @@ export class HLTBApi {
 		const data = await fetcher<Result>(`${HLTBApi.BASE_URL}/api/search/${this.hash}`, {
 			method: "POST",
 			headers: this.getHeaders(),
-			body: JSON.stringify({ ...this.payload, searchTerms: [query] }),
+			body: JSON.stringify({ ...this.payload, searchTerms: query.split(" ") }),
 		});
 		return data.payload.data.map((result) => ({ id: result.game_id, title: result.game_name }));
 	}
