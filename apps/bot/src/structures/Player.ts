@@ -17,8 +17,7 @@ export class Player extends DiscordPlayer {
 	};
 
 	constructor(client: Bot) {
-		// biome-ignore lint/suspicious/noExplicitAny: esm vs cjs
-		super(client as any);
+		super(client);
 		this.logger = client.logger;
 	}
 

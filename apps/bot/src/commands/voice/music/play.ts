@@ -13,6 +13,5 @@ export const execute: VoiceCommandExecute<Args> = async ({ client, queue, slots,
 	const channel = queue.channel;
 	if (!channel) throw new Error(t("errors.player.channel"));
 
-	// biome-ignore lint/suspicious/noExplicitAny: esm vs cjs
-	await client.player.play(channel, query, { searchEngine: QueryType.AUTO, requestedBy: user as any });
+	await client.player.play(channel, query, { searchEngine: QueryType.AUTO, requestedBy: user });
 };

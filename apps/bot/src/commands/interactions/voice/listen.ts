@@ -16,8 +16,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 			metadata: interaction.channel,
 			...client.player.defaultNodeOptions,
 		});
-		// biome-ignore lint/suspicious/noExplicitAny: esm vs cjs
-		await queue.connect(interaction.member.voice.channel as any);
+		await queue.connect(interaction.member.voice.channel);
 	}
 
 	client.emit("interactionVoiceCreate", { ...interaction, client });
