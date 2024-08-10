@@ -4,7 +4,7 @@ import { Bot } from "~/structures/Bot.js";
 import type { Job } from "~/types/bot.js";
 
 export const registerJobs = async (client: Bot) => {
-	const files = getFiles(path.resolve(import.meta.dirname, "../jobs"));
+	const files = getFiles(path.resolve(__dirname, "../jobs"));
 	for (const file of files) {
 		const segment = extractPathSegments(file, "jobs");
 		if (!segment) continue;
