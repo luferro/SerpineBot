@@ -14,12 +14,12 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^22.1.0",
+		"@types/node": "^22.2.0",
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {
 		"@luferro/helpers": "workspace:^",
-		"cheerio": "^1.0.0-rc.12",
+		"cheerio": "^1.0.0",
 		"playwright": "^1.46.0",
 		"rss-parser": "^3.13.0",
 		"ytdl-core": "4.11.5"
