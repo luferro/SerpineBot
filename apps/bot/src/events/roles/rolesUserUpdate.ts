@@ -32,15 +32,15 @@ export const execute: EventExecute<Args> = async ({ client, rest: [interaction] 
 	}
 
 	const embed = new EmbedBuilder()
-		.setTitle(t("events.roles.userRolesUpdate.embed.title", { granted: granted.length, revoked: revoked.length }))
+		.setTitle(t("events.roles.rolesUserUpdate.embed.title", { granted: granted.length, revoked: revoked.length }))
 		.addFields([
 			{
-				name: t("events.roles.userRolesUpdate.embed.fields.0.name"),
+				name: t("events.roles.rolesUserUpdate.embed.fields.0.name"),
 				value: granted.join("\n") || t("common.none"),
 				inline: true,
 			},
 			{
-				name: t("events.roles.userRolesUpdate.embed.fields.1.name"),
+				name: t("events.roles.rolesUserUpdate.embed.fields.1.name"),
 				value: revoked.join("\n") || t("common.none"),
 				inline: true,
 			},
