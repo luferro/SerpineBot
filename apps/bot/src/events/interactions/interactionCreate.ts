@@ -57,7 +57,7 @@ const handleAutocomplete = async ({ client, interaction, localization }: Autocom
 };
 
 const handleSelectMenuInteraction = async ({ client, interaction }: StringSelectArgs) => {
-	if (interaction.customId === Bot.ROLES_MESSAGE_ID) client.emit("userRolesUpdate", interaction);
+	if (interaction.customId === Bot.ROLES_MESSAGE_ID) client.emit("rolesUserUpdate", interaction);
 };
 
 const extractInteractionMethods = (interaction: (ChatInputArgs | AutocompleteArgs)["interaction"]) => {
