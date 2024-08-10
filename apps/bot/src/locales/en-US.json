@@ -140,11 +140,11 @@
 							"choices": [{ "name": "Top Sellers" }, { "name": "Top Played" }, { "name": "Upcoming Games" }]
 						}
 					],
-					"embed": { "title": "Steam's {{chart}}" }
+					"embed": { "title": "Steam {{chart}}" }
 				},
 				"sales": {
 					"name": "sales",
-					"description": "Steam's next sales.",
+					"description": "Steam next sales.",
 					"embed": { "title": "When is the next Steam sale?", "fields": [{ "name": "**Upcoming Sales**" }] }
 				},
 				"profile": {
@@ -180,7 +180,7 @@
 							"choices": [{ "name": "Top Sellers" }, { "name": "Top Played" }, { "name": "Upcoming Games" }]
 						}
 					],
-					"embed": { "title": "Xbox's {{chart}}" }
+					"embed": { "title": "Xbox {{chart}}" }
 				},
 				"profile": {
 					"name": "profile",
@@ -615,7 +615,7 @@
 					"footer": { "text": "Each role grants access to a different text channel." }
 				}
 			},
-			"userRolesUpdate": {
+			"rolesUserUpdate": {
 				"embed": {
 					"title": "{{granted}} role(s) granted and {{revoked}} role(s) revoked",
 					"fields": [{ "name": "**Granted**" }, { "name": "**Revoked**" }],
