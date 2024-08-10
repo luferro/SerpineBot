@@ -142,7 +142,7 @@ export class Bot extends Client<boolean> {
 			await this.player.loadDependencies(this.config.get("services.player.authentication"));
 			await i18next.use(Backend).init({
 				fallbackLng: Bot.FALLBACK_LOCALE,
-				backend: { loadPath: path.join(__dirname, "../locales/{{lng}}.json") },
+				backend: { loadPath: path.join(import.meta.dirname, "../locales/{{lng}}.json") },
 				interpolation: { escapeValue: false },
 			});
 

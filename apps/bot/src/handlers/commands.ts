@@ -19,7 +19,7 @@ export const registerCommands = async (client: Bot) => {
 };
 
 const registerVoiceCommands = async (client: Bot) => {
-	const files = getFiles(path.resolve(__dirname, "../commands/voice"));
+	const files = getFiles(path.resolve(import.meta.dirname, "../commands/voice"));
 	for (const file of files) {
 		const segment = extractPathSegments(file, "voice");
 		if (!segment) continue;
@@ -31,7 +31,7 @@ const registerVoiceCommands = async (client: Bot) => {
 };
 
 const registerInteractionCommands = async (client: Bot) => {
-	const files = getFiles(path.resolve(__dirname, "../commands/interactions"));
+	const files = getFiles(path.resolve(import.meta.dirname, "../commands/interactions"));
 
 	const metadata = new Map<string, MetadataBuilder[]>();
 	for (const file of files) {

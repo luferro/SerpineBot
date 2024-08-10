@@ -26,8 +26,10 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 		track,
 		queue,
 		searchResult: { playlist },
-	} = await client.player.play(voiceChannel, query, {
-		requestedBy: interaction.user,
+		// biome-ignore lint/suspicious/noExplicitAny: esm vs cjs
+	} = await client.player.play(voiceChannel as any, query, {
+		// biome-ignore lint/suspicious/noExplicitAny: esm vs cjs
+		requestedBy: interaction.user as any,
 		nodeOptions: { metadata: interaction.channel, ...client.player.defaultNodeOptions },
 	});
 
