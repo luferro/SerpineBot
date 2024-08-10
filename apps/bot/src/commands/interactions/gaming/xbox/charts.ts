@@ -26,7 +26,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 
 	const embed = new EmbedBuilder()
 		.setTitle(
-			t("interactions.gaming.xbox.top.embed.title", {
+			t("interactions.gaming.xbox.charts.embed.title", {
 				chart: t(`interactions.gaming.xbox.charts.options.0.choices.${chart}.name`),
 			}),
 		)
