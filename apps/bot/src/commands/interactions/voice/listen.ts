@@ -1,7 +1,6 @@
-import { EndBehaviorType, type VoiceReceiver } from "discord-voip";
+import { EndBehaviorType } from "discord-voip";
 import { EmbedBuilder, SlashCommandSubcommandBuilder, type TextBasedChannel } from "discord.js";
 import { t } from "i18next";
-import { Bot } from "~/structures/Bot.js";
 import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
@@ -29,56 +28,17 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const isListening = (receiver.speaking as any).listeners("start").length > 0;
 	if (isListening) throw new Error(t("errors.voice.listening"));
 
-	receiver.speaking.on("start", (userId) =>
-		handleUserVoice({ guildId: interaction.guild.id, client, userId, receiver }),
-	);
+	receiver.speaking.on("start", async (userId) => {
+		const stream = receiver.subscribe(userId, { end: { behavior: EndBehaviorType.AfterSilence, duration: 1000 } });
+		const buffer = await client.speech.wakeWord?.detect(stream);
+		if (!buffer || buffer?.length === 0) return;
+
+		const intentResult = await client.speech.speechToIntent?.infere(buffer);
+		if (!intentResult) throw new Error(t("errors.voice.intent"));
+
+		client.emit("interactionVoiceCreate", { guild: interaction.guild, member: interaction.member, ...intentResult });
+	});
 
 	const embed = new EmbedBuilder().setTitle(t("interactions.voice.listen.embed.title"));
 	await interaction.reply({ embeds: [embed] });
-};
-
-const handleUserVoice = async ({
-	client,
-	guildId,
-	userId,
-	receiver,
-}: {
-	client: Bot;
-	guildId: string;
-	userId: string;
-	receiver: VoiceReceiver;
-}) => {
-	const queue = client.player.nodes.get<TextBasedChannel>(guildId)!;
-
-	const stream = receiver.subscribe(userId, { end: { behavior: EndBehaviorType.AfterSilence, duration: 1000 } });
-	const buffer = await client.speech.wakeWord?.detect(stream);
-	if (!buffer || buffer?.length === 0) return;
-
-	const intentResult = await client.speech.speechToIntent?.infere(buffer);
-	if (!intentResult) throw new Error(t("errors.voice.intent"));
-
-	// const isOutOfVocabularyIntents = ({ intent }: Intent) => ['music.play'].some((_intent) => _intent === intent);
-	// const isOutOfVocabularyIntent = isOutOfVocabularyIntents({ intent: intentResult.intent });
-	// const transcribeResult = isOutOfVocabularyIntent ? await client.speech.speechToText.transcribe(pcm) : null;
-
-	const intent = intentResult.intent;
-	const slots = intentResult.slots;
-
-	const command = Bot.commands.voice.get(intent);
-	if (!command) return;
-
-	client.emit("interactionVoiceCreate", {});
-
-	const user = client.users.cache.get(userId)?.username ?? userId;
-	const guild = client.guilds.cache.get(guildId)?.name ?? guildId;
-	client.logger.info(`Voice | ${intent} invoked by ${user} in guild ${guild}.`);
-
-	await command.execute({ client, queue, slots, rest: [userId] }).catch(async (error) => {
-		const embed = new EmbedBuilder()
-			.setTitle(t("errors.voice.failed", { intent }))
-			.setDescription((error as Error).message)
-			.setColor("Random");
-
-		await queue.metadata.send({ embeds: [embed] });
-	});
 };

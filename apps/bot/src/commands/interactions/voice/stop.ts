@@ -16,11 +16,11 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	if (!receiver) throw new Error(t("errors.voice.receiver.none"));
 
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	const isListening = (receiver.speaking as any).speaking.listeners("start").length > 0;
+	const speakingMap = receiver.speaking as any;
+	const isListening = speakingMap.listeners("start").length > 0;
 	if (!isListening) throw new Error(t("errors.voice.standby"));
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	(receiver.speaking as any).removeAllListeners("start");
+	speakingMap.removeAllListeners("start");
 
 	const embed = new EmbedBuilder().setTitle(t("interactions.voice.stop.embed.title"));
 	await interaction.reply({ embeds: [embed] });
