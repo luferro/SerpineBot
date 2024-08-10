@@ -58,7 +58,7 @@ export const autocomplete: InteractionCommandAutoComplete = async ({ client, int
 	const getOccurrences = (title: string) => slicedResults.reduce((acc, el) => acc + (el.title === title ? 1 : 0), 0);
 
 	await interaction.respond(
-		results.slice(0, 10).map((item) => {
+		slicedResults.map((item) => {
 			const occurrences = getOccurrences(item.title);
 			return {
 				name: occurrences < 2 ? item.title : `${item.title} (${item.releaseYear})`,
