@@ -30,7 +30,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=installer /usr/src/app .
 
-RUN npm install -g playwright@1.46.0
-RUN npx -y playwright@1.46.0 install --with-deps
+RUN npm install -g playwright@1.47.1
+RUN npx -y playwright@1.47.1 install --with-deps
 
 CMD ["pnpm",  "start"]
