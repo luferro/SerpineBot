@@ -13,8 +13,8 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^22.2.0",
-		"typescript": "^5.5.4"
+		"@types/node": "^22.5.5",
+		"typescript": "^5.6.2"
 	},
 	"dependencies": {
 		"ioredis": "^5.4.1",
