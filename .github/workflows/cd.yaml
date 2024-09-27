@@ -13,7 +13,6 @@ jobs:
     outputs:
       any: ${{ steps.changes.outputs.any }}
       bot: ${{ steps.changes.outputs.bot }}
-      docs: ${{ steps.changes.outputs.docs }}
     steps:
       - uses: actions/checkout@v4
       - name: Detect changes
@@ -25,8 +24,6 @@ jobs:
               - "apps/**"
             bot:
               - "apps/bot/**"
-            docs:
-              - "apps/docs/**"
   deploy:
     needs: detect-changes
     name: "Deploy applications to production"

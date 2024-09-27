@@ -1,9 +1,9 @@
 ## SerpineBot
 
-SerpineBot is a monorepo that consists in two applications: **bot** and **docs**.
+Applications:
 
 -   **Bot**: Multipurpose Discord bot for my private discord server.
--   **Docs**: Overview of all available slash commands with embed samples.
+-   **Hotaru**: Anime and manga tracking integrated with the discord bot. (wip)
 
 ## Features:
 
