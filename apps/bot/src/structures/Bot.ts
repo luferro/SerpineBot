@@ -39,7 +39,6 @@ export class Bot extends Client<boolean> {
 	private static readonly MAX_EMBEDS_CHUNK_SIZE = 10;
 	private static readonly FALLBACK_LOCALE = "en-US";
 	static readonly ROLES_MESSAGE_ID = "CLAIM_YOUR_ROLES";
-	static readonly RESTRICTIONS_ROLE = "Restrictions";
 
 	static jobs: Collection<string, Job> = new Collection();
 	static events: Collection<string, Event> = new Collection();

@@ -18,9 +18,6 @@ export const execute: EventExecute<Args> = async ({ client, rest: [interaction] 
 		const role = guild.roles.cache.find(({ id }) => id === value);
 		if (!role) continue;
 
-		const restrictionsRole = guild.roles.cache.find(({ name }) => name === Bot.RESTRICTIONS_ROLE);
-		if (restrictionsRole && member.roles.cache.has(restrictionsRole.id)) continue;
-
 		if (!member.roles.cache.has(role.id)) {
 			member.roles.add(role);
 			granted.push(role.name);
