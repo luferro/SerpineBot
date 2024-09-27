@@ -9,7 +9,7 @@ import type {
 	Collection,
 	SlashCommandBuilder,
 	SlashCommandSubcommandBuilder,
-	TextBasedChannel,
+	TextChannel,
 } from "discord.js";
 import type { Bot } from "~/structures/Bot.js";
 import type { ExtendedAutocompleteInteraction, ExtendedChatInputCommandInteraction } from "~/types/interaction.js";
@@ -18,7 +18,7 @@ type Client = { client: Bot };
 
 export type MetadataBuilder = SlashCommandSubcommandBuilder | ApplicationCommandOptionBase;
 
-type VoiceCommandArgs<T> = Client & { queue: GuildQueue<TextBasedChannel>; slots: Record<string, string>; rest: T };
+type VoiceCommandArgs<T> = Client & { queue: GuildQueue<TextChannel>; slots: Record<string, string>; rest: T };
 export type VoiceCommandExecute<T = unknown> = (args: VoiceCommandArgs<T>) => Promise<void>;
 export type VoiceCommand = { execute: VoiceCommandExecute };
 

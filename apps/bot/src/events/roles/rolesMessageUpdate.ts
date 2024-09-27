@@ -1,4 +1,11 @@
-import { ActionRowBuilder, type Collection, EmbedBuilder, type Message, StringSelectMenuBuilder } from "discord.js";
+import {
+	ActionRowBuilder,
+	ChannelType,
+	type Collection,
+	EmbedBuilder,
+	type Message,
+	StringSelectMenuBuilder,
+} from "discord.js";
 import { t } from "i18next";
 import { Bot } from "~/structures/Bot.js";
 import type { EventData, EventExecute } from "~/types/bot.js";
@@ -12,7 +19,7 @@ export const execute: EventExecute = async ({ client }) => {
 		if (!channelId) continue;
 
 		const channel = await client.channels.fetch(channelId);
-		if (!channel?.isTextBased()) continue;
+		if (channel?.type !== ChannelType.GuildText) continue;
 
 		const roles = settings.roles.options
 			.map((id) => {

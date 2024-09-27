@@ -6,6 +6,7 @@ import {
 	EmbedBuilder,
 	SlashCommandSubcommandBuilder,
 	StringSelectMenuBuilder,
+	type TextChannel,
 } from "discord.js";
 import { t } from "i18next";
 import { Bot } from "~/structures/Bot.js";
@@ -80,7 +81,7 @@ const handleStringSelectMenu = async ({
 	interaction,
 	uuid,
 }: Parameters<typeof execute>[0] & { uuid: string }) => {
-	const stringSelectMenuInteraction = (await interaction.channel?.awaitMessageComponent({
+	const stringSelectMenuInteraction = (await (interaction.channel as TextChannel)?.awaitMessageComponent({
 		time: 60 * 1000 * 2,
 		componentType: ComponentType.StringSelect,
 		filter: ({ customId, user }) => customId === uuid && user.id === interaction.user.id,

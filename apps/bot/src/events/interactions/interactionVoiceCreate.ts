@@ -1,4 +1,4 @@
-import { EmbedBuilder, type TextBasedChannel } from "discord.js";
+import { EmbedBuilder, type TextChannel } from "discord.js";
 import { t } from "i18next";
 import { Bot } from "~/structures/Bot.js";
 import type { EventData, EventExecute } from "~/types/bot.js";
@@ -14,7 +14,7 @@ export const execute: EventExecute<Args> = async ({ client, rest: [{ guild, memb
 	const command = Bot.commands.voice.get(intent);
 	if (!command) return;
 
-	const queue = client.player.nodes.get<TextBasedChannel>(guild.id)!;
+	const queue = client.player.nodes.get<TextChannel>(guild.id)!;
 
 	// const isOutOfVocabularyIntents = ({ intent }: Intent) => ['music.play'].some((_intent) => _intent === intent);
 	// const isOutOfVocabularyIntent = isOutOfVocabularyIntents({ intent: intentResult.intent });

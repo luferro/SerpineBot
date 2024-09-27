@@ -24,7 +24,7 @@
 		"@luferro/config": "workspace:^",
 		"@mui/icons-material": "^5.16.7",
 		"@mui/material": "^5.16.7",
-		"discord.js": "^14.15.3",
+		"discord.js": "^14.16.2",
 		"html-react-parser": "^5.1.16",
 		"marked": "^14.1.2",
 		"next": "14.2.11",
