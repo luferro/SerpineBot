@@ -1,4 +1,4 @@
-import { toHours } from "@luferro/helpers/datetime";
+import { toTimeUnit } from "@luferro/helpers/datetime";
 import { fetcher } from "@luferro/helpers/fetch";
 import { Scraper } from "@luferro/scraper";
 import { Chart, type Payload, type Profile, type RecentlyPlayed, Status, type Wishlist } from "./steam.types.js";
@@ -46,8 +46,8 @@ export class SteamApi {
 		return (payload.response.games ?? []).map(({ appid, name, playtime_2weeks, playtime_forever }) => ({
 			id: appid.toString(),
 			title: name,
-			totalHours: toHours(playtime_forever * 1000 * 60),
-			biweeklyHours: toHours(playtime_2weeks * 1000 * 60),
+			totalHours: toTimeUnit({ time: playtime_forever, unit: "Minutes" }, "Hours"),
+			biweeklyHours: toTimeUnit({ time: playtime_2weeks, unit: "Minutes" }, "Hours"),
 			url: `${SteamApi.BASE_STORE_URL}/app/${appid}`,
 		}));
 	}

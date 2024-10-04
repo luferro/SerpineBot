@@ -1,4 +1,4 @@
-import { getPrevious } from "@luferro/helpers/datetime";
+import { parseCronExpression, subMilliseconds } from "@luferro/helpers/datetime";
 import { truncate } from "@luferro/helpers/transform";
 import { EmbedBuilder } from "discord.js";
 import { t } from "i18next";
@@ -10,15 +10,18 @@ export const data: JobData = { schedule: "0 */10 * * * *" };
 export const execute: JobExecute = async ({ client }) => {
 	const latestChapters = await client.api.mangadex.getLatestChapters();
 	const groupedChapters = new Map(
-		latestChapters
-			.reverse()
-			.map((manga) => [
-				manga.mangaId,
-				latestChapters.filter(
-					({ mangaId, chapter }) =>
-						mangaId === manga.mangaId && new Date(chapter.readableAt).getTime() >= getPrevious(data.schedule).getTime(),
-				),
-			]),
+		latestChapters.reverse().map((manga) => [
+			manga.mangaId,
+			latestChapters.filter(({ mangaId, chapter }) => {
+				const parsedSchedule = parseCronExpression(data.schedule);
+				const lastExecution = subMilliseconds(
+					new Date(),
+					parsedSchedule.next().getTime() - parsedSchedule.prev().getTime(),
+				);
+
+				return mangaId === manga.mangaId && new Date(chapter.readableAt).getTime() >= lastExecution.getTime();
+			}),
+		]),
 	);
 
 	const messages = [];

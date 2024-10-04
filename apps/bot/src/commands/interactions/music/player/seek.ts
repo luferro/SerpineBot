@@ -1,7 +1,7 @@
+import { toTimeUnit } from "@luferro/helpers/datetime";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
 import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
-import { toMilliseconds } from "../../../../../../../packages/helpers/dist/datetime/index.js";
 
 export const data: InteractionCommandData = new SlashCommandSubcommandBuilder()
 	.setName(t("interactions.music.player.seek.name"))
@@ -44,9 +44,9 @@ const getMilliseconds = (timestampToConvert: string) => {
 		.split(":")
 		.reverse()
 		.forEach((time, index) => {
-			if (index === 0) totalMilliseconds += toMilliseconds(Number(time), "Seconds");
-			if (index === 1) totalMilliseconds += toMilliseconds(Number(time), "Minutes");
-			if (index === 2) totalMilliseconds += toMilliseconds(Number(time), "Hours");
+			if (index === 0) totalMilliseconds += toTimeUnit({ time: Number(time), unit: "Seconds" }, "Milliseconds");
+			if (index === 1) totalMilliseconds += toTimeUnit({ time: Number(time), unit: "Minutes" }, "Milliseconds");
+			if (index === 2) totalMilliseconds += toTimeUnit({ time: Number(time), unit: "Hours" }, "Milliseconds");
 		});
 	return totalMilliseconds;
 };

@@ -1,57 +1,44 @@
+import { tz } from "@date-fns/tz";
 import parser from "cron-parser";
 import * as DateFns from "date-fns";
-import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 import * as LocaleList from "date-fns/locale";
 
 export * from "date-fns";
+export * from "@date-fns/tz";
 
-const getLocale = (locale: string) => {
+function getLocale(locale: string) {
 	const splitLocale = locale.split("-");
 	return (
 		LocaleList[splitLocale.join("") as keyof typeof LocaleList] ??
 		LocaleList[splitLocale[0] as keyof typeof LocaleList] ??
 		LocaleList.enUS
 	);
-};
+}
 
-export const toMilliseconds = (
-	time: number,
-	unit: "Milliseconds" | "Seconds" | "Minutes" | "Hours" | "Days" | "Weeks" | "Months" | "Years",
-) => {
-	const options: Record<typeof unit, number> = {
-		Milliseconds: time,
-		Seconds: time * 1000,
-		Minutes: time * 1000 * 60,
-		Hours: time * 1000 * 60 * 60,
-		Days: time * 1000 * 60 * 60 * 24,
-		Weeks: time * 1000 * 60 * 60 * 24 * 7,
-		Months: time * 1000 * 60 * 60 * 24 * 30.4375,
-		Years: time * 1000 * 60 * 60 * 24 * 365.25,
+export function parseCronExpression(expression: string) {
+	return parser.parseExpression(expression);
+}
+
+type TimeUnit = "Milliseconds" | "Seconds" | "Minutes" | "Hours" | "Days" | "Weeks" | "Months" | "Years";
+
+export function toTimeUnit(from: { time: number; unit: TimeUnit }, to: TimeUnit) {
+	const ms: Record<typeof to, number> = {
+		Milliseconds: 1,
+		Seconds: 1000,
+		Minutes: 1000 * 60,
+		Hours: 1000 * 60 * 60,
+		Days: 1000 * 60 * 60 * 24,
+		Weeks: 1000 * 60 * 60 * 24 * 7,
+		Months: 1000 * 60 * 60 * 24 * 30.44,
+		Years: 1000 * 60 * 60 * 24 * 365.25,
 	};
-	return Number(options[unit].toFixed(2));
-};
 
-export const toSeconds = (ms: number) => Number((ms / 1000).toFixed(2));
+	const timeInMilliseconds = from.time * ms[from.unit];
+	const convertedTime = timeInMilliseconds / ms[to];
+	return Number(convertedTime.toFixed(2));
+}
 
-export const toMinutes = (ms: number) => Number((ms / (1000 * 60)).toFixed(2));
-
-export const toHours = (ms: number) => Number((ms / (1000 * 60 * 60)).toFixed(2));
-
-export const toTimezone = (date: Date | string | number, timezone: string) => toZonedTime(date, timezone);
-
-export const fromTimezone = (date: Date | string | number, timezone: string) => fromZonedTime(date, timezone);
-
-export const isValid = (year: number, month: number, day: number) => {
-	const date = new Date(year, month - 1, day);
-	return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
-};
-
-export const getPrevious = (expression: string) => {
-	const result = parser.parseExpression(expression);
-	return DateFns.subMilliseconds(new Date(), result.next().getTime() - result.prev().getTime());
-};
-
-type FormatOptions = {
+type FormatDateOptions = {
 	/**
 	 * Date format
 	 * @default "dd/MM/yyyy HH:mm"
@@ -62,16 +49,19 @@ type FormatOptions = {
 	 * @default "utc"
 	 */
 	timezone?: string;
-	/** @default "en-US" */
+	/**
+	 * @default "en-US"
+	 */
 	locale?: string;
 };
 
-export const formatDate = (
+export function formatDate(
 	date: number | Date,
-	{ format = "dd/MM/yyyy HH:mm", timezone = "utc", locale = "en-US" }: FormatOptions = {},
-) => {
-	return formatInTimeZone(date, timezone, format, { locale: getLocale(locale) });
-};
+	{ format = "dd/MM/yyyy HH:mm", timezone = "utc", locale = "en-US" }: FormatDateOptions = {},
+) {
+	const options = { locale: getLocale(locale), in: tz(timezone) };
+	return DateFns.formatDate(date, format, options);
+}
 
 type FormatDistanceOptions = {
 	/**
@@ -79,20 +69,28 @@ type FormatDistanceOptions = {
 	 * @default new Date()
 	 */
 	to?: number | Date;
-	/** @default "en-US" */
+	/**
+	 * Timezone
+	 * @default "utc"
+	 */
+	timezone?: string;
+	/**
+	 * @default "en-US"
+	 */
 	locale?: string;
 };
 
-export const formatDistance = (
+export function formatDistance(
 	from: number | Date,
-	{ to = new Date(), locale = "en-US" }: FormatDistanceOptions = {},
-) => {
-	return DateFns.formatDistance(from, to, { addSuffix: true, locale: getLocale(locale) });
-};
+	{ to = new Date(), timezone = "utc", locale = "en-US" }: FormatDistanceOptions = {},
+) {
+	const options = { addSufix: true, locale: getLocale(locale), in: tz(timezone) };
+	return DateFns.formatDistance(from, to, options);
+}
 
-export const formatTime = (ms: number) => {
+export function formatTime(ms: number) {
 	return Object.entries(DateFns.intervalToDuration({ start: 0, end: ms }))
 		.filter(({ 1: value }) => !!value)
 		.map(([key, value]) => `${value}${key.charAt(0)}`)
 		.join("");
-};
+}

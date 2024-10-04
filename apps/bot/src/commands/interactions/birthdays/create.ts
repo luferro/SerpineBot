@@ -1,4 +1,4 @@
-import { isValid } from "@luferro/helpers/datetime";
+import { isDate } from "@luferro/helpers/datetime";
 import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import { t } from "i18next";
 import type { InteractionCommandData, InteractionCommandExecute } from "~/types/bot.js";
@@ -30,7 +30,7 @@ export const execute: InteractionCommandExecute = async ({ client, interaction }
 	const month = interaction.options.getInteger(data.options[1].name, true);
 	const year = interaction.options.getInteger(data.options[2].name, true);
 
-	if (!isValid(year, month, day)) throw new Error(t("errors.date.invalid"));
+	if (!isDate(`${year}-${month}-${day}`)) throw new Error(t("errors.date.invalid"));
 
 	const userId = interaction.user.id;
 	await client.db.birthday.upsert({

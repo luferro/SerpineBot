@@ -1,4 +1,4 @@
-import { toHours } from "@luferro/helpers/datetime";
+import { toTimeUnit } from "@luferro/helpers/datetime";
 import { fetcher } from "@luferro/helpers/fetch";
 import { Scraper } from "@luferro/scraper";
 import type { Payload, Playtime, Result } from "./hltb.types.js";
@@ -94,9 +94,9 @@ export class HLTBApi {
 			url: `${HLTBApi.BASE_URL}/game/${id}`,
 			image: game_image ? `${HLTBApi.BASE_URL}/games/${game_image}` : null,
 			playtimes: {
-				main: comp_main !== 0 ? `${toHours(comp_main * 1000)}h` : null,
-				mainExtra: comp_plus !== 0 ? `${toHours(comp_plus * 1000)}h` : null,
-				completionist: comp_100 !== 0 ? `${toHours(comp_100 * 1000)}h` : null,
+				main: comp_main !== 0 ? `${toTimeUnit({ time: comp_main, unit: "Seconds" }, "Hours")}h` : null,
+				mainExtra: comp_plus !== 0 ? `${toTimeUnit({ time: comp_plus, unit: "Seconds" }, "Hours")}h` : null,
+				completionist: comp_100 !== 0 ? `${toTimeUnit({ time: comp_100, unit: "Seconds" }, "Hours")}h` : null,
 			},
 		};
 	}
