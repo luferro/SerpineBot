@@ -17,8 +17,12 @@ COPY --from=builder /app/.env .
 COPY --from=builder /app/tsconfig.json .
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-RUN if [ -f "/app/$ENV_PATH/.env" ]; then cp /app/$ENV_PATH/.env ./$ENV_PATH/.env; fi
-RUN if [ -n "$ENV_PATH" ]; then cat /app/.env >> ./$ENV_PATH/.env 2>/dev/null || cp /app/.env ./$ENV_PATH/.env; fi
+RUN if [ -n "$ENV_PATH" ]; then \
+    if [ -f "/app/$ENV_PATH/.env" ]; then \
+        cp /app/$ENV_PATH/.env ./$ENV_PATH/.env; \
+    fi; \
+    cat /app/.env >> ./$ENV_PATH/.env 2>/dev/null || cp /app/.env ./$ENV_PATH/.env; \
+fi
 
 RUN pnpm install --frozen-lockfile
 COPY --from=builder /app/out/full/ .
