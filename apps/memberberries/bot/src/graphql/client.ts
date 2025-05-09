@@ -40,13 +40,6 @@ export class ExtendedGraphQLClient extends GraphQLClient {
 	override createServicesContext() {
 		const config = loadConfig();
 
-		console.log({
-			igdb: `Basic ${Buffer.from(`${config.get("services.igdb.clientId")}:${config.get("services.igdb.clientSecret")}`).toString("base64")}`,
-			itad: config.get("services.itad.apiKey"),
-			reddit: `Basic ${Buffer.from(`${config.get("services.reddit.clientId")}:${config.get("services.reddit.clientSecret")}`).toString("base64")}`,
-			steam: config.get("services.steam.apiKey"),
-		});
-
 		return {
 			igdb: `Basic ${Buffer.from(`${config.get("services.igdb.clientId")}:${config.get("services.igdb.clientSecret")}`).toString("base64")}`,
 			itad: config.get("services.itad.apiKey"),
