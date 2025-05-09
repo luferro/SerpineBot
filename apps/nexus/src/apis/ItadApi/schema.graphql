@@ -1,0 +1,120 @@
+type Query {
+	itad: Itad!
+}
+
+type Itad {
+	search(query: String!): [ItadSearchResult!]!
+	deal(input: ItadDealInput!): ItadOverview!
+	freebies(country: String = "PT"): [ItadFreebie!]!
+}
+
+# Input
+
+input ItadDealInput {
+	id: String!
+	country: String = "PT"
+}
+
+# Data
+
+type ItadSearchResult {
+	id: String!
+	title: String!
+}
+
+type ItadPrice {
+	amount: Float!
+	amountInt: Int!
+	currency: String!
+}
+
+type ItadHistoricalLow {
+	all: ItadPrice
+	y1: ItadPrice
+	m3: ItadPrice
+}
+
+type ItadDeal {
+	url: String!
+	voucher: String
+	store: String!
+	regular: ItadPrice!
+	discounted: ItadPrice!
+	discount: Int!
+	drm: [String!]!
+	platforms: [String!]!
+	storeHistoricalLow: ItadPrice
+	timestamp: Timestamp!
+	expiry: Timestamp
+}
+
+type ItadBundleTierGame {
+	id: String!
+	slug: String!
+	title: String!
+	type: String
+	mature: Boolean!
+}
+
+type ItadBundleTier {
+	price: ItadPrice
+	games: [ItadBundleTierGame!]!
+}
+
+type ItadBundle {
+	id: Int!
+	title: String!
+	url: String!
+	store: String!
+	tiers: [ItadBundleTier!]!
+	timestamp: Timestamp!
+	expiry: Timestamp
+}
+
+type ItadReviews {
+	score: Int!
+	source: String!
+	count: Int!
+	url: String!
+}
+
+type ItadPlayerCount {
+	recent: Int!
+	day: Int!
+	week: Int!
+	peak: Int!
+}
+
+type ItadOverview {
+	id: String!
+	appId: Int!
+	slug: String!
+	title: String!
+	image: String
+	releaseDate: String
+	reviews: ItadReviews
+	playerCount: ItadPlayerCount
+	isEarlyAccess: Boolean!
+	hasAchievements: Boolean!
+	hasTradingCards: Boolean!
+	historicalLow: ItadHistoricalLow!
+	deals: [ItadDeal!]!
+	bundles: [ItadBundle!]!
+}
+
+type ItadFreebie {
+	id: String!
+	slug: String!
+	title: String!
+	type: String
+	url: String!
+	voucher: String
+	store: String!
+	regular: ItadPrice!
+	discounted: ItadPrice!
+	discount: Int!
+	drm: [String!]!
+	platforms: [String!]!
+	timestamp: Timestamp!
+	expiry: Timestamp
+}

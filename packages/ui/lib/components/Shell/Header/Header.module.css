@@ -1,0 +1,10 @@
+.header {
+    background-color: transparent;
+    border-color: transparent;
+    z-index: 1000;
+}
+
+.scrolling {
+    background-color: var(--mantine-primary-background-color);
+    border-color: var(--mantine-primary-color-filled);
+}

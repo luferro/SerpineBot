@@ -1,0 +1,12 @@
+.button {
+    background-color: var(--mantine-secondary-background-color);
+    border: none;
+}
+
+.actions-group {
+    gap: var(--mantine-spacing-xs);
+
+    &:before {
+        color: var(--mantine-primary-color-filled);
+    }
+}

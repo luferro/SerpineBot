@@ -1,0 +1,18 @@
+.wrapper {
+    border-left: var(--mantine-spacing-sm) solid var(--mantine-primary-color-filled);
+    border-radius: var(--mantine-radius-default);
+    padding-left: var(--mantine-spacing-sm);
+
+    & .label {
+        color: var(--mantine-primary-color-filled);
+    }
+}
+
+.collapse-button {
+    color: var(--mantine-color-white);
+}
+
+.grid {
+    white-space: nowrap;
+    grid-auto-rows: 1fr;
+}

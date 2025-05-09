@@ -1,0 +1,138 @@
+enum SteamChartType {
+	TOP_SELLERS
+	TOP_PLAYED
+	UPCOMING_GAMES
+}
+
+type Query {
+	steam: Steam!
+}
+
+type Steam {
+	search(query: String!): [SteamSearchResult!]!
+	steamId64(vanityUrl: String!): String
+	profile(steamId64: String!): SteamProfile!
+	recentlyPlayed(steamId64: String!): [SteamRecentlyPlayedEntry!]!
+	wishlist(steamId64: String!): [SteamWishlistEntry!]!
+	playerCount(appId: Int!): Int!
+	store(appIds: [Int!]!): [SteamApp!]!
+	upcomingSales: SteamSales!
+	chart(chart: SteamChartType!): [SteamChartEntry!]!
+}
+
+# Data
+
+type SteamSearchResult {
+	appId: Int!
+	title: String!
+	url: String!
+	image: String!
+	price: String!
+}
+
+type SteamAppRelease {
+	date: Timestamp
+	customMessage: String
+}
+
+type SteamAppTrailer {
+	sd: [String!]!
+	max: [String!]!
+}
+
+type SteamAppTrailers {
+	title: String!
+	trailer: SteamAppTrailer!
+}
+
+type SteamAppCapsuleAssets {
+	hero: String!
+	main: String!
+	small: String!
+}
+
+type SteamAppLibraryAssets {
+	capsule: String!
+	capsule2x: String!
+	hero: String!
+	hero2x: String!
+}
+
+type SteamAppAssets {
+	header: String!
+	background: String!
+	communityIcon: String!
+	capsule: SteamAppCapsuleAssets!
+	library: SteamAppLibraryAssets!
+}
+
+type SteamApp {
+	id: Int!
+	title: String!
+	url: String!
+	release: SteamAppRelease!
+	description: String!
+	discount: Int!
+	regular: String
+	discounted: String
+	isFree: Boolean!
+	isReleased: Boolean!
+	isGiftable: Boolean!
+	developers: [String!]!
+	publishers: [String!]!
+	franchises: [String!]!
+	screenshots: [String!]!
+	trailers: [SteamAppTrailers!]!
+	assets: SteamAppAssets
+}
+
+type SteamProfile {
+	id: String!
+	name: String!
+	image: String!
+	status: String!
+	logoutAt: Timestamp!
+	createdAt: Timestamp!
+}
+
+type SteamRecentlyPlayedEntry {
+	id: String!
+	title: String!
+	url: String!
+	totalHours: Float!
+	biweeklyHours: Float!
+}
+
+type SteamWishlistEntry {
+	priority: Int!
+	id: Int!
+	title: String!
+	url: String!
+	release: SteamAppRelease!
+	description: String!
+	discount: Int!
+	regular: String
+	discounted: String
+	isFree: Boolean!
+	isReleased: Boolean!
+	isGiftable: Boolean!
+	developers: [String!]!
+	publishers: [String!]!
+	franchises: [String!]!
+	screenshots: [String!]!
+	trailers: [SteamAppTrailers!]!
+	assets: SteamAppAssets
+}
+
+type SteamSales {
+	sale: String
+	status: String!
+	upcoming: [String!]!
+}
+
+type SteamChartEntry {
+	position: Int!
+	name: String!
+	url: String!
+	count: String
+}

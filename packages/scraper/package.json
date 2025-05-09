@@ -7,21 +7,19 @@
 	"exports": "./dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"build": "tsc",
-		"lint": "eslint --fix ."
+		"build": "tsc"
 	},
 	"keywords": [],
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^22.7.4",
-		"typescript": "^5.6.2"
+		"@types/node": "^22.15.2",
+		"typescript": "^5.8.3"
 	},
 	"dependencies": {
-		"@luferro/helpers": "workspace:^",
 		"cheerio": "^1.0.0",
-		"playwright": "^1.47.2",
-		"rss-parser": "^3.13.0",
-		"ytdl-core": "4.11.5"
+		"fingerprint-injector": "^2.1.66",
+		"header-generator": "^2.1.66",
+		"playwright": "^1.52.0"
 	}
 }

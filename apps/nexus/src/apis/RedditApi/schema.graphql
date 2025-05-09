@@ -1,0 +1,38 @@
+type Query {
+    reddit: Reddit!
+}
+
+type Reddit {
+    posts(input: RedditPostsInput!): [RedditPost!]!
+}
+
+# Input
+
+input RedditPostsInput {
+    subreddit: String!
+    flairs: [String!] = []
+    sort: String = "hot"
+    limit: Int = 100
+}
+
+# Data
+
+type RedditPost {
+    title: String!
+    url: String!
+    selfurl: String!
+    selftext: String
+    gallery: [RedditGalleryEntry!]!
+    isSelf: Boolean!
+    isCrosspost: Boolean!
+    isNsfw: Boolean!
+    isGallery: Boolean!
+    isImage: Boolean!
+    isVideo: Boolean!
+    isYoutubeEmbed: Boolean!
+    publishedAt: Date
+}
+
+type RedditGalleryEntry {
+    url: String!
+}

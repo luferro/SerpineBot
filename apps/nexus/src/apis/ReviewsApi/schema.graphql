@@ -1,0 +1,40 @@
+type Query {
+    reviews: Reviews!
+}
+
+type Reviews {
+    search(query: String!): [ReviewsSearchResult!]!
+    review(url: String!): Review!
+}
+
+type ReviewsSearchResult {
+    title: String!
+    url: String!
+    score: Int!
+}
+
+type ReviewTrailer {
+    title: String!
+    description: String!
+    thumbnailUrl: String!
+}
+
+type ReviewAggregateRating {
+    tier: String!
+    ratingValue: Int!
+    reviewCount: Int!
+}
+
+type Review {
+    title: String!
+    url: String!
+    image: String!
+    description: String!
+    releaseDate: Timestamp!
+    genres: [String!]!
+    platforms: [String!]!
+    trailer: ReviewTrailer
+    aggregateRating: ReviewAggregateRating!
+    developers: [String!]!
+    publishers: [String!]!
+}

@@ -1,0 +1,12 @@
+schema: ./src/**/*.graphql
+config:
+  contextType: "~/context.js#Context"
+generates:
+  src/model/schema.generated.ts:
+    config:
+      scalars:
+        DateTime: string | number
+      maybeValue: "T | undefined"
+    plugins:
+      - "@graphql-codegen/typescript"
+      - "@graphql-codegen/typescript-resolvers"

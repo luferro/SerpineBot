@@ -1,0 +1,11 @@
+.action {
+    @mixin hover {
+        color: var(--mantine-color-black);
+        background-color: var(--mantine-primary-color-filled);
+    }
+
+    &:where([data-selected]) {
+        color: var(--mantine-color-black);
+        background-color: var(--mantine-primary-color-filled);
+    }
+}

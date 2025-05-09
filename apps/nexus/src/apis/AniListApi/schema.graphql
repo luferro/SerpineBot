@@ -1,0 +1,435 @@
+enum AniListMediaType {
+    ANIME
+    MANGA
+}
+
+type Query {
+    aniList: AniList!
+}
+
+type AniList {
+    browse(input: AniListBrowseInput): AniListMediaPage!
+    trending: AniListMediaPage!
+    search(input: AniListSearchInput!): AniListMultiSearchResult!
+    genres: [String!]!
+    tags: [AniListTag!]!
+    media(input: AniListMediaInput!): AniListMediaWithConnections!
+    recommendations(input: AniListPageInput!): AniListMediaRecommendationsPage!
+    studio(input: AniListPageInput!): AniListStudioWithConnections!
+    character(input: AniListCharacterPageInput!): AniListCharacterWithConnections!
+    characters(input: AniListPageInput!): AniListCharactersPage!
+    staffMember(input: AniListStaffMemberPageInput!): AniListStaffWithConnections!
+    staffMembers(input: AniListPageInput!): AniListStaffMembersPage!
+    airingSchedule(input: AniListAiringScheduleInput): [AniListAiringSchedule!]!
+}
+
+# Input
+
+input AniListBrowseInput {
+    id: Int
+    page: Int
+    type: AniListMediaType
+    isAdult: Boolean
+    format: [String]
+    status: String
+    countryOfOrigin: String
+    source: String
+    season: String
+    seasonYear: Int
+    year: String
+    yearLesser: Int
+    yearGreater: Int
+    episodeLesser: Int
+    episodeGreater: Int
+    durationLesser: Int
+    durationGreater: Int
+    chapterLesser: Int
+    chapterGreater: Int
+    volumeLesser: Int
+    volumeGreater: Int
+    genres: [String]
+    excludedGenres: [String]
+    tags: [String]
+    excludedTags: [String]
+    sort: [String]
+}
+
+input AniListSearchInput {
+    query: String!
+    isMature: Boolean = false
+}
+
+input AniListMediaInput {
+    id: Int!
+    type: AniListMediaType!
+}
+
+input AniListPageInput {
+    id: Int!
+    page: Int
+}
+
+input AniListCharacterPageInput {
+    id: Int!
+    page: Int
+    sort: String
+    withRoles: Boolean
+}
+
+input AniListStaffMemberPageInput {
+    id: Int!
+    type: AniListMediaType
+    characterPage: Int
+    staffPage: Int
+    sort: String
+    withCharacterRoles: Boolean
+    withStaffRoles: Boolean
+}
+
+input AniListAiringScheduleInput {
+    start: Timestamp!
+    end: Timestamp!
+}
+
+# Data
+
+type AniListPageInfo {
+    total: Int
+    perPage: Int
+    currentPage: Int
+    lastPage: Int
+    hasNextPage: Boolean
+}
+
+type AniListMediaSearchResult {
+    pageInfo: AniListPageInfo!
+    results: [AniListMedia]
+}
+
+type AniListCharactersSearchResult {
+    pageInfo: AniListPageInfo!
+    results: [AniListCharacter]
+}
+
+type AniListStaffSearchResult {
+    pageInfo: AniListPageInfo!
+    results: [AniListStaff]
+}
+
+type AniListStudiosSearchResult {
+    pageInfo: AniListPageInfo!
+    results: [AniListStudio]
+}
+
+type AniListMultiSearchResult {
+    anime: AniListMediaSearchResult!
+    manga: AniListMediaSearchResult!
+    characters: AniListCharactersSearchResult!
+    staff: AniListStaffSearchResult!
+    studios: AniListStudiosSearchResult!
+}
+
+type AniListTitle {
+    english: String
+    romaji: String
+    native: String!
+}
+
+type AniListCoverImage {
+    medium: String
+    large: String
+    extraLarge: String
+}
+
+type AniListTrailer {
+    id: String
+    url: String
+}
+
+type AniListFuzzyDate {
+    day: String
+    month: String
+    year: String
+}
+
+type AniListEpisode {
+    episode: Int
+    airingAt: Timestamp
+}
+
+type AniListRanking {
+    id: Int!
+    rank: Int!
+    context: String!
+    type: String!
+    format: String!
+    season: String
+    year: Int
+    allTime: Boolean!
+    formatted: String!
+}
+
+type AniListStream {
+    name: String!
+    url: String!
+    iconUrl: String!
+}
+
+type AniListTracker {
+    name: String!
+    url: String!
+}
+
+type AniListTag {
+    name: String!
+    description: String!
+    category: String!
+    isAdult: Boolean!
+}
+
+type AniListMedia {
+    id: Int!
+	malId: Int
+	type: AniListMediaType!
+	title: AniListTitle!
+	coverImage: AniListCoverImage!
+	bannerImage: String
+	trailer: AniListTrailer!
+	description: String
+	isMature: Boolean!
+	isLicensed: Boolean!
+	format: String
+	status: String
+	source: String
+	countryOfOrigin: String!
+	startDate: AniListFuzzyDate
+	endDate: AniListFuzzyDate
+	genres: [String!]!
+	season: String
+	seasonYear: Int
+	episodes: Int
+	duration: Int
+	nextAiringEpisode: AniListEpisode!
+	volumes: Int
+	chapters: Int
+	popularity: Int
+	averageScore: Int
+	meanScore: Int
+	rankings: [AniListRanking!]!
+	streams: [AniListStream!]!
+    trackers: [AniListTracker!]!
+}
+
+type AniListMediaWithConnections {
+    id: Int!
+	malId: Int
+	type: AniListMediaType!
+	title: AniListTitle!
+	coverImage: AniListCoverImage!
+	bannerImage: String
+	trailer: AniListTrailer!
+	description: String
+	isMature: Boolean!
+	isLicensed: Boolean!
+	format: String
+	status: String
+	source: String
+	countryOfOrigin: String!
+	startDate: AniListFuzzyDate
+	endDate: AniListFuzzyDate
+	genres: [String!]!
+	season: String
+	seasonYear: Int
+	episodes: Int
+	duration: Int
+	nextAiringEpisode: AniListEpisode!
+	volumes: Int
+	chapters: Int
+	popularity: Int
+	averageScore: Int
+	meanScore: Int
+	rankings: [AniListRanking!]!
+	streams: [AniListStream!]!
+    trackers: [AniListTracker!]!
+    relations: [AniListMediaRelationsConnection!]!
+    recommendations: [AniListMediaRecommendationsConnection!]!
+    characters: [AniListMediaCharactersConnection!]!
+    staff: [AniListMediaStaffConnection!]!
+    studios: [AniListMediaStudiosConnection!]!
+}
+
+type AniListStaff {
+    id: Int!
+	name: String!
+	language: String!
+	image: String
+	description: String
+	age: Int
+	gender: String
+	yearsActive: [Int!]
+	homeTown: String
+	bloodType: String
+	primaryOccupations: [String!]!
+	dateOfBirth: AniListFuzzyDate!
+	dateOfDeath: AniListFuzzyDate!
+}
+
+type AniListStaffWithConnections {
+    id: Int!
+	name: String!
+	language: String!
+	image: String
+	description: String
+	age: Int
+	gender: String
+	yearsActive: [Int!]
+	homeTown: String
+	bloodType: String
+	primaryOccupations: [String!]!
+	dateOfBirth: AniListFuzzyDate!
+	dateOfDeath: AniListFuzzyDate!
+    voiceActing: AniListStaffVoiceActingPage!
+    production: AniListStaffProductionPage!
+}
+
+type AniListCharacter {
+    id: Int!
+	name: String!
+	image: String
+	description: String
+	age: String
+	gender: String
+	bloodType: String
+	dateOfBirth: AniListFuzzyDate!
+}
+
+type AniListCharacterWithConnections {
+    id: Int!
+	name: String!
+	image: String
+	description: String
+	age: String
+	gender: String
+	bloodType: String
+	dateOfBirth: AniListFuzzyDate!
+    media: AniListCharacterPage!
+}
+
+type AniListStudio {
+    id: Int!
+    name: String!
+    isAnimationStudio: Boolean
+}
+
+type AniListStudioWithConnections {
+    id: Int!
+    name: String
+    isAnimationStudio: Boolean
+    media: AniListStudioPage!
+}
+
+type AniListAiringSchedule {
+    id: Int!
+    episode: Int!
+    airingAt: Int!
+    media: AniListMediaWithConnections!
+}
+
+# Connections
+
+type AniListMediaRelationsConnection {
+    relationType: String
+    media: AniListMedia!
+}
+
+type AniListMediaRecommendationsConnection {
+    id: Int!
+    rating: Int
+    media: AniListMedia!
+}
+
+type AniListMediaStaffConnection {
+    role: String
+    staff: AniListStaff!
+}
+
+type AniListMediaCharactersConnection {
+    role: String
+    character: AniListCharacter!
+    voiceActors: [AniListStaff!]!
+}
+
+type AniListMediaStudiosConnection {
+    isMain: Boolean
+    studio: AniListStudio!
+}
+
+type AniListCharacterMediaConnection {
+    role: String!
+    staff: [AniListStaff!]!
+    media: AniListMedia!
+}
+
+type AniListStaffCharactersConnection {
+    role: String!
+    characters: [AniListCharacter!]!
+    media: AniListMedia!
+}
+
+type AniListStaffVoiceActingConnection {
+    role: String!
+    characters: [AniListCharacter!]!
+    media: AniListMedia!
+}
+
+type AniListStaffProductionConnection {
+    role: String!
+    media: AniListMedia!
+}
+
+type AniListStudioMediaConnection {
+    isMainStudio: Boolean!
+    media: AniListMedia!
+}
+
+# Pages
+
+type AniListMediaPage {
+    pageInfo: AniListPageInfo!
+    media: [AniListMediaWithConnections!]!
+}
+
+type AniListMediaRecommendationsPage {
+    pageInfo: AniListPageInfo!
+    recommendations: [AniListMediaRecommendationsConnection!]!
+}
+
+type AniListCharacterPage {
+    pageInfo: AniListPageInfo!
+    media: [AniListCharacterMediaConnection!]!
+}
+
+type AniListCharactersPage {
+    pageInfo: AniListPageInfo!
+    characters: [AniListMediaCharactersConnection!]!
+}
+
+type AniListStaffMembersPage {
+    pageInfo: AniListPageInfo!
+    staff: [AniListMediaStaffConnection!]!
+}
+
+type AniListStaffVoiceActingPage {
+    pageInfo: AniListPageInfo!
+    characters: [AniListStaffVoiceActingConnection!]!
+}
+
+type AniListStaffProductionPage {
+    pageInfo: AniListPageInfo!
+    roles: [AniListStaffProductionConnection!]!
+}
+
+type AniListStudioPage {
+    pageInfo: AniListPageInfo!
+    media: [AniListStudioMediaConnection!]!
+}

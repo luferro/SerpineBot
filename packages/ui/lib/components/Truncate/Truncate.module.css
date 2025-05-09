@@ -1,0 +1,25 @@
+.link {
+    color: var(--mantine-primary-color-filled);
+    text-decoration: none;
+}
+
+.spoiler {
+    background-color: var(--mantine-color-gray-filled);
+    color: transparent;
+    padding-block: 1px;
+
+    & a {
+        all: unset;
+    }
+
+    &:hover {
+        background-color: inherit;
+        color: inherit;
+
+        & a {
+            all: revert;
+            color: var(--mantine-primary-color-filled);
+            text-decoration: none;
+        }
+    }
+}

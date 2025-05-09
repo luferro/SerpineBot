@@ -2,7 +2,7 @@
 	"$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
 	"organizeImports": {
 		"enabled": true,
-		"ignore": ["__generated__/**/*.ts"]
+		"ignore": ["__generated__/**/*.ts", "*.generated.ts"]
 	},
 	"linter": {
 		"enabled": true,
@@ -10,12 +10,12 @@
 			"recommended": true,
 			"style": { "noNonNullAssertion": "off", "noParameterAssign": "off" }
 		},
-		"ignore": ["__generated__/**/*.ts"]
+		"ignore": ["__generated__/**/*.ts", "*.generated.ts"]
 	},
 	"formatter": {
 		"enabled": true,
 		"lineWidth": 120,
-		"ignore": ["__generated__/**/*.ts"]
+		"ignore": ["__generated__/**/*.ts", "*.generated.ts"]
 	},
 	"vcs": {
 		"enabled": true,

@@ -1,0 +1,46 @@
+type Query {
+    animeSchedule: AnimeSchedule!
+}
+
+type AnimeSchedule {
+    airingSchedule(input: AnimeScheduleAiringScheduleInput): [AnimeScheduleAiringSchedule!]!
+}
+
+# Input
+
+input AnimeScheduleAiringScheduleInput {
+    start: Timestamp!
+    end: Timestamp!
+    tz: String = "Europe/Lisbon"
+}
+
+# Data
+
+type AnimeScheduleTitle {
+    default: String!
+    romaji: String
+    english: String
+    native: String
+}
+
+type AnimeScheduleAiringEpisodeDelay {
+    from: String
+    to: String
+}
+
+type AnimeScheduleAiringEpisode {
+    episode: Int!
+    airingAt: Timestamp!
+    delay: AnimeScheduleAiringEpisodeDelay!
+}
+
+type AnimeScheduleAiringSchedule {
+    id: String!
+    title: AnimeScheduleTitle!
+    airing: AnimeScheduleAiringEpisode!
+    episodes: Int
+    duration: Int!
+    hasAired: Boolean!
+    isAiring: Boolean!
+    isDelayed: Boolean!
+}

@@ -1,0 +1,58 @@
+{
+	"name": "@luferro/utils",
+	"private": true,
+	"type": "module",
+	"version": "1.0.0",
+	"description": "Collection of utilities",
+	"exports": {
+		"./currency": "./dist/currency/index.js",
+		"./data": "./dist/data/index.js",
+		"./date": "./dist/date/index.js",
+		"./rss": "./dist/rss/index.js",
+		"./time": "./dist/time/index.js",
+		"./youtube": "./dist/youtube/index.js"
+	},
+	"typesVersions": {
+		"*": {
+			"currency": [
+				"./dist/currency/index.d.ts"
+			],
+			"data": [
+				"./dist/data/index.d.ts"
+			],
+			"date": [
+				"./dist/date/index.d.ts"
+			],
+			"rss": [
+				"./dist/rss/index.d.ts"
+			],
+			"time": [
+				"./dist/time/index.d.ts"
+			],
+			"youtube": [
+				"./dist/youtube/index.d.ts"
+			]
+		}
+	},
+	"scripts": {
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^22.15.2",
+		"@types/ramda": "^0.30.2",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"@date-fns/tz": "^1.2.0",
+		"cron-parser": "^4.9.0",
+		"date-fns": "^4.1.0",
+		"pino": "^9.6.0",
+		"pino-pretty": "^11.3.0",
+		"ramda": "^0.30.1",
+		"rss-parser": "^3.13.0",
+		"ytdl-core": "4.11.5"
+	}
+}

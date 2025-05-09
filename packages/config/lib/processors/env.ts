@@ -1,4 +1,4 @@
-import { capitalize } from "@luferro/helpers/transform";
+import { capitalize } from "@luferro/utils/data";
 
 type Options = {
 	prefix?: string;

@@ -1,0 +1,39 @@
+{
+	"name": "nexus",
+	"private": true,
+	"type": "module",
+	"version": "1.0.0",
+	"description": "Service responsible for connecting apps to 3rd party services",
+	"exports": "./dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"start": "RUNTIME_ENV=production node dist/index.js",
+		"dev": "RUNTIME_ENV=development node dist/index.js",
+		"build": "rimraf dist/ && tsc && tsc-alias && copyfiles -u 1 src/**/*.graphql dist/",
+		"gql:generate": "graphql-codegen-esm"
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"dependencies": {
+		"@apollo/utils.keyvadapter": "^4.0.0",
+		"@as-integrations/fastify": "^2.1.1",
+		"@graphql-tools/load-files": "^7.0.1",
+		"@luferro/cache": "workspace:^",
+		"@luferro/graphql": "workspace:^",
+		"@luferro/scraper": "workspace:^",
+		"@luferro/utils": "workspace:^",
+		"fastify": "^4.29.0",
+		"graphql": "^16.11.0",
+		"graphql-tag": "^2.12.6"
+	},
+	"devDependencies": {
+		"@graphql-codegen/cli": "^5.0.5",
+		"@graphql-codegen/typescript": "^4.1.6",
+		"@graphql-codegen/typescript-resolvers": "^4.5.0",
+		"copyfiles": "^2.4.1",
+		"rimraf": "^6.0.1",
+		"tsc-alias": "^1.8.15",
+		"typescript": "^5.8.3"
+	}
+}

@@ -1,0 +1,26 @@
+.navbar {
+    background-color: var(--mantine-secondary-background-color);
+    z-index: 1001;
+    height: 100%;
+    padding: 0;
+}
+
+.links {
+    padding: 5px;
+    overflow: auto;
+    height: 100%;
+}
+
+.navlink {
+    border-radius: var(--mantine-radius-xs);
+    &[data-active="true"] {
+        color: var(--mantine-color-black);
+        background-color: var(--mantine-primary-color-filled);
+        &:hover {
+            color: var(--mantine-color-text)
+        }
+    }
+    &:hover {
+        background-color: var(--mantine-primary-background-color);
+    }
+}

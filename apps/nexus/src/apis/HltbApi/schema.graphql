@@ -1,0 +1,24 @@
+type Query {
+    hltb: Hltb!
+}
+
+type Hltb {
+    search(query: String!): [HltbSearchResult!]!
+    playtimes(id: String!): HltbPlaytimes!
+}
+
+type HltbSearchResult {
+    id: String!
+    title: String!
+    releaseYear: Int!
+}
+
+type HltbPlaytimes {
+    id: String!
+    title: String!
+    url: String!
+    image: String
+    main: String
+    mainExtra: String
+    completionist: String
+}

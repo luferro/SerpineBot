@@ -6,9 +6,6 @@ node_modules
 # testing
 coverage
 
-# generated code
-__generated__
-
 # production
 dist
 .next
@@ -27,3 +24,9 @@ dist
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# drizzle
+drizzle
+
+hotaru
+randy

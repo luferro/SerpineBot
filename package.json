@@ -8,6 +8,7 @@
 		"start": "turbo run start",
 		"db:validate": "turbo run db:validate",
 		"db:generate": "turbo run db:generate",
+		"db:pull": "turbo run db:pull",
 		"db:push": "turbo run db:push",
 		"gql:generate": "turbo run gql:generate",
 		"lint": "biome lint .",
@@ -20,7 +21,7 @@
 	"packageManager": "pnpm@9.0.0",
 	"devDependencies": {
 		"@biomejs/biome": "1.9.2",
-		"turbo": "^2.1.2",
-		"typescript": "^5.6.2"
+		"turbo": "^2.5.2",
+		"typescript": "^5.8.3"
 	}
 }

@@ -1,0 +1,26 @@
+.carousel {
+    height: calc(var(--app-carousel-height) - 60px);
+}
+
+.label {
+    height: 60px;
+    padding-bottom: var(--mantine-spacing-md);
+
+    & h1 {
+        text-shadow: rgba(0, 0, 0, 0.4) 1px 2px 4px;
+    }
+
+    @media (max-width: $mantine-breakpoint-sm) {
+        padding-bottom: var(--mantine-spacing-xs);
+    }
+}
+
+.controls {
+    top: calc(var(--app-carousel-height) - var(--app-header-height) - 60px);
+    bottom: 0;
+}
+
+.slide {
+    cursor: pointer;
+    max-height: calc(var(--app-carousel-height) - var(--app-header-height));
+}

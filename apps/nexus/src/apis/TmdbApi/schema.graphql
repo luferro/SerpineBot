@@ -1,0 +1,71 @@
+type Query {
+    tmdb: Tmdb!
+}
+
+type Tmdb {
+    search(query: String!): [TmdbSearchResult!]!
+    movie(input: TmdbMediaInput!): TmdbMovie!
+    series(input: TmdbMediaInput!): TmdbSeries!
+}
+
+# Input
+
+input TmdbMediaInput {
+    id: String!
+    locale: String = "pt-PT"
+}
+
+# Data
+
+type TmdbSearchResult {
+    id: String!
+    title: String!
+    type: String!
+}
+
+type TmdbProviders {
+    buy: [String!]!
+    rent: [String!]!
+    stream: [String!]!
+}
+
+type TmdbMovie {
+    title: String!
+    image: String
+    url: String
+    tagline: String!
+    overview: String!
+    duration: String
+    score: String
+    genres: [String!]!
+    releaseDate: String!
+    providers: TmdbProviders!
+}
+
+type TmdbSeriesLastEpisode {
+    date: String!
+}
+
+type TmdbSeriesNextEpisode {
+    date: String
+}
+
+type TmdbSeriesEpisodes {
+    total: Int!
+    duration: String
+    last: TmdbSeriesLastEpisode!
+    next: TmdbSeriesNextEpisode!
+}
+
+type TmdbSeries {
+    title: String!
+    image: String
+    url: String
+    tagline: String!
+    overview: String!
+    seasons: Int!
+    episodes: TmdbSeriesEpisodes!
+    score: String
+    genres: [String!]!
+    providers: TmdbProviders!
+}
