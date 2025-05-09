@@ -1,10 +1,13 @@
+import { loadConfig } from "@luferro/config";
 import { defineConfig } from "drizzle-kit";
+
+const config = loadConfig();
 
 export default defineConfig({
 	out: "./drizzle",
 	dialect: "postgresql",
 	schema: "./src/db/schema.ts",
 	dbCredentials: {
-		url: "postgresql://luferro:serpinebot@localhost:5432/memberberries",
+		url: config.get("services.postgres.uri").concat("/memberberries"),
 	},
 });
