@@ -7,7 +7,8 @@ export class ChatInputSubcommandErrorListener extends Listener<typeof Subcommand
 		this.container.logger.warn({
 			guildId: interaction.guildId,
 			userId: interaction.user.id,
-			message: `[CHAT_INPUT_COMMCHAT_INPUT_SUBCOMMANDAND] [${command.name.toUpperCase()}] ${error.message}`,
+			message: `[CHAT_INPUT_SUBCOMMANDAND] [${command.name.toUpperCase()}] ${error.message}`,
+			stack: error.stack
 		});
 
 		if (interaction.deferred || interaction.replied) {
