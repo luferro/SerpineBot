@@ -12,11 +12,11 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^22.15.2",
+		"@types/node": "^22.15.17",
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
-		"@keyv/redis": "^3.0.1",
+		"@keyv/redis": "^4.4.0",
 		"keyv": "^5.3.3"
 	}
 }

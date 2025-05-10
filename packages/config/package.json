@@ -14,11 +14,11 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/nconf": "^0.10.7",
-		"@types/node": "^22.15.2",
+		"@types/node": "^22.15.17",
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
 		"@luferro/utils": "workspace:^",
-		"nconf": "^0.12.1"
+		"nconf": "^0.13.0"
 	}
 }

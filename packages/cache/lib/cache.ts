@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import KeyvRedis from "@keyv/redis";
 import Keyv, { type StoredDataNoRaw } from "keyv";
 
-export class RedisStore extends KeyvRedis {}
+export class RedisStore<T> extends KeyvRedis<T> {}
 
 export class Cache<T> extends Keyv<T> {
 	// biome-ignore lint/suspicious/noExplicitAny: same behaviour as keyv get
