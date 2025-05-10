@@ -17,9 +17,9 @@ export class RedditTask extends ScheduledTask {
 	public async run() {
 		await this.container.propagate("reddit", async (feeds) => {
 			const messages = [];
-			for (const { feed, options } of feeds) {
+			for (const { path: subreddit, options } of feeds) {
 				const { sort, limit, flairs } = options as WebhookFeedOptions;
-				const posts = await this.container.gql.reddit.getPosts({ input: { subreddit: feed, sort, limit, flairs } });
+				const posts = await this.container.gql.reddit.getPosts({ input: { subreddit, sort, limit, flairs } });
 				const reversedPosts = posts.slice().reverse();
 				for (const { isSelf, isYoutubeEmbed, isImage, isGallery, title, url, selfurl, gallery } of reversedPosts) {
 					const subscribers = isYoutubeEmbed ? await getSubscribers(url) : -1;

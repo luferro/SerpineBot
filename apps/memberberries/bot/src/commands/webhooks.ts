@@ -1,7 +1,7 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
 import { ChannelType, MessageFlags, type TextChannel } from "discord.js";
 import { and, eq } from "drizzle-orm";
-import { feeds, webhooks } from "~/db/schema.js";
+import { feeds, webhookToFeed, webhooks } from "~/db/schema.js";
 import type { WebhookType } from "~/types/webhooks.js";
 
 const WebhookTypeChoices: WebhookType[] = [
@@ -51,7 +51,7 @@ export class WebhooksCommand extends Subcommand {
 								.setRequired(true),
 						)
 						.addStringOption((option) =>
-							option.setName("feeds").setDescription("RSS feeds or subreddits (e.g. <feed1>;<feed2>;<feed3>)"),
+							option.setName("paths").setDescription("RSS feeds or subreddits (e.g. <path1>;<path2>;<path3>)"),
 						)
 						.addStringOption((option) =>
 							option
@@ -94,7 +94,7 @@ export class WebhooksCommand extends Subcommand {
 		const name = interaction.options.getString("name", true);
 		const type = interaction.options.getString("type", true) as WebhookType;
 		const channel = interaction.options.getChannel("channel", true) as TextChannel;
-		const feedsList = interaction.options.getString("feeds")?.split(";") ?? [];
+		const paths = interaction.options.getString("paths")?.split(";") ?? [];
 		const sort = interaction.options.getString("sort") ?? "new";
 		const flairs = interaction.options.getString("flairs")?.split(";") ?? [];
 		const limit = interaction.options.getString("limit") ?? 25;
@@ -106,13 +106,16 @@ export class WebhooksCommand extends Subcommand {
 		await this.container.db.insert(webhooks).values({ id, token, type, guildId, channelId: channel.id });
 
 		if (type === "rss" || type === "reddit") {
-			if (feedsList.length === 0) throw new Error(`Missing feeds field for ${type} webhook.`);
-			const mappedFeedsLists = feedsList.map((feed) => ({
-				feed,
+			if (paths.length === 0) throw new Error(`Missing feeds field for ${type} webhook.`);
+			const feedInputs = paths.map((path) => ({ path }));
+			const insertedFeeds = await this.container.db.insert(feeds).values(feedInputs).onConflictDoNothing().returning();
+
+			const webhookFeedInput = insertedFeeds.map((feed) => ({
 				webhookId: id,
+				feedId: feed.id,
 				options: type === "reddit" ? { sort, limit, flairs } : {},
 			}));
-			await this.container.db.insert(feeds).values(mappedFeedsLists);
+			await this.container.db.insert(webhookToFeed).values(webhookFeedInput);
 		}
 
 		return interaction.reply({

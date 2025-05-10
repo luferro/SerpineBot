@@ -33,11 +33,17 @@ container.propagate = async (type, getMessages) => {
 	for (const [guildId] of container.client.guilds.cache) {
 		const storedWebhooks = await container.db.query.webhooks.findMany({
 			where: (webhooks, { and, eq }) => and(eq(webhooks.type, type), eq(webhooks.guildId, guildId)),
-			with: { feeds: true },
+			with: { feedLinks: { with: { feed: { columns: { path: true } } } } },
 		});
 
 		for (const storedWebhook of storedWebhooks) {
-			const messages = await getMessages(storedWebhook.feeds);
+			const feeds = storedWebhook.feedLinks.map((feedLink) => ({
+				webhookId: feedLink.webhookId,
+				feedId: feedLink.feedId,
+				path: feedLink.feed.path,
+				options: feedLink.options,
+			}));
+			const messages = await getMessages(feeds);
 			if (messages.length === 0) continue;
 
 			const webhook = await container.client.fetchWebhook(storedWebhook.id, storedWebhook.token);

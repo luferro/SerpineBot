@@ -15,7 +15,7 @@ export class RSSTask extends ScheduledTask {
 		await this.container.propagate("rss", async (feeds) => {
 			if (!feeds || feeds.length === 0) return [];
 
-			const data = await consume(feeds.map(({ feed }) => feed));
+			const data = await consume(feeds.map(({ path }) => path));
 			return data.map(({ title, url }) => `${title}\n${url}`);
 		});
 	}

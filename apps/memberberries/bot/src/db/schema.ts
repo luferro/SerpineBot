@@ -1,5 +1,16 @@
 import { relations } from "drizzle-orm";
-import { boolean, date, integer, json, pgEnum, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+	boolean,
+	date,
+	integer,
+	json,
+	pgEnum,
+	pgTable,
+	primaryKey,
+	text,
+	timestamp,
+	uniqueIndex,
+} from "drizzle-orm/pg-core";
 
 const createdAt = timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
 const updatedAt = timestamp("updated_at", { withTimezone: true })
@@ -50,20 +61,47 @@ export const webhooks = pgTable(
 
 export const webhooksRelations = relations(webhooks, ({ one, many }) => ({
 	guild: one(guilds, { fields: [webhooks.guildId], references: [guilds.id] }),
-	feeds: many(feeds),
+	feedLinks: many(webhookToFeed),
 }));
 
 export const feeds = pgTable("feeds", {
 	id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-	webhookId: text("webhook_id").notNull(),
-	feed: text("feed").notNull(),
-	options: json("options").default({}).notNull(),
+	path: text("path").notNull(),
 	createdAt,
 	updatedAt,
 });
 
-export const feedsRelations = relations(feeds, ({ one, many }) => ({
-	webhooks: many(webhooks),
+export const feedsRelations = relations(feeds, ({ many }) => ({
+	webhookLinks: many(webhookToFeed),
+}));
+
+export const webhookToFeed = pgTable(
+	"webhook_to_feed",
+	{
+		webhookId: text("webhook_id")
+			.references(() => webhooks.id, { onDelete: "cascade" })
+			.notNull(),
+		feedId: integer("feed_id")
+			.references(() => feeds.id, { onDelete: "cascade" })
+			.notNull(),
+		options: json("options").default({}).notNull(),
+		createdAt,
+		updatedAt,
+	},
+	(table) => ({
+		pk: primaryKey({ columns: [table.webhookId, table.feedId] }),
+	}),
+);
+
+export const webhookToFeedRelations = relations(webhookToFeed, ({ one }) => ({
+	webhook: one(webhooks, {
+		fields: [webhookToFeed.webhookId],
+		references: [webhooks.id],
+	}),
+	feed: one(feeds, {
+		fields: [webhookToFeed.feedId],
+		references: [feeds.id],
+	}),
 }));
 
 export const events = pgTable("events", {
