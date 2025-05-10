@@ -63,7 +63,7 @@ export const feeds = pgTable("feeds", {
 });
 
 export const feedsRelations = relations(feeds, ({ one, many }) => ({
-	webhook: many(webhooks),
+	webhooks: many(webhooks),
 }));
 
 export const events = pgTable("events", {
