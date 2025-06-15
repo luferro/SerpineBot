@@ -1,0 +1,37 @@
+{
+	"name": "randy-bot",
+	"private": true,
+	"type": "module",
+	"version": "1.0.0",
+	"description": "Music discord bot.",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": "./dist/index.js",
+	"scripts": {
+		"start": "RUNTIME_ENV=production node --env-file=.env dist/index.js",
+		"dev": "RUNTIME_ENV=development node --env-file=.env dist/index.js",
+		"build": "rimraf dist/ && tsc && tsc-alias"
+	},
+	"keywords": [],
+	"author": "Luís Ferro",
+	"license": "MIT",
+	"dependencies": {
+		"@discord-player/extractor": "^7.1.0",
+		"@discordjs/opus": "^0.10.0",
+		"@luferro/config": "workspace:^",
+		"@luferro/utils": "workspace:^",
+		"@sapphire/discord.js-utilities": "^7.3.3",
+		"@sapphire/framework": "^5.3.4",
+		"discord-player": "^7.1.0",
+		"discord-player-spotify": "^1.1.2",
+		"discord-player-youtubei": "^1.4.6",
+		"discord.js": "^14.19.3",
+		"parse-duration": "^2.1.4"
+	},
+	"devDependencies": {
+		"@sapphire/pieces": "^4.3.2",
+		"rimraf": "^6.0.1",
+		"tsc-alias": "^1.8.16",
+		"typescript": "^5.8.3"
+	}
+}

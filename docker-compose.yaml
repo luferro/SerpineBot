@@ -1,14 +1,13 @@
 services:
     postgres:
         image: postgres:latest
-        container_name: postgres
         env_file:
             - .env
         environment:
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
         volumes:
-            - postgres_data:/var/lib/postgresql/data
+            - postgresql_data:/var/lib/postgresql/data
         ports:
             - "5432:5432"
         healthcheck:
@@ -16,12 +15,13 @@ services:
             interval: 1s
             timeout: 5s
             retries: 10
-        restart: always
+        networks:
+            - serpinebot
+        restart: unless-stopped
 
 
     redis:
         image: redis:latest
-        container_name: redis
         volumes:
             - redis_data:/data
         ports:
@@ -31,7 +31,9 @@ services:
             interval: 1s
             timeout: 5s
             retries: 10
-        restart: always
+        networks:
+            - serpinebot
+        restart: unless-stopped
 
     nexus:
         build:
@@ -42,11 +44,13 @@ services:
         container_name: nexus
         ports:
             - "4000:4000"
+        networks:
+            - proxy
+            - serpinebot
         restart: unless-stopped
 
     memberberries-bot:
         build:
-
             context: .
             dockerfile: Dockerfile
             args:
@@ -60,8 +64,31 @@ services:
                 condition: service_healthy
             nexus:
                 condition: service_started
+        networks:
+            - proxy
+            - serpinebot
+        restart: unless-stopped
+
+    randy-bot:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                APP_NAME: randy-bot
+                ENV_PATH: apps/randy/bot
+        container_name: randy-bot
+        networks:
+            - proxy
+            - serpinebot
         restart: unless-stopped
 
 volumes:
-    postgres_data:
+    postgresql_data:
     redis_data:
+
+networks:
+    proxy:
+        external: true
+    serpinebot:
+        driver: bridge
+        internal: true
