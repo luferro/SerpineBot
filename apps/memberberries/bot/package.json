@@ -9,7 +9,7 @@
 	"exports": "./dist/index.js",
 	"scripts": {
 		"start": "RUNTIME_ENV=production node --env-file=.env dist/index.js",
-		"dev": "node --env-file=.env dist/index.js",
+		"dev": "RUNTIME_ENV=development node --env-file=.env dist/index.js",
 		"build": "rimraf dist/ && tsc && tsc-alias && copyfiles -u 1 src/**/__generated__/** dist/",
 		"gql:generate": "node --experimental-strip-types --env-file=.env scripts/codegen.ts",
 		"db:pull": "npx drizzle-kit pull",
@@ -26,14 +26,12 @@
 		"@luferro/utils": "workspace:^",
 		"@sapphire/discord.js-utilities": "^7.3.3",
 		"@sapphire/framework": "^5.3.4",
-		"@sapphire/plugin-i18next": "^7.1.3",
 		"@sapphire/plugin-scheduled-tasks": "^10.0.2",
 		"@sapphire/plugin-subcommands": "^7.0.1",
 		"chrono-node": "^2.8.0",
 		"cron": "^4.3.0",
 		"discord.js": "^14.19.3",
 		"drizzle-orm": "^0.43.1",
-		"fastify": "^5.3.2",
 		"graphql": "^16.11.0",
 		"pg": "^8.15.6"
 	},
