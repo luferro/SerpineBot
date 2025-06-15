@@ -17,12 +17,12 @@
 	"license": "MIT",
 	"dependencies": {
 		"@apollo/utils.keyvadapter": "^4.0.0",
-		"@as-integrations/fastify": "^2.1.1",
 		"@graphql-tools/load-files": "^7.0.1",
 		"@luferro/cache": "workspace:^",
 		"@luferro/graphql": "workspace:^",
 		"@luferro/scraper": "workspace:^",
 		"@luferro/utils": "workspace:^",
+		"@nitra/as-integrations-fastify": "^3.0.2",
 		"fastify": "^5.3.2",
 		"graphql": "^16.11.0",
 		"graphql-tag": "^2.12.6"

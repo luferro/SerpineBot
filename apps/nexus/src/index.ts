@@ -1,6 +1,6 @@
 import path from "node:path";
 import { KeyvAdapter } from "@apollo/utils.keyvadapter";
-import fastifyApollo, { fastifyApolloDrainPlugin, fastifyApolloHandler } from "@as-integrations/fastify";
+import fastifyApollo, { fastifyApolloDrainPlugin, fastifyApolloHandler } from "@nitra/as-integrations-fastify";
 import { loadFiles } from "@graphql-tools/load-files";
 import { GraphQLServer } from "@luferro/graphql/server";
 import fastify from "fastify";

@@ -18,8 +18,6 @@ services:
         networks:
             - serpinebot
         restart: unless-stopped
-
-
     redis:
         image: redis:latest
         volumes:
@@ -34,7 +32,6 @@ services:
         networks:
             - serpinebot
         restart: unless-stopped
-
     nexus:
         build:
             context: .
@@ -48,7 +45,6 @@ services:
             - proxy
             - serpinebot
         restart: unless-stopped
-
     memberberries-bot:
         build:
             context: .
@@ -68,7 +64,6 @@ services:
             - proxy
             - serpinebot
         restart: unless-stopped
-
     randy-bot:
         build:
             context: .

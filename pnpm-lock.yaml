@@ -136,9 +136,6 @@ importers:
       '@apollo/utils.keyvadapter':
         specifier: ^4.0.0
         version: 4.0.0
-      '@as-integrations/fastify':
-        specifier: ^2.1.1
-        version: 2.1.1(@apollo/server@4.12.0(graphql@16.11.0))(fastify@5.3.2)
       '@graphql-tools/load-files':
         specifier: ^7.0.1
         version: 7.0.1(graphql@16.11.0)
@@ -154,6 +151,9 @@ importers:
       '@luferro/utils':
         specifier: workspace:^
         version: link:../../packages/utils
+      '@nitra/as-integrations-fastify':
+        specifier: ^3.0.2
+        version: 3.0.2(@apollo/server@4.12.0(graphql@16.11.0))(fastify@5.3.2)
       fastify:
         specifier: ^5.3.2
         version: 5.3.2
@@ -589,13 +589,6 @@ packages:
     hasBin: true
     peerDependencies:
       graphql: '*'
-
-  '@as-integrations/fastify@2.1.1':
-    resolution: {integrity: sha512-iupYSQyRrlBAdsDcCYzuKjJlJAKiQpRDLd33A6yAF3Ip/rGrSDDDrxfJWp6FqyVlivSL+MQkGIphmUI/ckfZkg==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      '@apollo/server': ^4.0.0
-      fastify: ^4.4.0
 
   '@asamuzakjp/css-color@3.1.7':
     resolution: {integrity: sha512-Ok5fYhtwdyJQmU1PpEv6Si7Y+A4cYb8yNM9oiIJC9TzXPMuN9fvdonKJqcnz9TbFqV6bQ8z0giRq0iaOpGZV2g==}
@@ -1905,6 +1898,13 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
+
+  '@nitra/as-integrations-fastify@3.0.2':
+    resolution: {integrity: sha512-zwdtIdX5D2U3T+3/euVdpTFwqvpwIJvLbCi3A2IfxFoUCaDgpXJvrqKkvWnlwNLAf6qFy9CnUvevYrIaQQtgNw==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@apollo/server': ^4.0.0
+      fastify: ^5.0.0
 
   '@noble/hashes@1.7.1':
     resolution: {integrity: sha512-B8XBPsn4vT/KJAGqDzbwztd+6Yte3P4V7iafm24bxgDe/mlRuK6xmWPuCNrKt2vDafZ8MfJLlchDG/vYafQEjQ==}
@@ -3330,8 +3330,8 @@ packages:
   fast-uri@3.0.6:
     resolution: {integrity: sha512-Atfo14OibSv5wAp4VWNsFYE1AchQRTv9cBGWET4pZWHzYshFSS9NQI6I57rdKn9croWVMbYFbLhJ+yJvmZIIHw==}
 
-  fastify-plugin@4.5.1:
-    resolution: {integrity: sha512-stRHYGeuqpEZTL1Ef0Ovr2ltazUT9g844X5z/zEBFLG8RYlpDiOCIG+ATvYEp+/zmc7sN29mcIMp8gvYplYPIQ==}
+  fastify-plugin@5.0.1:
+    resolution: {integrity: sha512-HCxs+YnRaWzCl+cWRYFnHmeRFyR5GVnJTAaCJQiYzQSDwK9MgJdyAsuL3nh0EWRCYMgQ5MeziymvmAhUHYHDUQ==}
 
   fastify@5.3.2:
     resolution: {integrity: sha512-AIPqBgtqBAwkOkrnwesEE+dOyU30dQ4kh7udxeGVR05CRGwubZx+p2H8P0C4cRnQT0+EPK4VGea2DTL2RtWttg==}
@@ -6232,12 +6232,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@as-integrations/fastify@2.1.1(@apollo/server@4.12.0(graphql@16.11.0))(fastify@5.3.2)':
-    dependencies:
-      '@apollo/server': 4.12.0(graphql@16.11.0)
-      fastify: 5.3.2
-      fastify-plugin: 4.5.1
-
   '@asamuzakjp/css-color@3.1.7':
     dependencies:
       '@csstools/css-calc': 2.1.3(@csstools/css-parser-algorithms@3.0.4(@csstools/css-tokenizer@3.0.3))(@csstools/css-tokenizer@3.0.3)
@@ -7660,6 +7654,12 @@ snapshots:
 
   '@next/swc-win32-x64-msvc@15.3.2':
     optional: true
+
+  '@nitra/as-integrations-fastify@3.0.2(@apollo/server@4.12.0(graphql@16.11.0))(fastify@5.3.2)':
+    dependencies:
+      '@apollo/server': 4.12.0(graphql@16.11.0)
+      fastify: 5.3.2
+      fastify-plugin: 5.0.1
 
   '@noble/hashes@1.7.1': {}
 
@@ -9133,7 +9133,7 @@ snapshots:
 
   fast-uri@3.0.6: {}
 
-  fastify-plugin@4.5.1: {}
+  fastify-plugin@5.0.1: {}
 
   fastify@5.3.2:
     dependencies:
