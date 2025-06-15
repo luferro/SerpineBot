@@ -6,7 +6,9 @@ export class ListenerErrorListener extends Listener<typeof Events.ListenerError>
 			location: piece.location.full,
 			event: String(piece.event),
 			once: piece.once,
-			message: `[LISTENER] [${piece.name.toUpperCase()}] ${error.message}\n${error.stack}`,
+			pieceName: piece.name,
+			message: `[LISTENER] ${error.message}`,
+			stack: error.stack,
 		});
 	}
 }

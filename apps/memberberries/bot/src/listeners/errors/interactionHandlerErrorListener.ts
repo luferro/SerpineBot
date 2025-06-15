@@ -6,7 +6,8 @@ export class InteractionHandlerErrorListener extends Listener<typeof Events.Inte
 		this.container.logger.warn({
 			guildId: interaction.guildId,
 			userId: interaction.user.id,
-			message: `[INTERACTION_HANDLER] [${handler.name.toUpperCase()}] ${error.message}`,
+			handlerName: handler.name,
+			message: `[INTERACTION_HANDLER] ${error.message}`,
 		});
 
 		if ("respond" in interaction) {

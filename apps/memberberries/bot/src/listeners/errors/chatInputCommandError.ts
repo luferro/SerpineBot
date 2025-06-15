@@ -6,8 +6,8 @@ export class ChatInputCommandErrorListener extends Listener<typeof Events.ChatIn
 		this.container.logger.warn({
 			guildId: interaction.guildId,
 			userId: interaction.user.id,
-			message: `[CHAT_INPUT_COMMAND] [${command.name.toUpperCase()}] ${error.message}`,
-			stack: error.stack
+			commandName: command.name,
+			message: `[CHAT_INPUT_COMMAND_ERROR] ${error.message}`,
 		});
 
 		if (interaction.deferred || interaction.replied) {
