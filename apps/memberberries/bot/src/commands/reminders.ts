@@ -27,21 +27,24 @@ export class RemindersCommand extends Subcommand {
 
 	override registerApplicationCommands(registry: Subcommand.Registry) {
 		registry
-			.registerContextMenuCommand((builder) =>
-				builder.setName("Remind me in...").setType(ApplicationCommandType.Message),
+			.registerContextMenuCommand(
+				(builder) => builder.setName("Remind me in...").setType(ApplicationCommandType.Message),
+				{ guildIds: this.container.guildIds },
 			)
-			.registerChatInputCommand((builder) =>
-				builder
-					.setName("reminders")
-					.setDescription("Manage your reminders")
-					.addSubcommand((command) => command.setName("create").setDescription("Create a custom message reminder"))
-					.addSubcommand((command) => command.setName("list").setDescription("List all of your reminders"))
-					.addSubcommand((command) =>
-						command
-							.setName("delete")
-							.setDescription("Delete a specific reminder")
-							.addIntegerOption((option) => option.setName("id").setDescription("Reminder ID").setRequired(true)),
-					),
+			.registerChatInputCommand(
+				(builder) =>
+					builder
+						.setName("reminders")
+						.setDescription("Manage your reminders")
+						.addSubcommand((command) => command.setName("create").setDescription("Create a custom message reminder"))
+						.addSubcommand((command) => command.setName("list").setDescription("List all of your reminders"))
+						.addSubcommand((command) =>
+							command
+								.setName("delete")
+								.setDescription("Delete a specific reminder")
+								.addIntegerOption((option) => option.setName("id").setDescription("Reminder ID").setRequired(true)),
+						),
+				{ guildIds: this.container.guildIds },
 			);
 	}
 

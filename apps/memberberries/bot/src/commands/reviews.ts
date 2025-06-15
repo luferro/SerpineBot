@@ -11,11 +11,13 @@ export class HowLongToBeatCommand extends Command {
 	}
 
 	override registerApplicationCommands(registry: Command.Registry) {
-		registry.registerChatInputCommand((builder) =>
-			builder
-				.setName("reviews")
-				.setDescription("How well did a game fare?")
-				.addStringOption((command) => command.setName("game").setDescription("Game title").setRequired(true)),
+		registry.registerChatInputCommand(
+			(builder) =>
+				builder
+					.setName("reviews")
+					.setDescription("How well did a game fare?")
+					.addStringOption((command) => command.setName("game").setDescription("Game title").setRequired(true)),
+			{ guildIds: this.container.guildIds },
 		);
 	}
 

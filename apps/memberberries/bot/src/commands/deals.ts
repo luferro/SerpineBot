@@ -11,13 +11,15 @@ export class DealsCommand extends Command {
 	}
 
 	override registerApplicationCommands(registry: Command.Registry) {
-		registry.registerChatInputCommand((builder) =>
-			builder
-				.setName("deals")
-				.setDescription("What is the current best deal for your next game?")
-				.addStringOption((command) =>
-					command.setName("game").setDescription("Game title").setRequired(true).setAutocomplete(true),
-				),
+		registry.registerChatInputCommand(
+			(builder) =>
+				builder
+					.setName("deals")
+					.setDescription("What is the current best deal for your next game?")
+					.addStringOption((command) =>
+						command.setName("game").setDescription("Game title").setRequired(true).setAutocomplete(true),
+					),
+			{ guildIds: this.container.guildIds },
 		);
 	}
 

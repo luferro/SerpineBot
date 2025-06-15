@@ -10,13 +10,15 @@ export class HowLongToBeatCommand extends Command {
 	}
 
 	override registerApplicationCommands(registry: Command.Registry) {
-		registry.registerChatInputCommand((builder) =>
-			builder
-				.setName("hltb")
-				.setDescription("How long does it take to beat your favorite game?")
-				.addStringOption((command) =>
-					command.setName("game").setDescription("Game title").setRequired(true).setAutocomplete(true),
-				),
+		registry.registerChatInputCommand(
+			(builder) =>
+				builder
+					.setName("hltb")
+					.setDescription("How long does it take to beat your favorite game?")
+					.addStringOption((command) =>
+						command.setName("game").setDescription("Game title").setRequired(true).setAutocomplete(true),
+					),
+			{ guildIds: this.container.guildIds },
 		);
 	}
 

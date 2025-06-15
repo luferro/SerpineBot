@@ -27,66 +27,68 @@ export class WebhooksCommand extends Subcommand {
 	}
 
 	override registerApplicationCommands(registry: Subcommand.Registry) {
-		registry.registerChatInputCommand((builder) =>
-			builder
-				.setName("webhooks")
-				.setDescription("Manage webhooks")
-				.addSubcommand((command) =>
-					command
-						.setName("create")
-						.setDescription("Create webhook")
-						.addStringOption((option) => option.setName("name").setDescription("Webhook name").setRequired(true))
-						.addStringOption((option) =>
-							option
-								.setName("type")
-								.setDescription("Webhook type")
-								.setChoices(WebhookTypeChoices.map((choice) => ({ name: choice.toUpperCase(), value: choice })))
-								.setRequired(true),
-						)
-						.addChannelOption((option) =>
-							option
-								.setName("channel")
-								.setDescription("Text channel")
-								.addChannelTypes(ChannelType.GuildText)
-								.setRequired(true),
-						)
-						.addStringOption((option) =>
-							option.setName("paths").setDescription("RSS feeds or subreddits (e.g. <path1>;<path2>;<path3>)"),
-						)
-						.addStringOption((option) =>
-							option
-								.setName("sort")
-								.setDescription("Subreddit sort")
-								.addChoices([
-									{ name: "Hot", value: "hot" },
-									{ name: "Top", value: "top" },
-									{ name: "New", value: "new" },
-								]),
-						)
-						.addStringOption((option) =>
-							option.setName("flairs").setDescription("Subreddit flairs (e.g. <flair1>;<flair2>;<flair3>)"),
-						)
-						.addIntegerOption((option) => option.setName("limit").setDescription("Subreddit limit")),
-				)
-				.addSubcommand((command) =>
-					command
-						.setName("delete")
-						.setDescription("Delete webhook")
-						.addStringOption((option) =>
-							option
-								.setName("type")
-								.setDescription("Webhook type")
-								.setChoices(WebhookTypeChoices.map((choice) => ({ name: choice.toUpperCase(), value: choice })))
-								.setRequired(true),
-						)
-						.addChannelOption((option) =>
-							option
-								.setName("channel")
-								.setDescription("Text channel")
-								.addChannelTypes(ChannelType.GuildText)
-								.setRequired(true),
-						),
-				),
+		registry.registerChatInputCommand(
+			(builder) =>
+				builder
+					.setName("webhooks")
+					.setDescription("Manage webhooks")
+					.addSubcommand((command) =>
+						command
+							.setName("create")
+							.setDescription("Create webhook")
+							.addStringOption((option) => option.setName("name").setDescription("Webhook name").setRequired(true))
+							.addStringOption((option) =>
+								option
+									.setName("type")
+									.setDescription("Webhook type")
+									.setChoices(WebhookTypeChoices.map((choice) => ({ name: choice.toUpperCase(), value: choice })))
+									.setRequired(true),
+							)
+							.addChannelOption((option) =>
+								option
+									.setName("channel")
+									.setDescription("Text channel")
+									.addChannelTypes(ChannelType.GuildText)
+									.setRequired(true),
+							)
+							.addStringOption((option) =>
+								option.setName("paths").setDescription("RSS feeds or subreddits (e.g. <path1>;<path2>;<path3>)"),
+							)
+							.addStringOption((option) =>
+								option
+									.setName("sort")
+									.setDescription("Subreddit sort")
+									.addChoices([
+										{ name: "Hot", value: "hot" },
+										{ name: "Top", value: "top" },
+										{ name: "New", value: "new" },
+									]),
+							)
+							.addStringOption((option) =>
+								option.setName("flairs").setDescription("Subreddit flairs (e.g. <flair1>;<flair2>;<flair3>)"),
+							)
+							.addIntegerOption((option) => option.setName("limit").setDescription("Subreddit limit")),
+					)
+					.addSubcommand((command) =>
+						command
+							.setName("delete")
+							.setDescription("Delete webhook")
+							.addStringOption((option) =>
+								option
+									.setName("type")
+									.setDescription("Webhook type")
+									.setChoices(WebhookTypeChoices.map((choice) => ({ name: choice.toUpperCase(), value: choice })))
+									.setRequired(true),
+							)
+							.addChannelOption((option) =>
+								option
+									.setName("channel")
+									.setDescription("Text channel")
+									.addChannelTypes(ChannelType.GuildText)
+									.setRequired(true),
+							),
+					),
+			{ guildIds: this.container.guildIds },
 		);
 	}
 

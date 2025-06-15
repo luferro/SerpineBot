@@ -43,52 +43,56 @@ export class IntegrationsCommand extends Subcommand {
 	}
 
 	override registerApplicationCommands(registry: Subcommand.Registry) {
-		registry.registerChatInputCommand((builder) =>
-			builder
-				.setName("steam")
-				.setDescription("Steam commands")
-				.addSubcommand((command) =>
-					command
-						.setName("profile")
-						.setDescription("Steam profile")
-						.addMentionableOption((option) => option.setName("mention").setDescription("User mention")),
-				)
-				.addSubcommand((command) =>
-					command
-						.setName("wishlist")
-						.setDescription("Steam wishlist")
-						.addMentionableOption((option) => option.setName("mention").setDescription("User mention")),
-				)
-				.addSubcommand((command) =>
-					command
-						.setName("recentlyplayed")
-						.setDescription("Steam recently played")
-						.addMentionableOption((option) => option.setName("mention").setDescription("User mention")),
-				)
-				.addSubcommand((command) => command.setName("sales").setDescription("Upcoming sale dates"))
-				.addSubcommandGroup((group) =>
-					group
-						.setName("integration")
-						.setDescription("Manage your integration")
-						.addSubcommand((command) =>
-							command
-								.setName("import")
-								.setDescription("Import your profile")
-								.addStringOption((option) => option.setName("url").setDescription("Profile url").setRequired(true)),
-						)
-						.addSubcommand((command) => command.setName("sync").setDescription("Manually trigger a wishlist sync"))
-						.addSubcommand((command) =>
-							command
-								.setName("delete")
-								.setDescription("Delete your integration (no more leaderboard or wishlist notifications)"),
-						)
-						.addSubcommand((command) =>
-							command
-								.setName("notifications")
-								.setDescription("Toggle wishlist notifications")
-								.addBooleanOption((option) => option.setName("value").setDescription("Toggle value").setRequired(true)),
-						),
-				),
+		registry.registerChatInputCommand(
+			(builder) =>
+				builder
+					.setName("steam")
+					.setDescription("Steam commands")
+					.addSubcommand((command) =>
+						command
+							.setName("profile")
+							.setDescription("Steam profile")
+							.addMentionableOption((option) => option.setName("mention").setDescription("User mention")),
+					)
+					.addSubcommand((command) =>
+						command
+							.setName("wishlist")
+							.setDescription("Steam wishlist")
+							.addMentionableOption((option) => option.setName("mention").setDescription("User mention")),
+					)
+					.addSubcommand((command) =>
+						command
+							.setName("recentlyplayed")
+							.setDescription("Steam recently played")
+							.addMentionableOption((option) => option.setName("mention").setDescription("User mention")),
+					)
+					.addSubcommand((command) => command.setName("sales").setDescription("Upcoming sale dates"))
+					.addSubcommandGroup((group) =>
+						group
+							.setName("integration")
+							.setDescription("Manage your integration")
+							.addSubcommand((command) =>
+								command
+									.setName("import")
+									.setDescription("Import your profile")
+									.addStringOption((option) => option.setName("url").setDescription("Profile url").setRequired(true)),
+							)
+							.addSubcommand((command) => command.setName("sync").setDescription("Manually trigger a wishlist sync"))
+							.addSubcommand((command) =>
+								command
+									.setName("delete")
+									.setDescription("Delete your integration (no more leaderboard or wishlist notifications)"),
+							)
+							.addSubcommand((command) =>
+								command
+									.setName("notifications")
+									.setDescription("Toggle wishlist notifications")
+									.addBooleanOption((option) =>
+										option.setName("value").setDescription("Toggle value").setRequired(true),
+									),
+							),
+					),
+			{ guildIds: this.container.guildIds },
 		);
 	}
 

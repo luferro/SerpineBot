@@ -1,7 +1,7 @@
 import "@sapphire/plugin-scheduled-tasks/register";
 
 import { type Config, loadConfig } from "@luferro/config";
-import { SapphireClient, container } from "@sapphire/framework";
+import { LogLevel, SapphireClient, container } from "@sapphire/framework";
 import { GatewayIntentBits } from "discord.js";
 import { ChannelType } from "discord.js";
 import { drizzle } from "drizzle-orm/node-postgres";
@@ -20,6 +20,7 @@ declare module "@sapphire/pieces" {
 		config: Config;
 		gql: ExtendedGraphQLClient;
 		db: typeof db;
+		guildIds: string[] | undefined;
 
 		propagate: (type: WebhookType, cb: (feeds: WebhookFeed[]) => Promise<WebhookMessage[]>) => Promise<void>;
 	}
@@ -28,6 +29,7 @@ declare module "@sapphire/pieces" {
 container.config = config;
 container.gql = gql;
 container.db = db;
+container.guildIds = container.config.get<string | undefined>("client.guilds")?.split(",");
 
 container.propagate = async (type, getMessages) => {
 	for (const [guildId] of container.client.guilds.cache) {
@@ -88,6 +90,7 @@ const client = new SapphireClient({
 			},
 		},
 	},
+	logger: { level: LogLevel.Debug },
 });
 
-client.login(container.config.get("client.token"));
+client.login(container.config.get("client.memberberries.token"));

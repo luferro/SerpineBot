@@ -20,40 +20,42 @@ export class BirthdaysCommand extends Subcommand {
 	}
 
 	override registerApplicationCommands(registry: Subcommand.Registry) {
-		registry.registerChatInputCommand((builder) =>
-			builder
-				.setName("birthdays")
-				.setDescription("Manage your birthday entry")
-				.addSubcommand((command) =>
-					command
-						.setName("create")
-						.setDescription("Create an entry for your birthday")
-						.addIntegerOption((option) => option.setName("day").setDescription("Birthdate day").setRequired(true))
-						.addIntegerOption((option) => option.setName("month").setDescription("Birthdate month").setRequired(true))
-						.addIntegerOption((option) =>
-							option
-								.setName("year")
-								.setDescription("Birthdate year")
-								.setMinValue(1900)
-								.setMaxValue(new Date().getFullYear())
-								.setRequired(true),
-						)
-						.addStringOption((option) => option.setName("name").setDescription("Relation member name"))
-						.addStringOption((option) => option.setName("relation").setDescription("Relation type")),
-				)
-				.addSubcommand((command) =>
-					command
-						.setName("delete")
-						.setDescription("Delete your birthday entry")
-						.addStringOption((option) => option.setName("name").setDescription("Name"))
-						.addStringOption((option) => option.setName("relation").setDescription("Relation")),
-				)
-				.addSubcommand((command) =>
-					command
-						.setName("list")
-						.setDescription("Lists birthday entries")
-						.addIntegerOption((option) => option.setName("month").setDescription("Month")),
-				),
+		registry.registerChatInputCommand(
+			(builder) =>
+				builder
+					.setName("birthdays")
+					.setDescription("Manage your birthday entry")
+					.addSubcommand((command) =>
+						command
+							.setName("create")
+							.setDescription("Create an entry for your birthday")
+							.addIntegerOption((option) => option.setName("day").setDescription("Birthdate day").setRequired(true))
+							.addIntegerOption((option) => option.setName("month").setDescription("Birthdate month").setRequired(true))
+							.addIntegerOption((option) =>
+								option
+									.setName("year")
+									.setDescription("Birthdate year")
+									.setMinValue(1900)
+									.setMaxValue(new Date().getFullYear())
+									.setRequired(true),
+							)
+							.addStringOption((option) => option.setName("name").setDescription("Relation member name"))
+							.addStringOption((option) => option.setName("relation").setDescription("Relation type")),
+					)
+					.addSubcommand((command) =>
+						command
+							.setName("delete")
+							.setDescription("Delete your birthday entry")
+							.addStringOption((option) => option.setName("name").setDescription("Name"))
+							.addStringOption((option) => option.setName("relation").setDescription("Relation")),
+					)
+					.addSubcommand((command) =>
+						command
+							.setName("list")
+							.setDescription("Lists birthday entries")
+							.addIntegerOption((option) => option.setName("month").setDescription("Month")),
+					),
+			{ guildIds: this.container.guildIds },
 		);
 	}
 

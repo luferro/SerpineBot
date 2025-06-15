@@ -13,18 +13,20 @@ export class RemindersCommand extends Subcommand {
 	}
 
 	override registerApplicationCommands(registry: Subcommand.Registry) {
-		registry.registerChatInputCommand((builder) =>
-			builder
-				.setName("secret-santa")
-				.setDescription("Manage Secret Santa events")
-				.addSubcommand((command) =>
-					command
-						.setName("organize")
-						.setDescription("Organize a Secret Santa")
-						.addIntegerOption((option) =>
-							option.setName("value").setDescription("Gift value (€)").setMinValue(5).setRequired(true),
-						),
-				),
+		registry.registerChatInputCommand(
+			(builder) =>
+				builder
+					.setName("secret-santa")
+					.setDescription("Manage Secret Santa events")
+					.addSubcommand((command) =>
+						command
+							.setName("organize")
+							.setDescription("Organize a Secret Santa")
+							.addIntegerOption((option) =>
+								option.setName("value").setDescription("Gift value (€)").setMinValue(5).setRequired(true),
+							),
+					),
+			{ guildIds: this.container.guildIds },
 		);
 	}
 
