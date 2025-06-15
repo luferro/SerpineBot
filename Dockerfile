@@ -21,9 +21,13 @@ RUN if [ -n "$ENV_PATH" ]; then \
     if [ -f "/app/$ENV_PATH/.env" ]; then \
         cp /app/$ENV_PATH/.env ./$ENV_PATH/.env; \
     fi; \
-    cat /app/.env >> ./$ENV_PATH/.env 2>/dev/null || cp /app/.env ./$ENV_PATH/.env; \
+    cp /app/.env ./$ENV_PATH/.env; \
 fi
 
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 RUN pnpm install --frozen-lockfile
 COPY --from=builder /app/out/full/ .
 RUN pnpm build --filter=$APP_NAME...
