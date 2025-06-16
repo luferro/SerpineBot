@@ -7,13 +7,13 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 	public async run(oldEvent: GuildScheduledEvent, newEvent: GuildScheduledEvent) {
 		if (oldEvent.isScheduled() && newEvent.isActive()) await this.onStart(newEvent);
 		if (oldEvent.isActive() && newEvent.isCompleted()) await this.onEnd(newEvent);
+		if (newEvent.isCanceled()) await this.onCancel(newEvent);
 	}
 
-	private async onStart(event: GuildScheduledEvent) {
-		const { guild, name, url } = event;
+	private async onStart({ guild, name, url, fetchSubscribers }: GuildScheduledEvent) {
 		if (!guild) return;
 
-		const subscribers = await event.fetchSubscribers({ withMember: true });
+		const subscribers = await fetchSubscribers({ withMember: true });
 		if (subscribers.size === 0) return;
 
 		const role = await guild.roles.create({
@@ -43,8 +43,7 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 			.where(and(eq(events.guildId, guild.id), eq(events.name, name)));
 	}
 
-	private async onEnd(event: GuildScheduledEvent) {
-		const { guild, name, url } = event;
+	private async onEnd({ guild, name, url }: GuildScheduledEvent) {
 		if (!guild) return;
 
 		const role = guild.roles.cache.find((role) => role.name === name);
@@ -69,6 +68,15 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 		await this.container.db
 			.update(events)
 			.set({ status: "expired" })
+			.where(and(eq(events.guildId, guild.id), eq(events.name, name)));
+	}
+
+	private async onCancel({ guild, name }: GuildScheduledEvent) {
+		if (!guild) return;
+
+		await this.container.db
+			.update(events)
+			.set({ status: "cancelled" })
 			.where(and(eq(events.guildId, guild.id), eq(events.name, name)));
 	}
 }
