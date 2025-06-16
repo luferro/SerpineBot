@@ -16,7 +16,7 @@ services:
             timeout: 5s
             retries: 10
         networks:
-            - serpinebot
+            - internal
         restart: unless-stopped
     redis:
         image: redis:latest
@@ -30,7 +30,7 @@ services:
             timeout: 5s
             retries: 10
         networks:
-            - serpinebot
+            - internal
         restart: unless-stopped
     nexus:
         build:
@@ -43,7 +43,7 @@ services:
             - "4000:4000"
         networks:
             - proxy
-            - serpinebot
+            - internal
         restart: unless-stopped
     memberberries-bot:
         build:
@@ -62,7 +62,7 @@ services:
                 condition: service_started
         networks:
             - proxy
-            - serpinebot
+            - internal
         restart: unless-stopped
     randy-bot:
         build:
@@ -74,7 +74,7 @@ services:
         container_name: randy-bot
         networks:
             - proxy
-            - serpinebot
+            - internal
         restart: unless-stopped
 
 volumes:
@@ -84,6 +84,6 @@ volumes:
 networks:
     proxy:
         external: true
-    serpinebot:
+    internal:
         driver: bridge
         internal: true
