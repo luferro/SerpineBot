@@ -1,11 +1,19 @@
 import { SoundCloudExtractor } from "@discord-player/extractor";
 import { type Config, loadConfig } from "@luferro/config";
 import { shuffle } from "@luferro/utils/data";
-import { LogLevel, SapphireClient, container } from "@sapphire/framework";
+import {
+	ApplicationCommandRegistries,
+	LogLevel,
+	RegisterBehavior,
+	SapphireClient,
+	container,
+} from "@sapphire/framework";
 import { type GuildQueue, type NodeResolvable, Player, useQueue } from "discord-player";
 import { SpotifyExtractor } from "discord-player-spotify";
 import { YoutubeiExtractor } from "discord-player-youtubei";
 import { type ApplicationEmoji, GatewayIntentBits } from "discord.js";
+
+ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite);
 
 declare module "@sapphire/framework" {
 	interface Preconditions {

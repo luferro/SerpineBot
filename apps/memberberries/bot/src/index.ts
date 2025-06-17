@@ -1,13 +1,21 @@
 import "@sapphire/plugin-scheduled-tasks/register";
 
 import { type Config, loadConfig } from "@luferro/config";
-import { LogLevel, SapphireClient, container } from "@sapphire/framework";
+import {
+	ApplicationCommandRegistries,
+	LogLevel,
+	RegisterBehavior,
+	SapphireClient,
+	container,
+} from "@sapphire/framework";
 import { GatewayIntentBits } from "discord.js";
 import { ChannelType } from "discord.js";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "~/db/schema.js";
 import { ExtendedGraphQLClient } from "~/graphql/client.js";
 import type { WebhookFeed, WebhookMessage, WebhookType } from "./types/webhooks.js";
+
+ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite);
 
 export const timezone = "Europe/Lisbon";
 
