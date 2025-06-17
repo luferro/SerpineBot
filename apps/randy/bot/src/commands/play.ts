@@ -36,8 +36,7 @@ export class PlayCommand extends Command {
 		const trackTitle = track.title.includes(track.author) ? track.title : `${track.author} - ${track.title}`;
 		const action = queue.currentTrack?.id !== track.id ? "Queue" : "Now playing";
 
-		return interaction.editReply(
-			`${this.container.getEmoji("play")} ${action} [\`${trackTitle}\`](<${track.url}>) (${track.duration})`,
-		);
+		const emoji = await this.container.getEmoji("play");
+		return interaction.editReply(`${emoji} ${action} [\`${trackTitle}\`](<${track.url}>) (${track.duration})`);
 	}
 }

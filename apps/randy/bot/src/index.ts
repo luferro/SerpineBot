@@ -31,7 +31,7 @@ declare module "@sapphire/pieces" {
 		player: Player;
 		guildIds: string[] | undefined;
 
-		getEmoji(action: "play" | "skip" | "resume" | "pause"): ApplicationEmoji | null;
+		getEmoji(action: "play" | "skip" | "resume" | "pause"): Promise<ApplicationEmoji | null>;
 	}
 }
 
@@ -46,8 +46,13 @@ declare module "discord-player" {
 container.config = loadConfig();
 container.guildIds = container.config.get<string | undefined>("client.guilds")?.split(",");
 
-container.getEmoji = (action) => {
-	const emojis = container.client.application?.emojis.cache;
+container.getEmoji = async (action) => {
+	const application = container.client.application;
+	if (!application) return null;
+
+	let emojis = application.emojis.cache;
+	if (emojis.size === 0) emojis = await application.emojis.fetch();
+
 	const categoryEmojis = emojis?.filter((emoji) => emoji.name?.includes(`${action}__`)).values();
 	const shuffledEmojis = categoryEmojis ? shuffle([...categoryEmojis]) : [];
 	return shuffledEmojis.pop() ?? null;

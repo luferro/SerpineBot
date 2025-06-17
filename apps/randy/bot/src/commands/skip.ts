@@ -29,8 +29,9 @@ export class SkipCommand extends Command {
 		const result = position ? node.skipTo(position - 1) : node.skip();
 		if (!result) throw new Error("Cannot skip current track.");
 
+		const emoji = await this.container.getEmoji("skip");
 		return interaction.reply(
-			`${this.container.getEmoji("skip")} Skipped [\`${currentTrack.author} - ${currentTrack.title}\`](<${currentTrack.url}>)`,
+			`${emoji} Skipped [\`${currentTrack.author} - ${currentTrack.title}\`](<${currentTrack.url}>)`,
 		);
 	}
 }

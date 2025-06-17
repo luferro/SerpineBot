@@ -22,8 +22,9 @@ export class ResumeCommand extends Command {
 
 		node.setPaused(false);
 
+		const emoji = await this.container.getEmoji("resume");
 		return interaction.reply(
-			`${this.container.getEmoji("resume")} Resumed [\`${currentTrack.author} - ${currentTrack.title}\`](<${currentTrack.url}>)`,
+			`${emoji} Resumed [\`${currentTrack.author} - ${currentTrack.title}\`](<${currentTrack.url}>)`,
 		);
 	}
 }

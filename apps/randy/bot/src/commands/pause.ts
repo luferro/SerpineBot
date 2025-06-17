@@ -22,8 +22,9 @@ export class PauseCommand extends Command {
 
 		node.setPaused(true);
 
+		const emoji = await this.container.getEmoji("pause");
 		return interaction.reply(
-			`${this.container.getEmoji("pause")} Paused [\`${currentTrack.author} - ${currentTrack.title}\`](<${currentTrack.url}>)`,
+			`${emoji} Paused [\`${currentTrack.author} - ${currentTrack.title}\`](<${currentTrack.url}>)`,
 		);
 	}
 }
