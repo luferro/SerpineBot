@@ -20,8 +20,8 @@ export class WebhooksCommand extends Subcommand {
 			...options,
 			name: "webhooks",
 			subcommands: [
-				{ name: "manage", chatInputRun: "chatInputCreateWebhook" },
-				{ name: "manage", chatInputRun: "chatInputDeleteWebhook" },
+				{ name: "create", chatInputRun: "chatInputCreateWebhook" },
+				{ name: "delete", chatInputRun: "chatInputDeleteWebhook" },
 			],
 		});
 	}
