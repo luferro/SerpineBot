@@ -2,8 +2,8 @@ export function toDecimal(value: string | number) {
 	return Number(value) / 100;
 }
 
-export function slug(string: string) {
-	return string
+export function slug(str: string) {
+	return str
 		.toString()
 		.trim()
 		.toLowerCase()
@@ -14,30 +14,38 @@ export function slug(string: string) {
 		.replace(/-+$/, "");
 }
 
-export function capitalize(string: string) {
-	return string.charAt(0).toUpperCase() + string.slice(1);
+export function capitalize(str: string) {
+	return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function truncate(string: string, limit = 256) {
-	if (string.length > limit) {
+export function truncate(str: string, limit = 256) {
+	if (str.length > limit) {
 		const ending = "...";
-		const truncated = string.slice(0, limit - ending.length) + ending;
+		const truncated = str.slice(0, limit - ending.length) + ending;
 		return truncated.trim();
 	}
 
-	return string.trim();
+	return str.trim();
 }
 
-export function shuffle<T>(array: T[]) {
-	let currentIndex = array.length;
+export function shuffle<T>(arr: T[]) {
+	let currentIndex = arr.length;
 	while (currentIndex !== 0) {
 		const randomIndex = Math.floor(Math.random() * currentIndex);
 		currentIndex--;
-		[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+		[arr[currentIndex], arr[randomIndex]] = [arr[randomIndex], arr[currentIndex]];
 	}
-	return array;
+	return arr;
 }
 
 export function toArray<T>(value: T | T[]) {
 	return Array.isArray(value) ? value : [value];
+}
+
+export function getPossessive(str: string) {
+	return str.endsWith("s") ? "'" : "'s";
+}
+
+export function getPossessiveForm(str: string) {
+	return `${str}${getPossessive(str)}`;
 }

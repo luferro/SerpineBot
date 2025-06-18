@@ -1,3 +1,4 @@
+import { getPossessiveForm } from "@luferro/utils/data";
 import { format } from "@luferro/utils/date";
 import { PaginatedMessage } from "@sapphire/discord.js-utilities";
 import { Subcommand } from "@sapphire/plugin-subcommands";
@@ -108,7 +109,7 @@ export class IntegrationsCommand extends Subcommand {
 		const { name, image, status, logoutAt, createdAt } = await this.container.gql.steam.getProfile({ steamId64: id });
 
 		const embed = new EmbedBuilder()
-			.setTitle(user.username.endsWith("s") ? `${user.username}'` : `${user.username}'s Steam profile`)
+			.setTitle(`${getPossessiveForm(user.username)}'s Steam profile`)
 			.setURL(`https://steamcommunity.com/profiles/${id}`)
 			.setThumbnail(image)
 			.addFields([
@@ -158,7 +159,7 @@ export class IntegrationsCommand extends Subcommand {
 		for (let i = 0; i < wishlist.length; i += itemsPerPage) {
 			paginatedMessage.addPageEmbed((embed) =>
 				embed
-					.setTitle(user.username.endsWith("s") ? `${user.username}'` : `${user.username}'s Steam wishlist`)
+					.setTitle(`${getPossessiveForm(user.username)} Steam wishlist`)
 					.setURL(`https://store.steampowered.com/wishlist/profiles/${integration.profile.id}/#sort=order`)
 					.setDescription(
 						wishlist
@@ -185,7 +186,7 @@ export class IntegrationsCommand extends Subcommand {
 		if (!integration) throw new Error("Steam integration does not exist.");
 
 		const recentlyPlayed = await this.container.gql.steam.getRecentlyPlayed({ steamId64: integration.profile.id });
-		if (recentlyPlayed.length === 0) throw new Error("There are no recently played games.");
+		if (recentlyPlayed.length === 0) throw new Error("No recently played games found.");
 
 		const paginatedMessage = new PaginatedMessage();
 
@@ -193,14 +194,14 @@ export class IntegrationsCommand extends Subcommand {
 		for (let i = 0; i < recentlyPlayed.length; i += itemsPerPage) {
 			paginatedMessage.addPageEmbed((embed) =>
 				embed
-					.setTitle(user.username.endsWith("s") ? `${user.username}'` : `${user.username}'s Steam recently played`)
+					.setTitle(`${getPossessiveForm(user.username)} Steam recently played`)
 					.setURL(`https://steamcommunity.com/profiles/${integration.profile.id}/games/`)
 					.setDescription(
 						recentlyPlayed
 							.slice(i, i + itemsPerPage)
 							.map(
 								({ title, url, biweeklyHours, totalHours }) =>
-									`**[${title}](${url})** | Last two weeks: **${biweeklyHours}h** | Total played: **${totalHours}h**`,
+									`**[${title}](${url})** | Last 2 weeks: **${biweeklyHours}h** | Total played: **${totalHours}h**`,
 							)
 							.join("\n"),
 					)

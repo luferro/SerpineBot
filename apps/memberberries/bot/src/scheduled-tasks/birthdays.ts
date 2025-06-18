@@ -1,3 +1,4 @@
+import { getPossessive, getPossessiveForm } from "@luferro/utils/data";
 import { startOfDay, tz } from "@luferro/utils/date";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
 import type { GuildMember } from "discord.js";
@@ -70,16 +71,9 @@ export class BirthdaysTask extends ScheduledTask {
 	}
 
 	private createBirthdayMessage(target: GuildMember, name: string, relation: string, age: number) {
-		const getPossessiveForm = (user: string | GuildMember) => {
-			const displayName = typeof user === "string" ? user : user.displayName;
-			const possesiveForm = displayName.endsWith("s") ? "'" : "'s";
-			return `${user}${possesiveForm}`;
-		};
-
 		const isSelf = relation === "self";
-		const user = isSelf ? target : name;
-		const targetPossessive = getPossessiveForm(target);
+		const targetPossessive = `${target}${getPossessive(target.displayName)}`;
 		const celebrant = isSelf ? targetPossessive : `${targetPossessive} ${relation} ${getPossessiveForm(name)}`;
-		return `'Member ${celebrant} birthday? 🎉 Oh, I 'member!\nThey are turning ${age} today! 🎂\nHappy birthday, ${user}! 🥳`;
+		return `'Member ${celebrant} birthday? 🎉 Oh, I 'member!\nThey are turning ${age} today! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`;
 	}
 }
