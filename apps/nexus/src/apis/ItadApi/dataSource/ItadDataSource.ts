@@ -30,7 +30,7 @@ export class ItadDataSource extends RESTDataSource {
 			},
 		});
 
-		const { historyLow, deals } = await this.post<GamePrice>("games/prices/v3", {
+		const prices = await this.post<GamePrice[]>("games/prices/v3", {
 			params: {
 				country,
 				vouchers: "true",
@@ -38,6 +38,8 @@ export class ItadDataSource extends RESTDataSource {
 			},
 			body: JSON.stringify([id]),
 		});
+		const historyLow = prices.length > 0 ? prices[0].historyLow : {};
+		const deals = prices.length > 0 ? prices[0].deals : [];
 
 		const bundles = await this.get<Bundle[]>("games/bundles/v2", {
 			params: {

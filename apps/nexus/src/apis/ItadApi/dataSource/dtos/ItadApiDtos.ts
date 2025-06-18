@@ -55,7 +55,7 @@ export type Info = Game & {
 		source: string;
 		count: number;
 		url: string;
-	};
+	}[];
 	players: {
 		recent: number;
 		day: number;

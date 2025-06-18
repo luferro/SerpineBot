@@ -92,7 +92,7 @@ type ItadOverview {
 	title: String!
 	image: String
 	releaseDate: String
-	reviews: ItadReviews
+	reviews: [ItadReviews!]!
 	playerCount: ItadPlayerCount
 	isEarlyAccess: Boolean!
 	hasAchievements: Boolean!

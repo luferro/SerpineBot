@@ -759,7 +759,7 @@ export type ItadOverview = {
   isEarlyAccess: Scalars['Boolean']['output'];
   playerCount?: Maybe<ItadPlayerCount>;
   releaseDate?: Maybe<Scalars['String']['output']>;
-  reviews?: Maybe<ItadReviews>;
+  reviews: Array<ItadReviews>;
   slug: Scalars['String']['output'];
   title: Scalars['String']['output'];
 };
@@ -1017,14 +1017,14 @@ export type SteamApp = {
   description: Scalars['String']['output'];
   developers: Array<Scalars['String']['output']>;
   discount: Scalars['Int']['output'];
-  discounted: Scalars['String']['output'];
+  discounted?: Maybe<Scalars['String']['output']>;
   franchises: Array<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   isFree: Scalars['Boolean']['output'];
   isGiftable: Scalars['Boolean']['output'];
   isReleased: Scalars['Boolean']['output'];
   publishers: Array<Scalars['String']['output']>;
-  regular: Scalars['String']['output'];
+  regular?: Maybe<Scalars['String']['output']>;
   release: SteamAppRelease;
   screenshots: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -1059,7 +1059,7 @@ export type SteamAppLibraryAssets = {
 export type SteamAppRelease = {
   __typename?: 'SteamAppRelease';
   customMessage?: Maybe<Scalars['String']['output']>;
-  date: Scalars['Int']['output'];
+  date?: Maybe<Scalars['Timestamp']['output']>;
 };
 
 export type SteamAppTrailer = {
@@ -1100,10 +1100,10 @@ export type SteamProfile = {
 
 export type SteamRecentlyPlayedEntry = {
   __typename?: 'SteamRecentlyPlayedEntry';
-  biweeklyHours: Scalars['Int']['output'];
+  biweeklyHours: Scalars['Float']['output'];
   id: Scalars['String']['output'];
   title: Scalars['String']['output'];
-  totalHours: Scalars['Int']['output'];
+  totalHours: Scalars['Float']['output'];
   url: Scalars['String']['output'];
 };
 
@@ -1129,7 +1129,7 @@ export type SteamWishlistEntry = {
   description: Scalars['String']['output'];
   developers: Array<Scalars['String']['output']>;
   discount: Scalars['Int']['output'];
-  discounted: Scalars['String']['output'];
+  discounted?: Maybe<Scalars['String']['output']>;
   franchises: Array<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   isFree: Scalars['Boolean']['output'];
@@ -1137,7 +1137,7 @@ export type SteamWishlistEntry = {
   isReleased: Scalars['Boolean']['output'];
   priority: Scalars['Int']['output'];
   publishers: Array<Scalars['String']['output']>;
-  regular: Scalars['String']['output'];
+  regular?: Maybe<Scalars['String']['output']>;
   release: SteamAppRelease;
   screenshots: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -2129,7 +2129,7 @@ export type ItadOverviewResolvers<ContextType = Context, ParentType extends Reso
   isEarlyAccess?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   playerCount?: Resolver<Maybe<ResolversTypes['ItadPlayerCount']>, ParentType, ContextType>;
   releaseDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  reviews?: Resolver<Maybe<ResolversTypes['ItadReviews']>, ParentType, ContextType>;
+  reviews?: Resolver<Array<ResolversTypes['ItadReviews']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2309,14 +2309,14 @@ export type SteamAppResolvers<ContextType = Context, ParentType extends Resolver
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   developers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   discount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  discounted?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  discounted?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   franchises?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   isFree?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isGiftable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isReleased?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   publishers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  regular?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  regular?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   release?: Resolver<ResolversTypes['SteamAppRelease'], ParentType, ContextType>;
   screenshots?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -2351,7 +2351,7 @@ export type SteamAppLibraryAssetsResolvers<ContextType = Context, ParentType ext
 
 export type SteamAppReleaseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamAppRelease'] = ResolversParentTypes['SteamAppRelease']> = {
   customMessage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  date?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  date?: Resolver<Maybe<ResolversTypes['Timestamp']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2386,10 +2386,10 @@ export type SteamProfileResolvers<ContextType = Context, ParentType extends Reso
 };
 
 export type SteamRecentlyPlayedEntryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamRecentlyPlayedEntry'] = ResolversParentTypes['SteamRecentlyPlayedEntry']> = {
-  biweeklyHours?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  biweeklyHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  totalHours?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -2415,7 +2415,7 @@ export type SteamWishlistEntryResolvers<ContextType = Context, ParentType extend
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   developers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   discount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  discounted?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  discounted?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   franchises?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   isFree?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -2423,7 +2423,7 @@ export type SteamWishlistEntryResolvers<ContextType = Context, ParentType extend
   isReleased?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   priority?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   publishers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  regular?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  regular?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   release?: Resolver<ResolversTypes['SteamAppRelease'], ParentType, ContextType>;
   screenshots?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
