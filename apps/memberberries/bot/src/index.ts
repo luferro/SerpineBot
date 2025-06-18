@@ -98,7 +98,9 @@ const client = new SapphireClient({
 			},
 		},
 	},
-	logger: { level: LogLevel.Debug },
+	logger: {
+		level: config.runtimeEnvironment === "production" ? LogLevel.Info : LogLevel.Debug,
+	},
 });
 
 client.login(container.config.get("client.memberberries.token"));
