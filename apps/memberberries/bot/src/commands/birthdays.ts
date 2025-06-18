@@ -1,5 +1,5 @@
 import { capitalize } from "@luferro/utils/data";
-import { format, isDate, isMatch } from "@luferro/utils/date";
+import { format, isMatch } from "@luferro/utils/date";
 import { PaginatedMessage } from "@sapphire/discord.js-utilities";
 import { Subcommand } from "@sapphire/plugin-subcommands";
 import { EmbedBuilder, MessageFlags } from "discord.js";

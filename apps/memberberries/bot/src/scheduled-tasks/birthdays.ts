@@ -17,6 +17,7 @@ export class BirthdaysTask extends ScheduledTask {
 		const currentDay = currentDate.getDate();
 		const currentMonth = currentDate.getMonth() + 1;
 		const currentYear = currentDate.getFullYear();
+
 		for (const [guildId, guild] of this.container.client.guilds.cache) {
 			const storedWebhook = await this.container.db.query.webhooks.findFirst({
 				where: (webhooks, { and, eq }) => and(eq(webhooks.guildId, guildId), eq(webhooks.type, "birthdays")),
@@ -37,7 +38,14 @@ export class BirthdaysTask extends ScheduledTask {
 					),
 			});
 			const birthdaysMap = birthdays.reduce((acc, { userId, name, relation, birthdate }) => {
-				const birthdays = [...(acc.get(userId) ?? []), { name, relation, birthdate }];
+				const birthdays = [
+					...(acc.get(userId) ?? []),
+					{
+						name,
+						relation,
+						birthdate: startOfDay(birthdate, { in: tz(this.container.config.timezone) }),
+					},
+				];
 				acc.set(userId, birthdays);
 				return acc;
 			}, new Map<string, { name: string; relation: string; birthdate: Date }[]>());
@@ -50,6 +58,7 @@ export class BirthdaysTask extends ScheduledTask {
 					const age = currentYear - birthdate.getFullYear();
 					const date = startOfDay(currentDate, { in: tz(this.container.config.timezone) });
 					birthdate.setFullYear(currentYear);
+
 					if (date.getTime() !== birthdate.getTime()) continue;
 
 					await webhook.send({
@@ -61,10 +70,16 @@ export class BirthdaysTask extends ScheduledTask {
 	}
 
 	private createBirthdayMessage(target: GuildMember, name: string, relation: string, age: number) {
-		const getPossessiveForm = (displayName: string) => (displayName.endsWith("s") ? `${target}'` : `${target}'s`);
+		const getPossessiveForm = (user: string | GuildMember) => {
+			const displayName = typeof user === "string" ? user : user.displayName;
+			const possesiveForm = displayName.endsWith("s") ? "'" : "'s";
+			return `${user}${possesiveForm}`;
+		};
 
-		const targetPossessive = getPossessiveForm(target.displayName);
-		const user = relation !== "self" ? `${targetPossessive} ${relation} ${getPossessiveForm(name)}` : targetPossessive;
-		return `'Member ${user} birthday? 🎉 Oh, I 'member!\nThey are turning ${age} today! 🎂\nHappy birthday, ${target}! 🥳`;
+		const isSelf = relation === "self";
+		const user = isSelf ? target : name;
+		const targetPossessive = getPossessiveForm(target);
+		const celebrant = isSelf ? targetPossessive : `${targetPossessive} ${relation} ${getPossessiveForm(name)}`;
+		return `'Member ${celebrant} birthday? 🎉 Oh, I 'member!\nThey are turning ${age} today! 🎂\nHappy birthday, ${user}! 🥳`;
 	}
 }
