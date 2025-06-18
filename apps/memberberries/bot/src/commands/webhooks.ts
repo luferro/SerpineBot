@@ -1,5 +1,5 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import { ChannelType, MessageFlags, type TextChannel } from "discord.js";
+import { ChannelType, MessageFlags, PermissionFlagsBits, type TextChannel } from "discord.js";
 import { and, eq } from "drizzle-orm";
 import { feeds, webhookToFeed, webhooks } from "~/db/schema.js";
 import type { WebhookType } from "~/types/webhooks.js";
@@ -23,6 +23,8 @@ export class WebhooksCommand extends Subcommand {
 				{ name: "create", chatInputRun: "chatInputCreateWebhook" },
 				{ name: "delete", chatInputRun: "chatInputDeleteWebhook" },
 			],
+			requiredUserPermissions: [PermissionFlagsBits.ManageWebhooks],
+			requiredClientPermissions: [PermissionFlagsBits.ManageWebhooks],
 		});
 	}
 
@@ -32,6 +34,7 @@ export class WebhooksCommand extends Subcommand {
 				builder
 					.setName("webhooks")
 					.setDescription("Manage webhooks")
+					.setDefaultMemberPermissions(PermissionFlagsBits.ManageWebhooks)
 					.addSubcommand((command) =>
 						command
 							.setName("create")
