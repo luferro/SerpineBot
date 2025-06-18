@@ -35,8 +35,8 @@ export class SecretSantaSetupHandler extends InteractionHandler {
 			if (user.bot) throw new Error("Bots are not allowed to participate in the Secret Santa.");
 
 			const lastYearRecipientId = lastYearPairings.find((pairing) => pairing.gifterId === user.id)?.recipientId;
-			const lastYearRecipient = this.container.client.users.cache.find((user) => user.id === lastYearRecipientId);
-			users.push({ id: randomUUID(), user, lastYearRecipient });
+			const lastYearRecipientUser = this.container.client.users.cache.find((user) => user.id === lastYearRecipientId);
+			users.push({ id: randomUUID(), user, lastYearRecipient: lastYearRecipientUser });
 		}
 
 		return this.some({ date, users });
@@ -64,7 +64,10 @@ export class SecretSantaSetupHandler extends InteractionHandler {
 
 					{
 						name: "Who?",
-						value: `**${recipient.user.displayName}** (${recipient.user.username})`,
+						value:
+							recipient.user.displayName === recipient.user.username
+								? `**${recipient.user.displayName}**`
+								: `**${recipient.user.displayName}** (${recipient.user.username})`,
 					},
 				])
 				.setColor("Random");
@@ -84,6 +87,10 @@ export class SecretSantaSetupHandler extends InteractionHandler {
 				dueAt: date,
 			});
 		}
+
+		await interaction.reply({
+			content: `A message has been sent to each Secret Santa ${date.getFullYear()} participant with more details`,
+		});
 	}
 
 	private createSecretSantaMessage(gifter: Participant, recipient: Participant) {
@@ -93,7 +100,7 @@ export class SecretSantaSetupHandler extends InteractionHandler {
 						? `Well, guess what? You're gifting to ${recipient.user.username} again this year! Let's make this one even more 'memberable!`
 						: `Well, it's that time of year again! This time, you're gifting to ${recipient.user.username}. Let's make this one 'memberable!`
 				}`
-			: `Oh wow, it's your first time gifting! This year, you're starting strong by gifting to ${recipient.user.username}. Let’s make this one truly 'memberable!`;
+			: `Oh wow, it's your first time gifting! This year, you're starting strong by gifting to ${recipient.user.username}. Let's make this one truly 'memberable!`;
 	}
 
 	private getEventDate() {

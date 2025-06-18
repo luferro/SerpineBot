@@ -1,6 +1,5 @@
 import { formatCurrency } from "@luferro/utils/currency";
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import { MessageFlags } from "discord.js";
 import { ActionRowBuilder, UserSelectMenuBuilder } from "discord.js";
 
 export class RemindersCommand extends Subcommand {
@@ -33,8 +32,13 @@ export class RemindersCommand extends Subcommand {
 	async chatInputOrganizeSecretSanta(interaction: Subcommand.ChatInputCommandInteraction) {
 		const value = interaction.options.getInteger("value", true);
 
+		const currentYear = new Date().getFullYear();
+		const currentYearPairings = await this.container.db.query.pairings.findFirst({
+			where: (pairings, { eq }) => eq(pairings.year, currentYear),
+		});
+		if (currentYearPairings) throw new Error(`There is already an ongoing Secret Santa ${currentYear}.`);
+
 		return interaction.reply({
-			flags: MessageFlags.Ephemeral,
 			content: `Gift value set to ${formatCurrency(value)}.`,
 			components: [
 				new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
