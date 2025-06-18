@@ -26,6 +26,8 @@ export class HowLongToBeatCommand extends Command {
 		await interaction.deferReply();
 		const id = interaction.options.getString("game", true);
 
+		if (!/^\d+$/.test(id)) throw new Error("Cannot retrieve playtimes.");
+
 		const { title, url, image, main, mainExtra, completionist } = await this.container.gql.hltb.getPlaytimes({ id });
 		if (!main && !mainExtra && !completionist) throw new Error("No playtimes found.");
 

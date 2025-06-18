@@ -31,7 +31,6 @@ export class HltbDataSource extends ExtendedRESTDataSource {
 		request.headers = this.getHeaders();
 		request.headers.origin = this.baseURL;
 		request.headers.referer = this.baseURL;
-		request.headers.authority = "howlongtobeat.com";
 	}
 
 	protected async onNotFound() {
@@ -42,7 +41,7 @@ export class HltbDataSource extends ExtendedRESTDataSource {
 		const hash = await cache.getOrRefresh<string>(this.getCacheKey(), this.onNotFound.bind(this));
 		if (!hash) throw new Error("Cannot retrieve hltb hash.");
 
-		const results = await this.post<Result>(`api/search/${hash}`, {
+		const results = await this.post<Result>(`api/seek/${hash}`, {
 			body: {
 				searchType: "games",
 				searchPage: 1,
@@ -55,7 +54,7 @@ export class HltbDataSource extends ExtendedRESTDataSource {
 						sortCategory: "popular",
 						rangeCategory: "main",
 						rangeTime: { min: null, max: null },
-						gameplay: { perspective: "", flow: "", genre: "" },
+						gameplay: { difficulty: "", perspective: "", flow: "", genre: "" },
 						rangeYear: { min: "", max: "" },
 						modifier: "",
 					},
@@ -68,6 +67,7 @@ export class HltbDataSource extends ExtendedRESTDataSource {
 				useCache: true,
 			},
 		});
+
 		return results.data.map((result) => ({
 			id: result.game_id.toString(),
 			title: result.game_name,
