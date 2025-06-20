@@ -1,5 +1,5 @@
-import { capitalize } from "@luferro/utils/data";
-import { format, isMatch } from "@luferro/utils/date";
+import { capitalize, getPossessiveForm } from "@luferro/utils/data";
+import { format, isMatch, startOfMonth } from "@luferro/utils/date";
 import { PaginatedMessage } from "@sapphire/discord.js-utilities";
 import { Subcommand } from "@sapphire/plugin-subcommands";
 import { EmbedBuilder, MessageFlags } from "discord.js";
@@ -12,8 +12,22 @@ export class BirthdaysCommand extends Subcommand {
 			...options,
 			name: "birthdays",
 			subcommands: [
-				{ name: "create", chatInputRun: "chatInputCreateBirthday" },
-				{ name: "delete", chatInputRun: "chatInputDeleteBirthday" },
+				{
+					type: "group",
+					name: "register",
+					entries: [
+						{ name: "me", chatInputRun: "chatInputRegisterBirthday" },
+						{ name: "other", chatInputRun: "chatInputRegisterBirthday" },
+					],
+				},
+				{
+					type: "group",
+					name: "remove",
+					entries: [
+						{ name: "me", chatInputRun: "chatInputRemoveBirthday" },
+						{ name: "other", chatInputRun: "chatInputRemoveBirthday" },
+					],
+				},
 				{ name: "list", chatInputRun: "chatInputListBirthdays" },
 			],
 		});
@@ -24,42 +38,74 @@ export class BirthdaysCommand extends Subcommand {
 			(builder) =>
 				builder
 					.setName("birthdays")
-					.setDescription("Manage your birthday entry")
-					.addSubcommand((command) =>
-						command
-							.setName("create")
-							.setDescription("Create an entry for your birthday")
-							.addIntegerOption((option) => option.setName("day").setDescription("Birthdate day").setRequired(true))
-							.addIntegerOption((option) => option.setName("month").setDescription("Birthdate month").setRequired(true))
-							.addIntegerOption((option) =>
-								option
-									.setName("year")
-									.setDescription("Birthdate year")
-									.setMinValue(1900)
-									.setMaxValue(new Date().getFullYear())
-									.setRequired(true),
+					.setDescription("Manage birthday entries")
+					.addSubcommandGroup((group) =>
+						group
+							.setName("register")
+							.setDescription("Register a birthday for yourself or someone not in the guild")
+							.addSubcommand((command) =>
+								command
+									.setName("me")
+									.setDescription("Register a birthday for yourself")
+									.addIntegerOption((option) => option.setName("day").setDescription("Day").setRequired(true))
+									.addIntegerOption((option) => option.setName("month").setDescription("Month").setRequired(true))
+									.addIntegerOption((option) =>
+										option
+											.setName("year")
+											.setDescription("Year")
+											.setMinValue(1900)
+											.setMaxValue(new Date().getFullYear())
+											.setRequired(true),
+									),
 							)
-							.addStringOption((option) => option.setName("name").setDescription("Relation member name"))
-							.addStringOption((option) => option.setName("relation").setDescription("Relation type")),
+							.addSubcommand((command) =>
+								command
+									.setName("other")
+									.setDescription(
+										"Register a birthday for someone not in the guild — a friend, family member, or significant other",
+									)
+									.addStringOption((option) => option.setName("name").setDescription("Person's name").setRequired(true))
+									.addStringOption((option) =>
+										option.setName("relation").setDescription("Person's relation to you").setRequired(true),
+									)
+									.addIntegerOption((option) => option.setName("day").setDescription("Day").setRequired(true))
+									.addIntegerOption((option) => option.setName("month").setDescription("Month").setRequired(true))
+									.addIntegerOption((option) =>
+										option
+											.setName("year")
+											.setDescription("Year")
+											.setMinValue(1900)
+											.setMaxValue(new Date().getFullYear())
+											.setRequired(true),
+									),
+							),
 					)
-					.addSubcommand((command) =>
-						command
-							.setName("delete")
-							.setDescription("Delete your birthday entry")
-							.addStringOption((option) => option.setName("name").setDescription("Name"))
-							.addStringOption((option) => option.setName("relation").setDescription("Relation")),
+					.addSubcommandGroup((group) =>
+						group
+							.setName("remove")
+							.setDescription("Remove yours or someone else's birthday entry")
+							.addSubcommand((command) => command.setName("me").setDescription("Remove your birthday entry"))
+							.addSubcommand((command) =>
+								command
+									.setName("other")
+									.setDescription("Remove someone else's birthday entry")
+									.addStringOption((option) => option.setName("name").setDescription("Person's name"))
+									.addStringOption((option) => option.setName("relation").setDescription("Person's relation to you")),
+							),
 					)
 					.addSubcommand((command) =>
 						command
 							.setName("list")
-							.setDescription("Lists birthday entries")
-							.addIntegerOption((option) => option.setName("month").setDescription("Month")),
+							.setDescription("Lists all registered birthday entries")
+							.addIntegerOption((option) =>
+								option.setName("month").setDescription("Month of the year").setMinValue(1).setMaxValue(12),
+							),
 					),
 			{ guildIds: this.container.guildIds },
 		);
 	}
 
-	async chatInputCreateBirthday(interaction: Subcommand.ChatInputCommandInteraction) {
+	async chatInputRegisterBirthday(interaction: Subcommand.ChatInputCommandInteraction) {
 		const name = interaction.options.getString("name");
 		const relation = interaction.options.getString("relation");
 		const day = interaction.options.getInteger("day", true);
@@ -68,18 +114,37 @@ export class BirthdaysCommand extends Subcommand {
 
 		if (!isMatch(`${year}-${month}-${day}`, "yyyy-MM-dd")) throw new Error("Invalid birthdate.");
 
-		await this.container.db.insert(birthdays).values({
+		const entry = {
 			userId: interaction.user.id,
 			name: name ?? interaction.user.username,
 			relation: relation ?? "self",
 			birthdate: new Date(Date.UTC(year, month - 1, day)),
-		});
+		};
 
-		const embed = new EmbedBuilder().setTitle("Birthdate entry created.").setColor("Random");
+		const [{ createdAt, updatedAt }] = await this.container.db
+			.insert(birthdays)
+			.values(entry)
+			.onConflictDoUpdate({
+				target: [birthdays.userId, birthdays.name, birthdays.relation],
+				set: entry,
+				setWhere: and(
+					eq(birthdays.userId, entry.userId),
+					eq(birthdays.name, entry.name),
+					eq(birthdays.relation, entry.relation),
+				),
+			})
+			.returning();
+
+		const action = createdAt.getTime() === updatedAt.getTime() ? "registered" : "updated";
+		const target =
+			name && relation
+				? `${getPossessiveForm(interaction.user.displayName)} ${relation} ${name}`
+				: interaction.user.displayName;
+		const embed = new EmbedBuilder().setTitle(`Birthday entry ${action} for ${target}`).setColor("Random");
 		await interaction.reply({ embeds: [embed] });
 	}
 
-	async chatInputDeleteBirthday(interaction: Subcommand.ChatInputCommandInteraction) {
+	async chatInputRemoveBirthday(interaction: Subcommand.ChatInputCommandInteraction) {
 		const name = interaction.options.getString("name");
 		const relation = interaction.options.getString("relation");
 
@@ -93,7 +158,11 @@ export class BirthdaysCommand extends Subcommand {
 				),
 			);
 
-		const embed = new EmbedBuilder().setTitle("Birthdate entry deleted.").setColor("Random");
+		const target =
+			name && relation
+				? `${getPossessiveForm(interaction.user.displayName)} ${relation} ${name}`
+				: interaction.user.displayName;
+		const embed = new EmbedBuilder().setTitle(`Birthday entry removed for ${target}`).setColor("Random");
 		await interaction.reply({ flags: MessageFlags.Ephemeral, embeds: [embed] });
 	}
 
@@ -101,7 +170,7 @@ export class BirthdaysCommand extends Subcommand {
 		const month = interaction.options.getInteger("month");
 
 		if (month) {
-			const date = new Date();
+			const date = startOfMonth(new Date());
 			date.setMonth(month - 1);
 			const formattedMonth = capitalize(format(date, "MMMM"));
 
