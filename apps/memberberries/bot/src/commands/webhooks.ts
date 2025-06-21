@@ -137,7 +137,7 @@ export class WebhooksCommand extends Subcommand {
 		if (!guildId) throw new Error("Not in guild context.");
 
 		await this.container.db
-			.delete(feeds)
+			.delete(webhooks)
 			.where(and(eq(webhooks.type, type), eq(webhooks.guildId, guildId), eq(webhooks.channelId, channel.id)));
 
 		return interaction.reply({
