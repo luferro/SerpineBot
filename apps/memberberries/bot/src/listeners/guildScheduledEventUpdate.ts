@@ -10,10 +10,11 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 		if (newEvent.isCanceled()) await this.onCancel(newEvent);
 	}
 
-	private async onStart({ guild, name, url, fetchSubscribers }: GuildScheduledEvent) {
+	private async onStart(event: GuildScheduledEvent) {
+		const { guild, name, url } = event;
 		if (!guild) return;
 
-		const subscribers = await fetchSubscribers({ withMember: true });
+		const subscribers = await event.fetchSubscribers({ withMember: true });
 		if (subscribers.size === 0) return;
 
 		const role = await guild.roles.create({
@@ -36,7 +37,7 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 		const webhook = await this.container.client.fetchWebhook(storedWebhook.id, storedWebhook.token);
 		if (!webhook) return;
 
-		await webhook.send(`${role} **\`${name}\`** is starting!\n${url}`);
+		await webhook.send(`${role} **\`${name}\`** has started!\n${url}`);
 		await this.container.db
 			.update(events)
 			.set({ status: "active" })
@@ -49,6 +50,8 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 		const role = guild.roles.cache.find((role) => role.name === name);
 		if (!role) return;
 
+		await guild.roles.delete(role);
+
 		const storedWebhook = await this.container.db.query.webhooks.findFirst({
 			where: (webhooks, { and, eq }) => and(eq(webhooks.guildId, guild.id), eq(webhooks.type, "events")),
 		});
@@ -59,12 +62,11 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 		if (!channel || channel.type !== ChannelType.GuildText) return;
 
 		const messages = await channel.messages.fetch();
-		const lastMessage = messages.filter((message) => message.mentions.roles.has(role.id)).at(-1);
-		if (!lastMessage) return;
+		const eventMessage = messages.find((message) => message.content.includes(role.id));
+		if (!eventMessage) return;
 
-		await guild.roles.delete(role);
+		await webhook.editMessage(eventMessage.id, { content: `**\`${name}\`** is over!\n${url}` });
 
-		await lastMessage.edit(`**\`${name}\`** is over!\n${url}`);
 		await this.container.db
 			.update(events)
 			.set({ status: "expired" })
