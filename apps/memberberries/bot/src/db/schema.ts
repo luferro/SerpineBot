@@ -84,7 +84,7 @@ export const webhookToFeed = pgTable(
 		feedId: integer("feed_id")
 			.references(() => feeds.id, { onDelete: "cascade" })
 			.notNull(),
-		options: json("options").default({}).notNull(),
+		options: json("options").notNull(),
 		createdAt,
 		updatedAt,
 	},
@@ -162,9 +162,9 @@ export const integrations = pgTable(
 		type: integrationEnum("type").notNull(),
 		userId: text("user_id").notNull().unique(),
 		notifications: boolean("notifications").default(true).notNull(),
-		profile: json("profile").default({}).notNull(),
-		wishlist: json("wishlist").array().default([]).notNull(),
-		leaderboard: json("leaderboard").array().default([]).notNull(),
+		profile: json("profile").notNull(),
+		wishlist: json("wishlist").array().notNull(),
+		leaderboard: json("leaderboard").array().notNull(),
 		createdAt,
 		updatedAt,
 	},
