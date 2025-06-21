@@ -15,7 +15,7 @@ export class RedditTask extends ScheduledTask {
 	}
 
 	public async run() {
-		await this.container.propagate("reddit", async (feeds) => {
+		await this.container.propagate("reddit", async ({ feeds }) => {
 			const messages = [];
 			for (const { path: subreddit, options } of feeds) {
 				const { sort, limit, flairs } = options as WebhookFeedOptions;
@@ -39,7 +39,7 @@ export class RedditTask extends ScheduledTask {
 					messages.push(isYoutubeEmbed ? `**${title}**\n${url}` : `**[${truncate(title)}](<${selfurl}>)**\n${url}`);
 				}
 			}
-			return messages;
+			return { name: this.name, messages };
 		});
 	}
 }

@@ -19,16 +19,8 @@ export class BirthdaysTask extends ScheduledTask {
 		const currentMonth = currentDate.getMonth() + 1;
 		const currentYear = currentDate.getFullYear();
 
-		for (const [guildId, guild] of this.container.client.guilds.cache) {
-			const storedWebhook = await this.container.db.query.webhooks.findFirst({
-				where: (webhooks, { and, eq }) => and(eq(webhooks.guildId, guildId), eq(webhooks.type, "birthdays")),
-			});
-			if (!storedWebhook) continue;
-
-			const webhook = await this.container.client.fetchWebhook(storedWebhook.id, storedWebhook.token);
-			if (!webhook) continue;
-
-			const birthdays = await this.container.db.query.birthdays.findMany({
+		await this.container.propagate("birthdays", async ({ guild }) => {
+			const upcomingBirthdays = await this.container.db.query.birthdays.findMany({
 				where: (birthdays, { sql, or, and, eq, gt, gte }) =>
 					or(
 						gt(sql`EXTRACT(MONTH FROM ${birthdays.birthdate})`, currentMonth),
@@ -38,7 +30,7 @@ export class BirthdaysTask extends ScheduledTask {
 						),
 					),
 			});
-			const birthdaysMap = birthdays.reduce((acc, { userId, name, relation, birthdate }) => {
+			const birthdaysMap = upcomingBirthdays.reduce((acc, { userId, name, relation, birthdate }) => {
 				const birthdays = [
 					...(acc.get(userId) ?? []),
 					{
@@ -51,6 +43,7 @@ export class BirthdaysTask extends ScheduledTask {
 				return acc;
 			}, new Map<string, { name: string; relation: string; birthdate: Date }[]>());
 
+			const messages = [];
 			for (const [userId, userBirthdays] of birthdaysMap) {
 				const target = await guild.members.fetch(userId).catch(() => null);
 				if (!target) continue;
@@ -59,15 +52,14 @@ export class BirthdaysTask extends ScheduledTask {
 					const age = currentYear - birthdate.getFullYear();
 					const date = startOfDay(currentDate, { in: tz(this.container.config.timezone) });
 					birthdate.setFullYear(currentYear);
-
 					if (date.getTime() !== birthdate.getTime()) continue;
 
-					await webhook.send({
-						content: `${guild.roles.everyone} ${this.createBirthdayMessage(target, name, relation, age)}`,
-					});
+					messages.push(`${guild.roles.everyone} ${this.createBirthdayMessage(target, name, relation, age)}`);
 				}
 			}
-		}
+
+			return { name: this.name, skipCache: true, messages };
+		});
 	}
 
 	private createBirthdayMessage(target: GuildMember, name: string, relation: string, age: number) {

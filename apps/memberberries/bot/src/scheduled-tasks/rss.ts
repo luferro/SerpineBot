@@ -12,11 +12,12 @@ export class RSSTask extends ScheduledTask {
 	}
 
 	public async run() {
-		await this.container.propagate("rss", async (feeds) => {
-			if (!feeds || feeds.length === 0) return [];
+		await this.container.propagate("rss", async ({ feeds }) => {
+			if (!feeds || feeds.length === 0) return { name: this.name, messages: [] };
 
 			const data = await consume(feeds.map(({ path }) => path));
-			return data.map(({ title, url }) => `${title}\n${url}`);
+			const messages = data.map(({ title, url }) => `${title}\n${url}`);
+			return { name: this.name, messages };
 		});
 	}
 }

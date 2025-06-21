@@ -14,6 +14,14 @@ export class Cache<T> extends Keyv<T> {
 		}
 		return value;
 	}
+
+	async checkAndMarkSent(key: string, ttl = 60 * 60 * 24 * 30 * 1000) {
+		const exists = await this.get(key);
+		if (exists) return true;
+
+		await this.set(key, "1", ttl);
+		return false;
+	}
 }
 
 export function createHash(data: crypto.BinaryLike) {

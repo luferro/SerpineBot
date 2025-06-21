@@ -16,8 +16,7 @@ export class FreebiesTask extends ScheduledTask {
 	public async run() {
 		await this.container.propagate("freebies", async () => {
 			const freebies = await this.container.gql.itad.getFreebies();
-
-			return freebies
+			const messages = freebies
 				.slice()
 				.reverse()
 				.map(({ title, url, discount, regular, store, expiry }) =>
@@ -30,6 +29,7 @@ export class FreebiesTask extends ScheduledTask {
 						.setFooter(expiry ? { text: `Expires on <t:${toSeconds(new Date(expiry).getTime())}:f>` } : null)
 						.setColor("Random"),
 				);
+			return { name: this.name, messages };
 		});
 	}
 }

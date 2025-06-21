@@ -45,7 +45,7 @@ export class LeaderboardsTask extends ScheduledTask {
 						.setColor("Random"),
 				);
 			}
-			return messages;
+			return { name: this.name, skipCache: true, messages };
 		});
 	}
 

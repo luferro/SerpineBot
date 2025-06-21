@@ -52,7 +52,7 @@ export class ReviewsTask extends ScheduledTask {
 						.setColor("Random"),
 				);
 			}
-			return messages;
+			return { name: this.name, messages };
 		});
 	}
 }
