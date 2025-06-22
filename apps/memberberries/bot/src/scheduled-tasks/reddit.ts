@@ -56,7 +56,7 @@ export class RedditTask extends ScheduledTask {
 			return {
 				name: this.name,
 				messages: messages
-					.sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime())
+					.sort((a, b) => new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime())
 					.map(({ message }) => message),
 			};
 		});
