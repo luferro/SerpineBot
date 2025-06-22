@@ -52,13 +52,6 @@ container.propagate = async (type, getMessages) => {
 			const channel = webhook?.channel;
 			if (!channel || channel.type !== ChannelType.GuildText) continue;
 
-			container.logger.debug({
-				guildId,
-				webhookId: storedWebhook.id,
-				feeds: feeds.map((feed) => feed.path),
-				message: `[PROPAGATE] Attempting to propagate ${messages.length} messages`,
-			});
-
 			for (const message of messages) {
 				const pattern = container.stores.get("scheduled-tasks").get(name)?.pattern ?? null;
 				const previousRunDate = pattern ? parseCronExpression(pattern).prev().toDate() : null;
@@ -68,12 +61,6 @@ container.propagate = async (type, getMessages) => {
 				const hash = createHash(isContent ? message : JSON.stringify({ ...message.data, color: null }));
 				const key = `message:${type}:${channel.id}:${hash}`;
 				const isDuplicate = skipCache ? false : await container.cache.checkAndMarkSent(key);
-				container.logger.debug({
-					key,
-					isFirstRun,
-					isDuplicate,
-					message: isContent ? message : message.data.url,
-				});
 				if (isFirstRun || isDuplicate) continue;
 
 				await webhook.send(isContent ? message : { embeds: [message] });
