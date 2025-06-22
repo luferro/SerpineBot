@@ -51,7 +51,7 @@ export class WebhooksCommand extends Subcommand {
 								option
 									.setName("channel")
 									.setDescription("Text channel")
-									.addChannelTypes(ChannelType.GuildText)
+									.addChannelTypes([ChannelType.GuildAnnouncement, ChannelType.GuildText])
 									.setRequired(true),
 							)
 							.addStringOption((option) =>
