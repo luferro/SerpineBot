@@ -1,5 +1,5 @@
 import { loadConfig } from "@luferro/config";
-import { GraphQLClient, InMemoryCache } from "@luferro/graphql/client";
+import { GraphQLClient, InMemoryCache, skipCache, withTTL } from "@luferro/graphql/client";
 import type * as GraphQLTypes from "~/graphql/__generated__/graphql.js";
 import { GET_IGDB_UPCOMING_EVENTS } from "~/graphql/queries/igdb.qry.js";
 import { GET_HLTB_PLAYTIMES, SEARCH_HLTB } from "./queries/hltb.qry.js";
@@ -23,13 +23,13 @@ export class ExtendedGraphQLClient extends GraphQLClient {
 				typePolicies: {
 					Query: {
 						fields: {
-							hltb: { merge: true },
-							igdb: { merge: true },
-							itad: { merge: true },
-							reddit: { merge: true },
-							steam: { merge: true },
-							subscriptions: { merge: true },
-							xbox: { merge: true },
+							hltb: withTTL(),
+							igdb: withTTL(),
+							itad: withTTL(),
+							reddit: skipCache(),
+							steam: skipCache(),
+							subscriptions: withTTL(60 * 60 * 1000),
+							xbox: skipCache(),
 						},
 					},
 				},
