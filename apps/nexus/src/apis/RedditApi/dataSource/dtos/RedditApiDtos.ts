@@ -21,7 +21,29 @@ export type Posts = {
 					};
 				};
 				is_gallery: boolean;
-				gallery_data?: { items: { media_id: string }[] };
+				gallery_data?: {
+					items: {
+						media_id: string;
+					}[];
+				};
+				media_metadata?: {
+					[media_id: string]: {
+						status: string;
+						e: string;
+						m: string;
+						p: {
+							y: number;
+							x: number;
+							u: string;
+						}[];
+						s: {
+							y: number;
+							x: number;
+							u: string;
+						};
+						id: string;
+					};
+				};
 				is_self: boolean;
 				crosspost_parent: boolean | null;
 				stickied: boolean;

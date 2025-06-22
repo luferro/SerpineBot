@@ -59,7 +59,10 @@ export class RedditDataSource extends ExtendedRESTDataSource {
 			.map(({ data }) => {
 				const url = this.getUrl(data);
 				const gallery =
-					data.gallery_data?.items.map(({ media_id }) => ({ url: `https://i.redd.it/${media_id}.jpg` })) ?? [];
+					data.gallery_data?.items.map(({ media_id }) => {
+						const extension = data.media_metadata?.[media_id].m.split("/")[-1] ?? "jpg";
+						return { url: `https://i.redd.it/${media_id}.${extension}` };
+					}) ?? [];
 
 				return {
 					url,
