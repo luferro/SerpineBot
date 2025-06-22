@@ -60,7 +60,7 @@ export class WebhooksCommand extends Subcommand {
 							.addStringOption((option) =>
 								option
 									.setName("sort")
-									.setDescription("Subreddit sort")
+									.setDescription("Subreddit sort (default is 'New')")
 									.addChoices([
 										{ name: "Hot", value: "hot" },
 										{ name: "Top", value: "top" },
@@ -70,7 +70,9 @@ export class WebhooksCommand extends Subcommand {
 							.addStringOption((option) =>
 								option.setName("flairs").setDescription("Subreddit flairs (e.g. <flair1>;<flair2>;<flair3>)"),
 							)
-							.addIntegerOption((option) => option.setName("limit").setDescription("Subreddit limit")),
+							.addIntegerOption((option) =>
+								option.setName("limit").setDescription("Subreddit limit (default is '25')"),
+							),
 					)
 					.addSubcommand((command) =>
 						command
@@ -87,7 +89,7 @@ export class WebhooksCommand extends Subcommand {
 								option
 									.setName("channel")
 									.setDescription("Text channel")
-									.addChannelTypes(ChannelType.GuildText)
+									.addChannelTypes([ChannelType.GuildAnnouncement, ChannelType.GuildText])
 									.setRequired(true),
 							),
 					),
