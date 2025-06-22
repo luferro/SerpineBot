@@ -21,25 +21,44 @@ export class RedditTask extends ScheduledTask {
 				const { sort, limit, flairs } = options as WebhookFeedOptions;
 				const posts = await this.container.gql.reddit.getPosts({ input: { subreddit, sort, limit, flairs } });
 				const reversedPosts = posts.slice().reverse();
-				for (const { isSelf, isYoutubeEmbed, isImage, isGallery, title, url, selfurl, gallery } of reversedPosts) {
+				for (const {
+					isSelf,
+					isYoutubeEmbed,
+					isImage,
+					isGallery,
+					title,
+					url,
+					selfurl,
+					gallery,
+					publishedAt,
+				} of reversedPosts) {
 					const subscribers = isYoutubeEmbed ? await getSubscribers(url) : -1;
 					if (isSelf || (isYoutubeEmbed && subscribers < 50_000)) continue;
 
 					if (isImage || isGallery) {
-						messages.push(
-							new EmbedBuilder()
+						messages.push({
+							publishedAt,
+							message: new EmbedBuilder()
 								.setTitle(truncate(title))
 								.setURL(selfurl)
 								.setImage(isImage ? url : gallery[0].url)
 								.setColor("Random"),
-						);
+						});
 						continue;
 					}
 
-					messages.push(isYoutubeEmbed ? `**${title}**\n${url}` : `**[${truncate(title)}](<${selfurl}>)**\n${url}`);
+					messages.push({
+						publishedAt,
+						message: isYoutubeEmbed ? `**${title}**\n${url}` : `**[${truncate(title)}](<${selfurl}>)**\n${url}`,
+					});
 				}
 			}
-			return { name: this.name, messages };
+			return {
+				name: this.name,
+				messages: messages
+					.sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime())
+					.map(({ message }) => message),
+			};
 		});
 	}
 }

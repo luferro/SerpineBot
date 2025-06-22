@@ -16,7 +16,9 @@ export class RSSTask extends ScheduledTask {
 			if (!feeds || feeds.length === 0) return { name: this.name, messages: [] };
 
 			const data = await consume(feeds.map(({ path }) => path));
-			const messages = data.map(({ title, url }) => `${title}\n${url}`);
+			const messages = data
+				.sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime())
+				.map(({ title, url }) => `${title}\n${url}`);
 			return { name: this.name, messages };
 		});
 	}
