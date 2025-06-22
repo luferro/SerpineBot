@@ -1,4 +1,5 @@
 import { formatCurrency } from "@luferro/utils/currency";
+import { format } from "@luferro/utils/date";
 import { toSeconds } from "@luferro/utils/time";
 import { container } from "@sapphire/pieces";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
@@ -26,7 +27,7 @@ export class FreebiesTask extends ScheduledTask {
 						.setDescription(
 							`**${discount}%** off! ~~${formatCurrency(regular.amount, { currency: regular.currency })}~~ | **Free** @ **${store}**`,
 						)
-						.setFooter(expiry ? { text: `Expires on <t:${toSeconds(new Date(expiry).getTime())}:f>` } : null)
+						.setFooter(expiry ? { text: `Expires on ${format(expiry, "dd/MM/yyyy hh:mm")}` } : null)
 						.setColor("Random"),
 				);
 			return { name: this.name, messages };
