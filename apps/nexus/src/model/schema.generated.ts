@@ -908,16 +908,15 @@ export type RedditPostsInput = {
 
 export type Review = {
   __typename?: 'Review';
-  aggregateRating: ReviewAggregateRating;
-  description: Scalars['String']['output'];
+  aggregateRating?: Maybe<ReviewAggregateRating>;
+  description?: Maybe<Scalars['String']['output']>;
   developers: Array<Scalars['String']['output']>;
   genres: Array<Scalars['String']['output']>;
-  image: Scalars['String']['output'];
+  image?: Maybe<Scalars['String']['output']>;
   platforms: Array<Scalars['String']['output']>;
   publishers: Array<Scalars['String']['output']>;
   releaseDate: Scalars['Timestamp']['output'];
   title: Scalars['String']['output'];
-  trailer?: Maybe<ReviewTrailer>;
   url: Scalars['String']['output'];
 };
 
@@ -926,13 +925,6 @@ export type ReviewAggregateRating = {
   ratingValue: Scalars['Int']['output'];
   reviewCount: Scalars['Int']['output'];
   tier: Scalars['String']['output'];
-};
-
-export type ReviewTrailer = {
-  __typename?: 'ReviewTrailer';
-  description: Scalars['String']['output'];
-  thumbnailUrl: Scalars['String']['output'];
-  title: Scalars['String']['output'];
 };
 
 export type Reviews = {
@@ -1397,7 +1389,6 @@ export type ResolversTypes = {
   RedditPostsInput: RedditPostsInput;
   Review: ResolverTypeWrapper<Review>;
   ReviewAggregateRating: ResolverTypeWrapper<ReviewAggregateRating>;
-  ReviewTrailer: ResolverTypeWrapper<ReviewTrailer>;
   Reviews: ResolverTypeWrapper<Reviews>;
   ReviewsSearchResult: ResolverTypeWrapper<ReviewsSearchResult>;
   Steam: ResolverTypeWrapper<Steam>;
@@ -1523,7 +1514,6 @@ export type ResolversParentTypes = {
   RedditPostsInput: RedditPostsInput;
   Review: Review;
   ReviewAggregateRating: ReviewAggregateRating;
-  ReviewTrailer: ReviewTrailer;
   Reviews: Reviews;
   ReviewsSearchResult: ReviewsSearchResult;
   Steam: Steam;
@@ -2250,16 +2240,15 @@ export type RedditPostResolvers<ContextType = Context, ParentType extends Resolv
 };
 
 export type ReviewResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Review'] = ResolversParentTypes['Review']> = {
-  aggregateRating?: Resolver<ResolversTypes['ReviewAggregateRating'], ParentType, ContextType>;
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  aggregateRating?: Resolver<Maybe<ResolversTypes['ReviewAggregateRating']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   developers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   genres?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   platforms?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   publishers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   releaseDate?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  trailer?: Resolver<Maybe<ResolversTypes['ReviewTrailer']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -2268,13 +2257,6 @@ export type ReviewAggregateRatingResolvers<ContextType = Context, ParentType ext
   ratingValue?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   reviewCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   tier?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ReviewTrailerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReviewTrailer'] = ResolversParentTypes['ReviewTrailer']> = {
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  thumbnailUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2584,7 +2566,6 @@ export type Resolvers<ContextType = Context> = {
   RedditPost?: RedditPostResolvers<ContextType>;
   Review?: ReviewResolvers<ContextType>;
   ReviewAggregateRating?: ReviewAggregateRatingResolvers<ContextType>;
-  ReviewTrailer?: ReviewTrailerResolvers<ContextType>;
   Reviews?: ReviewsResolvers<ContextType>;
   ReviewsSearchResult?: ReviewsSearchResultResolvers<ContextType>;
   Steam?: SteamResolvers<ContextType>;

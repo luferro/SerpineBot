@@ -19,8 +19,9 @@ export class ReviewsDataSource extends ExtendedRESTDataSource {
 	private async loadMetacriticUrl(url: string) {
 		const $ = await this.loadUrl(url);
 		const script = $('script[data-hid="ld+json"]').first().text();
-		const { name, datePublished, description, image, aggregateRating, trailer, genre, gamePlatform, publisher } =
-			JSON.parse(script) as MetacriticReview;
+		const { name, datePublished, description, image, aggregateRating, genre, gamePlatform, publisher } = JSON.parse(
+			script,
+		) as MetacriticReview;
 
 		const developers = $(".c-gameDetails_Developer ul li")
 			.get()
@@ -30,42 +31,27 @@ export class ReviewsDataSource extends ExtendedRESTDataSource {
 			url,
 			description,
 			developers,
-			image: image.includes("resize") ? image.replace(/\/resize\/[^/]+/, "").split("?")[0] : image,
-			publishers: publisher.map((publisher) => publisher.name),
+			image: image ? (image.includes("resize") ? image.replace(/\/resize\/[^/]+/, "").split("?")[0] : image) : null,
+			publishers: publisher?.map((publisher) => publisher.name) ?? [],
 			title: name,
 			platforms: gamePlatform,
 			genres: genre.split(" "),
 			releaseDate: new Date(datePublished).getTime(),
-			trailer: trailer
+			aggregateRating: aggregateRating
 				? {
-						title: trailer.name,
-						description: trailer.description,
-						thumbnailUrl: trailer.thumbnailUrl,
+						tier: this.getTier(aggregateRating.ratingValue),
+						ratingValue: aggregateRating.ratingValue,
+						reviewCount: aggregateRating.reviewCount,
 					}
 				: null,
-			aggregateRating: {
-				tier: this.getTier(aggregateRating.ratingValue),
-				ratingValue: aggregateRating.ratingValue,
-				reviewCount: aggregateRating.reviewCount,
-			},
 		};
 	}
 
 	private async loadOpencriticUrl(url: string) {
 		const $ = await this.loadUrl(url);
 		const script = $('script[type="application/ld+json"]').first().text();
-		const {
-			name,
-			datePublished,
-			description,
-			image,
-			aggregateRating,
-			trailer,
-			genre,
-			gamePlatform,
-			author,
-			publisher,
-		} = JSON.parse(script) as OpencriticReview;
+		const { name, datePublished, description, image, aggregateRating, genre, gamePlatform, author, publisher } =
+			JSON.parse(script) as OpencriticReview;
 
 		return {
 			url,
@@ -74,21 +60,16 @@ export class ReviewsDataSource extends ExtendedRESTDataSource {
 			title: name,
 			genres: genre,
 			platforms: gamePlatform,
-			developers: author.map((author) => author.name),
-			publishers: publisher.map((publisher) => publisher.name),
+			developers: author?.map((author) => author.name) ?? [],
+			publishers: publisher?.map((publisher) => publisher.name) ?? [],
 			releaseDate: new Date(datePublished).getTime(),
-			trailer: trailer
+			aggregateRating: aggregateRating
 				? {
-						title: trailer.name,
-						description: trailer.description,
-						thumbnailUrl: trailer.thumbnailUrl,
+						tier: this.getTier(aggregateRating.ratingValue),
+						ratingValue: aggregateRating.ratingValue,
+						reviewCount: aggregateRating.reviewCount,
 					}
 				: null,
-			aggregateRating: {
-				tier: this.getTier(aggregateRating.ratingValue),
-				ratingValue: aggregateRating.ratingValue,
-				reviewCount: aggregateRating.reviewCount,
-			},
 		};
 	}
 

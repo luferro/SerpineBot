@@ -54,8 +54,6 @@ container.getWebhooks = async (guildId, type) => {
 container.propagate = async (type, getMessages) => {
 	for (const [guildId, guild] of container.client.guilds.cache) {
 		const registeredWebhooks = await container.getWebhooks(guildId, type);
-		console.log(type, JSON.stringify(registeredWebhooks, null, 2));
-
 		for (const registeredWebhook of registeredWebhooks) {
 			const feeds = registeredWebhook.feeds.map(({ webhookId, feedId, feed, options }) => ({
 				webhookId,

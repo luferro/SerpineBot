@@ -31,7 +31,7 @@ export class HowLongToBeatCommand extends Command {
 		const { title, url, releaseDate, platforms, aggregateRating, image } = await this.container.gql.reviews.getReview({
 			url: results[0].url,
 		});
-		if (!aggregateRating.tier || !aggregateRating.ratingValue) throw new Error("Not enough reviews are out.");
+		if (!aggregateRating?.tier || !aggregateRating?.ratingValue) throw new Error("Not enough reviews are out.");
 
 		const embed = new EmbedBuilder()
 			.setTitle(title)

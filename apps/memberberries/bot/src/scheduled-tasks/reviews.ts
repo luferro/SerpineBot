@@ -27,7 +27,7 @@ export class ReviewsTask extends ScheduledTask {
 				if (!matches) continue;
 
 				const data = await this.container.gql.reviews.getReview({ url: matches[1] });
-				if (!data.aggregateRating.tier || !data.aggregateRating.ratingValue) continue;
+				if (!data.aggregateRating?.tier || !data.aggregateRating?.ratingValue) continue;
 
 				messages.push(
 					new EmbedBuilder()

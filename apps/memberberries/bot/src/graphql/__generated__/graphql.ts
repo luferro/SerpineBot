@@ -932,7 +932,7 @@ export type ItadOverview = {
   isEarlyAccess: Scalars['Boolean']['output'];
   playerCount?: Maybe<ItadPlayerCount>;
   releaseDate?: Maybe<Scalars['String']['output']>;
-  reviews?: Maybe<ItadReviews>;
+  reviews: Array<ItadReviews>;
   slug: Scalars['String']['output'];
   title: Scalars['String']['output'];
 };
@@ -1081,8 +1081,8 @@ export type RedditPostsInput = {
 
 export type Review = {
   __typename?: 'Review';
-  aggregateRating: ReviewAggregateRating;
-  description: Scalars['String']['output'];
+  aggregateRating?: Maybe<ReviewAggregateRating>;
+  description?: Maybe<Scalars['String']['output']>;
   developers: Array<Scalars['String']['output']>;
   genres: Array<Scalars['String']['output']>;
   image: Scalars['String']['output'];
@@ -1090,7 +1090,6 @@ export type Review = {
   publishers: Array<Scalars['String']['output']>;
   releaseDate: Scalars['Timestamp']['output'];
   title: Scalars['String']['output'];
-  trailer?: Maybe<ReviewTrailer>;
   url: Scalars['String']['output'];
 };
 
@@ -1099,13 +1098,6 @@ export type ReviewAggregateRating = {
   ratingValue: Scalars['Int']['output'];
   reviewCount: Scalars['Int']['output'];
   tier: Scalars['String']['output'];
-};
-
-export type ReviewTrailer = {
-  __typename?: 'ReviewTrailer';
-  description: Scalars['String']['output'];
-  thumbnailUrl: Scalars['String']['output'];
-  title: Scalars['String']['output'];
 };
 
 export type Reviews = {
@@ -1190,14 +1182,14 @@ export type SteamApp = {
   description: Scalars['String']['output'];
   developers: Array<Scalars['String']['output']>;
   discount: Scalars['Int']['output'];
-  discounted: Scalars['String']['output'];
+  discounted?: Maybe<Scalars['String']['output']>;
   franchises: Array<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   isFree: Scalars['Boolean']['output'];
   isGiftable: Scalars['Boolean']['output'];
   isReleased: Scalars['Boolean']['output'];
   publishers: Array<Scalars['String']['output']>;
-  regular: Scalars['String']['output'];
+  regular?: Maybe<Scalars['String']['output']>;
   release: SteamAppRelease;
   screenshots: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -1232,7 +1224,7 @@ export type SteamAppLibraryAssets = {
 export type SteamAppRelease = {
   __typename?: 'SteamAppRelease';
   customMessage?: Maybe<Scalars['String']['output']>;
-  date: Scalars['Int']['output'];
+  date?: Maybe<Scalars['Timestamp']['output']>;
 };
 
 export type SteamAppTrailer = {
@@ -1273,10 +1265,10 @@ export type SteamProfile = {
 
 export type SteamRecentlyPlayedEntry = {
   __typename?: 'SteamRecentlyPlayedEntry';
-  biweeklyHours: Scalars['Int']['output'];
+  biweeklyHours: Scalars['Float']['output'];
   id: Scalars['String']['output'];
   title: Scalars['String']['output'];
-  totalHours: Scalars['Int']['output'];
+  totalHours: Scalars['Float']['output'];
   url: Scalars['String']['output'];
 };
 
@@ -1302,7 +1294,7 @@ export type SteamWishlistEntry = {
   description: Scalars['String']['output'];
   developers: Array<Scalars['String']['output']>;
   discount: Scalars['Int']['output'];
-  discounted: Scalars['String']['output'];
+  discounted?: Maybe<Scalars['String']['output']>;
   franchises: Array<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   isFree: Scalars['Boolean']['output'];
@@ -1310,7 +1302,7 @@ export type SteamWishlistEntry = {
   isReleased: Scalars['Boolean']['output'];
   priority: Scalars['Int']['output'];
   publishers: Array<Scalars['String']['output']>;
-  regular: Scalars['String']['output'];
+  regular?: Maybe<Scalars['String']['output']>;
   release: SteamAppRelease;
   screenshots: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -1436,7 +1428,7 @@ export type GetItadDealQueryVariables = Exact<{
 }>;
 
 
-export type GetItadDealQuery = { __typename?: 'Query', itad: { __typename?: 'Itad', deal: { __typename?: 'ItadOverview', id: string, appId: number, slug: string, title: string, image?: string | null, releaseDate?: string | null, isEarlyAccess: boolean, hasAchievements: boolean, hasTradingCards: boolean, reviews?: { __typename?: 'ItadReviews', score: number, source: string, count: number, url: string } | null, playerCount?: { __typename?: 'ItadPlayerCount', recent: number, day: number, week: number, peak: number } | null, historicalLow: { __typename?: 'ItadHistoricalLow', all?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null, y1?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null, m3?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null }, deals: Array<{ __typename?: 'ItadDeal', url: string, voucher?: string | null, store: string, discount: number, drm: Array<string>, platforms: Array<string>, timestamp: any, expiry?: any | null, regular: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string }, discounted: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string }, storeHistoricalLow?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null }>, bundles: Array<{ __typename?: 'ItadBundle', id: number, title: string, url: string, store: string, timestamp: any, expiry?: any | null, tiers: Array<{ __typename?: 'ItadBundleTier', price?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null, games: Array<{ __typename?: 'ItadBundleTierGame', id: string, slug: string, title: string, type?: string | null, mature: boolean }> }> }> } } };
+export type GetItadDealQuery = { __typename?: 'Query', itad: { __typename?: 'Itad', deal: { __typename?: 'ItadOverview', id: string, appId: number, slug: string, title: string, image?: string | null, releaseDate?: string | null, isEarlyAccess: boolean, hasAchievements: boolean, hasTradingCards: boolean, reviews: Array<{ __typename?: 'ItadReviews', score: number, source: string, count: number, url: string }>, playerCount?: { __typename?: 'ItadPlayerCount', recent: number, day: number, week: number, peak: number } | null, historicalLow: { __typename?: 'ItadHistoricalLow', all?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null, y1?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null, m3?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null }, deals: Array<{ __typename?: 'ItadDeal', url: string, voucher?: string | null, store: string, discount: number, drm: Array<string>, platforms: Array<string>, timestamp: any, expiry?: any | null, regular: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string }, discounted: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string }, storeHistoricalLow?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null }>, bundles: Array<{ __typename?: 'ItadBundle', id: number, title: string, url: string, store: string, timestamp: any, expiry?: any | null, tiers: Array<{ __typename?: 'ItadBundleTier', price?: { __typename?: 'ItadPrice', amount: number, amountInt: number, currency: string } | null, games: Array<{ __typename?: 'ItadBundleTierGame', id: string, slug: string, title: string, type?: string | null, mature: boolean }> }> }> } } };
 
 export type GetItadFreebiesQueryVariables = Exact<{
   country?: InputMaybe<Scalars['String']['input']>;
@@ -1464,7 +1456,7 @@ export type GetReviewQueryVariables = Exact<{
 }>;
 
 
-export type GetReviewQuery = { __typename?: 'Query', reviews: { __typename?: 'Reviews', review: { __typename?: 'Review', title: string, url: string, image: string, description: string, releaseDate: any, genres: Array<string>, platforms: Array<string>, developers: Array<string>, publishers: Array<string>, trailer?: { __typename?: 'ReviewTrailer', title: string, description: string, thumbnailUrl: string } | null, aggregateRating: { __typename?: 'ReviewAggregateRating', tier: string, ratingValue: number, reviewCount: number } } } };
+export type GetReviewQuery = { __typename?: 'Query', reviews: { __typename?: 'Reviews', review: { __typename?: 'Review', title: string, url: string, image: string, description?: string | null, releaseDate: any, genres: Array<string>, platforms: Array<string>, developers: Array<string>, publishers: Array<string>, aggregateRating?: { __typename?: 'ReviewAggregateRating', tier: string, ratingValue: number, reviewCount: number } | null } } };
 
 export type SearchSteamAppsQueryVariables = Exact<{
   query: Scalars['String']['input'];
@@ -1499,7 +1491,7 @@ export type GetSteamWishlistQueryVariables = Exact<{
 }>;
 
 
-export type GetSteamWishlistQuery = { __typename?: 'Query', steam: { __typename?: 'Steam', wishlist: Array<{ __typename?: 'SteamWishlistEntry', priority: number, id: number, title: string, url: string, discount: number, regular: string, discounted: string, isFree: boolean, isReleased: boolean, release: { __typename?: 'SteamAppRelease', date: number, customMessage?: string | null }, assets?: { __typename?: 'SteamAppAssets', capsule: { __typename?: 'SteamAppCapsuleAssets', hero: string } } | null }> } };
+export type GetSteamWishlistQuery = { __typename?: 'Query', steam: { __typename?: 'Steam', wishlist: Array<{ __typename?: 'SteamWishlistEntry', priority: number, id: number, title: string, url: string, discount: number, regular?: string | null, discounted?: string | null, isFree: boolean, isReleased: boolean, release: { __typename?: 'SteamAppRelease', date?: any | null, customMessage?: string | null }, assets?: { __typename?: 'SteamAppAssets', capsule: { __typename?: 'SteamAppCapsuleAssets', hero: string } } | null }> } };
 
 export type GetSteamAppPlayerCountQueryVariables = Exact<{
   appId: Scalars['Int']['input'];
@@ -1513,7 +1505,7 @@ export type GetSteamAppsQueryVariables = Exact<{
 }>;
 
 
-export type GetSteamAppsQuery = { __typename?: 'Query', steam: { __typename?: 'Steam', store: Array<{ __typename?: 'SteamApp', id: number, title: string, url: string, description: string, discount: number, regular: string, discounted: string, isFree: boolean, isReleased: boolean, isGiftable: boolean, developers: Array<string>, publishers: Array<string>, franchises: Array<string>, screenshots: Array<string>, release: { __typename?: 'SteamAppRelease', date: number, customMessage?: string | null }, trailers: Array<{ __typename?: 'SteamAppTrailers', title: string, trailer: { __typename?: 'SteamAppTrailer', sd: Array<string>, max: Array<string> } }>, assets?: { __typename?: 'SteamAppAssets', capsule: { __typename?: 'SteamAppCapsuleAssets', hero: string } } | null }> } };
+export type GetSteamAppsQuery = { __typename?: 'Query', steam: { __typename?: 'Steam', store: Array<{ __typename?: 'SteamApp', id: number, title: string, url: string, description: string, discount: number, regular?: string | null, discounted?: string | null, isFree: boolean, isReleased: boolean, isGiftable: boolean, developers: Array<string>, publishers: Array<string>, franchises: Array<string>, screenshots: Array<string>, release: { __typename?: 'SteamAppRelease', date?: any | null, customMessage?: string | null }, trailers: Array<{ __typename?: 'SteamAppTrailers', title: string, trailer: { __typename?: 'SteamAppTrailer', sd: Array<string>, max: Array<string> } }>, assets?: { __typename?: 'SteamAppAssets', capsule: { __typename?: 'SteamAppCapsuleAssets', hero: string } } | null }> } };
 
 export type GetSteamUpcomingSalesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1536,7 +1528,7 @@ export const GetItadDealDocument = {"kind":"Document","definitions":[{"kind":"Op
 export const GetItadFreebiesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetItadFreebies"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"country"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"itad"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"freebies"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"country"},"value":{"kind":"Variable","name":{"kind":"Name","value":"country"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"voucher"}},{"kind":"Field","name":{"kind":"Name","value":"store"}},{"kind":"Field","name":{"kind":"Name","value":"regular"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"amountInt"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}}]}},{"kind":"Field","name":{"kind":"Name","value":"discounted"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"amountInt"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}}]}},{"kind":"Field","name":{"kind":"Name","value":"discount"}},{"kind":"Field","name":{"kind":"Name","value":"drm"}},{"kind":"Field","name":{"kind":"Name","value":"platforms"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"expiry"}}]}}]}}]}}]} as unknown as DocumentNode<GetItadFreebiesQuery, GetItadFreebiesQueryVariables>;
 export const GetRedditPostsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetRedditPosts"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RedditPostsInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reddit"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"posts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"selfurl"}},{"kind":"Field","name":{"kind":"Name","value":"selftext"}},{"kind":"Field","name":{"kind":"Name","value":"gallery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}}]}},{"kind":"Field","name":{"kind":"Name","value":"isSelf"}},{"kind":"Field","name":{"kind":"Name","value":"isCrosspost"}},{"kind":"Field","name":{"kind":"Name","value":"isNsfw"}},{"kind":"Field","name":{"kind":"Name","value":"isGallery"}},{"kind":"Field","name":{"kind":"Name","value":"isImage"}},{"kind":"Field","name":{"kind":"Name","value":"isVideo"}},{"kind":"Field","name":{"kind":"Name","value":"isYoutubeEmbed"}},{"kind":"Field","name":{"kind":"Name","value":"publishedAt"}}]}}]}}]}}]} as unknown as DocumentNode<GetRedditPostsQuery, GetRedditPostsQueryVariables>;
 export const SearchReviewDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchReview"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"search"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"score"}}]}}]}}]}}]} as unknown as DocumentNode<SearchReviewQuery, SearchReviewQueryVariables>;
-export const GetReviewDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetReview"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"review"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"url"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"releaseDate"}},{"kind":"Field","name":{"kind":"Name","value":"genres"}},{"kind":"Field","name":{"kind":"Name","value":"platforms"}},{"kind":"Field","name":{"kind":"Name","value":"trailer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnailUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"aggregateRating"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tier"}},{"kind":"Field","name":{"kind":"Name","value":"ratingValue"}},{"kind":"Field","name":{"kind":"Name","value":"reviewCount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"developers"}},{"kind":"Field","name":{"kind":"Name","value":"publishers"}}]}}]}}]}}]} as unknown as DocumentNode<GetReviewQuery, GetReviewQueryVariables>;
+export const GetReviewDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetReview"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"review"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"url"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"releaseDate"}},{"kind":"Field","name":{"kind":"Name","value":"genres"}},{"kind":"Field","name":{"kind":"Name","value":"platforms"}},{"kind":"Field","name":{"kind":"Name","value":"aggregateRating"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tier"}},{"kind":"Field","name":{"kind":"Name","value":"ratingValue"}},{"kind":"Field","name":{"kind":"Name","value":"reviewCount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"developers"}},{"kind":"Field","name":{"kind":"Name","value":"publishers"}}]}}]}}]}}]} as unknown as DocumentNode<GetReviewQuery, GetReviewQueryVariables>;
 export const SearchSteamAppsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchSteamApps"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"steam"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"search"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"appId"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"price"}}]}}]}}]}}]} as unknown as DocumentNode<SearchSteamAppsQuery, SearchSteamAppsQueryVariables>;
 export const GetSteamId64Document = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetSteamId64"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"vanityUrl"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"steam"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"steamId64"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"vanityUrl"},"value":{"kind":"Variable","name":{"kind":"Name","value":"vanityUrl"}}}]}]}}]}}]} as unknown as DocumentNode<GetSteamId64Query, GetSteamId64QueryVariables>;
 export const GetSteamProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetSteamProfile"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"steamId64"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"steam"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"profile"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"steamId64"},"value":{"kind":"Variable","name":{"kind":"Name","value":"steamId64"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"logoutAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<GetSteamProfileQuery, GetSteamProfileQueryVariables>;

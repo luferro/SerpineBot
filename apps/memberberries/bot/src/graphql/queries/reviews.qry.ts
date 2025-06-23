@@ -23,11 +23,6 @@ export const GET_REVIEW = gql(`
         releaseDate
         genres
         platforms
-        trailer {
-          title
-          description
-          thumbnailUrl
-        }
         aggregateRating {
           tier
           ratingValue

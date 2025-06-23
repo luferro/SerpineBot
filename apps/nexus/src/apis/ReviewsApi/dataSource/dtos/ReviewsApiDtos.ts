@@ -2,13 +2,13 @@ export type MetacriticReview = {
 	name: string;
 	dateCreated: string;
 	datePublished: string;
-	description: string;
+	description?: string;
 	contentRating: string;
-	image: string;
+	image?: string;
 	url: string;
 	genre: string;
 	gamePlatform: string[];
-	aggregateRating: {
+	aggregateRating?: {
 		name: string;
 		description: string;
 		bestRating: number;
@@ -17,18 +17,12 @@ export type MetacriticReview = {
 		reviewCount: number;
 		url: string;
 	};
-	trailer: {
-		name: string;
-		description: string;
-		thumbnailUrl: string;
-		uploadDate: string;
-	} | null;
 	screenshot: {
 		caption: string;
 		thumbnailUrl?: string;
 		contentUrl?: string;
 	}[];
-	publisher: {
+	publisher?: {
 		name: string;
 	}[];
 };
@@ -38,32 +32,24 @@ export type OpencriticReview = {
 	dateCreated: string;
 	name: string;
 	gamePlatform: string[];
-	description: string;
+	description?: string;
 	operatingSystem: string[];
 	genre: string[];
 	datePublished: string;
-	image: string;
+	image?: string;
 	dateModified: string;
 	screenshot: {
 		caption: string;
 		thumbnailUrl?: string;
 		contentUrl?: string;
 	}[];
-	trailer: {
-		name: string;
-		url: string;
-		uploadDate: string;
-		thumbnailUrl: string;
-		description: string;
-		embedUrl: string;
-	} | null;
-	author: {
+	author?: {
 		name: string;
 	}[];
-	publisher: {
+	publisher?: {
 		name: string;
 	}[];
-	aggregateRating: {
+	aggregateRating?: {
 		ratingValue: number;
 		bestRating: number;
 		worstRating: number;
