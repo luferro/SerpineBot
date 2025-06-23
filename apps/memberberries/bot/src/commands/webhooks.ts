@@ -1,8 +1,8 @@
 import { PaginatedMessageEmbedFields } from "@sapphire/discord.js-utilities";
 import { Subcommand } from "@sapphire/plugin-subcommands";
 import { ChannelType, MessageFlags, PermissionFlagsBits, type TextChannel } from "discord.js";
-import { and, eq } from "drizzle-orm";
-import { feeds, webhookToFeed, webhooks } from "~/db/schema.js";
+import { eq } from "drizzle-orm";
+import { feeds, webhookFeeds, webhookTypes, webhooks } from "~/db/schema.js";
 import type { WebhookType } from "~/types/webhooks.js";
 
 const WebhookTypeChoices: WebhookType[] = [
@@ -22,7 +22,15 @@ export class WebhooksCommand extends Subcommand {
 			name: "webhooks",
 			subcommands: [
 				{ name: "create", chatInputRun: "chatInputCreateWebhook" },
-				{ name: "link", chatInputRun: "chatInputLinkWebhook" },
+				{ name: "assign", chatInputRun: "chatInputAssignWebhook" },
+				{
+					type: "group",
+					name: "link",
+					entries: [
+						{ name: "rss", chatInputRun: "chatInputLinkWebhook" },
+						{ name: "reddit", chatInputRun: "chatInputLinkWebhook" },
+					],
+				},
 				{ name: "list", chatInputRun: "chatInputListWebhook" },
 				{ name: "delete", chatInputRun: "chatInputDeleteWebhook" },
 			],
@@ -43,13 +51,6 @@ export class WebhooksCommand extends Subcommand {
 							.setName("create")
 							.setDescription("Create webhook")
 							.addStringOption((option) => option.setName("name").setDescription("Webhook name").setRequired(true))
-							.addStringOption((option) =>
-								option
-									.setName("type")
-									.setDescription("Webhook type")
-									.setChoices(WebhookTypeChoices.map((choice) => ({ name: choice.toUpperCase(), value: choice })))
-									.setRequired(true),
-							)
 							.addChannelOption((option) =>
 								option
 									.setName("channel")
@@ -60,27 +61,56 @@ export class WebhooksCommand extends Subcommand {
 					)
 					.addSubcommand((command) =>
 						command
-							.setName("link")
-							.setDescription("Link subreddits or feeds to Reddit or RSS webhooks")
+							.setName("assign")
+							.setDescription("Assign types to a registered webhook")
 							.addStringOption((option) => option.setName("id").setDescription("Webhook id").setRequired(true))
 							.addStringOption((option) =>
-								option.setName("paths").setDescription("RSS feeds or subreddits (e.g. <path1>;<path2>;<path3>)"),
-							)
-							.addStringOption((option) =>
 								option
-									.setName("sort")
-									.setDescription("Subreddit sort (defaults to 'New')")
-									.addChoices([
-										{ name: "Hot", value: "hot" },
-										{ name: "Top", value: "top" },
-										{ name: "New", value: "new" },
-									]),
+									.setName("type")
+									.setDescription("Webhook type")
+									.setChoices(WebhookTypeChoices.map((choice) => ({ name: choice.toUpperCase(), value: choice })))
+									.setRequired(true),
+							),
+					)
+					.addSubcommandGroup((group) =>
+						group
+							.setName("link")
+							.setDescription("Link RSS feeds or subreddits to webhooks")
+							.addSubcommand((command) =>
+								command
+									.setName("rss")
+									.setDescription("Link subreddits or feeds to Reddit or RSS webhooks")
+									.addStringOption((option) => option.setName("id").setDescription("Webhook id").setRequired(true))
+									.addStringOption((option) => option.setName("feed").setDescription("RSS feed").setRequired(true)),
 							)
-							.addStringOption((option) =>
-								option.setName("flairs").setDescription("Subreddit flairs (e.g. <flair1>;<flair2>;<flair3>)"),
-							)
-							.addIntegerOption((option) =>
-								option.setName("limit").setDescription("Subreddit limit (defaults to '25')"),
+							.addSubcommand((command) =>
+								command
+									.setName("reddit")
+									.setDescription("Link subreddits or feeds to Reddit or RSS webhooks")
+									.addStringOption((option) => option.setName("id").setDescription("Webhook id").setRequired(true))
+									.addStringOption((option) => option.setName("feed").setDescription("Subreddit").setRequired(true))
+									.addStringOption((option) =>
+										option
+											.setName("sort")
+											.setDescription("Subreddit sort")
+											.addChoices([
+												{ name: "Hot", value: "hot" },
+												{ name: "Top", value: "top" },
+												{ name: "New", value: "new" },
+											])
+											.setRequired(true),
+									)
+									.addIntegerOption((option) =>
+										option
+											.setName("limit")
+											.setDescription("Subreddit limit")
+											.setMinValue(1)
+											.setMaxValue(100)
+											.setRequired(true),
+									)
+									.addStringOption((option) =>
+										option.setName("flairs").setDescription("Subreddit flairs (e.g. <flair1>;<flair2>;<flair3>)"),
+									),
 							),
 					)
 					.addSubcommand((command) => command.setName("list").setDescription("List registered webhooks"))
@@ -88,20 +118,7 @@ export class WebhooksCommand extends Subcommand {
 						command
 							.setName("delete")
 							.setDescription("Delete webhook")
-							.addStringOption((option) =>
-								option
-									.setName("type")
-									.setDescription("Webhook type")
-									.setChoices(WebhookTypeChoices.map((choice) => ({ name: choice.toUpperCase(), value: choice })))
-									.setRequired(true),
-							)
-							.addChannelOption((option) =>
-								option
-									.setName("channel")
-									.setDescription("Text channel")
-									.addChannelTypes([ChannelType.GuildAnnouncement, ChannelType.GuildText])
-									.setRequired(true),
-							),
+							.addStringOption((option) => option.setName("id").setDescription("Webhook id").setRequired(true)),
 					),
 			{ guildIds: this.container.guildIds },
 		);
@@ -109,49 +126,77 @@ export class WebhooksCommand extends Subcommand {
 
 	async chatInputCreateWebhook(interaction: Subcommand.ChatInputCommandInteraction) {
 		const name = interaction.options.getString("name", true);
-		const type = interaction.options.getString("type", true) as WebhookType;
 		const channel = interaction.options.getChannel("channel", true) as TextChannel;
 
 		const guildId = interaction.guildId;
 		if (!guildId) throw new Error("Not in guild context.");
 
 		const { id, token } = await channel.createWebhook({ name });
-		await this.container.db.insert(webhooks).values({ id, token, type, guildId, channelId: channel.id });
+		await this.container.db.insert(webhooks).values({ id, token, guildId, channelId: channel.id });
 
-		return interaction.reply({ flags: MessageFlags.Ephemeral, content: `Webhook ${type} assigned to ${channel.name}` });
+		return interaction.reply({
+			flags: MessageFlags.Ephemeral,
+			content: `Webhook ${name} with id ${id} assigned to #${channel.name}`,
+		});
 	}
 
-	async chatInputLinkWebhook(interaction: Subcommand.ChatInputCommandInteraction) {
+	async chatInputAssignWebhook(interaction: Subcommand.ChatInputCommandInteraction) {
 		const id = interaction.options.getString("id", true);
-		const paths = interaction.options.getString("paths", true).split(";");
-		const sort = interaction.options.getString("sort") ?? "new";
-		const flairs = interaction.options.getString("flairs")?.split(";") ?? [];
-		const limit = interaction.options.getString("limit") ?? 25;
+		const type = interaction.options.getString("type", true) as WebhookType;
 
 		const guildId = interaction.guildId;
 		if (!guildId) throw new Error("Not in guild context.");
 
-		const storedWebhook = await this.container.db.query.webhooks.findFirst({
+		const registeredWebhook = await this.container.db.query.webhooks.findFirst({
 			where: (webhooks, { eq }) => eq(webhooks.id, id),
 		});
-		if (!storedWebhook) throw new Error("Webhook is not registered.");
+		if (!registeredWebhook) throw new Error("Webhook is not registered.");
 
-		const isRedditWebhook = storedWebhook.type === "reddit";
-		const isRssWebhook = storedWebhook.type === "rss";
-		if (!isRedditWebhook && !isRssWebhook) throw new Error("Cannot assign feeds or subreddits to selected webhook.");
-
-		const feedInputs = paths.map((path) => ({ path }));
-		const insertedFeeds = await this.container.db.insert(feeds).values(feedInputs).onConflictDoNothing().returning();
-		const webhookFeedInput = insertedFeeds.map((feed) => ({
-			webhookId: id,
-			feedId: feed.id,
-			options: isRedditWebhook ? { sort, limit, flairs } : {},
-		}));
-		await this.container.db.insert(webhookToFeed).values(webhookFeedInput);
+		await this.container.db.insert(webhookTypes).values({ webhookId: id, type }).onConflictDoNothing();
 
 		return interaction.reply({
 			flags: MessageFlags.Ephemeral,
-			content: `Feeds successfully linked to webhook ${storedWebhook.id}`,
+			content: `${type.toUpperCase()} assigned to webhook with id ${id}`,
+		});
+	}
+
+	async chatInputLinkWebhook(interaction: Subcommand.ChatInputCommandInteraction) {
+		const id = interaction.options.getString("id", true);
+		const feed = interaction.options.getString("feed", true);
+		const sort = interaction.options.getString("sort");
+		const limit = interaction.options.getInteger("limit");
+		const flairs = interaction.options.getString("flairs")?.split(";") ?? [];
+
+		const guildId = interaction.guildId;
+		if (!guildId) throw new Error("Not in guild context.");
+
+		const registeredWebhook = await this.container.db.query.webhooks.findFirst({
+			where: (webhooks, { eq }) => eq(webhooks.id, id),
+			with: { types: { columns: { type: true } } },
+		});
+		if (!registeredWebhook) throw new Error("Webhook is not registered.");
+
+		const canBeLinked = registeredWebhook.types.some(({ type }) => ["rss", "reddit"].includes(type));
+		if (!canBeLinked) throw new Error("Cannot assign feeds or subreddits to selected webhook.");
+
+		const isRedditLink = Boolean(sort && limit);
+		const type: WebhookType = isRedditLink ? "reddit" : "rss";
+		const insertedFeeds = await this.container.db
+			.insert(feeds)
+			.values({ path: feed })
+			.onConflictDoNothing()
+			.returning();
+		const webhookFeedInput = insertedFeeds.map((feed) => ({
+			type,
+			webhookId: id,
+			feedId: feed.id,
+			options: isRedditLink ? { sort, limit, flairs } : {},
+		}));
+		await this.container.db.insert(webhookFeeds).values(webhookFeedInput);
+
+		return interaction.reply({
+			flags: MessageFlags.Ephemeral,
+			content: `Feed successfully linked to webhook with id ${registeredWebhook.id}`,
 		});
 	}
 
@@ -159,15 +204,18 @@ export class WebhooksCommand extends Subcommand {
 		const guildId = interaction.guildId;
 		if (!guildId) throw new Error("Not in guild context.");
 
-		const storedWebhooks = await this.container.db.query.webhooks.findMany();
-		if (storedWebhooks.length === 0) throw new Error("No registered webhooks found.");
+		const registeredWebhooks = await this.container.db.query.webhooks.findMany({
+			where: (webhooks, { eq }) => eq(webhooks.guildId, guildId),
+			with: { types: { columns: { type: true } } },
+		});
+		if (registeredWebhooks.length === 0) throw new Error("No registered webhooks found.");
 
 		const paginatedMessage = new PaginatedMessageEmbedFields()
 			.setTemplate({ title: "Registered webhooks" })
 			.setItems(
-				storedWebhooks.map((storedWebhook) => ({
-					name: `Webhook ${storedWebhook.type} in channel ${storedWebhook.channelId}`,
-					value: storedWebhook.id,
+				registeredWebhooks.map((storedWebhook) => ({
+					name: `${storedWebhook.types.map(({ type }) => type.toUpperCase()).join(" | ")} - channelId ${storedWebhook.channelId}`,
+					value: `webhookId ${storedWebhook.id}`,
 					inline: false,
 				})),
 			)
@@ -176,24 +224,17 @@ export class WebhooksCommand extends Subcommand {
 	}
 
 	async chatInputDeleteWebhook(interaction: Subcommand.ChatInputCommandInteraction) {
-		const type = interaction.options.getString("type", true) as WebhookType;
-		const channel = interaction.options.getChannel("channel", true) as TextChannel;
+		const id = interaction.options.getString("id", true);
 
 		const guildId = interaction.guildId;
 		if (!guildId) throw new Error("Not in guild context.");
 
-		const deletedWebhooks = await this.container.db
-			.delete(webhooks)
-			.where(and(eq(webhooks.type, type), eq(webhooks.guildId, guildId), eq(webhooks.channelId, channel.id)))
-			.returning();
+		const deletedWebhooks = await this.container.db.delete(webhooks).where(eq(webhooks.id, id)).returning();
 		for (const deletedWebhook of deletedWebhooks) {
 			const webhook = await this.container.client.fetchWebhook(deletedWebhook.id, deletedWebhook.token);
 			await webhook.delete();
 		}
 
-		return interaction.reply({
-			flags: MessageFlags.Ephemeral,
-			content: `Webhook ${type} in ${channel.name} removed.`,
-		});
+		return interaction.reply({ flags: MessageFlags.Ephemeral, content: `Webhook with id ${id} deleted` });
 	}
 }

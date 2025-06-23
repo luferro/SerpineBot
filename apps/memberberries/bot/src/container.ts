@@ -8,6 +8,9 @@ import * as schema from "~/db/schema.js";
 import { ExtendedGraphQLClient } from "~/graphql/client.js";
 import type { PropagateCallback, WebhookType } from "./types/webhooks.js";
 
+type InferredWebhookFeed = typeof schema.webhookFeeds.$inferSelect & { feed: { path: string } };
+type InferredWebhook = typeof schema.webhooks.$inferSelect & { feeds: InferredWebhookFeed[] };
+
 const config = loadConfig();
 const gql = new ExtendedGraphQLClient(config.get("services.graphql.uri"));
 const db = drizzle(`${config.get("services.postgres.uri")}/${config.get("client.memberberries.database")}`, { schema });
@@ -22,6 +25,7 @@ declare module "@sapphire/pieces" {
 		guildIds: string[] | undefined;
 
 		propagate: (type: WebhookType, cb: PropagateCallback) => Promise<void>;
+		getWebhooks: (guildId: string, type: WebhookType) => Promise<InferredWebhook[]>;
 	}
 }
 
@@ -31,31 +35,45 @@ container.db = db;
 container.cache = cache;
 container.guildIds = container.config.get<string | undefined>("client.guilds")?.split(",");
 
+container.getWebhooks = async (guildId, type) => {
+	return await container.db.query.webhooks.findMany({
+		where: (webhooks, { and, eq, sql }) =>
+			and(
+				eq(webhooks.guildId, guildId),
+				sql`EXISTS (SELECT 1 FROM webhook_types wt WHERE wt.webhook_id = ${webhooks.id} AND wt.type = ${type})`,
+			),
+		with: {
+			feeds: {
+				where: (webhookFeeds, { eq }) => eq(webhookFeeds.type, type),
+				with: { feed: { columns: { path: true } } },
+			},
+		},
+	});
+};
+
 container.propagate = async (type, getMessages) => {
 	for (const [guildId, guild] of container.client.guilds.cache) {
-		const storedWebhooks = await container.db.query.webhooks.findMany({
-			where: (webhooks, { and, eq }) => and(eq(webhooks.type, type), eq(webhooks.guildId, guildId)),
-			with: { feedLinks: { with: { feed: { columns: { path: true } } } } },
-		});
+		const registeredWebhooks = await container.getWebhooks(guildId, type);
+		console.log(type, JSON.stringify(registeredWebhooks, null, 2));
 
-		for (const storedWebhook of storedWebhooks) {
-			const feeds = storedWebhook.feedLinks.map((feedLink) => ({
-				webhookId: feedLink.webhookId,
-				feedId: feedLink.feedId,
-				path: feedLink.feed.path,
-				options: feedLink.options,
+		for (const registeredWebhook of registeredWebhooks) {
+			const feeds = registeredWebhook.feeds.map(({ webhookId, feedId, feed, options }) => ({
+				webhookId,
+				feedId,
+				options,
+				path: feed.path,
 			}));
 			const { name, skipCache, messages } = await getMessages({ guild, feeds });
 			if (messages.length === 0) continue;
 
-			const webhook = await container.client.fetchWebhook(storedWebhook.id, storedWebhook.token);
+			const webhook = await container.client.fetchWebhook(registeredWebhook.id, registeredWebhook.token);
 			const channel = webhook?.channel;
 			if (!channel || channel.type !== ChannelType.GuildText) continue;
 
 			for (const message of messages) {
 				const pattern = container.stores.get("scheduled-tasks").get(name)?.pattern ?? null;
 				const previousRunDate = pattern ? parseCronExpression(pattern).prev().toDate() : null;
-				const isFirstRun = previousRunDate && previousRunDate.getTime() <= storedWebhook.updatedAt.getTime();
+				const isFirstRun = previousRunDate && previousRunDate.getTime() <= registeredWebhook.updatedAt.getTime();
 
 				const isContent = typeof message === "string";
 				const hash = createHash(isContent ? message : JSON.stringify({ ...message.data, color: null }));

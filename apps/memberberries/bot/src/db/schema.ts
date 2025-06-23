@@ -43,25 +43,41 @@ export const guildsRelations = relations(guilds, ({ many }) => ({
 	pairings: many(pairings),
 }));
 
-export const webhooks = pgTable(
-	"webhooks",
-	{
-		id: text("id").primaryKey(),
-		guildId: text("guild_id")
-			.references(() => guilds.id, { onDelete: "cascade" })
-			.notNull(),
-		channelId: text("channel_id").notNull(),
-		type: webhookEnum("type").notNull(),
-		token: text("token").notNull(),
-		createdAt,
-		updatedAt,
-	},
-	(table) => [uniqueIndex("type_guild_channel_idx").on(table.type, table.guildId, table.channelId)],
-);
+export const webhooks = pgTable("webhooks", {
+	id: text("id").primaryKey(),
+	guildId: text("guild_id")
+		.references(() => guilds.id, { onDelete: "cascade" })
+		.notNull(),
+	channelId: text("channel_id").notNull(),
+	token: text("token").notNull(),
+	createdAt,
+	updatedAt,
+});
 
 export const webhooksRelations = relations(webhooks, ({ one, many }) => ({
 	guild: one(guilds, { fields: [webhooks.guildId], references: [guilds.id] }),
-	feedLinks: many(webhookToFeed),
+	types: many(webhookTypes),
+	feeds: many(webhookFeeds),
+}));
+
+export const webhookTypes = pgTable(
+	"webhook_types",
+	{
+		webhookId: text("webhook_id")
+			.references(() => webhooks.id, { onDelete: "cascade" })
+			.notNull(),
+		type: webhookEnum("type").notNull(),
+		createdAt,
+		updatedAt,
+	},
+	(table) => [primaryKey({ columns: [table.webhookId, table.type] })],
+);
+
+export const webhookTypesRelations = relations(webhookTypes, ({ one }) => ({
+	webhook: one(webhooks, {
+		fields: [webhookTypes.webhookId],
+		references: [webhooks.id],
+	}),
 }));
 
 export const feeds = pgTable("feeds", {
@@ -72,11 +88,11 @@ export const feeds = pgTable("feeds", {
 });
 
 export const feedsRelations = relations(feeds, ({ many }) => ({
-	webhookLinks: many(webhookToFeed),
+	webhookFeeds: many(webhookFeeds),
 }));
 
-export const webhookToFeed = pgTable(
-	"webhook_to_feed",
+export const webhookFeeds = pgTable(
+	"webhook_feeds",
 	{
 		webhookId: text("webhook_id")
 			.references(() => webhooks.id, { onDelete: "cascade" })
@@ -84,22 +100,21 @@ export const webhookToFeed = pgTable(
 		feedId: integer("feed_id")
 			.references(() => feeds.id, { onDelete: "cascade" })
 			.notNull(),
+		type: webhookEnum("type").notNull(),
 		options: json("options").notNull(),
 		createdAt,
 		updatedAt,
 	},
-	(table) => ({
-		pk: primaryKey({ columns: [table.webhookId, table.feedId] }),
-	}),
+	(table) => [primaryKey({ columns: [table.webhookId, table.feedId, table.type] })],
 );
 
-export const webhookToFeedRelations = relations(webhookToFeed, ({ one }) => ({
+export const webhookFeedsRelations = relations(webhookFeeds, ({ one }) => ({
 	webhook: one(webhooks, {
-		fields: [webhookToFeed.webhookId],
+		fields: [webhookFeeds.webhookId],
 		references: [webhooks.id],
 	}),
 	feed: one(feeds, {
-		fields: [webhookToFeed.feedId],
+		fields: [webhookFeeds.feedId],
 		references: [feeds.id],
 	}),
 }));
