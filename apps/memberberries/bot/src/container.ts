@@ -2,7 +2,6 @@ import { Cache, RedisStore, createHash } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
 import { parseCronExpression } from "@luferro/utils/time";
 import { container } from "@sapphire/framework";
-import { ChannelType } from "discord.js";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "~/db/schema.js";
 import { ExtendedGraphQLClient } from "~/graphql/client.js";
@@ -76,7 +75,6 @@ container.propagate = async (type, getMessages) => {
 
 	for (const [guildId, guild] of container.client.guilds.cache) {
 		const registeredWebhooks = await container.getWebhooks(guildId, type);
-		console.log({ type, registeredWebhooks });
 		for (const registeredWebhook of registeredWebhooks) {
 			const feeds = registeredWebhook.feeds.map(({ webhookId, feedId, feed, options }) => ({
 				webhookId,
@@ -85,12 +83,11 @@ container.propagate = async (type, getMessages) => {
 				path: feed.path,
 			}));
 			const { name, skipCache, messages } = await getMessages({ guild, feeds });
-			console.log({ messages });
 			if (messages.length === 0) continue;
 
 			const webhook = await container.client.fetchWebhook(registeredWebhook.id, registeredWebhook.token);
 			const channel = webhook?.channel;
-			if (!channel || channel.type !== ChannelType.GuildText) continue;
+			if (!channel) continue;
 
 			for (const message of messages) {
 				const pattern = container.stores.get("scheduled-tasks").get(name)?.pattern ?? null;

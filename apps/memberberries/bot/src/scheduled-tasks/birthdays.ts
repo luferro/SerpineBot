@@ -52,14 +52,12 @@ export class BirthdaysTask extends ScheduledTask {
 					const age = currentYear - birthdate.getFullYear();
 					const date = startOfDay(currentDate);
 					birthdate.setFullYear(currentYear);
-					console.log({ date, birthdate });
 					if (date.getTime() !== birthdate.getTime()) continue;
 
 					messages.push(`${guild.roles.everyone} ${this.createBirthdayMessage(target, name, relation, age)}`);
 				}
 			}
 
-			console.log({ messages });
 			return { name: this.name, skipCache: true, messages };
 		});
 	}
