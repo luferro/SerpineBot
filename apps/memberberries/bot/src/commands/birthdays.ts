@@ -216,7 +216,13 @@ export class BirthdaysCommand extends Subcommand {
 				return acc;
 			}, new Map<string, { name: string; relation: string; birthdate: Date }[]>());
 
-		const paginatedMessage = new PaginatedMessage();
+		const paginatedMessage = new PaginatedMessage().setSelectMenuOptions((pageIndex) => ({
+			label:
+				groupedBirthdays
+					.keys()
+					.toArray()
+					.at(pageIndex - 1) ?? `Page ${pageIndex}`,
+		}));
 		for (const [month, birthdays] of groupedBirthdays) {
 			paginatedMessage.addPageEmbed((embed) =>
 				embed.setTitle(month).setDescription(
