@@ -44,10 +44,9 @@ export class TasksCommand extends Command {
 		const name = interaction.options.getString("name", true);
 
 		const scheduledTasks = this.container.stores.get("scheduled-tasks");
-		const hasScheduledTask = scheduledTasks.has(name);
-		if (!hasScheduledTask) throw new Error("Failed to retrieve scheduled task");
+		const scheduledTask = scheduledTasks.get(name);
+		if (!scheduledTask) throw new Error("Failed to retrieve scheduled task");
 
-		const scheduledTask = scheduledTasks.get(name)!;
 		await scheduledTask.run(undefined);
 
 		const embed = new EmbedBuilder().setTitle(`Task ${name} has been manually triggered`).setColor("Random");
