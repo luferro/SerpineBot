@@ -47,7 +47,11 @@ export class TasksCommand extends Command {
 		const scheduledTask = scheduledTasks.get(name);
 		if (!scheduledTask) throw new Error("Failed to retrieve scheduled task");
 
-		await scheduledTask.run(undefined);
+		try {
+			await scheduledTask.run(undefined);
+		} catch (error) {
+			this.container.logger.warn("Failed to run scheduled task", error);
+		}
 
 		const embed = new EmbedBuilder().setTitle(`Task ${name} has been manually triggered`).setColor("Random");
 		await interaction.editReply({ embeds: [embed] });
