@@ -15,7 +15,8 @@ type WebhookFeed = {
 	path: string;
 	options: unknown;
 };
-type WebhookMessage = EmbedBuilder | string;
+
+export type WebhookMessage = EmbedBuilder | string;
 
 export type PropagateCallback = (args: {
 	guild: Guild;

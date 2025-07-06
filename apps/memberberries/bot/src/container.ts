@@ -6,7 +6,7 @@ import { ChannelType } from "discord.js";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "~/db/schema.js";
 import { ExtendedGraphQLClient } from "~/graphql/client.js";
-import type { PropagateCallback, WebhookType } from "./types/webhooks.js";
+import type { PropagateCallback, WebhookMessage, WebhookType } from "./types/webhooks.js";
 
 type InferredWebhookFeed = typeof schema.webhookFeeds.$inferSelect & { feed: { path: string } };
 type InferredWebhook = typeof schema.webhooks.$inferSelect & { feeds: InferredWebhookFeed[] };
@@ -52,6 +52,28 @@ container.getWebhooks = async (guildId, type) => {
 };
 
 container.propagate = async (type, getMessages) => {
+	const getContentsToHash = (message: WebhookMessage) => {
+		const urlRegex = /https?:\/\/[^\s'"<>]+/g;
+		const contentsToHash =
+			typeof message === "string"
+				? [message.replaceAll(urlRegex, "<url>"), message.match(urlRegex)?.at(-1)]
+				: [JSON.stringify({ ...message.data, color: null }), message.data.title, message.data.url];
+		return contentsToHash.filter((content): content is NonNullable<string> => Boolean(content));
+	};
+
+	const isDuplicateMessage = async (channelId: string, message: WebhookMessage, skipCache = false) => {
+		if (skipCache) return false;
+
+		let isDuplicate = false;
+		for (const contentToHash of getContentsToHash(message)) {
+			if (isDuplicate) break;
+			const key = `message:${type}:${channelId}:${createHash(contentToHash)}`;
+			isDuplicate = await container.cache.checkAndMarkSent(key);
+		}
+
+		return isDuplicate;
+	};
+
 	for (const [guildId, guild] of container.client.guilds.cache) {
 		const registeredWebhooks = await container.getWebhooks(guildId, type);
 		for (const registeredWebhook of registeredWebhooks) {
@@ -73,13 +95,10 @@ container.propagate = async (type, getMessages) => {
 				const previousRunDate = pattern ? parseCronExpression(pattern).prev().toDate() : null;
 				const isFirstRun = previousRunDate && previousRunDate.getTime() <= registeredWebhook.updatedAt.getTime();
 
-				const isContent = typeof message === "string";
-				const hash = createHash(isContent ? message : JSON.stringify({ ...message.data, color: null }));
-				const key = `message:${type}:${channel.id}:${hash}`;
-				const isDuplicate = skipCache ? false : await container.cache.checkAndMarkSent(key);
+				const isDuplicate = await isDuplicateMessage(channel.id, message, skipCache);
 				if (isFirstRun || isDuplicate) continue;
 
-				await webhook.send(isContent ? message : { embeds: [message] });
+				await webhook.send(typeof message === "string" ? message : { embeds: [message] });
 			}
 		}
 	}
