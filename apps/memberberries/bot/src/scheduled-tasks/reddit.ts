@@ -47,10 +47,7 @@ export class RedditTask extends ScheduledTask {
 						continue;
 					}
 
-					messages.push({
-						publishedAt,
-						message: isYoutubeEmbed ? `**${title}**\n${url}` : `**[${truncate(title)}](<${selfurl}>)**\n${url}`,
-					});
+					messages.push({ publishedAt, message: `**[${truncate(title)}](<${selfurl}>)**\n${url}` });
 				}
 			}
 			return {
