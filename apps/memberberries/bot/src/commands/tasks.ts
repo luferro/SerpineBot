@@ -16,7 +16,6 @@ export class TasksCommand extends Command {
 			...options,
 			name: "tasks",
 			requiredUserPermissions: [PermissionFlagsBits.Administrator],
-			requiredClientPermissions: [PermissionFlagsBits.Administrator],
 		});
 	}
 
