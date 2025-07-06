@@ -76,6 +76,7 @@ container.propagate = async (type, getMessages) => {
 
 	for (const [guildId, guild] of container.client.guilds.cache) {
 		const registeredWebhooks = await container.getWebhooks(guildId, type);
+		console.log({ type, registeredWebhooks });
 		for (const registeredWebhook of registeredWebhooks) {
 			const feeds = registeredWebhook.feeds.map(({ webhookId, feedId, feed, options }) => ({
 				webhookId,
@@ -84,6 +85,7 @@ container.propagate = async (type, getMessages) => {
 				path: feed.path,
 			}));
 			const { name, skipCache, messages } = await getMessages({ guild, feeds });
+			console.log({ messages });
 			if (messages.length === 0) continue;
 
 			const webhook = await container.client.fetchWebhook(registeredWebhook.id, registeredWebhook.token);
@@ -96,7 +98,7 @@ container.propagate = async (type, getMessages) => {
 				const isFirstRun = previousRunDate && previousRunDate.getTime() <= registeredWebhook.updatedAt.getTime();
 
 				const isDuplicate = await isDuplicateMessage(channel.id, message, skipCache);
-				if (isFirstRun || isDuplicate) continue;
+				if ((!skipCache && isFirstRun) || isDuplicate) continue;
 
 				await webhook.send(typeof message === "string" ? message : { embeds: [message] });
 			}

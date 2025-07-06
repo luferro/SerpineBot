@@ -59,6 +59,7 @@ export class BirthdaysTask extends ScheduledTask {
 				}
 			}
 
+			console.log({ messages });
 			return { name: this.name, skipCache: true, messages };
 		});
 	}
