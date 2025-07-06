@@ -1,3 +1,4 @@
+import type { APIEmbed } from "discord.js";
 import { relations } from "drizzle-orm";
 import {
 	boolean,
@@ -11,6 +12,7 @@ import {
 	timestamp,
 	uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { IntegrationLeaderboardItem, IntegrationProfile, IntegrationWishlistItem } from "~/types/integrations.js";
 
 const createdAt = timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
 const updatedAt = timestamp("updated_at", { withTimezone: true })
@@ -163,7 +165,7 @@ export const birthdays = pgTable(
 export const reminders = pgTable("reminders", {
 	id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
 	content: text("content").notNull(),
-	apiEmbeds: json("embeds").array(),
+	apiEmbeds: json("embeds").$type<APIEmbed[]>(),
 	userId: text("user_id").notNull(),
 	dueAt: timestamp("due_at", { withTimezone: true }).notNull(),
 	createdAt,
@@ -177,9 +179,9 @@ export const integrations = pgTable(
 		type: integrationEnum("type").notNull(),
 		userId: text("user_id").notNull().unique(),
 		notifications: boolean("notifications").default(true).notNull(),
-		profile: json("profile").notNull(),
-		wishlist: json("wishlist").array().notNull(),
-		leaderboard: json("leaderboard").array().notNull(),
+		profile: json("profile").$type<IntegrationProfile>().notNull(),
+		wishlist: json("wishlist").$type<IntegrationWishlistItem[]>().notNull(),
+		leaderboard: json("leaderboard").$type<IntegrationLeaderboardItem[]>().notNull(),
 		createdAt,
 		updatedAt,
 	},

@@ -3,7 +3,7 @@ import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
 import { EmbedBuilder } from "discord.js";
 import { and, eq } from "drizzle-orm";
 import { integrations } from "~/db/schema.js";
-import type { Integration, SteamProfile, SteamWishlistAlerts, SteamWishlistItem } from "~/types/integrations.js";
+import type { Integration, SteamWishlistAlerts, SteamWishlistItem } from "~/types/integrations.js";
 
 export class WishlistsTask extends ScheduledTask {
 	public constructor(context: ScheduledTask.LoaderContext, options: ScheduledTask.Options) {
@@ -37,7 +37,7 @@ export class WishlistsTask extends ScheduledTask {
 		}
 	}
 
-	private async updateSteamWishlist(userIntegration: Integration<SteamProfile, SteamWishlistItem>) {
+	private async updateSteamWishlist(userIntegration: Integration) {
 		const newWishlist = await this.container.gql.steam
 			.getWishlist({ steamId64: userIntegration.profile.id })
 			.catch(() => null);

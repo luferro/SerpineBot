@@ -3,16 +3,16 @@ import type { InferSelectModel } from "drizzle-orm";
 import type { integrations } from "~/db/schema.js";
 import type * as schema from "~/db/schema.js";
 
-export type IntegrationType = (typeof schema.integrationEnum.enumValues)[number];
-
-// biome-ignore lint/suspicious/noExplicitAny: can be whatever
-export type Integration<TProfile = any, TWishlist = any> = Omit<
-	InferSelectModel<typeof integrations>,
-	"profile" | "wishlist"
-> & { profile: TProfile; wishlist: TWishlist[] };
-
-export type SteamProfile = { id: string };
-export type SteamWishlistItem = Awaited<ReturnType<(typeof container)["gql"]["steam"]["getWishlist"]>>[0] & {
-	notified: { sale: boolean; release: boolean };
-};
+// Steam integration
+export type SteamProfile = { id: string; url: string };
+type SteamWishlist = Awaited<ReturnType<(typeof container)["gql"]["steam"]["getWishlist"]>>;
+export type SteamWishlistItem = SteamWishlist[0] & { notified: { sale: boolean; release: boolean } };
 export type SteamWishlistAlerts = { sale: string[]; released: string[] };
+type SteamRecentlyPlayed = Awaited<ReturnType<(typeof container)["gql"]["steam"]["getRecentlyPlayed"]>>;
+export type SteamLeaderboadItem = SteamRecentlyPlayed[0] & { weeklyHours: number };
+
+export type Integration = InferSelectModel<typeof integrations>;
+export type IntegrationType = (typeof schema.integrationEnum.enumValues)[number];
+export type IntegrationProfile = SteamProfile;
+export type IntegrationWishlistItem = SteamWishlistItem;
+export type IntegrationLeaderboardItem = SteamLeaderboadItem;

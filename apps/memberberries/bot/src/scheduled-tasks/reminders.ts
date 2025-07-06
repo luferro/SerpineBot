@@ -1,6 +1,6 @@
 import { toSeconds } from "@luferro/utils/time";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
-import { type APIEmbed, EmbedBuilder } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import { eq } from "drizzle-orm";
 import { reminders } from "~/db/schema.js";
 import { timezone } from "~/index.js";
@@ -23,7 +23,7 @@ export class RemindersTask extends ScheduledTask {
 			if (!target) continue;
 
 			const message = `'Member that one message from <t:${toSeconds(createdAt.getTime())}:F>? Oh I 'member!`;
-			const embeds = apiEmbeds?.map((embed) => EmbedBuilder.from(embed as APIEmbed)) ?? [];
+			const embeds = apiEmbeds?.map((embed) => EmbedBuilder.from(embed)) ?? [];
 			await target.send({ content: content ? `${message}\n${content}` : message, embeds });
 
 			await this.container.db.delete(reminders).where(eq(reminders.id, id));

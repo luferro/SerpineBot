@@ -3,19 +3,9 @@ import { toSeconds } from "@luferro/utils/time";
 import { container } from "@sapphire/pieces";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
 import { EmbedBuilder } from "discord.js";
-import { type InferSelectModel, and, eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { integrations } from "~/db/schema.js";
-
-// biome-ignore lint/suspicious/noExplicitAny: can be whatever
-type Integration<TProfile = any, TLeaderboard = any> = Omit<
-	InferSelectModel<typeof integrations>,
-	"profile" | "leaderboard"
-> & { profile: TProfile; leaderboard: TLeaderboard[] };
-
-type SteamProfile = { id: string };
-type SteamLeaderboadItem = Awaited<ReturnType<(typeof container)["gql"]["steam"]["getRecentlyPlayed"]>>[0] & {
-	weeklyHours: number;
-};
+import type { Integration } from "~/types/integrations.js";
 
 const Medals = Object.freeze(["🥇", "🥈", "🥉"]);
 
@@ -36,7 +26,7 @@ export class LeaderboardsTask extends ScheduledTask {
 
 			const messages = [];
 			for (const updateLeaderboard of leaderboards) {
-				const { title, leaderboard, extras } = await updateLeaderboard(integrations as Integration[]);
+				const { title, leaderboard, extras } = await updateLeaderboard(integrations);
 
 				messages.push(
 					new EmbedBuilder()
@@ -49,7 +39,7 @@ export class LeaderboardsTask extends ScheduledTask {
 		});
 	}
 
-	private async updateSteamLeaderboard(userIntegrations: Integration<SteamProfile, SteamLeaderboadItem>[]) {
+	private async updateSteamLeaderboard(userIntegrations: Integration[]) {
 		const leaderboard = [];
 		for (const integration of userIntegrations.filter((integration) => integration.type === "steam")) {
 			try {

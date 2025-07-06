@@ -337,6 +337,6 @@ export class IntegrationsCommand extends Subcommand {
 	private getIntegration<TProfile = unknown, TWishlist = unknown>(userId: string) {
 		return this.container.db.query.integrations.findFirst({
 			where: (integrations, { and, eq }) => and(eq(integrations.type, "steam"), eq(integrations.userId, userId)),
-		}) as Promise<Integration<TProfile, TWishlist> | undefined>;
+		});
 	}
 }
