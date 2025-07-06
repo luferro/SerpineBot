@@ -1,5 +1,5 @@
 import { getPossessive, getPossessiveForm } from "@luferro/utils/data";
-import { startOfDay, tz } from "@luferro/utils/date";
+import { startOfDay } from "@luferro/utils/date";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
 import type { GuildMember } from "discord.js";
 import { timezone } from "~/index.js";
@@ -36,7 +36,7 @@ export class BirthdaysTask extends ScheduledTask {
 					{
 						name,
 						relation,
-						birthdate: startOfDay(birthdate, { in: tz(this.container.config.timezone) }),
+						birthdate: startOfDay(birthdate),
 					},
 				];
 				acc.set(userId, birthdays);
@@ -50,8 +50,9 @@ export class BirthdaysTask extends ScheduledTask {
 
 				for (const { name, relation, birthdate } of userBirthdays) {
 					const age = currentYear - birthdate.getFullYear();
-					const date = startOfDay(currentDate, { in: tz(this.container.config.timezone) });
+					const date = startOfDay(currentDate);
 					birthdate.setFullYear(currentYear);
+					console.log({ date, birthdate });
 					if (date.getTime() !== birthdate.getTime()) continue;
 
 					messages.push(`${guild.roles.everyone} ${this.createBirthdayMessage(target, name, relation, age)}`);
