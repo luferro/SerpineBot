@@ -1,5 +1,5 @@
 import { type AugmentedRequest, type CacheOptions, ExtendedRESTDataSource } from "@luferro/graphql/server";
-import { addMinutes, endOfDay, isPast } from "@luferro/utils/date";
+import { addHours } from "@luferro/utils/date";
 import { cache } from "~/cache.js";
 
 import type { Event, Result } from "./dtos/IgdbApiDtos.js";
@@ -49,18 +49,16 @@ export class IgdbDataSource extends ExtendedRESTDataSource {
 	}
 
 	async getUpcomingEvents() {
-		const date = new Date();
-		date.setHours(0, 0, 0, 0);
-		const timestamp = Math.floor(date.getTime() / 1000);
+		const timestamp = Math.floor(Date.now() / 1000);
 
 		const data = await this.post<Event[]>("events", {
-			body: `fields checksum, name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, created_at; where start_time >= ${timestamp}; sort start_time asc;`,
+			body: `fields checksum, name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, created_at; where start_time > ${timestamp}; sort start_time asc;`,
 		});
 
 		return data.map(
 			({ checksum, name, description, live_stream_url, start_time, end_time, event_logo, event_networks }) => {
-				const scheduledStartAt = isPast(start_time * 1000) ? addMinutes(Date.now(), 5).getTime() : start_time * 1000;
-				const scheduledEndAt = end_time ? end_time * 1000 : endOfDay(scheduledStartAt).getTime();
+				const scheduledStartAt = start_time * 1000;
+				const scheduledEndAt = end_time ? end_time * 1000 : addHours(scheduledStartAt, 1).getTime();
 
 				const urls = [live_stream_url, ...(event_networks?.map((event) => event.url) ?? [])].filter(
 					(url): url is NonNullable<string> => !!url,
