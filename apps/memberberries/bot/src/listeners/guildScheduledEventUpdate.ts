@@ -1,5 +1,5 @@
 import { type Events, Listener } from "@sapphire/framework";
-import { ChannelType, type GuildScheduledEvent } from "discord.js";
+import type { GuildScheduledEvent } from "discord.js";
 import { and, eq } from "drizzle-orm";
 import { events } from "~/db/schema.js";
 
@@ -60,7 +60,7 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 		for (const registeredWebhook of registeredWebhooks) {
 			const webhook = await this.container.client.fetchWebhook(registeredWebhook.id, registeredWebhook.token);
 			const channel = webhook?.channel;
-			if (!channel || channel.type !== ChannelType.GuildText) continue;
+			if (!channel || !channel.isTextBased()) continue;
 
 			const messages = await channel.messages.fetch();
 			const eventMessage = messages.find((message) => message.content.includes(role.id));
