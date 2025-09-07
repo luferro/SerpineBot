@@ -63,7 +63,7 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 			if (!channel || !channel.isTextBased()) continue;
 
 			const messages = await channel.messages.fetch();
-			const eventMessage = messages.find((message) => message.content.includes(role.id));
+			const eventMessage = messages.find((message) => message.content.includes(url));
 			if (!eventMessage) continue;
 
 			await webhook.editMessage(eventMessage.id, { content: `**\`${name}\`** is over!\n${url}` });
