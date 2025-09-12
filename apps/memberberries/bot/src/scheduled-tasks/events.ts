@@ -35,12 +35,14 @@ export class EventsTask extends ScheduledTask {
 				});
 				if (storedEvent?.status === "expired" || storedEvent?.status === "cancelled") continue;
 
-				const guildScheduledEvent = guildScheduledEvents.find((event) => {
-					const hasName = event.name === name;
-					const hasImage = image && event.image === image;
-					const hasDescription = description && event.description === description;
-					return hasName || hasImage || hasDescription;
-				});
+				const guildScheduledEvent = guildScheduledEvents
+					.filter((event) => event.isScheduled())
+					.find((event) => {
+						const hasName = event.name === name;
+						const hasImage = image && event.image === image;
+						const hasDescription = description && event.description === description;
+						return hasName || hasImage || hasDescription;
+					});
 				if (guildScheduledEvent) {
 					await guild.scheduledEvents.edit(guildScheduledEvent, scheduledEvent);
 					continue;
