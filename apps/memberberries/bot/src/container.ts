@@ -1,11 +1,12 @@
-import { Cache, RedisStore, createHash } from "@luferro/cache";
+import { Cache, RedisStore } from "@luferro/cache";
 import { type Config, loadConfig } from "@luferro/config";
 import { parseCronExpression } from "@luferro/utils/time";
 import { container } from "@sapphire/framework";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "~/db/schema.js";
 import { ExtendedGraphQLClient } from "~/graphql/client.js";
-import type { PropagateCallback, WebhookMessage, WebhookType } from "./types/webhooks.js";
+import type { PropagateCallback, WebhookType } from "./types/webhooks.js";
+import { isContent, isDuplicate } from "./utils/messages.js";
 
 type InferredWebhookFeed = typeof schema.webhookFeeds.$inferSelect & { feed: { path: string } };
 type InferredWebhook = typeof schema.webhooks.$inferSelect & { feeds: InferredWebhookFeed[] };
@@ -51,28 +52,6 @@ container.getWebhooks = async (guildId, type) => {
 };
 
 container.propagate = async (type, getMessages) => {
-	const getContentsToHash = (message: WebhookMessage) => {
-		const urlRegex = /https?:\/\/[^\s'"<>]+/g;
-		const contentsToHash =
-			typeof message === "string"
-				? [message.replaceAll(urlRegex, "<url>"), message.match(urlRegex)?.at(-1)]
-				: [JSON.stringify({ ...message.data, color: null }), message.data.title, message.data.url];
-		return contentsToHash.filter((content): content is NonNullable<string> => Boolean(content));
-	};
-
-	const isDuplicateMessage = async (channelId: string, message: WebhookMessage, skipCache = false) => {
-		if (skipCache) return false;
-
-		let isDuplicate = false;
-		for (const contentToHash of getContentsToHash(message)) {
-			if (isDuplicate) break;
-			const key = `message:${type}:${channelId}:${createHash(contentToHash)}`;
-			isDuplicate = await container.cache.checkAndMarkSent(key);
-		}
-
-		return isDuplicate;
-	};
-
 	for (const [guildId, guild] of container.client.guilds.cache) {
 		const registeredWebhooks = await container.getWebhooks(guildId, type);
 		for (const registeredWebhook of registeredWebhooks) {
@@ -87,17 +66,28 @@ container.propagate = async (type, getMessages) => {
 
 			const webhook = await container.client.fetchWebhook(registeredWebhook.id, registeredWebhook.token);
 			const channel = webhook?.channel;
-			if (!channel) continue;
+			if (!channel || !channel.isTextBased()) continue;
 
 			for (const message of messages) {
 				const pattern = container.stores.get("scheduled-tasks").get(name)?.pattern ?? null;
 				const previousRunDate = pattern ? parseCronExpression(pattern).prev().toDate() : null;
 				const isFirstRun = previousRunDate && previousRunDate.getTime() <= registeredWebhook.updatedAt.getTime();
 
-				const isDuplicate = await isDuplicateMessage(channel.id, message, skipCache);
-				if ((!skipCache && isFirstRun) || isDuplicate) continue;
+				const duplicationResult = await isDuplicate({ type, channel, message, skipCache });
+				const isFullDuplicate = duplicationResult.isDuplicate && !duplicationResult.messageId;
+				if ((!skipCache && isFirstRun) || isFullDuplicate) continue;
 
-				await webhook.send(typeof message === "string" ? message : { embeds: [message] });
+				const messageToSendOrEdit = isContent(message) ? message : { embeds: [message] };
+
+				if (duplicationResult.messageId) {
+					const existingMessage = await channel.messages.fetch(duplicationResult.messageId);
+					if (!existingMessage.editable) continue;
+
+					await existingMessage.edit(messageToSendOrEdit);
+					continue;
+				}
+
+				await webhook.send(messageToSendOrEdit);
 			}
 		}
 	}
