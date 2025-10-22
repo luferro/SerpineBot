@@ -17,7 +17,12 @@ export class EventsTask extends ScheduledTask {
 		for (const [guildId, guild] of this.container.client.guilds.cache) {
 			const guildScheduledEvents = await guild.scheduledEvents.fetch();
 			for (const { name, image, description, url, scheduledStartAt, scheduledEndAt } of upcomingEvents) {
-				const scheduledEvent = {
+				const storedEvent = await this.container.db.query.events.findFirst({
+					where: (events, { and, eq }) => and(eq(events.guildId, guildId), eq(events.name, name)),
+				});
+				if (storedEvent?.status === "expired" || storedEvent?.status === "cancelled") continue;
+
+				const event = {
 					name,
 					image,
 					description: description ?? undefined,
@@ -30,25 +35,21 @@ export class EventsTask extends ScheduledTask {
 					},
 				};
 
-				const storedEvent = await this.container.db.query.events.findFirst({
-					where: (events, { and, eq }) => and(eq(events.guildId, guildId), eq(events.name, name)),
-				});
-				if (storedEvent?.status === "expired" || storedEvent?.status === "cancelled") continue;
-
 				const guildScheduledEvent = guildScheduledEvents
-					.filter((event) => event.isScheduled())
-					.find((event) => {
-						const hasName = event.name === name;
-						const hasImage = image && event.image === image;
-						const hasDescription = description && event.description === description;
-						return hasName || hasImage || hasDescription;
+					.filter((guildScheduledEvent) => guildScheduledEvent.isScheduled())
+					.find((guildScheduledEvent) => {
+						const hasSameName = guildScheduledEvent.name === event.name;
+						const hasSameUrl = guildScheduledEvent.url === event.entityMetadata.location;
+						const hasSameImage = event.image && guildScheduledEvent.image === event.image;
+						const hasSameDescription = event.description && guildScheduledEvent.description === event.description;
+						return hasSameName || hasSameUrl || hasSameImage || hasSameDescription;
 					});
 				if (guildScheduledEvent) {
-					await guild.scheduledEvents.edit(guildScheduledEvent, scheduledEvent);
+					await guild.scheduledEvents.edit(guildScheduledEvent, event);
 					continue;
 				}
 
-				await guild.scheduledEvents.create(scheduledEvent);
+				await guild.scheduledEvents.create(event);
 				await this.container.db.insert(events).values({ guildId, name, status: "scheduled" });
 			}
 		}
