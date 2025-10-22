@@ -20,8 +20,8 @@ export class ReviewsTask extends ScheduledTask {
 			});
 
 			const messages = [];
-			for (const { selftext, publishedAt } of posts.slice().reverse()) {
-				if (!isToday(publishedAt) || !selftext) continue;
+			for (const { selftext } of posts.slice().reverse()) {
+				if (!selftext) continue;
 
 				const matches = /\((https?:\/\/(www\.)?(opencritic|metacritic)\.com\/game\/[^\s]+)\)/g.exec(selftext);
 				if (!matches) continue;
