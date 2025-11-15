@@ -1,4 +1,4 @@
-import { isToday } from "@luferro/utils/date";
+import { isThisWeek, isToday } from "@luferro/utils/date";
 import { toSeconds } from "@luferro/utils/time";
 import { container } from "@sapphire/pieces";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
@@ -20,8 +20,8 @@ export class ReviewsTask extends ScheduledTask {
 			});
 
 			const messages = [];
-			for (const { selftext } of posts.slice().reverse()) {
-				if (!selftext) continue;
+			for (const { selftext, publishedAt } of posts.slice().reverse()) {
+				if (!isThisWeek(publishedAt) || !selftext) continue;
 
 				const matches = /\((https?:\/\/(www\.)?(opencritic|metacritic)\.com\/game\/[^\s]+)\)/g.exec(selftext);
 				if (!matches) continue;
