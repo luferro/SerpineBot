@@ -102,27 +102,39 @@ export class SteamDataSource extends ExtendedRESTDataSource {
 		return data.response.player_count;
 	}
 
-	async getStoreApps(appIds: number[]) {
-		const data = await this.get<Payload<{ store_items: StoreApp[] }>>("IStoreBrowseService/GetItems/v1", {
-			params: {
-				input_json: JSON.stringify({
-					ids: appIds.map((appId) => ({ appid: appId })),
-					context: {
-						language: "english",
-						country_code: "PT",
-						steam_realm: 1,
-					},
-					data_request: {
-						include_assets: true,
-						include_release: true,
-						include_basic_info: true,
-						include_trailers: true,
-						include_screenshots: true,
-					},
-				}),
-			},
-		});
-		return data.response.store_items.map(
+	async getStoreApps(appIds: number[], batchSize = 50) {
+		const batches: number[][] = [];
+		for (let i = 0; i < appIds.length; i += batchSize) {
+			batches.push(appIds.slice(i, i + batchSize));
+		}
+
+		const allStoreItems: StoreApp[] = [];
+		for (const batch of batches) {
+			const data = await this.get<Payload<{ store_items: StoreApp[] }>>("IStoreBrowseService/GetItems/v1", {
+				params: {
+					input_json: encodeURIComponent(
+						JSON.stringify({
+							ids: batch.map((appId) => ({ appid: appId })),
+							context: {
+								language: "english",
+								country_code: "PT",
+								steam_realm: 1,
+							},
+							data_request: {
+								include_assets: true,
+								include_release: true,
+								include_basic_info: true,
+								include_trailers: true,
+								include_screenshots: true,
+							},
+						}),
+					),
+				},
+			});
+			allStoreItems.push(...data.response.store_items);
+		}
+
+		return allStoreItems.map(
 			({
 				appid,
 				name,
@@ -179,8 +191,8 @@ export class SteamDataSource extends ExtendedRESTDataSource {
 					isFree: Boolean(is_free),
 					isReleased: !is_coming_soon,
 					isGiftable: user_can_purchase_as_gift,
-					developers: developers.map((developer) => developer.name),
-					publishers: publishers.map((publisher) => publisher.name),
+					developers: developers?.map((developer) => developer.name) ?? [],
+					publishers: publishers?.map((publisher) => publisher.name) ?? [],
 					franchises: franchises?.map((franchise) => franchise.name) ?? [],
 					screenshots:
 						screenshots?.all_ages_screenshots?.map(
