@@ -206,8 +206,8 @@ export class SteamDataSource extends ExtendedRESTDataSource {
 							return {
 								title: highlight.trailer_name,
 								trailer: {
-									sd: highlight.trailer_480p.map((trailer) => getTrailer(trailer.filename)),
-									max: highlight.trailer_max.map((trailer) => getTrailer(trailer.filename)),
+									sd: highlight.trailer_480p?.map((trailer) => getTrailer(trailer.filename)) ?? [],
+									max: highlight.trailer_max?.map((trailer) => getTrailer(trailer.filename)) ?? [],
 								},
 							};
 						}) ?? [],
