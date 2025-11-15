@@ -1,9 +1,8 @@
 import { ExtendedRESTDataSource } from "@luferro/graphql/server";
 import { formatCurrency } from "@luferro/utils/currency";
 import { toDecimal } from "@luferro/utils/data";
-import { toTimeUnit } from "@luferro/utils/time";
-
 import { format } from "@luferro/utils/date";
+import { toTimeUnit } from "@luferro/utils/time";
 import { SteamChartType } from "~/model/schema.generated.js";
 import {
 	type Payload,
@@ -103,6 +102,8 @@ export class SteamDataSource extends ExtendedRESTDataSource {
 	}
 
 	async getStoreApps(appIds: number[], batchSize = 50) {
+		if (appIds.length === 0) return [];
+
 		const batches: number[][] = [];
 		for (let i = 0; i < appIds.length; i += batchSize) {
 			batches.push(appIds.slice(i, i + batchSize));
@@ -110,27 +111,27 @@ export class SteamDataSource extends ExtendedRESTDataSource {
 
 		const allStoreItems: StoreApp[] = [];
 		for (const batch of batches) {
-			const data = await this.get<Payload<{ store_items: StoreApp[] }>>("IStoreBrowseService/GetItems/v1", {
-				params: {
-					input_json: encodeURIComponent(
-						JSON.stringify({
-							ids: batch.map((appId) => ({ appid: appId })),
-							context: {
-								language: "english",
-								country_code: "PT",
-								steam_realm: 1,
-							},
-							data_request: {
-								include_assets: true,
-								include_release: true,
-								include_basic_info: true,
-								include_trailers: true,
-								include_screenshots: true,
-							},
-						}),
-					),
-				},
-			});
+			const input = encodeURIComponent(
+				JSON.stringify({
+					ids: batch.map((appId) => ({ appid: appId })),
+					context: {
+						language: "english",
+						country_code: "PT",
+						steam_realm: 1,
+					},
+					data_request: {
+						include_assets: true,
+						include_release: true,
+						include_basic_info: true,
+						include_trailers: true,
+						include_screenshots: true,
+					},
+				}),
+			);
+
+			const data = await this.get<Payload<{ store_items: StoreApp[] }>>(
+				`IStoreBrowseService/GetItems/v1?input_json=${input}`,
+			);
 			allStoreItems.push(...data.response.store_items);
 		}
 
