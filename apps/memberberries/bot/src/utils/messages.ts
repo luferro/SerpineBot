@@ -14,14 +14,14 @@ export function isContent(message: WebhookMessage) {
 	return typeof message === "string";
 }
 
-export function extractFieldsFromContent(message: string) {
+function extractFieldsFromContent(message: string) {
 	return {
 		title: message.replaceAll(urlRegex, "").trim(),
 		url: message.match(urlRegex)?.at(-1),
 	};
 }
 
-export function getContentsToHash(message: WebhookMessage) {
+function getContentsToHash(message: WebhookMessage) {
 	const contentsToHash = isEmbed(message)
 		? [JSON.stringify({ ...message.data, color: null }), message.data.title, message.data.url]
 		: [message.replaceAll(urlRegex, "<url>"), message.match(urlRegex)?.at(-1)];
@@ -35,17 +35,18 @@ type DuplicateOptions = {
 	skipCache?: boolean;
 };
 
-async function isFullDuplicate({ type, channel, message }: Omit<DuplicateOptions, "skipCache">) {
-	let isDuplicate = false;
+async function isInCache({ type, channel, message }: Omit<DuplicateOptions, "skipCache">) {
+	let isDuplicate = true;
 	for (const contentToHash of getContentsToHash(message)) {
-		if (isDuplicate) break;
 		const key = `message:${type}:${channel.id}:${createHash(contentToHash)}`;
-		isDuplicate = await container.cache.checkAndMarkSent(key);
+		const inCache = await container.cache.checkAndMarkSent(key);
+		if (!inCache) isDuplicate = false;
 	}
+
 	return { messageId: null, isDuplicate };
 }
 
-async function isPartialDuplicate({ channel, message }: Omit<DuplicateOptions, "type" | "skipCache">) {
+async function isInChannel({ channel, message }: Omit<DuplicateOptions, "type" | "skipCache">) {
 	const channelMessages = await channel.messages.fetch({ limit: 100 });
 	const existingMessage = channelMessages.find((channelMessage) => {
 		if (isEmbed(message) && channelMessage.embeds.length > 0) {
@@ -62,6 +63,7 @@ async function isPartialDuplicate({ channel, message }: Omit<DuplicateOptions, "
 
 		return false;
 	});
+
 	return existingMessage
 		? { messageId: existingMessage.id, isDuplicate: true }
 		: { messageId: null, isDuplicate: false };
@@ -70,8 +72,8 @@ async function isPartialDuplicate({ channel, message }: Omit<DuplicateOptions, "
 export async function isDuplicate({ type, channel, message, skipCache = false }: DuplicateOptions) {
 	if (skipCache) return { messageId: null, isDuplicate: false };
 
-	const fullDuplicateResult = await isFullDuplicate({ type, channel, message });
-	if (fullDuplicateResult.isDuplicate) return fullDuplicateResult;
+	const inCacheResult = await isInCache({ type, channel, message });
+	if (inCacheResult.isDuplicate) return inCacheResult;
 
-	return await isPartialDuplicate({ channel, message });
+	return await isInChannel({ channel, message });
 }
