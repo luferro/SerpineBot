@@ -1,4 +1,4 @@
-import { isThisWeek, isToday } from "@luferro/utils/date";
+import { isThisWeek } from "@luferro/utils/date";
 import { toSeconds } from "@luferro/utils/time";
 import { container } from "@sapphire/pieces";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
