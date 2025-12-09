@@ -74,16 +74,13 @@ container.propagate = async (type, getMessages) => {
 				const isFirstRun = previousRunDate && previousRunDate.getTime() <= registeredWebhook.updatedAt.getTime();
 
 				const duplicationResult = await isDuplicate({ type, channel, message, skipCache });
-				const isFullDuplicate = duplicationResult.isDuplicate && !duplicationResult.messageId;
-				if ((!skipCache && isFirstRun) || isFullDuplicate) continue;
+				const isDuplicateWithoutChannelMessage = duplicationResult.isDuplicate && !duplicationResult.messageId;
+				if ((!skipCache && isFirstRun) || isDuplicateWithoutChannelMessage) continue;
 
 				const messageToSendOrEdit = isContent(message) ? message : { embeds: [message] };
 
 				if (duplicationResult.messageId) {
-					const existingMessage = await channel.messages.fetch(duplicationResult.messageId);
-					if (!existingMessage.editable) continue;
-
-					await existingMessage.edit(messageToSendOrEdit);
+					await webhook.editMessage(duplicationResult.messageId, messageToSendOrEdit);
 					continue;
 				}
 
