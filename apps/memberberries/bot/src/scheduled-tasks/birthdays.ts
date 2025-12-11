@@ -1,4 +1,4 @@
-import { getPossessive, getPossessiveForm } from "@luferro/utils/data";
+import { getPossessive, getPossessiveForm, shuffle } from "@luferro/utils/data";
 import { startOfDay } from "@luferro/utils/date";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
 import type { GuildMember } from "discord.js";
@@ -66,6 +66,18 @@ export class BirthdaysTask extends ScheduledTask {
 		const isSelf = relation === "self";
 		const targetPossessive = `${target}${getPossessive(target.displayName)}`;
 		const celebrant = isSelf ? targetPossessive : `${targetPossessive} ${relation} ${getPossessiveForm(name)}`;
-		return `'Member ${celebrant} birthday? 🎉 Oh, I 'member!\nThey are turning ${age} today! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`;
+
+		const messages = [
+			`'Member ${celebrant} birthday? 🎉 Oh, I 'member!\nThey are turning ${age} today! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`,
+			`Ooh, 'member when ${celebrant} birthday was? 🎉 'Member? It's today!\nYeah, I 'member! ${age} years old! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`,
+			`'Member birthdays? 🎉 'Member ${celebrant} special day?\nOoh, I 'member! It's right now! They're ${age}! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`,
+			`You 'member ${celebrant} birthday? 🎉 I 'member!\n'Member they're turning ${age}? Ooh yeah, I 'member! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`,
+			`'Member celebrations? 🎉 'Member ${celebrant} birthday?\nOh, I 'member! ${age} years today! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`,
+			`Ooh, ooh! 'Member ${celebrant} birthday? 🎉\nYeah, I 'member! They're ${age} now! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`,
+			`'Member getting older? 🎉 I 'member! 'Member ${celebrant} birthday?\nOoh, I 'member! It's today! ${age} years! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`,
+			`Yeah, yeah! 'Member ${celebrant} birthday? 🎉 'Member?\nI 'member! They're ${age} today! Ooh, I love to 'member! 🎂\nHappy birthday, ${isSelf ? target : name}! 🥳`,
+		];
+
+		return shuffle(messages)[0];
 	}
 }
