@@ -46,7 +46,10 @@ export class SecretSantaSetupHandler extends InteractionHandler {
 	}
 
 	async run(interaction: UserSelectMenuInteraction, { giftValue, users }: InteractionHandler.ParseResult<this>) {
+		await interaction.deferReply();
+
 		const eventDate = this.getEventDate();
+		const eventYear = eventDate.getFullYear();
 
 		try {
 			await this.container.db.transaction(async (tx) => {
@@ -55,7 +58,7 @@ export class SecretSantaSetupHandler extends InteractionHandler {
 					const recipient = shuffledUsers[index + 1] ?? shuffledUsers[0];
 
 					const embed = new EmbedBuilder()
-						.setTitle(`Secret Santa ${eventDate.getFullYear()}? Oh, I can't wait to 'member!`)
+						.setTitle(`Secret Santa ${eventYear}? Oh, I can't wait to 'member!`)
 						.setDescription(this.generateMessage(gifter, recipient))
 						.addFields([
 							{
@@ -81,28 +84,23 @@ export class SecretSantaSetupHandler extends InteractionHandler {
 
 					await tx.insert(pairings).values({
 						guildId: interaction.guild!.id,
-						year: eventDate.getFullYear(),
+						year: eventYear,
 						gifterId: gifter.user.id,
 						recipientId: recipient.user.id,
 					});
 
 					await tx.insert(reminders).values({
 						userId: gifter.user.id,
-						content: `Secret Santa ${eventDate.getFullYear()}: Time to exchange gifts. 🎅 Merry christmas! 🎅`,
+						content: `Secret Santa ${eventYear}: Time to exchange gifts. 🎅 Merry christmas! 🎅`,
 						dueAt: eventDate,
 					});
 				}
 			});
 
-			await interaction.reply({
-				content: `A message has been sent to each Secret Santa ${eventDate.getFullYear()} participant with more details.`,
-			});
+			await interaction.editReply({ content: `A DM has been sent to every Secret Santa ${eventYear} participant.` });
 		} catch (error) {
 			this.container.logger.error("Secret Santa setup failed:", error);
-			await interaction.reply({
-				content: "Failed to set up Secret Santa. Ensure all participants have DMs enabled and try again later.",
-				ephemeral: true,
-			});
+			await interaction.editReply({ content: "Failed to set up Secret Santa. Ensure everyone has DMs enabled." });
 		}
 	}
 

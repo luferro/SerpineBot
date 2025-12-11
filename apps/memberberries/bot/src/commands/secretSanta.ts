@@ -43,15 +43,17 @@ export class RemindersCommand extends Subcommand {
 	}
 
 	async chatInputOrganizeSecretSanta(interaction: Subcommand.ChatInputCommandInteraction) {
+		await interaction.deferReply();
+
 		const value = interaction.options.getInteger("value", true);
 
-		const currentYear = new Date().getFullYear();
+		const eventDate = this.getEventDate();
 		const currentYearPairings = await this.container.db.query.pairings.findFirst({
-			where: (pairings, { eq }) => eq(pairings.year, currentYear),
+			where: (pairings, { eq }) => eq(pairings.year, eventDate.getFullYear()),
 		});
-		if (currentYearPairings) throw new Error(`There is already an ongoing Secret Santa ${currentYear}.`);
+		if (currentYearPairings) throw new Error(`There is already an ongoing Secret Santa ${eventDate.getFullYear()}.`);
 
-		return interaction.reply({
+		return interaction.editReply({
 			content: `Gift value set to ${formatCurrency(value)}.`,
 			components: [
 				new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
