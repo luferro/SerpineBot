@@ -159,7 +159,6 @@ export class SecretSantaSetupHandler extends InteractionHandler {
 			],
 		};
 
-		const messages = presets[type];
-		return messages[Math.floor(Math.random() * messages.length)];
+		return shuffle(presets[type])[0];
 	}
 }
