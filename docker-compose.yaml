@@ -17,7 +17,7 @@ services:
             timeout: 5s
             retries: 10
         networks:
-            - internal
+            - private
         restart: unless-stopped
     redis:
         image: redis:latest
@@ -31,7 +31,7 @@ services:
             timeout: 5s
             retries: 10
         networks:
-            - internal
+            - private
         restart: unless-stopped
     nexus:
         build:
@@ -40,11 +40,9 @@ services:
             args:
                 APP_NAME: nexus
         container_name: nexus
-        ports:
-            - "4000:4000"
         networks:
-            - proxy
-            - internal
+            - private
+            - outbound
         restart: unless-stopped
     memberberries-bot:
         build:
@@ -62,8 +60,8 @@ services:
             nexus:
                 condition: service_started
         networks:
-            - proxy
-            - internal
+            - private
+            - outbound
         restart: unless-stopped
     randy-bot:
         build:
@@ -74,8 +72,8 @@ services:
                 ENV_PATH: apps/randy/bot
         container_name: randy-bot
         networks:
-            - proxy
-            - internal
+            - private
+            - outbound
         restart: unless-stopped
 
 volumes:
@@ -83,8 +81,6 @@ volumes:
     redis_data:
 
 networks:
-    proxy:
-        external: true
-    internal:
-        driver: bridge
+    private:
         internal: true
+    outbound:
