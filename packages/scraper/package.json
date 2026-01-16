@@ -20,6 +20,6 @@
 		"cheerio": "^1.0.0",
 		"fingerprint-injector": "^2.1.66",
 		"header-generator": "^2.1.66",
-		"playwright": "^1.52.0"
+		"playwright": "^1.55.1"
 	}
 }
