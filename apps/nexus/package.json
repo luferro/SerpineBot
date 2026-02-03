@@ -23,7 +23,7 @@
 		"@luferro/scraper": "workspace:^",
 		"@luferro/utils": "workspace:^",
 		"@nitra/as-integrations-fastify": "^3.0.2",
-		"fastify": "^5.3.2",
+		"fastify": "^5.7.3",
 		"graphql": "^16.11.0",
 		"graphql-tag": "^2.12.6"
 	},
