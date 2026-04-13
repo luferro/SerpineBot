@@ -22,6 +22,7 @@
 		"@luferro/utils": "workspace:^",
 		"@sapphire/discord.js-utilities": "^7.3.3",
 		"@sapphire/framework": "^5.5.0",
+		"@snazzah/davey": "^0.1.11",
 		"discord-player": "^7.2.0",
 		"discord-player-spotify": "^1.1.9",
 		"discord-player-youtubei": "^2.0.0",
