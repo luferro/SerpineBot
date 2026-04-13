@@ -8,10 +8,10 @@
 	"types": "dist/index.d.ts",
 	"exports": "./dist/index.js",
 	"scripts": {
-		"start": "RUNTIME_ENV=production node --env-file=.env dist/index.js",
+		"start": "node dist/index.js",
 		"dev": "RUNTIME_ENV=development node --env-file=.env dist/index.js",
 		"build": "rimraf dist/ && tsc && tsc-alias && copyfiles -u 1 src/**/__generated__/** dist/",
-		"gql:generate": "node --experimental-strip-types --env-file=.env scripts/codegen.ts",
+		"gql:generate": "node --experimental-strip-types scripts/codegen.ts",
 		"db:pull": "npx drizzle-kit pull",
 		"db:push": "npx drizzle-kit push"
 	},

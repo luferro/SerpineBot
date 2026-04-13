@@ -10,24 +10,17 @@ RUN turbo prune --scope=$APP_NAME --docker
 FROM node:lts-slim AS installer
 WORKDIR /app
 ARG APP_NAME
-ARG ENV_PATH
 RUN echo "Installing app: $APP_NAME"
 RUN corepack enable && corepack prepare pnpm@latest --activate
-COPY --from=builder /app/.env .
 COPY --from=builder /app/tsconfig.json .
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-RUN if [ -n "$ENV_PATH" ]; then \
-    if [ -f "/app/$ENV_PATH/.env" ]; then \
-        cp /app/$ENV_PATH/.env ./$ENV_PATH/.env; \
-    fi; \
-    cp /app/.env ./$ENV_PATH/.env; \
-fi
 
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
+ENV YOUTUBE_DL_SKIP_DOWNLOAD=true
 RUN pnpm install --frozen-lockfile
 COPY --from=builder /app/out/full/ .
 RUN pnpm build --filter=$APP_NAME...
@@ -50,8 +43,12 @@ RUN apt-get update && \
         libasound2 \
         libpangocairo-1.0-0 \
         libgtk-3-0 \
-        ffmpeg && \
+        ffmpeg \
+        python3 \
+        pipx && \
+    pipx install yt-dlp && \
     rm -rf /var/lib/apt/lists/*
+ENV PATH="/root/.local/bin:$PATH"
 COPY --from=installer /app .
 
 CMD ["pnpm", "start"]

@@ -1,8 +1,6 @@
 services:
     postgres:
         image: postgres:latest
-        env_file:
-            - .env
         environment:
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -38,6 +36,15 @@ services:
             args:
                 APP_NAME: nexus
         container_name: nexus
+        environment:
+            TZ: ${TZ}
+            SB_SERVICES__IGDB__CLIENT_ID: ${SB_SERVICES__IGDB__CLIENT_ID}
+            SB_SERVICES__IGDB__CLIENT_SECRET: ${SB_SERVICES__IGDB__CLIENT_SECRET}
+            SB_SERVICES__ITAD__API_KEY: ${SB_SERVICES__ITAD__API_KEY}
+            SB_SERVICES__REDDIT__CLIENT_ID: ${SB_SERVICES__REDDIT__CLIENT_ID}
+            SB_SERVICES__REDDIT__CLIENT_SECRET: ${SB_SERVICES__REDDIT__CLIENT_SECRET}
+            SB_SERVICES__STEAM__API_KEY: ${SB_SERVICES__STEAM__API_KEY}
+            SB_SERVICES__TMDB__API_KEY: ${SB_SERVICES__TMDB__API_KEY}
         networks:
             - private
             - outbound
@@ -49,8 +56,16 @@ services:
             dockerfile: Dockerfile
             args:
                 APP_NAME: memberberries-bot
-                ENV_PATH: apps/memberberries/bot
         container_name: memberberries-bot
+        environment:
+            RUNTIME_ENV: production
+            TZ: ${TZ}
+            SB_CLIENT__MEMBERBERRIES__TOKEN: ${SB_CLIENT__MEMBERBERRIES__TOKEN}
+            SB_CLIENT__MEMBERBERRIES__DATABASE: ${SB_CLIENT__MEMBERBERRIES__DATABASE}
+            SB_CLIENT__GUILDS: ${SB_CLIENT__GUILDS}
+            SB_SERVICES__POSTGRES__URI: ${SB_SERVICES__POSTGRES__URI}
+            SB_SERVICES__REDIS__URI: ${SB_SERVICES__REDIS__URI}
+            SB_SERVICES__GRAPHQL__URI: ${SB_SERVICES__GRAPHQL__URI}
         depends_on:
             postgres:
                 condition: service_healthy
@@ -69,8 +84,12 @@ services:
             dockerfile: Dockerfile
             args:
                 APP_NAME: randy-bot
-                ENV_PATH: apps/randy/bot
         container_name: randy-bot
+        environment:
+            RUNTIME_ENV: production
+            TZ: ${TZ}
+            SB_CLIENT__RANDY__TOKEN: ${SB_CLIENT__RANDY__TOKEN}
+            SB_CLIENT__GUILDS: ${SB_CLIENT__GUILDS}
         networks:
             - private
             - outbound
