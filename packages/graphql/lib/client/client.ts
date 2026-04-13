@@ -1,28 +1,21 @@
 import {
 	ApolloClient,
-	type ApolloClientOptions,
-	ApolloError,
-	type ApolloQueryResult,
 	type DocumentNode,
-	type NormalizedCacheObject,
 	type OperationVariables,
-} from "@apollo/client/core/core.cjs";
+} from "@apollo/client/core";
+import { CombinedGraphQLErrors } from "@apollo/client/errors";
 
-type Context = {
-	headers: Record<string, string>;
-};
+export class GraphQLClient extends ApolloClient {
+	protected contexts: Record<string, { headers: Record<string, string> }> = {};
 
-export class GraphQLClient extends ApolloClient<NormalizedCacheObject> {
-	protected contexts: Record<string, Context> = {};
-
-	constructor(options: ApolloClientOptions<NormalizedCacheObject>) {
+	constructor(options: ApolloClient.Options) {
 		super(options);
 		this.setServiceContext();
 	}
 
 	protected createServicesContext?(): Record<string, string>;
 
-	protected getServiceContext(serviceName: string): Context | undefined {
+	protected getServiceContext(serviceName: string) {
 		return this.contexts[serviceName];
 	}
 
@@ -41,23 +34,35 @@ export class GraphQLClient extends ApolloClient<NormalizedCacheObject> {
 		const context = this.getServiceContext(serviceName);
 		return async (variables?: TVariables) => {
 			const data = await this.executeQuery<TOperation>(serviceName, () =>
-				this.query<TOperation, TVariables>({ query, variables, context }),
+				this.query<TOperation, TVariables>({
+					query,
+					context,
+					...(variables !== undefined && { variables }),
+				} as ApolloClient.QueryOptions<TOperation, TVariables>),
 			);
 			return transform(data);
 		};
 	}
 
-	private async executeQuery<T>(serviceName: string, operation: () => Promise<ApolloQueryResult<T>>): Promise<T> {
+	private async executeQuery<T>(
+		serviceName: string,
+		operation: () => Promise<ApolloClient.QueryResult<T>>,
+	): Promise<T> {
 		try {
-			const { data, errors } = await operation();
+			const { data, error } = await operation();
 
-			if (errors?.length) {
-				throw new Error(`GraphQL errors in ${serviceName} operation: ${errors.map((e) => e.message).join(", ")}`);
+			if (error) {
+				throw new Error(`GraphQL error in ${serviceName} operation: ${error.message}`);
 			}
 
-			return data;
+			if (!data) {
+				throw new Error(`No data returned for ${serviceName} operation`);
+			}
+
+			return data as T;
 		} catch (error) {
-			if (error instanceof ApolloError) throw new Error(`Apollo error in ${serviceName} operation: ${error.message}`);
+			if (error instanceof CombinedGraphQLErrors)
+				throw new Error(`Apollo error in ${serviceName} operation: ${error.message}`);
 			throw error;
 		}
 	}

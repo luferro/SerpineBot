@@ -13,13 +13,13 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^22.15.17",
-		"typescript": "^5.8.3"
+		"@types/node": "^25.6.0",
+		"typescript": "^6.0.2"
 	},
 	"dependencies": {
-		"cheerio": "^1.0.0",
-		"fingerprint-injector": "^2.1.66",
-		"header-generator": "^2.1.66",
-		"playwright": "^1.52.0"
+		"cheerio": "^1.2.0",
+		"fingerprint-injector": "^2.1.82",
+		"header-generator": "^2.1.82",
+		"playwright": "^1.59.1"
 	}
 }

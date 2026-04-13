@@ -1,4 +1,4 @@
-import type { FieldPolicy } from "@apollo/client";
+import type { FieldPolicy } from "@apollo/client/core";
 
 export function withTTL<T = unknown>(ttl = 10 * 60 * 1000): FieldPolicy<{ __ttl: number; data: T }, T> {
 	return {

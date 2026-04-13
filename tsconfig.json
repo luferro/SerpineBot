@@ -16,6 +16,7 @@
 		// https://www.typescriptlang.org/tsconfig#Language_and_Environment_6254
 		"lib": ["ESNext", "dom"],
 		"target": "ESNext",
+		"types": ["node"],
 
 		// https://www.typescriptlang.org/tsconfig#Completeness_6257
 		"skipLibCheck": true

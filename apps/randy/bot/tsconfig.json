@@ -2,6 +2,7 @@
 	"extends": "../../../tsconfig.json",
 	"compilerOptions": {
 		"outDir": "dist",
+		"rootDir": "src",
 		"paths": { "~/*": ["./src/*"], "discord.js": ["./node_modules/discord.js/typings/index.d.mts"] }
 	},
 	"include": ["src"]

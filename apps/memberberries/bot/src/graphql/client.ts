@@ -1,5 +1,5 @@
 import { loadConfig } from "@luferro/config";
-import { GraphQLClient, InMemoryCache, skipCache, withTTL } from "@luferro/graphql/client";
+import { GraphQLClient, HttpLink, InMemoryCache, skipCache, withTTL } from "@luferro/graphql/client";
 import type * as GraphQLTypes from "~/graphql/__generated__/graphql.js";
 import { GET_IGDB_UPCOMING_EVENTS } from "~/graphql/queries/igdb.qry.js";
 import { GET_HLTB_PLAYTIMES, SEARCH_HLTB } from "./queries/hltb.qry.js";
@@ -18,7 +18,7 @@ import {
 export class ExtendedGraphQLClient extends GraphQLClient {
 	constructor(uri: string) {
 		super({
-			uri,
+			link: new HttpLink({ uri }),
 			cache: new InMemoryCache({
 				typePolicies: {
 					Query: {
