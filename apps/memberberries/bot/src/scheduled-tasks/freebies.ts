@@ -1,6 +1,5 @@
 import { formatCurrency } from "@luferro/utils/currency";
 import { format } from "@luferro/utils/date";
-import { toSeconds } from "@luferro/utils/time";
 import { container } from "@sapphire/pieces";
 import { ScheduledTask } from "@sapphire/plugin-scheduled-tasks";
 import { EmbedBuilder } from "discord.js";

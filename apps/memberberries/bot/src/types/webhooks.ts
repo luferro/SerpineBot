@@ -18,10 +18,7 @@ type WebhookFeed = {
 
 export type WebhookMessage = EmbedBuilder | string;
 
-export type PropagateCallback = (args: {
-	guild: Guild;
-	feeds: WebhookFeed[];
-}) => Promise<{
+export type PropagateCallback = (args: { guild: Guild; feeds: WebhookFeed[] }) => Promise<{
 	name: string;
 	skipCache?: boolean;
 	messages: WebhookMessage[];

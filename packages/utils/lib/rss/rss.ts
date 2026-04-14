@@ -6,7 +6,7 @@ const parser = new Parser();
 async function parse(url: string) {
 	try {
 		return await parser.parseURL(url);
-	} catch (error) {
+	} catch (_error) {
 		return null;
 	}
 }

@@ -148,6 +148,7 @@ export class SteamDataSource extends ExtendedRESTDataSource {
 				basic_info,
 				best_purchase_option,
 			}) => {
+				// biome-ignore lint/suspicious/noTemplateCurlyInString: check if this is still needed
 				const getAsset = (filename: string) => assets.asset_url_format.replace("${FILENAME}", filename);
 
 				const { short_description, developers, publishers, franchises } = basic_info;
@@ -201,6 +202,7 @@ export class SteamDataSource extends ExtendedRESTDataSource {
 						) ?? [],
 					trailers:
 						trailers?.highlights?.map((highlight) => {
+							// biome-ignore lint/suspicious/noTemplateCurlyInString: check if this is still needed
 							const getTrailer = (filename: string) => highlight.trailer_url_format.replace("${FILENAME}", filename);
 
 							return {

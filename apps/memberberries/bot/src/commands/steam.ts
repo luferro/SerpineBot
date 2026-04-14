@@ -5,7 +5,7 @@ import { Subcommand } from "@sapphire/plugin-subcommands";
 import { EmbedBuilder, type GuildMember, MessageFlags } from "discord.js";
 import { and, eq } from "drizzle-orm";
 import { integrations } from "~/db/schema.js";
-import type { Integration, SteamProfile, SteamWishlistItem } from "~/types/integrations.js";
+import type { SteamProfile, SteamWishlistItem } from "~/types/integrations.js";
 
 export class IntegrationsCommand extends Subcommand {
 	constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
@@ -334,7 +334,7 @@ export class IntegrationsCommand extends Subcommand {
 		await interaction.reply({ flags: MessageFlags.Ephemeral, embeds: [embed] });
 	}
 
-	private getIntegration<TProfile = unknown, TWishlist = unknown>(userId: string) {
+	private getIntegration<_TProfile = unknown, _TWishlist = unknown>(userId: string) {
 		return this.container.db.query.integrations.findFirst({
 			where: (integrations, { and, eq }) => and(eq(integrations.type, "steam"), eq(integrations.userId, userId)),
 		});

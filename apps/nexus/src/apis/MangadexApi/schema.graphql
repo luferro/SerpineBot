@@ -1,42 +1,42 @@
 type Query {
-    mangadex: Mangadex!
+	mangadex: Mangadex!
 }
 
 type Mangadex {
-    search(query: String!): [MangadexSearchResult!]!
-    manga(id: String!): MangadexManga!
-    latestChapters(limit: Int = 20): [MangadexMangaChapter!]!
+	search(query: String!): [MangadexSearchResult!]!
+	manga(id: String!): MangadexManga!
+	latestChapters(limit: Int = 20): [MangadexMangaChapter!]!
 }
 
 type MangadexTrackers {
-    aniList: String
-    myAnimeList: String
-    animePlanet: String
+	aniList: String
+	myAnimeList: String
+	animePlanet: String
 }
 
 type MangadexSearchResult {
-    id: String!
-    title: String!
-    trackers: MangadexTrackers!
+	id: String!
+	title: String!
+	trackers: MangadexTrackers!
 }
 
 type MangadexManga {
-    id: String!
-    image: String!
-    title: String!
-    url: String!
-    publication: String
-    tags: [String!]!
+	id: String!
+	image: String!
+	title: String!
+	url: String!
+	publication: String
+	tags: [String!]!
 }
 
 type MangadexChapter {
-    id: String!
-    readableAt: Timestamp!
-    title: String!
-    url: String
+	id: String!
+	readableAt: Timestamp!
+	title: String!
+	url: String
 }
 
 type MangadexMangaChapter {
-    mangaId: String!
-    chapter: MangadexChapter!
+	mangaId: String!
+	chapter: MangadexChapter!
 }

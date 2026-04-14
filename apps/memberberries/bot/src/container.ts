@@ -66,7 +66,7 @@ container.propagate = async (type, getMessages) => {
 
 			const webhook = await container.client.fetchWebhook(registeredWebhook.id, registeredWebhook.token);
 			const channel = webhook?.channel;
-			if (!channel || !channel.isTextBased()) continue;
+			if (!channel?.isTextBased()) continue;
 
 			for (const message of messages) {
 				const pattern = container.stores.get("scheduled-tasks").get(name)?.pattern ?? null;

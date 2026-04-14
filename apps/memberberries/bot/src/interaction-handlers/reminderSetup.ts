@@ -40,7 +40,7 @@ export class ReminderSetupHandler extends InteractionHandler {
 	private async getMessage(interaction: ModalSubmitInteraction) {
 		try {
 			return interaction.fields.getTextInputValue("reminder-message");
-		} catch (error) {
+		} catch (_error) {
 			const messageId = interaction.fields.getTextInputValue("reminder-message-id");
 			return await interaction.channel?.messages.fetch(messageId);
 		}

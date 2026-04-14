@@ -1,8 +1,4 @@
-import {
-	ApolloClient,
-	type DocumentNode,
-	type OperationVariables,
-} from "@apollo/client/core";
+import { ApolloClient, type DocumentNode, type OperationVariables } from "@apollo/client/core";
 import { CombinedGraphQLErrors } from "@apollo/client/errors";
 
 export class GraphQLClient extends ApolloClient {

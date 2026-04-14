@@ -8,7 +8,7 @@ export function isVideo(url: string) {
 export function getVideoId(url: string) {
 	try {
 		return ytdl.getVideoID(url);
-	} catch (error) {
+	} catch (_error) {
 		return null;
 	}
 }

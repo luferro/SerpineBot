@@ -60,7 +60,7 @@ export class GuildScheduledEventUpdateListener extends Listener<typeof Events.Gu
 		for (const registeredWebhook of registeredWebhooks) {
 			const webhook = await this.container.client.fetchWebhook(registeredWebhook.id, registeredWebhook.token);
 			const channel = webhook?.channel;
-			if (!channel || !channel.isTextBased()) continue;
+			if (!channel?.isTextBased()) continue;
 
 			const messages = await channel.messages.fetch();
 			const eventMessage = messages.find((message) => message.content.includes(url));
