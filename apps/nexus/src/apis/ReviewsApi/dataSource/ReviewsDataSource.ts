@@ -18,12 +18,12 @@ export class ReviewsDataSource extends ExtendedRESTDataSource {
 
 	private async loadMetacriticUrl(url: string) {
 		const $ = await this.loadUrl(url);
-		const script = $('script[data-hid="ld+json"]').first().text();
+		const script = $('script[type="application/ld+json"]').first().text();
 		const { name, datePublished, description, image, aggregateRating, genre, gamePlatform, publisher } = JSON.parse(
 			script,
 		) as MetacriticReview;
 
-		const developers = $(".c-gameDetails_Developer ul li")
+		const developers = $(".c-product-details__section__list:nth-child(2) li")
 			.get()
 			.map((element) => $(element).text().trim());
 
@@ -76,15 +76,15 @@ export class ReviewsDataSource extends ExtendedRESTDataSource {
 	async search(query: string) {
 		const $ = await this.loadUrl(`search/${query}?category=13`);
 
-		return $(".c-pageSiteSearch-results-item")
+		return $(".search-item a")
 			.get()
 			.reduce<{ title: string; url: string; image?: string; score: number }[]>((acc, element) => {
-				const type = $(element).find("span").first().text();
+				const type = $(element).find("> :nth-child(2) span").first().text();
 				if (type !== "game") return acc;
 
-				const title = $(element).find("p").first().text().trim();
+				const title = $(element).find("> :nth-child(2) p").first().text().trim();
 				const url = this.baseURL.concat($(element).attr("href")!);
-				const score = Number($(element).find("span").last().text().trim());
+				const score = Number($(element).find("> :nth-child(3) span").first().text().trim());
 				acc.push({ title, url, score: !Number.isNaN(score) ? score : -1 });
 				return acc;
 			}, []);
