@@ -1,6 +1,6 @@
 {
 	"$schema": "https://turborepo.org/schema.json",
-	"globalPassThroughEnv": ["SB_*", "RUNTIME_ENV", "TZ"],
+	"globalPassThroughEnv": ["SB_*", "TZ"],
 	"tasks": {
 		"start": {
 			"dependsOn": ["gql:generate", "db:push", "^build"]

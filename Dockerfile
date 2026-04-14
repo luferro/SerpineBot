@@ -32,6 +32,7 @@ RUN echo "Running app: $APP_NAME"
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+        curl \
         libnss3 \
         libatk1.0-0 \
         libatk-bridge2.0-0 \
