@@ -70,7 +70,7 @@ const client = new SapphireClient({
 });
 
 container.player = new Player(client);
-await container.player.extractors.register(YoutubeiExtractor, {});
+await container.player.extractors.register(YoutubeiExtractor, { useYoutubeDL: true, generateWithPoToken: true });
 await container.player.extractors.register(SpotifyExtractor, {});
 await container.player.extractors.register(SoundCloudExtractor, {});
 
