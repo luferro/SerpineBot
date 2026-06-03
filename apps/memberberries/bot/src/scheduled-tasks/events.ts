@@ -39,9 +39,9 @@ export class EventsTask extends ScheduledTask {
 					.filter((guildScheduledEvent) => guildScheduledEvent.isScheduled())
 					.find((guildScheduledEvent) => {
 						const hasSameName = guildScheduledEvent.name === event.name;
-						const hasSameUrl = guildScheduledEvent.url === event.entityMetadata.location;
-						const hasSameImage = event.image && guildScheduledEvent.image === event.image;
-						const hasSameDescription = event.description && guildScheduledEvent.description === event.description;
+						const hasSameUrl = guildScheduledEvent.entityMetadata?.location === event.entityMetadata.location;
+						const hasSameImage = guildScheduledEvent.image === event.image;
+						const hasSameDescription = guildScheduledEvent.description === event.description;
 						return hasSameName || hasSameUrl || hasSameImage || hasSameDescription;
 					});
 				if (guildScheduledEvent) {

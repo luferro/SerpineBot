@@ -12,8 +12,8 @@
 	"author": "Luís Ferro",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^25.6.0",
-		"typescript": "^6.0.2"
+		"@types/node": "^25.9.1",
+		"typescript": "^6.0.3"
 	},
 	"dependencies": {
 		"@keyv/redis": "^5.1.6",

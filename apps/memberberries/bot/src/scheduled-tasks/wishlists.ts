@@ -63,7 +63,7 @@ export class WishlistsTask extends ScheduledTask {
 					updatedEntry.notified.release = true;
 				}
 
-				if (!isRelease && !oldEntry?.discount && Boolean(newEntry.discount) && !updatedEntry.notified.sale) {
+				if (!isRelease && !oldEntry?.discount && newEntry.discount && !updatedEntry.notified.sale) {
 					acc[1].sale.push(
 						`\`${updatedEntry.priority}.\` **[${updatedEntry.title}](${updatedEntry.url})** is ***${updatedEntry.discount}%*** off! ~~${updatedEntry.regular}~~ | **${updatedEntry.discounted}**`,
 					);
