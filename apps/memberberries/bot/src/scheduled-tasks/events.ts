@@ -22,7 +22,7 @@ export class EventsTask extends ScheduledTask {
 				});
 				if (storedEvent?.status === "expired" || storedEvent?.status === "cancelled") continue;
 
-				const event = {
+				const newEvent = {
 					name,
 					image,
 					description: description ?? undefined,
@@ -35,21 +35,26 @@ export class EventsTask extends ScheduledTask {
 					},
 				};
 
-				const guildScheduledEvent = guildScheduledEvents
+				const oldEvent = guildScheduledEvents
 					.filter((guildScheduledEvent) => guildScheduledEvent.isScheduled())
 					.find((guildScheduledEvent) => {
-						const hasSameName = guildScheduledEvent.name === event.name;
-						const hasSameUrl = guildScheduledEvent.entityMetadata?.location === event.entityMetadata.location;
-						const hasSameImage = guildScheduledEvent.image === event.image;
-						const hasSameDescription = guildScheduledEvent.description === event.description;
+						const hasSameName = guildScheduledEvent.name === newEvent.name;
+						const hasSameUrl = guildScheduledEvent.entityMetadata?.location === newEvent.entityMetadata.location;
+						const hasSameImage = guildScheduledEvent.image === newEvent.image;
+						const hasSameDescription = guildScheduledEvent.description === newEvent.description;
 						return hasSameName || hasSameUrl || hasSameImage || hasSameDescription;
 					});
-				if (guildScheduledEvent) {
-					await guild.scheduledEvents.edit(guildScheduledEvent, event);
+
+				if (oldEvent) {
+					await guild.scheduledEvents
+						.edit(oldEvent, newEvent)
+						.catch((error) => this.container.logger.error({ error, oldEvent, newEvent }));
 					continue;
 				}
 
-				await guild.scheduledEvents.create(event);
+				await guild.scheduledEvents
+					.create(newEvent)
+					.catch((error) => this.container.logger.error({ error, event: newEvent }));
 				await this.container.db.insert(events).values({ guildId, name, status: "scheduled" });
 			}
 		}
