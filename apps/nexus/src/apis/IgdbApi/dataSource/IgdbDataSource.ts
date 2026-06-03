@@ -52,7 +52,7 @@ export class IgdbDataSource extends ExtendedRESTDataSource {
 		const timestamp = Math.floor(Date.now() / 1000);
 
 		const data = await this.post<Event[]>("events", {
-			body: `fields checksum, name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, created_at; where start_time > ${timestamp}; sort start_time asc;`,
+			body: `fields checksum, name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, created_at; where start_time > ${timestamp}; sort start_time asc; limit 100;`,
 		});
 
 		return data.map(
