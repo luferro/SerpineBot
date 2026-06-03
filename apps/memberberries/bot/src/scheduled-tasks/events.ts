@@ -34,15 +34,16 @@ export class EventsTask extends ScheduledTask {
 						location: url.twitch ?? url.youtube ?? "TBD",
 					},
 				};
+				const isLocationUnknown = newEvent.entityMetadata.location === "TBD";
 
 				const oldEvent = guildScheduledEvents
 					.filter((guildScheduledEvent) => guildScheduledEvent.isScheduled())
-					.find((guildScheduledEvent) => {
-						const hasSameName = guildScheduledEvent.name === newEvent.name;
-						const hasSameUrl = guildScheduledEvent.entityMetadata?.location === newEvent.entityMetadata.location;
-						const hasSameImage = guildScheduledEvent.image === newEvent.image;
-						const hasSameDescription = guildScheduledEvent.description === newEvent.description;
-						return hasSameName || hasSameUrl || hasSameImage || hasSameDescription;
+					.find(({ name, entityMetadata, image, description }) => {
+						const hasSameName = name === newEvent.name;
+						const hasSameLocation = !isLocationUnknown && entityMetadata?.location === newEvent.entityMetadata.location;
+						const hasSameImage = image === newEvent.image;
+						const hasSameDescription = description === newEvent.description;
+						return hasSameName || hasSameLocation || hasSameImage || hasSameDescription;
 					});
 
 				if (oldEvent) {
