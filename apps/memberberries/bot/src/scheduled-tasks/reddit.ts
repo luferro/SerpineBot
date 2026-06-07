@@ -32,6 +32,8 @@ export class RedditTask extends ScheduledTask {
 					gallery,
 					publishedAt,
 				} of reversedPosts) {
+					if (!publishedAt) continue;
+
 					const subscribers = isYoutubeEmbed ? await getSubscribers(url) : -1;
 					if (isSelf || (isYoutubeEmbed && subscribers < 50_000)) continue;
 

@@ -5,7 +5,8 @@ generates:
   src/model/schema.generated.ts:
     config:
       scalars:
-        DateTime: string | number
+        Timestamp: number
+        Date: Date
       maybeValue: "T | undefined"
     plugins:
       - "@graphql-codegen/typescript"

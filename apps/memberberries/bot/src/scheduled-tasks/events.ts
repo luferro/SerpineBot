@@ -31,26 +31,30 @@ export class EventsTask extends ScheduledTask {
 					entityType: GuildScheduledEventEntityType.External,
 					privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
 					entityMetadata: {
-						location: url.twitch ?? url.youtube ?? "TBD",
+						location: url ?? "TBD",
 					},
 				};
 				const isNewLocationUnknown = newEvent.entityMetadata.location === "TBD";
 
-				const oldEvent = guildScheduledEvents
-					.filter((guildScheduledEvent) => guildScheduledEvent.isScheduled())
-					.find(({ name, entityMetadata, image, description }) => {
-						const location = entityMetadata?.location;
-
-						const hasSameName = name && name === newEvent.name;
-						const hasSameLocation = location && location === newEvent.entityMetadata.location && !isNewLocationUnknown;
-						const hasSameImage = image && image === newEvent.image;
-						const hasSameDescription = description && description === newEvent.description;
-						return hasSameName || hasSameLocation || hasSameImage || hasSameDescription;
-					});
+				const oldEvent = guildScheduledEvents.find(
+					(guildScheduledEvent) => guildScheduledEvent.isScheduled() && guildScheduledEvent.name === newEvent.name,
+				);
 
 				if (oldEvent) {
+					const oldEventLocation = oldEvent.entityMetadata?.location;
+					const newEventLocation = newEvent.entityMetadata.location;
+
+					const eventUpdate = {
+						...newEvent,
+						scheduledStartTime: oldEvent.scheduledStartAt ?? newEvent.scheduledStartTime,
+						scheduledEndTime: oldEvent.scheduledEndAt ?? newEvent.scheduledEndTime,
+						entityMetadata: {
+							location: isNewLocationUnknown ? (oldEventLocation ?? newEventLocation) : newEventLocation,
+						},
+					};
+
 					await guild.scheduledEvents
-						.edit(oldEvent, newEvent)
+						.edit(oldEvent, eventUpdate)
 						.catch((error) => this.container.logger.error({ error, oldEvent, newEvent }));
 					continue;
 				}

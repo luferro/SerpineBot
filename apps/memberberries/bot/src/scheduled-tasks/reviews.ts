@@ -21,7 +21,7 @@ export class ReviewsTask extends ScheduledTask {
 
 			const messages = [];
 			for (const { selftext, publishedAt } of posts.slice().reverse()) {
-				if (!isThisWeek(publishedAt) || !selftext) continue;
+				if (!publishedAt || !isThisWeek(publishedAt) || !selftext) continue;
 
 				const matches = /\((https?:\/\/(www\.)?(opencritic|metacritic)\.com\/game\/[^\s]+)\)/g.exec(selftext);
 				if (!matches) continue;

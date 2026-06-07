@@ -10,7 +10,7 @@ export type Event = {
 	description?: string;
 	live_stream_url?: string;
 	event_logo?: { url: string };
-	event_networks?: { url: string }[];
+	event_networks?: { id: number; url: string; network_type: { id: number; name: string } }[];
 	start_time: number;
 	end_time?: number;
 	time_zone: string;

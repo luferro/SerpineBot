@@ -15,16 +15,11 @@ type IgdbSearchResult {
 	slug: String!
 }
 
-type IgdbGamingEventUrl {
-	youtube: String
-	twitch: String
-}
-
 type IgdbGamingEvent {
 	name: String!
 	scheduledStartAt: Timestamp!
 	scheduledEndAt: Timestamp!
 	image: String
 	description: String
-	url: IgdbGamingEventUrl!
+	url: String
 }

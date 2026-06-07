@@ -2,11 +2,6 @@ import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from '
 import { Context } from '~/context.js';
 export type Maybe<T> = T | undefined;
 export type InputMaybe<T> = T | undefined;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -15,8 +10,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  Date: { input: any; output: any; }
-  Timestamp: { input: any; output: any; }
+  Date: { input: Date; output: Date; }
+  Timestamp: { input: number; output: number; }
 };
 
 export type AniList = {
@@ -637,13 +632,7 @@ export type IgdbGamingEvent = {
   name: Scalars['String']['output'];
   scheduledEndAt: Scalars['Timestamp']['output'];
   scheduledStartAt: Scalars['Timestamp']['output'];
-  url: IgdbGamingEventUrl;
-};
-
-export type IgdbGamingEventUrl = {
-  __typename?: 'IgdbGamingEventUrl';
-  twitch?: Maybe<Scalars['String']['output']>;
-  youtube?: Maybe<Scalars['String']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 export type IgdbSearchResult = {
@@ -1232,7 +1221,7 @@ export type ResolverTypeWrapper<T> = Promise<T> | T;
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -1269,27 +1258,29 @@ export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, 
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<TResult, TKey extends string, TParent = {}, TContext = {}, TArgs = {}> =
+export type SubscriptionResolver<TResult, TKey extends string, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> =
   | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
-export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
+export type TypeResolveFn<TTypes, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (
   parent: TParent,
   context: TContext,
   info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}, TContext = {}> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
+export type IsTypeOfResolverFn<T = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
 
 export type NextResolverFn<T> = () => Promise<T>;
 
-export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs = {}> = (
+export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = (
   next: NextResolverFn<TResult>,
   parent: TParent,
   args: TArgs,
   context: TContext,
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
+
+
 
 
 
@@ -1360,7 +1351,6 @@ export type ResolversTypes = {
   HltbSearchResult: ResolverTypeWrapper<HltbSearchResult>;
   Igdb: ResolverTypeWrapper<Igdb>;
   IgdbGamingEvent: ResolverTypeWrapper<IgdbGamingEvent>;
-  IgdbGamingEventUrl: ResolverTypeWrapper<IgdbGamingEventUrl>;
   IgdbSearchResult: ResolverTypeWrapper<IgdbSearchResult>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Itad: ResolverTypeWrapper<Itad>;
@@ -1382,7 +1372,7 @@ export type ResolversTypes = {
   MangadexMangaChapter: ResolverTypeWrapper<MangadexMangaChapter>;
   MangadexSearchResult: ResolverTypeWrapper<MangadexSearchResult>;
   MangadexTrackers: ResolverTypeWrapper<MangadexTrackers>;
-  Query: ResolverTypeWrapper<{}>;
+  Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   Reddit: ResolverTypeWrapper<Reddit>;
   RedditGalleryEntry: ResolverTypeWrapper<RedditGalleryEntry>;
   RedditPost: ResolverTypeWrapper<RedditPost>;
@@ -1485,7 +1475,6 @@ export type ResolversParentTypes = {
   HltbSearchResult: HltbSearchResult;
   Igdb: Igdb;
   IgdbGamingEvent: IgdbGamingEvent;
-  IgdbGamingEventUrl: IgdbGamingEventUrl;
   IgdbSearchResult: IgdbSearchResult;
   Int: Scalars['Int']['output'];
   Itad: Itad;
@@ -1507,7 +1496,7 @@ export type ResolversParentTypes = {
   MangadexMangaChapter: MangadexMangaChapter;
   MangadexSearchResult: MangadexSearchResult;
   MangadexTrackers: MangadexTrackers;
-  Query: {};
+  Query: Record<PropertyKey, never>;
   Reddit: Reddit;
   RedditGalleryEntry: RedditGalleryEntry;
   RedditPost: RedditPost;
@@ -1557,7 +1546,6 @@ export type AniListResolvers<ContextType = Context, ParentType extends Resolvers
   studio?: Resolver<ResolversTypes['AniListStudioWithConnections'], ParentType, ContextType, RequireFields<AniListStudioArgs, 'input'>>;
   tags?: Resolver<Array<ResolversTypes['AniListTag']>, ParentType, ContextType>;
   trending?: Resolver<ResolversTypes['AniListMediaPage'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListAiringScheduleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListAiringSchedule'] = ResolversParentTypes['AniListAiringSchedule']> = {
@@ -1565,7 +1553,6 @@ export type AniListAiringScheduleResolvers<ContextType = Context, ParentType ext
   episode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   media?: Resolver<ResolversTypes['AniListMediaWithConnections'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListCharacterResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListCharacter'] = ResolversParentTypes['AniListCharacter']> = {
@@ -1577,20 +1564,17 @@ export type AniListCharacterResolvers<ContextType = Context, ParentType extends 
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListCharacterMediaConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListCharacterMediaConnection'] = ResolversParentTypes['AniListCharacterMediaConnection']> = {
   media?: Resolver<ResolversTypes['AniListMedia'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   staff?: Resolver<Array<ResolversTypes['AniListStaff']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListCharacterPageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListCharacterPage'] = ResolversParentTypes['AniListCharacterPage']> = {
   media?: Resolver<Array<ResolversTypes['AniListCharacterMediaConnection']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListCharacterWithConnectionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListCharacterWithConnections'] = ResolversParentTypes['AniListCharacterWithConnections']> = {
@@ -1603,39 +1587,33 @@ export type AniListCharacterWithConnectionsResolvers<ContextType = Context, Pare
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   media?: Resolver<ResolversTypes['AniListCharacterPage'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListCharactersPageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListCharactersPage'] = ResolversParentTypes['AniListCharactersPage']> = {
   characters?: Resolver<Array<ResolversTypes['AniListMediaCharactersConnection']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListCharactersSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListCharactersSearchResult'] = ResolversParentTypes['AniListCharactersSearchResult']> = {
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
   results?: Resolver<Maybe<Array<Maybe<ResolversTypes['AniListCharacter']>>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListCoverImageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListCoverImage'] = ResolversParentTypes['AniListCoverImage']> = {
   extraLarge?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   large?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   medium?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListEpisodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListEpisode'] = ResolversParentTypes['AniListEpisode']> = {
   airingAt?: Resolver<Maybe<ResolversTypes['Timestamp']>, ParentType, ContextType>;
   episode?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListFuzzyDateResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListFuzzyDate'] = ResolversParentTypes['AniListFuzzyDate']> = {
   day?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   month?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   year?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMedia'] = ResolversParentTypes['AniListMedia']> = {
@@ -1669,57 +1647,48 @@ export type AniListMediaResolvers<ContextType = Context, ParentType extends Reso
   trailer?: Resolver<ResolversTypes['AniListTrailer'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['AniListMediaType'], ParentType, ContextType>;
   volumes?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaCharactersConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaCharactersConnection'] = ResolversParentTypes['AniListMediaCharactersConnection']> = {
   character?: Resolver<ResolversTypes['AniListCharacter'], ParentType, ContextType>;
   role?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   voiceActors?: Resolver<Array<ResolversTypes['AniListStaff']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaPageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaPage'] = ResolversParentTypes['AniListMediaPage']> = {
   media?: Resolver<Array<ResolversTypes['AniListMediaWithConnections']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaRecommendationsConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaRecommendationsConnection'] = ResolversParentTypes['AniListMediaRecommendationsConnection']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   media?: Resolver<ResolversTypes['AniListMedia'], ParentType, ContextType>;
   rating?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaRecommendationsPageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaRecommendationsPage'] = ResolversParentTypes['AniListMediaRecommendationsPage']> = {
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
   recommendations?: Resolver<Array<ResolversTypes['AniListMediaRecommendationsConnection']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaRelationsConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaRelationsConnection'] = ResolversParentTypes['AniListMediaRelationsConnection']> = {
   media?: Resolver<ResolversTypes['AniListMedia'], ParentType, ContextType>;
   relationType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaSearchResult'] = ResolversParentTypes['AniListMediaSearchResult']> = {
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
   results?: Resolver<Maybe<Array<Maybe<ResolversTypes['AniListMedia']>>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaStaffConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaStaffConnection'] = ResolversParentTypes['AniListMediaStaffConnection']> = {
   role?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   staff?: Resolver<ResolversTypes['AniListStaff'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaStudiosConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaStudiosConnection'] = ResolversParentTypes['AniListMediaStudiosConnection']> = {
   isMain?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   studio?: Resolver<ResolversTypes['AniListStudio'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMediaWithConnectionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMediaWithConnections'] = ResolversParentTypes['AniListMediaWithConnections']> = {
@@ -1758,7 +1727,6 @@ export type AniListMediaWithConnectionsResolvers<ContextType = Context, ParentTy
   trailer?: Resolver<ResolversTypes['AniListTrailer'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['AniListMediaType'], ParentType, ContextType>;
   volumes?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListMultiSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListMultiSearchResult'] = ResolversParentTypes['AniListMultiSearchResult']> = {
@@ -1767,7 +1735,6 @@ export type AniListMultiSearchResultResolvers<ContextType = Context, ParentType 
   manga?: Resolver<ResolversTypes['AniListMediaSearchResult'], ParentType, ContextType>;
   staff?: Resolver<ResolversTypes['AniListStaffSearchResult'], ParentType, ContextType>;
   studios?: Resolver<ResolversTypes['AniListStudiosSearchResult'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListPageInfoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListPageInfo'] = ResolversParentTypes['AniListPageInfo']> = {
@@ -1776,7 +1743,6 @@ export type AniListPageInfoResolvers<ContextType = Context, ParentType extends R
   lastPage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   perPage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   total?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListRankingResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListRanking'] = ResolversParentTypes['AniListRanking']> = {
@@ -1789,7 +1755,6 @@ export type AniListRankingResolvers<ContextType = Context, ParentType extends Re
   season?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   year?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaff'] = ResolversParentTypes['AniListStaff']> = {
@@ -1806,51 +1771,43 @@ export type AniListStaffResolvers<ContextType = Context, ParentType extends Reso
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   primaryOccupations?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   yearsActive?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffCharactersConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaffCharactersConnection'] = ResolversParentTypes['AniListStaffCharactersConnection']> = {
   characters?: Resolver<Array<ResolversTypes['AniListCharacter']>, ParentType, ContextType>;
   media?: Resolver<ResolversTypes['AniListMedia'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffMembersPageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaffMembersPage'] = ResolversParentTypes['AniListStaffMembersPage']> = {
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
   staff?: Resolver<Array<ResolversTypes['AniListMediaStaffConnection']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffProductionConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaffProductionConnection'] = ResolversParentTypes['AniListStaffProductionConnection']> = {
   media?: Resolver<ResolversTypes['AniListMedia'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffProductionPageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaffProductionPage'] = ResolversParentTypes['AniListStaffProductionPage']> = {
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['AniListStaffProductionConnection']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaffSearchResult'] = ResolversParentTypes['AniListStaffSearchResult']> = {
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
   results?: Resolver<Maybe<Array<Maybe<ResolversTypes['AniListStaff']>>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffVoiceActingConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaffVoiceActingConnection'] = ResolversParentTypes['AniListStaffVoiceActingConnection']> = {
   characters?: Resolver<Array<ResolversTypes['AniListCharacter']>, ParentType, ContextType>;
   media?: Resolver<ResolversTypes['AniListMedia'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffVoiceActingPageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaffVoiceActingPage'] = ResolversParentTypes['AniListStaffVoiceActingPage']> = {
   characters?: Resolver<Array<ResolversTypes['AniListStaffVoiceActingConnection']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStaffWithConnectionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStaffWithConnections'] = ResolversParentTypes['AniListStaffWithConnections']> = {
@@ -1869,33 +1826,28 @@ export type AniListStaffWithConnectionsResolvers<ContextType = Context, ParentTy
   production?: Resolver<ResolversTypes['AniListStaffProductionPage'], ParentType, ContextType>;
   voiceActing?: Resolver<ResolversTypes['AniListStaffVoiceActingPage'], ParentType, ContextType>;
   yearsActive?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStreamResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStream'] = ResolversParentTypes['AniListStream']> = {
   iconUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStudioResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStudio'] = ResolversParentTypes['AniListStudio']> = {
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   isAnimationStudio?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStudioMediaConnectionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStudioMediaConnection'] = ResolversParentTypes['AniListStudioMediaConnection']> = {
   isMainStudio?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   media?: Resolver<ResolversTypes['AniListMedia'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStudioPageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStudioPage'] = ResolversParentTypes['AniListStudioPage']> = {
   media?: Resolver<Array<ResolversTypes['AniListStudioMediaConnection']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStudioWithConnectionsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStudioWithConnections'] = ResolversParentTypes['AniListStudioWithConnections']> = {
@@ -1903,13 +1855,11 @@ export type AniListStudioWithConnectionsResolvers<ContextType = Context, ParentT
   isAnimationStudio?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   media?: Resolver<ResolversTypes['AniListStudioPage'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListStudiosSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListStudiosSearchResult'] = ResolversParentTypes['AniListStudiosSearchResult']> = {
   pageInfo?: Resolver<ResolversTypes['AniListPageInfo'], ParentType, ContextType>;
   results?: Resolver<Maybe<Array<Maybe<ResolversTypes['AniListStudio']>>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListTagResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListTag'] = ResolversParentTypes['AniListTag']> = {
@@ -1917,44 +1867,37 @@ export type AniListTagResolvers<ContextType = Context, ParentType extends Resolv
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   isAdult?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListTitleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListTitle'] = ResolversParentTypes['AniListTitle']> = {
   english?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   native?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   romaji?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListTrackerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListTracker'] = ResolversParentTypes['AniListTracker']> = {
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AniListTrailerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AniListTrailer'] = ResolversParentTypes['AniListTrailer']> = {
   id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AnimeScheduleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AnimeSchedule'] = ResolversParentTypes['AnimeSchedule']> = {
   airingSchedule?: Resolver<Array<ResolversTypes['AnimeScheduleAiringSchedule']>, ParentType, ContextType, Partial<AnimeScheduleAiringScheduleArgs>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AnimeScheduleAiringEpisodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AnimeScheduleAiringEpisode'] = ResolversParentTypes['AnimeScheduleAiringEpisode']> = {
   airingAt?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
   delay?: Resolver<ResolversTypes['AnimeScheduleAiringEpisodeDelay'], ParentType, ContextType>;
   episode?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AnimeScheduleAiringEpisodeDelayResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AnimeScheduleAiringEpisodeDelay'] = ResolversParentTypes['AnimeScheduleAiringEpisodeDelay']> = {
   from?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   to?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AnimeScheduleAiringScheduleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AnimeScheduleAiringSchedule'] = ResolversParentTypes['AnimeScheduleAiringSchedule']> = {
@@ -1966,7 +1909,6 @@ export type AnimeScheduleAiringScheduleResolvers<ContextType = Context, ParentTy
   isAiring?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isDelayed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['AnimeScheduleTitle'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type AnimeScheduleTitleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AnimeScheduleTitle'] = ResolversParentTypes['AnimeScheduleTitle']> = {
@@ -1974,7 +1916,6 @@ export type AnimeScheduleTitleResolvers<ContextType = Context, ParentType extend
   english?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   native?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   romaji?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
@@ -1984,7 +1925,6 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export type HltbResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Hltb'] = ResolversParentTypes['Hltb']> = {
   playtimes?: Resolver<ResolversTypes['HltbPlaytimes'], ParentType, ContextType, RequireFields<HltbPlaytimesArgs, 'id'>>;
   search?: Resolver<Array<ResolversTypes['HltbSearchResult']>, ParentType, ContextType, RequireFields<HltbSearchArgs, 'query'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type HltbPlaytimesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['HltbPlaytimes'] = ResolversParentTypes['HltbPlaytimes']> = {
@@ -1995,20 +1935,17 @@ export type HltbPlaytimesResolvers<ContextType = Context, ParentType extends Res
   mainExtra?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type HltbSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['HltbSearchResult'] = ResolversParentTypes['HltbSearchResult']> = {
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   releaseYear?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type IgdbResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Igdb'] = ResolversParentTypes['Igdb']> = {
   search?: Resolver<Array<ResolversTypes['IgdbSearchResult']>, ParentType, ContextType, RequireFields<IgdbSearchArgs, 'query'>>;
   upcomingEvents?: Resolver<Array<ResolversTypes['IgdbGamingEvent']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type IgdbGamingEventResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IgdbGamingEvent'] = ResolversParentTypes['IgdbGamingEvent']> = {
@@ -2017,28 +1954,19 @@ export type IgdbGamingEventResolvers<ContextType = Context, ParentType extends R
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   scheduledEndAt?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
   scheduledStartAt?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['IgdbGamingEventUrl'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type IgdbGamingEventUrlResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IgdbGamingEventUrl'] = ResolversParentTypes['IgdbGamingEventUrl']> = {
-  twitch?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  youtube?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
 export type IgdbSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IgdbSearchResult'] = ResolversParentTypes['IgdbSearchResult']> = {
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Itad'] = ResolversParentTypes['Itad']> = {
   deal?: Resolver<ResolversTypes['ItadOverview'], ParentType, ContextType, RequireFields<ItadDealArgs, 'input'>>;
   freebies?: Resolver<Array<ResolversTypes['ItadFreebie']>, ParentType, ContextType, RequireFields<ItadFreebiesArgs, 'country'>>;
   search?: Resolver<Array<ResolversTypes['ItadSearchResult']>, ParentType, ContextType, RequireFields<ItadSearchArgs, 'query'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadBundleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadBundle'] = ResolversParentTypes['ItadBundle']> = {
@@ -2049,13 +1977,11 @@ export type ItadBundleResolvers<ContextType = Context, ParentType extends Resolv
   timestamp?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadBundleTierResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadBundleTier'] = ResolversParentTypes['ItadBundleTier']> = {
   games?: Resolver<Array<ResolversTypes['ItadBundleTierGame']>, ParentType, ContextType>;
   price?: Resolver<Maybe<ResolversTypes['ItadPrice']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadBundleTierGameResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadBundleTierGame'] = ResolversParentTypes['ItadBundleTierGame']> = {
@@ -2064,7 +1990,6 @@ export type ItadBundleTierGameResolvers<ContextType = Context, ParentType extend
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadDealResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadDeal'] = ResolversParentTypes['ItadDeal']> = {
@@ -2079,7 +2004,6 @@ export type ItadDealResolvers<ContextType = Context, ParentType extends Resolver
   timestamp?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   voucher?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadFreebieResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadFreebie'] = ResolversParentTypes['ItadFreebie']> = {
@@ -2097,14 +2021,12 @@ export type ItadFreebieResolvers<ContextType = Context, ParentType extends Resol
   type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   voucher?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadHistoricalLowResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadHistoricalLow'] = ResolversParentTypes['ItadHistoricalLow']> = {
   all?: Resolver<Maybe<ResolversTypes['ItadPrice']>, ParentType, ContextType>;
   m3?: Resolver<Maybe<ResolversTypes['ItadPrice']>, ParentType, ContextType>;
   y1?: Resolver<Maybe<ResolversTypes['ItadPrice']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadOverviewResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadOverview'] = ResolversParentTypes['ItadOverview']> = {
@@ -2122,7 +2044,6 @@ export type ItadOverviewResolvers<ContextType = Context, ParentType extends Reso
   reviews?: Resolver<Array<ResolversTypes['ItadReviews']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadPlayerCountResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadPlayerCount'] = ResolversParentTypes['ItadPlayerCount']> = {
@@ -2130,14 +2051,12 @@ export type ItadPlayerCountResolvers<ContextType = Context, ParentType extends R
   peak?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   recent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   week?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadPriceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadPrice'] = ResolversParentTypes['ItadPrice']> = {
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   amountInt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadReviewsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadReviews'] = ResolversParentTypes['ItadReviews']> = {
@@ -2145,20 +2064,17 @@ export type ItadReviewsResolvers<ContextType = Context, ParentType extends Resol
   score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItadSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItadSearchResult'] = ResolversParentTypes['ItadSearchResult']> = {
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MangadexResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mangadex'] = ResolversParentTypes['Mangadex']> = {
   latestChapters?: Resolver<Array<ResolversTypes['MangadexMangaChapter']>, ParentType, ContextType, RequireFields<MangadexLatestChaptersArgs, 'limit'>>;
   manga?: Resolver<ResolversTypes['MangadexManga'], ParentType, ContextType, RequireFields<MangadexMangaArgs, 'id'>>;
   search?: Resolver<Array<ResolversTypes['MangadexSearchResult']>, ParentType, ContextType, RequireFields<MangadexSearchArgs, 'query'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MangadexChapterResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MangadexChapter'] = ResolversParentTypes['MangadexChapter']> = {
@@ -2166,7 +2082,6 @@ export type MangadexChapterResolvers<ContextType = Context, ParentType extends R
   readableAt?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MangadexMangaResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MangadexManga'] = ResolversParentTypes['MangadexManga']> = {
@@ -2176,27 +2091,23 @@ export type MangadexMangaResolvers<ContextType = Context, ParentType extends Res
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MangadexMangaChapterResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MangadexMangaChapter'] = ResolversParentTypes['MangadexMangaChapter']> = {
   chapter?: Resolver<ResolversTypes['MangadexChapter'], ParentType, ContextType>;
   mangaId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MangadexSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MangadexSearchResult'] = ResolversParentTypes['MangadexSearchResult']> = {
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   trackers?: Resolver<ResolversTypes['MangadexTrackers'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MangadexTrackersResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MangadexTrackers'] = ResolversParentTypes['MangadexTrackers']> = {
   aniList?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   animePlanet?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   myAnimeList?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -2214,12 +2125,10 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 
 export type RedditResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Reddit'] = ResolversParentTypes['Reddit']> = {
   posts?: Resolver<Array<ResolversTypes['RedditPost']>, ParentType, ContextType, RequireFields<RedditPostsArgs, 'input'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type RedditGalleryEntryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RedditGalleryEntry'] = ResolversParentTypes['RedditGalleryEntry']> = {
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type RedditPostResolvers<ContextType = Context, ParentType extends ResolversParentTypes['RedditPost'] = ResolversParentTypes['RedditPost']> = {
@@ -2236,7 +2145,6 @@ export type RedditPostResolvers<ContextType = Context, ParentType extends Resolv
   selfurl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ReviewResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Review'] = ResolversParentTypes['Review']> = {
@@ -2250,27 +2158,23 @@ export type ReviewResolvers<ContextType = Context, ParentType extends ResolversP
   releaseDate?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ReviewAggregateRatingResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReviewAggregateRating'] = ResolversParentTypes['ReviewAggregateRating']> = {
   ratingValue?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   reviewCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   tier?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ReviewsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Reviews'] = ResolversParentTypes['Reviews']> = {
   review?: Resolver<ResolversTypes['Review'], ParentType, ContextType, RequireFields<ReviewsReviewArgs, 'url'>>;
   search?: Resolver<Array<ResolversTypes['ReviewsSearchResult']>, ParentType, ContextType, RequireFields<ReviewsSearchArgs, 'query'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ReviewsSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ReviewsSearchResult'] = ResolversParentTypes['ReviewsSearchResult']> = {
   score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Steam'] = ResolversParentTypes['Steam']> = {
@@ -2283,7 +2187,6 @@ export type SteamResolvers<ContextType = Context, ParentType extends ResolversPa
   store?: Resolver<Array<ResolversTypes['SteamApp']>, ParentType, ContextType, RequireFields<SteamStoreArgs, 'appIds'>>;
   upcomingSales?: Resolver<ResolversTypes['SteamSales'], ParentType, ContextType>;
   wishlist?: Resolver<Array<ResolversTypes['SteamWishlistEntry']>, ParentType, ContextType, RequireFields<SteamWishlistArgs, 'steamId64'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamAppResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamApp'] = ResolversParentTypes['SteamApp']> = {
@@ -2304,7 +2207,6 @@ export type SteamAppResolvers<ContextType = Context, ParentType extends Resolver
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   trailers?: Resolver<Array<ResolversTypes['SteamAppTrailers']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamAppAssetsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamAppAssets'] = ResolversParentTypes['SteamAppAssets']> = {
@@ -2313,14 +2215,12 @@ export type SteamAppAssetsResolvers<ContextType = Context, ParentType extends Re
   communityIcon?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   header?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   library?: Resolver<ResolversTypes['SteamAppLibraryAssets'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamAppCapsuleAssetsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamAppCapsuleAssets'] = ResolversParentTypes['SteamAppCapsuleAssets']> = {
   hero?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   main?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   small?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamAppLibraryAssetsResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamAppLibraryAssets'] = ResolversParentTypes['SteamAppLibraryAssets']> = {
@@ -2328,25 +2228,21 @@ export type SteamAppLibraryAssetsResolvers<ContextType = Context, ParentType ext
   capsule2x?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hero?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hero2x?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamAppReleaseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamAppRelease'] = ResolversParentTypes['SteamAppRelease']> = {
   customMessage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   date?: Resolver<Maybe<ResolversTypes['Timestamp']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamAppTrailerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamAppTrailer'] = ResolversParentTypes['SteamAppTrailer']> = {
   max?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   sd?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamAppTrailersResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamAppTrailers'] = ResolversParentTypes['SteamAppTrailers']> = {
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   trailer?: Resolver<ResolversTypes['SteamAppTrailer'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamChartEntryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamChartEntry'] = ResolversParentTypes['SteamChartEntry']> = {
@@ -2354,7 +2250,6 @@ export type SteamChartEntryResolvers<ContextType = Context, ParentType extends R
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamProfileResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamProfile'] = ResolversParentTypes['SteamProfile']> = {
@@ -2364,7 +2259,6 @@ export type SteamProfileResolvers<ContextType = Context, ParentType extends Reso
   logoutAt?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamRecentlyPlayedEntryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamRecentlyPlayedEntry'] = ResolversParentTypes['SteamRecentlyPlayedEntry']> = {
@@ -2373,14 +2267,12 @@ export type SteamRecentlyPlayedEntryResolvers<ContextType = Context, ParentType 
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   totalHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamSalesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamSales'] = ResolversParentTypes['SteamSales']> = {
   sale?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   upcoming?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamSearchResult'] = ResolversParentTypes['SteamSearchResult']> = {
@@ -2389,7 +2281,6 @@ export type SteamSearchResultResolvers<ContextType = Context, ParentType extends
   price?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SteamWishlistEntryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SteamWishlistEntry'] = ResolversParentTypes['SteamWishlistEntry']> = {
@@ -2411,7 +2302,6 @@ export type SteamWishlistEntryResolvers<ContextType = Context, ParentType extend
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   trailers?: Resolver<Array<ResolversTypes['SteamAppTrailers']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export interface TimestampScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Timestamp'], any> {
@@ -2422,7 +2312,6 @@ export type TmdbResolvers<ContextType = Context, ParentType extends ResolversPar
   movie?: Resolver<ResolversTypes['TmdbMovie'], ParentType, ContextType, RequireFields<TmdbMovieArgs, 'input'>>;
   search?: Resolver<Array<ResolversTypes['TmdbSearchResult']>, ParentType, ContextType, RequireFields<TmdbSearchArgs, 'query'>>;
   series?: Resolver<ResolversTypes['TmdbSeries'], ParentType, ContextType, RequireFields<TmdbSeriesArgs, 'input'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TmdbMovieResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TmdbMovie'] = ResolversParentTypes['TmdbMovie']> = {
@@ -2436,21 +2325,18 @@ export type TmdbMovieResolvers<ContextType = Context, ParentType extends Resolve
   tagline?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TmdbProvidersResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TmdbProviders'] = ResolversParentTypes['TmdbProviders']> = {
   buy?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   rent?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   stream?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TmdbSearchResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TmdbSearchResult'] = ResolversParentTypes['TmdbSearchResult']> = {
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TmdbSeriesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TmdbSeries'] = ResolversParentTypes['TmdbSeries']> = {
@@ -2464,7 +2350,6 @@ export type TmdbSeriesResolvers<ContextType = Context, ParentType extends Resolv
   tagline?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TmdbSeriesEpisodesResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TmdbSeriesEpisodes'] = ResolversParentTypes['TmdbSeriesEpisodes']> = {
@@ -2472,17 +2357,14 @@ export type TmdbSeriesEpisodesResolvers<ContextType = Context, ParentType extend
   last?: Resolver<ResolversTypes['TmdbSeriesLastEpisode'], ParentType, ContextType>;
   next?: Resolver<ResolversTypes['TmdbSeriesNextEpisode'], ParentType, ContextType>;
   total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TmdbSeriesLastEpisodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TmdbSeriesLastEpisode'] = ResolversParentTypes['TmdbSeriesLastEpisode']> = {
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TmdbSeriesNextEpisodeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TmdbSeriesNextEpisode'] = ResolversParentTypes['TmdbSeriesNextEpisode']> = {
   date?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = Context> = {
@@ -2540,7 +2422,6 @@ export type Resolvers<ContextType = Context> = {
   HltbSearchResult?: HltbSearchResultResolvers<ContextType>;
   Igdb?: IgdbResolvers<ContextType>;
   IgdbGamingEvent?: IgdbGamingEventResolvers<ContextType>;
-  IgdbGamingEventUrl?: IgdbGamingEventUrlResolvers<ContextType>;
   IgdbSearchResult?: IgdbSearchResultResolvers<ContextType>;
   Itad?: ItadResolvers<ContextType>;
   ItadBundle?: ItadBundleResolvers<ContextType>;
@@ -2592,4 +2473,3 @@ export type Resolvers<ContextType = Context> = {
   TmdbSeriesLastEpisode?: TmdbSeriesLastEpisodeResolvers<ContextType>;
   TmdbSeriesNextEpisode?: TmdbSeriesNextEpisodeResolvers<ContextType>;
 };
-

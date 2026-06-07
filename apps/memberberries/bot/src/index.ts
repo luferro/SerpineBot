@@ -3,10 +3,10 @@ import "~/container.js";
 
 import {
 	ApplicationCommandRegistries,
+	container,
 	LogLevel,
 	RegisterBehavior,
 	SapphireClient,
-	container,
 } from "@sapphire/framework";
 import { GatewayIntentBits } from "discord.js";
 

@@ -52,7 +52,7 @@ export class IgdbDataSource extends ExtendedRESTDataSource {
 		const timestamp = Math.floor(Date.now() / 1000);
 
 		const data = await this.post<Event[]>("events", {
-			body: `fields checksum, name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, time_zone, created_at; where start_time > ${timestamp}; sort start_time asc; limit 100;`,
+			body: `fields checksum, name, description, live_stream_url, event_logo.url, event_networks.network_type.name, event_networks.url, start_time, end_time, time_zone, created_at; where start_time > ${timestamp}; sort start_time asc; limit 100;`,
 		});
 
 		return data.map(
@@ -72,21 +72,19 @@ export class IgdbDataSource extends ExtendedRESTDataSource {
 					? new TZDate(end_time * 1000, time_zone)
 					: addHours(scheduledStartAt, 1).getTime();
 
-				const urls = [live_stream_url, ...(event_networks?.map((event) => event.url) ?? [])].filter(
-					(url): url is NonNullable<string> => !!url,
-				);
+				const website = event_networks?.find((network) => network.network_type.name === "Official website")?.url;
+				const twitchChannel = event_networks?.find((network) => network.network_type.name === "Twitch")?.url;
+				const youtubeChannel = event_networks?.find((network) => network.network_type.name === "YouTube")?.url;
+				const url = live_stream_url || twitchChannel || youtubeChannel || website || null;
 
 				return {
 					name,
+					url,
 					scheduledStartAt,
 					scheduledEndAt,
 					id: checksum,
 					image: event_logo ? `https:${event_logo.url.replace("t_thumb", "t_1080p")}` : null,
 					description: description ?? null,
-					url: {
-						youtube: urls.find((url) => /youtube/.test(url)) ?? null,
-						twitch: urls.find((url) => /twitch/.test(url)) ?? null,
-					},
 				};
 			},
 		);

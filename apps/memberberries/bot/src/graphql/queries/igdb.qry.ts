@@ -9,10 +9,7 @@ export const GET_IGDB_UPCOMING_EVENTS = gql(`
         description
         scheduledStartAt
         scheduledEndAt
-        url {
-          youtube
-          twitch
-        }
+        url
       }
     }
   }

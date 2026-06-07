@@ -67,7 +67,7 @@ export class ExtendedGraphQLClient extends GraphQLClient {
 			getUpcomingEvents: this.createQueryMethod<
 				GraphQLTypes.GetIgdbUpcomingEventsQuery,
 				GraphQLTypes.GetIgdbUpcomingEventsQueryVariables,
-				GraphQLTypes.IgdbGamingEvent[]
+				GraphQLTypes.GetIgdbUpcomingEventsQuery["igdb"]["upcomingEvents"]
 			>("igdb", GET_IGDB_UPCOMING_EVENTS, (data) => data.igdb.upcomingEvents),
 		};
 	}

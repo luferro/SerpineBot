@@ -1,7 +1,6 @@
+import { type AugmentedRequest, type CacheOptions, ExtendedRESTDataSource } from "@luferro/graphql/server";
 import { isVideo } from "@luferro/utils/youtube";
 import { cache } from "~/cache.js";
-
-import { type AugmentedRequest, type CacheOptions, ExtendedRESTDataSource } from "@luferro/graphql/server";
 import type { RedditPostsInput } from "~/model/schema.generated.js";
 import type { Posts } from "./dtos/RedditApiDtos.js";
 

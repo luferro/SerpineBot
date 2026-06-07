@@ -5,7 +5,7 @@ const config = loadConfig();
 
 await generate({
 	schema: config.get("services.graphql.uri"),
-	documents: ["src/**/*.ts"],
+	documents: ["src/**/*.ts", "!src/graphql/__generated__/**"],
 	ignoreNoDocuments: true,
 	emitLegacyCommonJSImports: false,
 	generates: {
@@ -14,6 +14,10 @@ await generate({
 			config: {
 				documentMode: "documentNode",
 				useTypeImports: true,
+				scalars: {
+					Timestamp: "number",
+					Date: "Date",
+				},
 			},
 			presetConfig: {
 				gqlTagName: "gql",
