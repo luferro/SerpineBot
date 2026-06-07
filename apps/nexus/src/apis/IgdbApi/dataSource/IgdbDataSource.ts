@@ -1,5 +1,5 @@
 import { type AugmentedRequest, type CacheOptions, ExtendedRESTDataSource } from "@luferro/graphql/server";
-import { addHours } from "@luferro/utils/date";
+import { addHours, TZDate } from "@luferro/utils/date";
 import { cache } from "~/cache.js";
 
 import type { Event, Result } from "./dtos/IgdbApiDtos.js";
@@ -52,13 +52,25 @@ export class IgdbDataSource extends ExtendedRESTDataSource {
 		const timestamp = Math.floor(Date.now() / 1000);
 
 		const data = await this.post<Event[]>("events", {
-			body: `fields checksum, name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, created_at; where start_time > ${timestamp}; sort start_time asc; limit 100;`,
+			body: `fields checksum, name, description, live_stream_url, event_logo.url, event_networks.url, start_time, end_time, time_zone, created_at; where start_time > ${timestamp}; sort start_time asc; limit 100;`,
 		});
 
 		return data.map(
-			({ checksum, name, description, live_stream_url, start_time, end_time, event_logo, event_networks }) => {
-				const scheduledStartAt = start_time * 1000;
-				const scheduledEndAt = end_time ? end_time * 1000 : addHours(scheduledStartAt, 1).getTime();
+			({
+				checksum,
+				name,
+				description,
+				live_stream_url,
+				start_time,
+				end_time,
+				time_zone,
+				event_logo,
+				event_networks,
+			}) => {
+				const scheduledStartAt = new TZDate(start_time * 1000, time_zone).getTime();
+				const scheduledEndAt = end_time
+					? new TZDate(end_time * 1000, time_zone)
+					: addHours(scheduledStartAt, 1).getTime();
 
 				const urls = [live_stream_url, ...(event_networks?.map((event) => event.url) ?? [])].filter(
 					(url): url is NonNullable<string> => !!url,

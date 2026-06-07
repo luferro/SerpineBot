@@ -13,4 +13,5 @@ export type Event = {
 	event_networks?: { url: string }[];
 	start_time: number;
 	end_time?: number;
+	time_zone: string;
 };
