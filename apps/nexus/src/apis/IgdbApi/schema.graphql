@@ -16,6 +16,7 @@ type IgdbSearchResult {
 }
 
 type IgdbGamingEvent {
+	id: String!
 	name: String!
 	scheduledStartAt: Timestamp!
 	scheduledEndAt: Timestamp!

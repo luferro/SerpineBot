@@ -628,6 +628,7 @@ export type IgdbSearchArgs = {
 export type IgdbGamingEvent = {
   __typename?: 'IgdbGamingEvent';
   description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
   image?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   scheduledEndAt: Scalars['Timestamp']['output'];
@@ -1950,6 +1951,7 @@ export type IgdbResolvers<ContextType = Context, ParentType extends ResolversPar
 
 export type IgdbGamingEventResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IgdbGamingEvent'] = ResolversParentTypes['IgdbGamingEvent']> = {
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   scheduledEndAt?: Resolver<ResolversTypes['Timestamp'], ParentType, ContextType>;
@@ -2473,3 +2475,4 @@ export type Resolvers<ContextType = Context> = {
   TmdbSeriesLastEpisode?: TmdbSeriesLastEpisodeResolvers<ContextType>;
   TmdbSeriesNextEpisode?: TmdbSeriesNextEpisodeResolvers<ContextType>;
 };
+
